@@ -29,7 +29,7 @@ const AdminNavbar = () => {
   };
 
   return (
-    <div className="w-64 bg-white text-gray-700 h-screen shadow-xs">
+    <div className="w-64 bg-white text-gray-700 max-h-[60vh] overflow-auto shadow-xs">
       <nav className="flex flex-col p-4">
         <ul className="space-y-2">
           {navItems.map((item, index) => (
