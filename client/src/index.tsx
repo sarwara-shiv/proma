@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './assets/styles/tailwind.css';
+import './utils/i18n';
 import App from './App';
 
 const root = ReactDOM.createRoot(
@@ -8,6 +10,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>  
 );
 
