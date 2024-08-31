@@ -54,7 +54,7 @@ router.post("/login", async(req, res)=>{
             expiresIn: '10h',
         });
 
-        res.json({status:"success", message: "Login successful", token, code:"loggedin", userID: user._id, role:"admin" }); // change role later
+        res.json({status:"success", message: "Login successful", token, code:"loggedin", userID: user._id, role:"admin", useremail:user.email, username:user.username}); // change role later
 
     }catch(error){
         return res.json({status:"error", message:"unknown error", code:"unknown_error", error});

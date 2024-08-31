@@ -3,8 +3,9 @@ import { useCookies } from 'react-cookie';
 
 // Define the interface for your JWT payload
 interface DecodedToken {
-  role?: string; // Define other properties based on your JWT payload
-  // Add additional properties if your token includes them
+  username?: string;
+  role?: string; 
+  email?:string;
 }
 
 function useGetUserFromToken() {
@@ -24,7 +25,6 @@ function useGetUserFromToken() {
 
 function useAuth() {
   const user = useGetUserFromToken();
-console.log(user);
   if (user) {
     console.log(user);
     return {

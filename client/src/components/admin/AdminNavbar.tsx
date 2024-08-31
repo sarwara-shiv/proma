@@ -60,12 +60,12 @@ const AdminNavbar = () => {
                 )}
               </div>
               {item.subMenu && openSubMenu === item.title && (
-                <ul className="space-y-1 pl-4 mt-2 bg-primary-light rounded-md"> 
+                <ul className="space-y-1 pl-2 mt-1 bg-gray-200 rounded-md"> 
                   {item.subMenu.map((subItem, subIndex) => (
                     <li key={subIndex}>
                       <Link
                         to={`/admin/${item.link}/${subItem.link}`}
-                        className="flex items-center p-2 text-gray-700 hover:text-primary rounded-lg"
+                        className="flex items-center p-1 text-sm text-gray-700 hover:text-primary rounded-lg"
                       >
                         {t(`NAV.${subItem.title}`)}
                       </Link>
