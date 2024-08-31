@@ -16,7 +16,9 @@ const AdminLayout = () => {
       <header className="bg-primary text-white w-full px-4 py-4 fixed top-0 left-0 z-30"> 
         <div className="container mx-auto flex items-center justify-between">
           <div className="left-nav">
-            <div className='logo text-lg font-semibold'>PROMA </div>
+            <div className='logo '>
+               <span className='text-lg font-semibold'>PROMA</span>   <span>Admin Panel</span>
+            </div>
           </div>
           <div className="">
                 <span>Hi </span>
@@ -28,7 +30,7 @@ const AdminLayout = () => {
       <div className="flex flex-1 pt-16"> {/* Offset main content for fixed topbar */}
         {/* Sidebar */}
         <aside className="bg-white w-64 h-full border-r border-gray-200 shadow-md">
-          <AdminNavbar />
+            <AdminNavbar />
         </aside>
 
         {/* Main Content */}
