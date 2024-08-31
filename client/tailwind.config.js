@@ -1,9 +1,8 @@
-/** @type {import('tailwindcss').Config} */
 import customButtonPlugin from './src/assets/styles/tailwind-custom-button';
 module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}"
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
@@ -18,7 +17,6 @@ module.exports = {
     },
   },
   plugins: [
-    customButtonPlugin
-  ],
+    customButtonPlugin  
+  ], 
 }
-

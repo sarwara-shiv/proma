@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-
 function App() {
   const {t} = useTranslation("common");
   return (
@@ -12,4 +11,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;  
