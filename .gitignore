@@ -32,6 +32,8 @@ jspm_packages
 
 _documentation.md
 .env
+.env.development
+.env.production
 
 # Optional npm cache directory
 .npm

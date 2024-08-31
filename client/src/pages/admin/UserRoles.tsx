@@ -1,11 +1,11 @@
 import React from 'react'
 
-const Unauthorised = () => {
+const UserRoles = () => {
   return (
     <div>
-      
+      Roles
     </div>
   )
 }
 
-export default Unauthorised
+export default UserRoles

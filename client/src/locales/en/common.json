@@ -1,3 +1,30 @@
 {
-    "test":"english common"
+    "test":"english common",
+    "NAV" :{
+        "roles":"Roles",
+        "roles_add":"Add Roles",
+        "roles_update":"Add Roles",
+        "roles_delete":"Add Roles",
+        "users":"Users",
+        "users_add":"Add User",
+        "users_update":"Add User",
+        "users_delete":"Add User",
+        "workspace":"Workspace",
+        "workspace_add":"New Workspace",
+        "workspace_update":"New Workspace",
+        "workspace_delete":"New Workspace"
+    },
+    "FORMS":{
+        "username":"Username",
+        "email":"email",
+        "password":"Password"
+    },
+    "BUTTONS":{
+        "submit":"Submit",
+        "send":"Send",
+        "create":"Create",
+        "update":"Create",
+        "delete":"Delete",
+        "add":"Create"
+    }
 }

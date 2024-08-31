@@ -33,13 +33,13 @@ router.post("/register", async(req, res)=>{
 
 // LOGIN
 router.post("/login", async(req, res)=>{
-    const {username, password} = req.body;
+    const {uername, email, password} = req.body;
     try{
-        const user = await UserModel.findOne({username});
+        const user = await UserModel.findOne({email});
         console.log(user);
 
         if(!user){
-            return res.json({status:"error", message:`user does not exists with username: ${username}`, code:"unknown_user"});
+            return res.json({status:"error", message:`user does not exists with username: ${email}`, code:"unknown_user"});
         }
         
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -50,11 +50,11 @@ router.post("/login", async(req, res)=>{
         // const SECRET_KEY = process.env.SECRET_KEY;
         const SECRET_KEY = crypto.randomBytes(64).toString('hex');;
         console.log(SECRET_KEY);
-        const token = jwt.sign({ id: user._id, username: user.username, role:"user.roles" }, SECRET_KEY, {
+        const token = jwt.sign({ id: user._id, email: user.email, username: user.username, role:"admin" }, SECRET_KEY, {  // change role later
             expiresIn: '10h',
         });
 
-        res.json({status:"success", message: "Login successful", token, code:"loggedin", userID: user._id });
+        res.json({status:"success", message: "Login successful", token, code:"loggedin", userID: user._id, role:"admin" }); // change role later
 
     }catch(error){
         return res.json({status:"error", message:"unknown error", code:"unknown_error", error});
