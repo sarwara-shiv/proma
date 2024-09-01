@@ -24,7 +24,4 @@ const UserRolesSchema = new mongoose.Schema({
       "default": Date.now
     }
   });
-
-  //module.exports = mongoose.model('UserRole', UserRolesSchema);
   export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');
-  // module.exports = mongoose.model('UserRoleModel', UserRolesSchema); 

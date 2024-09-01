@@ -1,15 +1,18 @@
 {
-    "test":"english common",
+    "adminPanel":"Admin Panel",
     "NAV" :{
         "roles":"Roles",
+        "roles_all":"All Roles",
         "roles_add":"Add Roles",
         "roles_update":"Add Roles",
         "roles_delete":"Add Roles",
         "users":"Users",
+        "users_all":"All Users",
         "users_add":"Add User",
         "users_update":"Add User",
         "users_delete":"Add User",
         "workspace":"Workspace",
+        "workspace_all":"All Workspace",
         "workspace_add":"New Workspace",
         "workspace_update":"New Workspace",
         "workspace_delete":"New Workspace"
@@ -23,8 +26,37 @@
         "submit":"Submit",
         "send":"Send",
         "create":"Create",
-        "update":"Create",
+        "update":"Update",
         "delete":"Delete",
-        "add":"Create"
-    }
+        "add":"Add"
+    },
+    "PAGES":{
+        "wordkpsace_all":"All Workpaces",
+        "wordkpsace_add":"Add Workpaces",
+        "wordkpsace_delete":"Delete Workpaces",
+        "wordkpsace_update":"Update Workpaces",
+        "roles_all": "All Roles",
+        "roles_update": "Update Roles",
+        "roles_add": "Add Roles",
+        "role_add": "Add Role",
+        "role_update": "Update Role",
+        "role_delete": "Delete Role",
+        "users_add": "Add Role",
+        "users_all": "All Roles",
+        "users_update": "Update Roles",
+        "user_add": "Add Roles",
+        "user_update": "Update Role",
+        "user_delete": "Delete Role"
+    },
+    "all":"All",
+    "add":"Add",
+    "update":"Update",
+    "delete":"Delete",
+    "create":"Create",
+    "workspace":"Workspace",
+    "user":"User",
+    "project":"Project",
+    "projects":"Projuects‚",
+    "roles":"Roles",
+    "role":"Role"
 }

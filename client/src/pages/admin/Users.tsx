@@ -1,9 +1,10 @@
+import PageTitel from '../../components/common/PageTitel'
 import React from 'react'
 
 const Users = () => {
   return (
     <div>
-      users
+      <PageTitel text='Users'/>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import cors from "cors";
 import mongoose, { mongo } from 'mongoose';
 
 import {userRouter} from "./routes/users.js"; 
+import { rolesRouter } from './routes/userRoles.js';
 
 const app = express();
 
@@ -20,6 +21,7 @@ const PORT = process.env.PORT || 3001;
 console.log(DB_PASS)
 // ROUTES
 app.use("/auth", userRouter);
+app.use("/roles", rolesRouter);
 //app.use(userRouter);
 
 // DB CONNECTION

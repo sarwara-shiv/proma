@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import {FaUsers, FaUserTie} from 'react-icons/fa';
+import { MdOutlineInstallDesktop } from "react-icons/md";
+
 
 interface SubMenuItem {
   link: string;
@@ -11,13 +14,14 @@ interface SubMenuItem {
 interface NavItem {
   link: string;
   title: string;
+  icon? :ReactNode;
   subMenu?: SubMenuItem[];
 }
 
 const navItems: NavItem[] = [
-  { link: "roles", title: "roles", subMenu: [{ link: "add", title: "roles_add", type: "add" }] },
-  { link: "users", title: "users", subMenu: [{ link: "add", title: "users_add", type: "add" }] },
-  { link: "workspace", title: "workspace", subMenu: [] },
+  { link: "roles", title: "roles", icon: <FaUserTie />, subMenu: [] },
+  { link: "users", title: "users", icon: <FaUsers />, subMenu: [] },
+  { link: "workspace", title: "workspace", icon:<MdOutlineInstallDesktop />, subMenu: [] },
 ];
 
 const AdminNavbar = () => {
@@ -35,12 +39,14 @@ const AdminNavbar = () => {
           {navItems.map((item, index) => (
             <li key={index} className="relative">
                 <div className="flex items-center justify-between p-1">
-                <Link
+                <NavLink
                   to={`/admin/${item.link}`}
-                  className="flex-1 text-gray-700 hover:text-primary rounded-lg"
+                  className={({ isActive }) =>
+                    `flex-1 rounded-lg flex items-center justify-start  ${isActive ? "text-primary " : "text-gray-700 hover:text-primary "}`
+                  }
                 >
-                  {t(`NAV.${item.title}`)}
-                </Link>
+                  <span className='icon me-2 rounded-full bg-primary-light p-1'>{item.icon}</span> {t(`NAV.${item.title}`)}
+                </NavLink>
                 
                 {item.subMenu && item.subMenu.length > 0 && (
                   <button
@@ -63,12 +69,14 @@ const AdminNavbar = () => {
                 <ul className="space-y-1 pl-2 mt-1 bg-gray-200 rounded-md"> 
                   {item.subMenu.map((subItem, subIndex) => (
                     <li key={subIndex}>
-                      <Link
+                      <NavLink
                         to={`/admin/${item.link}/${subItem.link}`}
-                        className="flex items-center p-1 text-sm text-gray-700 hover:text-primary rounded-lg"
+                        className={({ isActive }) =>
+                          `flex items-center p-1 text-sm rounded-lg ${isActive ? "text-primary font-semibold" : "text-gray-700 hover:text-primary"}`
+                        }
                       >
                         {t(`NAV.${subItem.title}`)}
-                      </Link>
+                      </NavLink>
                     </li>
                   ))}
                 </ul>

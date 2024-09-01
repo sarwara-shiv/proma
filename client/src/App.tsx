@@ -9,7 +9,7 @@ function App() {
   const {t} = useTranslation("common");
   const {isAuthenticated, role} = useAuth();
   return (
-    <div className="App bg-gray-100 h-screen">
+    <div className="App bg-gray-100 min-h-screen">
       <Router>
         <Routes >
           <Route path="/login" element={<Login />} />
