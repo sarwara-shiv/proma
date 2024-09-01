@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/Users';
-import UserRoles from '../pages/admin/UserRoles';
+import UserRoles from '../pages/admin/roles/UserRoles';
 import Workspace from '../pages/admin/Workspace';
 
 interface RouteConfig {

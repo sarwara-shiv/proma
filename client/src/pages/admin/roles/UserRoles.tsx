@@ -1,10 +1,12 @@
 import { NavLink, useLocation, useParams } from 'react-router-dom';
-import PageTitel from '../../components/common/PageTitel';
+import PageTitel from '../../../components/common/PageTitel';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { FaUserTie } from 'react-icons/fa';
 import { MdAdd } from "react-icons/md";
 import { useTranslation } from 'react-i18next';
-import PageSubmenu from '../../components/common/PageSubmenu';
+import PageSubmenu from '../../../components/common/PageSubmenu';
+import RolesForm from './components/RolesForm';
+import AllRoles from './components/AllRoles';
 
 interface NavItem {
   link: string;
@@ -44,8 +46,8 @@ const UserRoles = () => {
         <div className='content-wrap p-4 '>
             {
               action && 
-              action === "add" ? <p>ADD</p> :
-              action ==="update" ? <p>update</p> : "all"
+              action === "add" ? <RolesForm /> : 
+              action ==="update" ? <p>update</p> : <AllRoles />
             }
         </div>
       </div>

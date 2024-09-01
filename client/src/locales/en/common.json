@@ -18,6 +18,9 @@
         "workspace_delete":"New Workspace"
     },
     "FORMS":{
+        "roleName":"Name",
+        "shortName":"Short Name",
+        "description":"Description",
         "username":"Username",
         "email":"email",
         "password":"Password"

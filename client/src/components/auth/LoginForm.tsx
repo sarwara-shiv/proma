@@ -14,7 +14,7 @@ const LoginForm: React.FC = () => {
   const API_URL = process.env.REACT_APP_API_URL;
 
   // handle inputs
-  const handleInputs = (event: React.ChangeEvent<HTMLInputElement>)=>{
+  const handleInputs = (event: React.ChangeEvent<HTMLInputElement| HTMLTextAreaElement>)=>{
     console.log(API_URL);
 
     const field = event.target.name;
@@ -22,7 +22,7 @@ const LoginForm: React.FC = () => {
   }
 
   // submit form
-  const submitForm = async(event: React.MouseEvent<HTMLButtonElement>)=>{
+  const submitForm = async(event: React.FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
     console.log(data);
     try{
@@ -51,7 +51,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <div className='login-wrap form-container sm:mx-auto sm:w-full sm:max-w-sm shadow-lg p-4 rounded-lg bg-white'>
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={(e)=>submitForm(e)}>
             <h2 className="text-lg text-primary">Login</h2>
             <div className="fields-wrap flex flex-col">
                 <CustomInput
@@ -63,8 +63,8 @@ const LoginForm: React.FC = () => {
                 <CustomInput 
                     type="password" id='lpassword' name="password" value={data.password} onChange={(event) => handleInputs(event)} label={t("FORMS.password")}
                 />
-                <div className="btn-wrap">
-                    <FormButton btnText={t("BUTTONS.submit")} onClick={(e)=>submitForm(e)} />
+                <div className="btn-wrap text-right">
+                    <FormButton btnText={t("BUTTONS.submit")} />
                 </div>
             </div>
        </form>

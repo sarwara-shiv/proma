@@ -6,7 +6,7 @@ const UserRolesSchema = new mongoose.Schema({
       "unique": true
     },
     "shortName": {
-      "type": "String",
+      "type": "String", 
       "unique": true
     },
     "permissions": [{
@@ -23,5 +23,5 @@ const UserRolesSchema = new mongoose.Schema({
       "type": "Date",
       "default": Date.now
     }
-  });
+  }, { timestamps: true });
   export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, NavLink } from "react-router-dom";
 import {FaUsers, FaUserTie} from 'react-icons/fa';
 import { MdOutlineInstallDesktop } from "react-icons/md";
+import LogoutButton from '../auth/LogoutButton';
 
 
 interface SubMenuItem {
@@ -83,6 +84,7 @@ const AdminNavbar = () => {
               )}
             </li>
           ))}
+          <li> <LogoutButton /> </li>
         </ul>
       </nav>
     </div>

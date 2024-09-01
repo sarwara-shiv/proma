@@ -26,7 +26,6 @@ function useGetUserFromToken() {
 function useAuth() {
   const user = useGetUserFromToken();
   if (user) {
-    console.log(user);
     return {
       isAuthenticated: true,
       role: user.role || null, // Safely access role

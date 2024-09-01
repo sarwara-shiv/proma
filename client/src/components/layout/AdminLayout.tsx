@@ -12,8 +12,6 @@ interface UserType {
 const AdminLayout = () => {
     const { t } = useTranslation();
     const { role, user } = useAuth();
-    console.log("user------------", user);
-
     return (
         <div className="flex flex-col">
             {/* Topbar */}
