@@ -56,44 +56,51 @@ const RolesForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default 
 
 
   return (
-    <div className="p-4 bg-white shadow-md rounded">
+    <div className='content  flex justify-center'>
+    <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
       <h2 className="text-lg font-bold mb-4">Role Form</h2>
       
-      <form onSubmit={(e)=>submitForm(e)}>
-        <div className="mb-4">
-          <CustomInput 
-            name='roleName'
-            type="text" 
-            value={formData.roleName && formData.roleName} 
-            label={t(`FORMS.roleName`)}
-            onChange={(e)=>handleInputs(e)}
-          />
+      <form onSubmit={(e)=>submitForm(e)} className=''>
+        <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2 '>
+          <div className="mb-4">
+            <CustomInput 
+              name='roleName'
+              type="text" 
+              value={formData.roleName && formData.roleName} 
+              label={t(`FORMS.roleName`)}
+              onChange={(e)=>handleInputs(e)}
+              required ={true}
+            />
+          </div>
+
+          <div className="mb-4">
+              <CustomInput 
+              name='shortName'
+              type="text" 
+              value={formData.shortName && formData.shortName} 
+              label={t(`FORMS.shortName`)}
+              onChange={(e)=>handleInputs(e)}
+              fieldType='keyword'
+            />
+          </div>
         </div>
 
-        <div className="mb-4">
-            <CustomInput 
-            name='shortName'
-            type="text" 
-            value={formData.shortName && formData.shortName} 
-            label={t(`FORMS.shortName`)}
-            onChange={(e)=>handleInputs(e)}
-          />
-        </div>
-
-        <div className="mb-4">
-            <CustomInput 
-            name='description'
-            type="textarea" 
-            value={formData.description && formData.description} 
-            label={t(`FORMS.description`)}
-            onChange={(e)=>handleInputs(e)}
-          />
-        </div>
+          <div className="mb-4">
+              <CustomInput 
+              name='description'
+              type="textarea" 
+              value={formData.description && formData.description} 
+              label={t(`FORMS.description`)}
+              onChange={(e)=>handleInputs(e)}
+            />
+          </div>
+        
 
         <div className="mt-6 text-right">
             <FormButton btnText={t(`create`)}/>
         </div>
       </form>
+    </div>
     </div>
   );
 }

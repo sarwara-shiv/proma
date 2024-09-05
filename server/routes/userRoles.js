@@ -60,10 +60,32 @@ router.get("/get", verifyToken, async (req, res) => {
 
     try {
         const data = await UserRolesModel.find();
-        return res.json({ status: "success", data });
+        return res.json({ status: "success", data, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
-        return res.status(500).json({ status: "error", message: "could not fetch roles", error });
+        return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});
+    }
+});
+
+// DELETE BY ID
+router.post("/delete", verifyToken, async (req, res) => {
+    const { id, action } = req.body;
+    console.log(req.body);
+    try {
+        if(id){
+            const result = await UserRolesModel.findByIdAndDelete(id);
+            if(result){
+                return res.json({ status: "success", message:result, code:"deleted" });
+            }else{
+                return res.json({ status: "error", message:result, code:"unknown_id"});
+            }
+        }else{
+            return res.json({ status: "error", message:"id not provided", code:"unknown_id"});
+
+        }
+    } catch (error) {
+        console.error("Error deleting :", error);  // Log error for debugging
+        return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
     }
 });
 
