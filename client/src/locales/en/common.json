@@ -11,6 +11,11 @@
         "users_add":"Add User",
         "users_update":"Add User",
         "users_delete":"Add User",
+        "userGroups":"User Groups",
+        "userGroups_all":"All User Groups",
+        "userGroups_add":"Add User Group",
+        "userGroups_update":"Update User Group",
+        "userGroups_delete":"Delete User Group",
         "workspace":"Workspace",
         "workspace_all":"All Workspace",
         "workspace_add":"New Workspace",
@@ -23,14 +28,15 @@
         "description":"Description",
         "username":"Username",
         "email":"email",
-        "password":"Password"
+        "password":"Password",
+        "name":"Name"
     },
     "BUTTONS":{
         "submit":"Submit",
         "send":"Send",
         "create":"Create",
         "update":"Update",
-        "delete":"Delete",
+        "delete":"Delete", 
         "add":"Add"
     },
     "PAGES":{
@@ -38,6 +44,11 @@
         "wordkpsace_add":"Add Workpaces",
         "wordkpsace_delete":"Delete Workpaces",
         "wordkpsace_update":"Update Workpaces",
+        "userGroups":"User Groups",
+        "userGroups_all":"All User Groups",
+        "userGroups_add":"Add User Group",
+        "userGroups_update":"Update User Group",
+        "userGroups_delete":"Delete User Group",
         "roles_all": "All Roles",
         "roles_update": "Update Roles",
         "roles_add": "Add Roles",
@@ -58,8 +69,10 @@
     "create":"Create",
     "workspace":"Workspace",
     "user":"User",
+    "userGroups":"User Groups",
     "project":"Project",
     "projects":"Projuects‚",
     "roles":"Roles",
-    "role":"Role"
+    "role":"Role",
+    "noData":"No Data Found"
 }

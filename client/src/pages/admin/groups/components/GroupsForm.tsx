@@ -16,7 +16,7 @@ interface ArgsType {
   data?: FormData; // Optional formData prop
 }
 
-const RolesForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default value for formData
+const GroupsForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default value for formData
   const { name = '', shortName = '', description = ''} = data;
   const {user} = useAuth();
   const [cookies] = useCookies(['access_token']);
@@ -34,7 +34,7 @@ const RolesForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default 
     event.preventDefault();
     console.log(formData);
     try{
-        await axios.post(`${API_URL}/roles/add`, formData,
+        await axios.post(`${API_URL}/groups/add`, formData,
             {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
          ).then(response=>{
           if(response.data.status === "success"){ 
@@ -58,7 +58,7 @@ const RolesForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default 
   return (
     <div className='content  flex justify-center'>
     <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
-      <h2 className="text-lg font-bold mb-4">Role Form</h2>
+      <h2 className="text-lg font-bold mb-4">{t(`userGroups`)}</h2>
       
       <form onSubmit={(e)=>submitForm(e)} className=''>
         <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2 '>
@@ -105,4 +105,4 @@ const RolesForm: React.FC<ArgsType> = ({ data = {} }) => { // Provide a default 
   );
 }
 
-export default RolesForm;
+export default GroupsForm;

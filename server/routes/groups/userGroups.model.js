@@ -1,6 +1,6 @@
 import mongoose,{Schema} from "mongoose";
-const UserRolesSchema = new mongoose.Schema({
-    "roleName": {
+const userGroupsSchema = new mongoose.Schema({
+    "name": {
       "type": "String",
       "required": true,
       "unique": true
@@ -19,9 +19,13 @@ const UserRolesSchema = new mongoose.Schema({
       "type": "Date",
       "default": Date.now
     },
+    "isEditable":{
+      "type":"Boolean",
+      "default":true
+    },
     "updatedAt": {
       "type": "Date",
       "default": Date.now
     }
-  }, { timestamps: true });
-  export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');
+  }, { timestamps: true }); 
+  export const userGroupsModel = mongoose.model('userGroups', userGroupsSchema, 'userGroups');

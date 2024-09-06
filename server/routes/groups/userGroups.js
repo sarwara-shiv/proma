@@ -1,29 +1,29 @@
 import express from 'express';
-import { verifyToken } from '../middleware/auth.js';
-import { UserRolesModel } from '../models/userRoles.model.js';
+import { verifyToken } from '../../middleware/auth.js';
+import { userGroupsModel } from './userGroups.model.js';
 
 const router = express.Router();
 
 // CREATE
 router.post("/add", verifyToken, async (req, res) => {
-    const { roleName, shortName, permissions = [], description } = req.body;
+    const { name, shortName, permissions = [], description } = req.body;
 
     // Validate input
-    if (!roleName || !shortName) {
+    if (!name || !shortName) {
         return res.status(400).json({
             status: "error",
-            message: "Role name and short name are required",
+            message: "Group name and short name are required",
             code: "validation_error",
         });
     }
 
-    const formData = { roleName, shortName, permissions, description };
+    const formData = { name, shortName, permissions, description };
 
     try {
-        // Check if a role with the same roleName or shortName already exists
+        // Check if a Group with the same name or shortName already exists
         const [byName, byShort] = await Promise.all([
-            UserRolesModel.findOne({ roleName }),
-            UserRolesModel.findOne({ shortName })
+            userGroupsModel.findOne({ name }),
+            userGroupsModel.findOne({ shortName })
         ]);
 
         if (byName || byShort) {
@@ -34,21 +34,21 @@ router.post("/add", verifyToken, async (req, res) => {
                 : "name_exists";
             
             const code = byName && byShort 
-                ? `Role with Name: ${roleName} and Short Name: ${shortName} exists` 
+                ? `Group with Name: ${name} and Short Name: ${shortName} exists` 
                 : byShort 
-                ? `Role with Short Name: ${shortName} exists` 
-                : `Role with Name: ${roleName} exists`;
+                ? `Group with Short Name: ${shortName} exists` 
+                : `Group with Name: ${name} exists`;
 
             return res.status(400).json({ status: "error", message, code, data:formData });
         }
 
-        // Create and save the new role
-        const newRole = new UserRolesModel(formData);
-        await newRole.save();
+        // Create and save the new Group
+        const newData = new userGroupsModel(formData);
+        await newData.save();
         return res.status(201).json({ status: "success", message: "created", code: "data_added" });
 
     } catch (error) {
-        console.error("Error creating role:", error);  // Log error for debugging
+        console.error("Error creating group:", error);  // Log error for debugging
         return res.status(500).json({ status: "error", message: "not created", code: "unknown_error", error });
     }
 });
@@ -59,7 +59,7 @@ router.get("/get", verifyToken, async (req, res) => {
     console.log(req.user);  // Consider removing this in production
 
     try {
-        const data = await UserRolesModel.find();
+        const data = await userGroupsModel.find();
         return res.json({ status: "success", data, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
@@ -73,7 +73,7 @@ router.post("/delete", verifyToken, async (req, res) => {
     console.log(req.body);
     try {
         if(id){
-            const result = await UserRolesModel.findByIdAndDelete(id);
+            const result = await userGroupsModel.findByIdAndDelete(id);
             if(result){
                 return res.json({ status: "success", message:result, code:"deleted" });
             }else{
@@ -85,8 +85,8 @@ router.post("/delete", verifyToken, async (req, res) => {
         }
     } catch (error) {
         console.error("Error deleting :", error);  // Log error for debugging
-        return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
+        return res.status(500).json({ status: "error", message: "could not delete group", error, code:"unknown_error" });
     }
 });
 
-export { router as rolesRouter };
+export { router as groupsRouter };

@@ -4,6 +4,7 @@ import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
 import Workspace from '../pages/admin/Workspace';
+import UserGroups from '../pages/admin/groups/userGroups';
 
 interface RouteConfig {
   path: string;
@@ -15,17 +16,22 @@ const routes: RouteConfig[] = [
   {
     path: '/users',
     element: <Users />,
-    params: ['action', 'id'], // These are optional parameters
+    params: ['action', 'id'], 
   },
   {
     path: '/roles',
     element: <UserRoles />,
-    params: ['action', 'id'], // These are optional parameters
+    params: ['action', 'id'], 
+  },
+  {
+    path: '/groups',
+    element: <UserGroups />,
+    params: ['action', 'id'], 
   },
   {
     path: '/workspace',
     element: <Workspace />,
-    params: ['action', 'id'], // These are optional parameters
+    params: ['action', 'id'], 
   },
 ];
 

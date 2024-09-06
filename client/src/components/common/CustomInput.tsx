@@ -167,7 +167,7 @@ const CustomInput: React.FC<argsType> = (args) => {
                         value={value}
                         required={required}
                         placeholder={placeholder}
-                        pattern={fieldPattern}
+                        
                         onChange={onChange}
                         onClick={onClick}
                         onBlur={handleBlur}

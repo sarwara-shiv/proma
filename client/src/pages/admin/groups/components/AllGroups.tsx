@@ -9,6 +9,7 @@ import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
 import { IoTrash, IoCreateOutline } from "react-icons/io5";
 import Popup from '../../../../components/common/Popup';
 import ConfirmPopup from '../../../../components/common/ConfirmPopup';
+import { useTranslation } from 'react-i18next';
 
 interface DataType {
     name: string;
@@ -22,7 +23,8 @@ interface DataType {
 
 
 
-const AllRoles = () => {
+const AllGroups = () => {
+    const {t} = useTranslation();
     const { user } = useAuth();
     const [cookies] = useCookies(['access_token']);
     const [data, setData] = useState<DataType[]>([]);
@@ -96,13 +98,13 @@ const AllRoles = () => {
 
 
     useEffect(() => {
-        getAllRoles();
+        getAllGroups();
     }, []);
 
-    const getAllRoles = async () => {
+    const getAllGroups = async () => {
         setLoader(true);
         try {
-            const response = await axios.get(`${API_URL}/roles/get`, {
+            const response = await axios.get(`${API_URL}/groups/get`, {
                 headers: {
                     'Authorization': `Bearer ${JWT_TOKEN}`,
                     'Content-Type': 'application/json'
@@ -113,11 +115,11 @@ const AllRoles = () => {
                 // Assuming response.data.roles is the array of roles
                 setData(response.data.data || []); // Ensure `roles` is set if it exists
             } else {
-                console.error('Failed to fetch roles:', response.data.message);
+                console.error('Failed to fetch groups:', response.data.message);
                 setData([]); // Reset data on failure
             }
         } catch (error) {
-            console.error('Error fetching roles:', error);
+            console.error('Error fetching groups:', error);
             setData([]); // Reset data on error
         } finally {
             setLoader(false);
@@ -133,12 +135,12 @@ const AllRoles = () => {
         console.log(data);
         if(data.id && data.action){
             try{
-                await axios.post(`${API_URL}/roles/delete`, data,
+                await axios.post(`${API_URL}/groups/delete`, data,
                     {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
                  ).then(response=>{
                   if(response.data.status === "success"){ 
                       console.log(response.data);
-                      getAllRoles();
+                      getAllGroups();
                       // setFormData(response.data.data);
                       // navigation("/");
                   }else{
@@ -178,7 +180,7 @@ const AllRoles = () => {
                         </div>
                         
                     ) : (
-                        <p>No roles found</p>
+                        <p>{t(`noData`)}</p>
                     )}
                 </div>
             )}
@@ -188,4 +190,4 @@ const AllRoles = () => {
     );
 };
 
-export default AllRoles;
+export default AllGroups;
