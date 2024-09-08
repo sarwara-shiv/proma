@@ -7,12 +7,12 @@ import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/common/DataTable';
 import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
 import { IoTrash, IoCreateOutline } from "react-icons/io5";
-import Popup from '../../../../components/common/CustomAlert';
 import ConfirmPopup from '../../../../components/common/CustomPopup';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; 
+import Popup from '../../../../components/common/CustomAlert';
 import { getRecords } from '../../../../hooks/dbHooks';
 
-interface DataType {
+interface DataType { 
     name: string;
     shortName: string;
     description?: string;
@@ -24,21 +24,23 @@ interface DataType {
 
 
 
-const AllRoles = () => {
+const AllUsers = () => {
     const {t} = useTranslation();
     const { user } = useAuth();
     const [cookies] = useCookies(['access_token']);
+    const [alertData, setAlertData] = useState({isOpen:false, content:"", type:"info", title:""}); 
     const [data, setData] = useState<DataType[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [popupData, setPopupData] = useState<any | null>(null);
+    const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
     const JWT_TOKEN = cookies.access_token;
     const API_URL = process.env.REACT_APP_API_URL;
 
     const columns: ColumnDef<RowData, any>[] = useMemo(() => [
         {
-          header: `${t('name')}`,
-          accessorKey: 'name',
+          header: `${t('username')}`,
+          accessorKey: 'username',
           meta:{
             style :{
             textAlign:'left',
@@ -46,8 +48,8 @@ const AllRoles = () => {
         }
         },
         {
-          header: `${t('shortName')}`,
-          accessorKey: 'shortName',
+          header: `${t('email')}`,
+          accessorKey: 'email',
           meta:{
             style :{
             textAlign:'center',
@@ -73,12 +75,12 @@ const AllRoles = () => {
                 <div style={{ textAlign: 'right' }}>
                     {row.original.isEditable && 
                     <div>
-                        <div onClick={() => confirmDelete(row.original._id, "delete")}
+                        <div onClick={() => confirmDelete(row.original._id, "delete", row.original.username)}
                             className="p-1 ml-1 inline-block text-red-500 hover:text-red-500/50 cursor-pointer whitespace-normal break-words" title='delete'
                             >
                             <IoTrash />
                         </div>
-                        <div onClick={() => confirmDelete(row.original._id, "edit")}
+                        <div onClick={() => confirmDelete(row.original._id, "update", row.original.username)}
                             className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words" title='delete'
                             >
                             <IoCreateOutline />
@@ -99,13 +101,13 @@ const AllRoles = () => {
 
 
     useEffect(() => {
-        getAllRoles();
+        getAllUsers();
     }, []);
 
-    const getAllRoles = async () => {
+    const getAllUsers = async () => {
         setLoader(true);
         try {
-            const res = await getRecords({ type: "roles" }); 
+            const res = await getRecords({ type: "users" }); 
             console.log(res);
             if (res.status === "success") {
                 setData(res.data || []);
@@ -120,34 +122,39 @@ const AllRoles = () => {
         }
     };
 
-    const confirmDelete = (id:string, action:String)=>{
-       setIsPopupOpen(!isPopupOpen);
+    const confirmDelete = (id:string, action:String, content:string | "")=>{
        setPopupData({id, action});
+       setPopupContent({...popupContent, isOpen:!popupContent.isOpen, title:"Delete ?", content});
     }
-    const handleRowAction = async(data:any)=>{
-        setIsPopupOpen(!isPopupOpen);
-        console.log(data);
-        if(data.id && data.action){
-            try{
-                await axios.post(`${API_URL}/roles/delete`, data,
-                    {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
-                 ).then(response=>{
-                  if(response.data.status === "success"){ 
-                      console.log(response.data);
-                      getAllRoles();
-                      // setFormData(response.data.data);
-                      // navigation("/");
-                  }else{
-                    console.error({error:response.data.message, code:response.data.code}); 
-                  }
-                }).catch(error =>{
-                  console.error(error);
-                })
-          
-              }catch(error){
-                console.log(error);
-              }
 
+    const handleRowAction = async(data:any)=>{
+        setPopupContent({...popupContent, isOpen:!popupContent.isOpen});
+        console.log(data);
+        if(data.action){
+            if(data.id && data.action === 'delete'){
+                try{
+                    await axios.post(`${API_URL}/auth/delete`, data,
+                        {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
+                     ).then(response=>{
+                      if(response.data.status === "success"){ 
+                          setAlertData({...alertData, isOpen:true, title:response.data.code, content:"adfasdf", type:'success'});
+                          getAllUsers();
+                          // setFormData(response.data.data);
+                          // navigation("/");
+                      }else{
+                        console.error({error:response.data.message, code:response.data.code}); 
+                        setAlertData({...alertData, isOpen:true, title:response.data.code, type:'error'});
+                      }
+                    }).catch(error =>{
+                      console.error(error);
+                      setAlertData({...alertData, isOpen:true, title:"Error", content:error, type:'error'});
+                    })
+               
+                  }catch(error){
+                    setAlertData({...alertData, isOpen:true, title:"Error", content:"unknown Error", type:'error'});
+                  }
+    
+            }
         }
     }
 
@@ -161,16 +168,16 @@ const AllRoles = () => {
                 <div className='data-wrap'>
                     {data.length > 0 ? (
                         <div>
-
                             <DataTable columns={columns} data={data}/>
                                 <ConfirmPopup
-                                    isOpen={isPopupOpen}
-                                    onClose={() => setIsPopupOpen(!isPopupOpen)}
-                                    title="My Popup Title"
+                                    isOpen={popupContent.isOpen}
+                                    onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}
+                                    title={popupContent.title}
                                     data={popupData}
-                                    content={<p>This is the content of the popup.</p>} 
+                                    content={popupContent.content} 
                                     yesFunction={(data)=>handleRowAction(data)} 
-                                    noFunction={()=>setIsPopupOpen(!isPopupOpen)}                                />
+                                    noFunction={()=>setIsPopupOpen(!isPopupOpen)}                                
+                                />
                         </div>
                         
                     ) : (
@@ -178,10 +185,18 @@ const AllRoles = () => {
                     )}
                 </div>
             )}
+
+        <Popup
+            onClose = {()=> setAlertData({...alertData, 'isOpen':!alertData.isOpen})}
+            isOpen ={alertData.isOpen}
+            content = {alertData.content}
+            title = {alertData.title}
+            type={alertData.type}
+      />
         
         </div>
 
     );
 };
 
-export default AllRoles;
+export default AllUsers;

@@ -10,11 +10,12 @@ interface PopupProps {
   yesBtnText?:string;
   noBtnText?:string;
   data?:any;
+  type?: "form" | "text";
   yesFunction:(data: any)=>void;
   noFunction:(data:any)=>void;
 }
 
-const ConfirmPopup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, yesBtnText, noBtnText, yesFunction, noFunction, data}) => {
+const ConfirmPopup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, yesBtnText, noBtnText, yesFunction, noFunction, data, type='form'}) => {
   if (!isOpen) return null; // Render nothing if not open
 
   return (
@@ -23,7 +24,7 @@ const ConfirmPopup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, y
         <div className="flex justify-between items-center border-b pb-2 mb-2">
           <h2 className="font-semibold text-md">{title}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            &times;
+            <IoClose />
           </button>
         </div>
         <div className='text-sm'>

@@ -62,6 +62,11 @@
         "user_update": "Update Role",
         "user_delete": "Delete Role"
     },
+    "name":"Name",
+    "shortName":"Short Name",
+    "createdAt":"Created",
+    "updateAt":"Updated",
+    "actions":"Actions",
     "all":"All",
     "add":"Add",
     "update":"Update",
@@ -72,7 +77,13 @@
     "userGroups":"User Groups",
     "project":"Project",
     "projects":"Projuects‚",
+    "users":"Users",
     "roles":"Roles",
     "role":"Role",
-    "noData":"No Data Found"
+    "noData":"No Data Found",
+    "warning":"Warning",
+    "error":"Error",
+    "success":"Success",
+    "info":"Information",
+    "newUser":"New User"
 }

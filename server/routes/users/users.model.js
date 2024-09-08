@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema({
       "type": "Date",
       "default": Date.now
     },
+    "isEditable":{
+      "type":"Boolean",
+      "default":true,
+    },
     "updatedAt": {
       "type": "Date",
       "default": Date.now

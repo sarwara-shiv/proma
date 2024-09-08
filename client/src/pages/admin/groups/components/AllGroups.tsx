@@ -7,9 +7,10 @@ import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/common/DataTable';
 import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
 import { IoTrash, IoCreateOutline } from "react-icons/io5";
-import Popup from '../../../../components/common/Popup';
-import ConfirmPopup from '../../../../components/common/ConfirmPopup';
+import Popup from '../../../../components/common/CustomAlert';
+import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next';
+import { getRecords } from '../../../../hooks/dbHooks';
 
 interface DataType {
     name: string;
@@ -36,7 +37,7 @@ const AllGroups = () => {
 
     const columns: ColumnDef<RowData, any>[] = useMemo(() => [
         {
-          header: 'Name',
+          header: `${t('name')}`,
           accessorKey: 'name',
           meta:{
             style :{
@@ -45,7 +46,7 @@ const AllGroups = () => {
         }
         },
         {
-          header: 'shortName',
+          header: `${t('shortName')}`,
           accessorKey: 'shortName',
           meta:{
             style :{
@@ -54,7 +55,7 @@ const AllGroups = () => {
         }
         },
         {
-          header: 'CreatedAt',
+          header: `${t('createdAt')}`,
           accessorKey: 'createdAt',
           cell: ({ getValue }: { getValue: () => string }) => {
             const date = new Date(getValue());
@@ -67,7 +68,7 @@ const AllGroups = () => {
         }
         },
         {
-            header:"Actions",
+            header:`${t('actions')}`,
             cell: ({ row }: { row: any }) => (
                 <div style={{ textAlign: 'right' }}>
                     {row.original.isEditable && 
@@ -104,24 +105,17 @@ const AllGroups = () => {
     const getAllGroups = async () => {
         setLoader(true);
         try {
-            const response = await axios.get(`${API_URL}/groups/get`, {
-                headers: {
-                    'Authorization': `Bearer ${JWT_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.data.status === "success") {
-                // Assuming response.data.roles is the array of roles
-                setData(response.data.data || []); // Ensure `roles` is set if it exists
-            } else {
-                console.error('Failed to fetch groups:', response.data.message);
-                setData([]); // Reset data on failure
+            const res = await getRecords({ type: "groups" }); 
+            console.log(res);
+            if (res.status === "success") {
+                setData(res.data || []);
+            }else{
+                setData([]);
             }
         } catch (error) {
-            console.error('Error fetching groups:', error);
-            setData([]); // Reset data on error
-        } finally {
+            console.error("Error fetching roles:", error);
+            setData([]);
+        }finally{
             setLoader(false);
         }
     };

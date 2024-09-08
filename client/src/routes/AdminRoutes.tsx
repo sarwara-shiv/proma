@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import AdminLayout from '../components/layout/AdminLayout';
-import Users from '../pages/admin/Users';
+import Users from '../pages/admin/users/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
 import Workspace from '../pages/admin/Workspace';
 import UserGroups from '../pages/admin/groups/userGroups';
