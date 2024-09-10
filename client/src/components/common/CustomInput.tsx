@@ -44,8 +44,8 @@ const CustomInput: React.FC<argsType> = (args) => {
     const infoRef = useRef<HTMLDivElement | null>(null);
 
     const regExPattern = {
-        password: `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@-_+#!$%&=?*])[A-Za-z\d@-_+#!$%&=?*]{6,}$`, // atlease one uppercase, one lowercase, on digit special characters @ - _ +#!$%&=?*
-        email: `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
+        password: `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\\-_+#!$%&=?*])[A-Za-z\\d@\\-_+#!$%&=?*]{6,}$`, // at least one uppercase, one lowercase, one digit, and one special character
+        email: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
         mobile: `^\\+?[1-9]\\d{1,14}$`,
         url: `^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
         keyword: `^[A-Za-z0-9_-]+$`,
