@@ -24,7 +24,7 @@ const DataTable: React.FC<TableProps> = ({data, columns}) => {
     <table className="min-w-full bg-white border border-gray-200">
       <thead>
         {getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id} className="border-b bg-primary-light text-gray-900">
+          <tr key={headerGroup.id} className="border-b text-sm bg-primary-light text-gray-900 font-semibold">
             {headerGroup.headers.map((header) => (
               <th key={header.id} className={`p-2 `} 
                 style={{

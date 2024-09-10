@@ -49,10 +49,19 @@ const AllRoles = () => {
           header: `${t('shortName')}`,
           accessorKey: 'shortName',
           meta:{
-            style :{
-            textAlign:'center',
+                style :{
+                    textAlign:'center',
+                }
             }
-        }
+        },
+        {
+          header: `${t('description')}`,
+          accessorKey: 'description',
+          meta:{
+                style :{
+                    textAlign:'left',
+                }
+            }
         },
         {
           header: `${t('createdAt')}`, 
@@ -84,6 +93,9 @@ const AllRoles = () => {
                             <IoCreateOutline />
                         </div>
                     </div>
+                    }
+                    {row.original.type === 'default' &&  
+                        <div className='text-sm'>default</div>
                     }
                     
                 </div>
