@@ -42,7 +42,7 @@ const initializeDefaultData = async () => {
       });
 
       await newAdminUser.save();
-      console.log('Admin user created.');
+      console.log('Admin user created. email: admin@proma.de, pass: Pass@123');
     } else {
       console.log('Admin user already exists.');
     }
