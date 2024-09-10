@@ -12,10 +12,10 @@ const initializeDefaultData = async () => {
     
     if (roleCount === 0) {
       await UserRolesModel.insertMany([
-        { name: 'Admin', shortName: "Admin", isEditable: false },
-        { name: 'Manager', shortName: "Manager", isEditable: false },
-        { name: 'Employee', shortName: "Employee", isEditable: false },
-        { name: 'User', shortName: "User", isEditable: false }
+        { name: 'Admin', shortName: "Admin", isEditable: false, type:"default" },
+        { name: 'Manager', shortName: "Manager", isEditable: false, type:"default"  },
+        { name: 'Employee', shortName: "Employee", isEditable: false, type:"default"  },
+        { name: 'User', shortName: "User", isEditable: false, type:"default"  }
       ]);
       console.log('Default roles created.');
     } else {

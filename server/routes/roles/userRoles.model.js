@@ -26,6 +26,11 @@ const UserRolesSchema = new mongoose.Schema({
     "updatedAt": {
       "type": "Date",
       "default": Date.now
+    },
+    "type":{
+      "type":"string",
+      "enum":["default", "created"]
     }
+    
   }, { timestamps: true });
   export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');
