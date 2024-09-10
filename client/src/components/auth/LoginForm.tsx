@@ -7,7 +7,7 @@ import FormButton from '../common/FormButton';
 import axios from 'axios';
 
 const LoginForm: React.FC = () => {
-  const [data, setData] = useState({username:"", email:"", password:""});
+  const [data, setData] = useState({email:"", password:""});
   const {t} = useTranslation("common");
   const [_, setCookies] = useCookies(["access_token"]);
   const navigation = useNavigate();
@@ -54,9 +54,6 @@ const LoginForm: React.FC = () => {
       <form className="space-y-6" onSubmit={(e)=>submitForm(e)}>
             <h2 className="text-lg text-primary">Login</h2>
             <div className="fields-wrap flex flex-col">
-                <CustomInput
-                    type="text" id='lname' name="username" value={data.username} onChange={(event) => handleInputs(event)} label={t('FORMS.username')} 
-                />
                 <CustomInput 
                     type="email" id='lemail' name="email" value={data.email} onChange={(event) => handleInputs(event)} label={t("FORMS.email")}
                 />

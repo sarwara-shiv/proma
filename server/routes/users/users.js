@@ -70,7 +70,7 @@ router.post("/update", verifyToken, async (req, res) => {
 
 // LOGIN
 router.post("/login", async (req, res) => {
-    const { username, email, password } = req.body;  // Fixed typo here
+    const { email, password } = req.body;  // Fixed typo here
     try {
         const user = await UserModel.findOne({ email });
         if (!user) {

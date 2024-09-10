@@ -13,7 +13,7 @@ interface argsType {
     minChar?: number;
     maxChar?: number;
     required?: boolean;
-    pattern?: string; // changed from RegExp to string because pattern attribute accepts a string
+    pattern?: string;
     fieldType?: "password" | "email" | "mobile" | "slug" | "name" | "fullname" | "username" | "url" | "keyword" | "numbers";
     onChange?: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onClick?: () => void;
@@ -39,36 +39,33 @@ const CustomInput: React.FC<argsType> = (args) => {
     } = args;
 
     const [showPassword, setShowPassword] = useState(false);
-    const [isValid, setIsValid] = useState(true); // State to track validity
-    const [showInfo, setShowInfo] = useState(false); // State to toggle info window
-    const infoRef = useRef<HTMLDivElement | null>(null); // Ref for the info window
+    const [isValid, setIsValid] = useState(true);
+    const [showInfo, setShowInfo] = useState(false);
+    const infoRef = useRef<HTMLDivElement | null>(null);
 
     const regExPattern = {
-        password: `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{6,}$`, // min 6 characters, one lowercase, one uppercase, one digit
-        email: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
+        password: `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@-_+#!$%&=?*])[A-Za-z\d@-_+#!$%&=?*]{6,}$`, // atlease one uppercase, one lowercase, on digit special characters @ - _ +#!$%&=?*
+        email: `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
         mobile: `^\\+?[1-9]\\d{1,14}$`,
         url: `^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
-        keyword: `^[A-Za-z0-9_-]+$`, // no spaces, only letters, numbers, - and _
+        keyword: `^[A-Za-z0-9_-]+$`,
         slug: `^[A-Za-z0-9_-]+$`,
         numbers: `^\\d+$`,
-        name: `^[A-Za-z]+$`, // only letters
-        fullname: `^[A-Za-z]+(?: [A-Za-z]+)*$`, // only letters and single spaces
-        username: `^[A-Za-z]+(\\.[A-Za-z]+)*$`, // only alphabets and dots, no consecutive dots
+        name: `^[A-Za-z]+$`,
+        fullname: `^[A-Za-z]+(?: [A-Za-z]+)*$`,
+        username: `^[A-Za-z]+(\\.[A-Za-z]+)*$`,
     };
 
-    // Construct dynamic regex pattern
     const fieldPattern = pattern || (fieldType && regExPattern[fieldType]) || 
         (type === "email" && regExPattern["email"]) || 
         (type === "password" && regExPattern["password"]) || 
         (type === "url" && regExPattern["url"]) || 
-        ".";  // default if nothing matches
+        ".";
 
-    // Handle input validation onBlur
     const handleBlur = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const inputValue = event.target.value;
         const regex = new RegExp(fieldPattern);
         
-        // Validate required field and pattern
         if (required && !inputValue) {
             setIsValid(false);
         } else if (inputValue && !regex.test(inputValue)) {
@@ -82,7 +79,6 @@ const CustomInput: React.FC<argsType> = (args) => {
         }
     };
 
-    // Info window content based on regex
     const getInfoContent = () => {
         switch (fieldType) {
             case 'password':
@@ -106,7 +102,6 @@ const CustomInput: React.FC<argsType> = (args) => {
         }
     };
 
-    // Close the info window if clicked outside
     const handleClickOutside = (event: MouseEvent) => {
         if (infoRef.current && !infoRef.current.contains(event.target as Node)) {
             setShowInfo(false);
@@ -114,7 +109,6 @@ const CustomInput: React.FC<argsType> = (args) => {
     };
 
     useEffect(() => {
-        // Add event listener for clicks outside of the info window
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -167,12 +161,12 @@ const CustomInput: React.FC<argsType> = (args) => {
                         value={value}
                         required={required}
                         placeholder={placeholder}
-                        
+                        pattern={fieldPattern}
                         onChange={onChange}
                         onClick={onClick}
                         onBlur={handleBlur}
-                        minLength={minChar} // Apply min length
-                        maxLength={maxChar} // Apply max length
+                        minLength={minChar}
+                        maxLength={maxChar}
                     />
                     {type === "password" && (
                         <div 
