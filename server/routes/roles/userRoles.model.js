@@ -33,4 +33,4 @@ const UserRolesSchema = new mongoose.Schema({
     }
     
   }, { timestamps: true });
-  export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');
+  export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'UserRoles');

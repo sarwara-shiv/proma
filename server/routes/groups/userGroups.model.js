@@ -28,4 +28,4 @@ const userGroupsSchema = new mongoose.Schema({
       "default": Date.now
     }
   }, { timestamps: true }); 
-  export const userGroupsModel = mongoose.model('userGroups', userGroupsSchema, 'userGroups');
+  export const userGroupsModel = mongoose.model('userGroups', userGroupsSchema, 'UserGroups');
