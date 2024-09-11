@@ -34,6 +34,7 @@ _documentation.md
 .env
 .env.development
 .env.production
+TODO.md
 
 # Optional npm cache directory
 .npm
