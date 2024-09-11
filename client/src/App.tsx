@@ -7,16 +7,17 @@ import UserRoutes from "./routes/UserRoutes";
 import Unauthorised from "./pages/Unauthorised";
 function App() {
   const {t} = useTranslation("common");
-  const {isAuthenticated, role} = useAuth();
+  const {isAuthenticated, role, roles} = useAuth();
+  const isAdmin = roles?.some(role => role.name.toLowerCase() === 'admin');
   return (
     <div className="App bg-gray-100 min-h-screen">
       <Router>
         <Routes >
           <Route path="/login" element={<Login />} />
-            {role === 'admin' && (
+            {isAdmin && (
               <Route path="/admin/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/unauthorized" />} />
             )}
-            {!role || role !== 'admin' && (
+            {!isAdmin && (
               <Route path="/user/*" element={isAuthenticated ? <UserRoutes /> : <Navigate to="/unauthorized" />} />
             )}
           
@@ -26,7 +27,7 @@ function App() {
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
-    </div>
+    </div> 
   );
 }
 

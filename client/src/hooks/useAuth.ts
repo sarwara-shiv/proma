@@ -1,13 +1,8 @@
 import {jwtDecode} from 'jwt-decode'; // Import as default
 import { useCookies } from 'react-cookie';
+import { DecodedToken } from '../interfaces';
 
 // Define the interface for your JWT payload
-interface DecodedToken {
-  username?: string;
-  role?: string; 
-  email?:string;
-}
-
 function useGetUserFromToken() {
   const [cookies] = useCookies(['access_token']);
   const token = cookies.access_token;
@@ -28,13 +23,15 @@ function useAuth() {
   if (user) {
     return {
       isAuthenticated: true,
-      role: user.role || null, // Safely access role
+      role: user.role || null,
+      roles: user.roles || [], 
       user,
     };
   } else {
     return {
       isAuthenticated: false,
       role: null,
+      roles:[],
       user: null,
     };
   }

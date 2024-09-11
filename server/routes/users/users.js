@@ -72,7 +72,8 @@ router.post("/update", verifyToken, async (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;  // Fixed typo here
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email }).populate('roles');
+        console.log(user);
         if (!user) {
             return res.status(404).json({ status: "error", message: `User does not exist with email: ${email}`, code: "unknown_user" });
         }
@@ -89,7 +90,7 @@ router.post("/login", async (req, res) => {
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, email: user.email, username: user.username, role: "admin" },
+            { id: user._id, email: user.email, username: user.username, role: "admin", roles:user.roles },
             SECRET_KEY,
             { expiresIn: '10h' }
         );
