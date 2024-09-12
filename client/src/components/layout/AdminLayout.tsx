@@ -4,14 +4,9 @@ import { useAuth } from '../../hooks/useAuth';
 import Logo from '../common/Logo';
 import { useTranslation } from 'react-i18next';
 
-interface UserType {
-    email: string;
-    username: string;
-}
-
 const AdminLayout = () => {
     const { t } = useTranslation();
-    const { role, user } = useAuth();
+    const { user } = useAuth();
     return (
         <div className="flex flex-col">
             {/* Topbar */}

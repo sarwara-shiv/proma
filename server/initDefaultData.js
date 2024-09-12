@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { UserModel } from './routes/users/users.model.js'; 
+import User from './routes/users/users.model.js'; 
 import { UserRolesModel } from './routes/roles/userRoles.model.js';
 
 const router = express.Router();
@@ -12,10 +12,81 @@ const initializeDefaultData = async () => {
     
     if (roleCount === 0) {
       await UserRolesModel.insertMany([
-        { name: 'Admin', shortName: "Admin", isEditable: false, type:"default" },
-        { name: 'Manager', shortName: "Manager", isEditable: false, type:"default"  },
-        { name: 'Employee', shortName: "Employee", isEditable: false, type:"default"  },
-        { name: 'User', shortName: "User", isEditable: false, type:"default"  }
+        {
+          name: 'Admin', 
+          shortName: 'Admin', 
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'Dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+          ]
+        },
+        {
+          name: 'Manager', 
+          shortName: 'Manager', 
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'Dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'Documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+          ]
+        },
+        {
+          name: 'Frontend Developer', 
+          shortName: 'FrontendDev', 
+          isEditable: false, 
+          type: 'created',
+          permissions: [
+            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+          ]
+        },
+        {
+          name: 'Fullstack Developer', 
+          shortName: 'FullstackDev', 
+          isEditable: false, 
+          type: 'created',
+          permissions: [
+            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+          ]
+        },
+        {
+          name: 'UI/UX Designer', 
+          shortName: 'UIUX', 
+          isEditable: false, 
+          type: 'created',
+          permissions: [
+            { page: 'Projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+            { page: 'Tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+          ]
+        },
+        {
+          name: 'Ecommerce Manager', 
+          shortName: 'EcommerceMgr', 
+          isEditable: false, 
+          type: 'created',
+          permissions: [
+            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+          ]
+        },
+        {
+          name: 'Guest', 
+          shortName: 'Guest', 
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'Documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+          ]
+        }
       ]);
       console.log('Default roles created.');
     } else {
@@ -29,12 +100,12 @@ const initializeDefaultData = async () => {
       return;
     }
 
-    const adminUser = await UserModel.findOne({ 'roles': adminRole._id });
+    const adminUser = await User.findOne({ 'roles': adminRole._id });
 
     if (!adminUser) {
       // No user with Admin role found; create an admin user
       const hashedPassword = await bcrypt.hash('Pass@123', 10);
-      const newAdminUser = new UserModel({
+      const newAdminUser = new User({
         username: 'admin',
         email: "admin@proma.de",
         password: hashedPassword,

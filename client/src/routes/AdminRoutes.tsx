@@ -3,8 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/users/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
-import Workspace from '../pages/admin/Workspace';
 import UserGroups from '../pages/admin/groups/userGroups';
+import Projects from '../pages/common/projects/Workspace';
 
 interface RouteConfig {
   path: string;
@@ -26,11 +26,11 @@ const routes: RouteConfig[] = [
   {
     path: '/groups',
     element: <UserGroups />,
-    params: ['action', 'id'], 
+    params: ['action', 'id'],  
   },
   {
-    path: '/workspace',
-    element: <Workspace />,
+    path: '/projects', 
+    element: <Projects />,
     params: ['action', 'id'], 
   },
 ];
@@ -42,7 +42,7 @@ const AdminRoutes = () => {
         {routes.map(({ path, element, params }) => (
           <Route
             key={path}
-            path={generateRoutePath(path, params)}
+            path={generateRoutePath(path, params)} 
             element={element}
           />
         ))}

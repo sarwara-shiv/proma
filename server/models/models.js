@@ -6,12 +6,19 @@ const DynamicFieldSchema = new Schema({
   value: { type: Schema.Types.Mixed, required: true },
 });
 
-// Permissions Schema
-const PermissionSchema = new Schema({
-  person: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+// Page-Level Permissions Schema
+const PagePermissionSchema = new Schema({
+  page: { type: String, required: true },  // Page or Section name
   canCreate: { type: Boolean, default: false },
   canUpdate: { type: Boolean, default: false },
   canDelete: { type: Boolean, default: false },
+  canView: { type: Boolean, default: false },
+});
+
+// Permissions Schema
+const PermissionSchema = new Schema({
+  person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  permissions: [PagePermissionSchema],  // Array of permissions for different pages
 });
 
 // Predefined Enums
@@ -22,29 +29,29 @@ const predefinedProjectStatuses = ['notStarted', 'inProgress', 'completed', 'onH
 // Task Status Schema
 const TaskStatusSchema = new Schema({
   statusName: { type: String, required: true, unique: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Task Priority Schema
 const TaskPrioritySchema = new Schema({
   priorityName: { type: String, required: true, unique: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Task Schema
 const TaskSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },
   priority: { type: String, enum: predefinedPriorities, default: 'medium' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },
-  responsiblePerson: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   otherPersonsInvolved: [{
-    person: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+    person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     role: { type: String, required: true },
   }],
   customFields: [DynamicFieldSchema],
@@ -57,7 +64,7 @@ const TaskSchema = new Schema({
 // Kickoff Question Schema
 const KickoffQuestionSchema = new Schema({
   question: { type: String, required: true },
-  askedBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  askedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   shouldBeAnsweredBy: {
     type: String,
     enum: ['Person', 'Client', 'Other'],
@@ -74,7 +81,7 @@ const KickoffQuestionSchema = new Schema({
 
 // Kickoff Responsibility Schema
 const KickoffResponsibilitySchema = new Schema({
-  person: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   work: { type: String, required: true },
   role: { type: String, required: true },
   additionalDetails: { type: String }
@@ -95,11 +102,11 @@ const KickoffSchema = new Schema({
     }],
   },
   projectGoals: [{ type: String }],
-  attendees: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+  attendees: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   notes: { type: String },
   actionItems: [{
     item: { type: String, required: true },
-    assignedTo: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     dueDate: { type: Date },
   }],
   responsibilities: [KickoffResponsibilitySchema],
@@ -108,13 +115,13 @@ const KickoffSchema = new Schema({
 // Project Status Schema
 const ProjectStatusSchema = new Schema({
   statusName: { type: String, required: true, unique: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Project Priority Schema
 const ProjectPrioritySchema = new Schema({
   priorityName: { type: String, required: true, unique: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Project Schema
@@ -129,7 +136,7 @@ const ProjectSchema = new Schema({
   endDate: { type: Date },
   kickoff: KickoffSchema,
   documentation: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
-  personsInvolved: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+  personsInvolved: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   customFields: [DynamicFieldSchema],
   permissions: [PermissionSchema],

@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
   { link: "roles", title: "roles", icon: <FaUserTie />, subMenu: [] },
   { link: "users", title: "users", icon: <FaUsers />, subMenu: [] },
   // { link: "groups", title: "userGroups", icon: <FaUsers />, subMenu: [] },
-  { link: "workspace", title: "workspace", icon:<MdOutlineInstallDesktop />, subMenu: [] },
+  { link: "projects", title: "projects", icon:<MdOutlineInstallDesktop />, subMenu: [] }, 
 ];
 
 const AdminNavbar = () => {
