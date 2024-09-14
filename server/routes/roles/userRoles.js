@@ -1,15 +1,17 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
-import { UserRolesModel } from './userRoles.model.js';
+import { UserRolesModel } from '../../models/userRolesModel.js';
+
 
 const router = express.Router();
 
 // CREATE
 router.post("/add", verifyToken, async (req, res) => {
-    const { name, shortName, permissions = [], description } = req.body;
+    const { name, displayName, permissions = [], description } = req.body.data;
+    console.log(req.body);
 
     // Validate input
-    if (!name || !shortName) {
+    if (!name || !displayName) {
         return res.status(400).json({
             status: "error",
             message: "Role name and short name are required",
@@ -17,26 +19,26 @@ router.post("/add", verifyToken, async (req, res) => {
         });
     }
 
-    const formData = { name, shortName, permissions, description };
+    const formData = { name, displayName, permissions, description };
 
     try {
         // Check if a role with the same name or shortName already exists
-        const [byName, byShort] = await Promise.all([
+        const [byName, byDisplayName] = await Promise.all([
             UserRolesModel.findOne({ name }),
-            UserRolesModel.findOne({ shortName })
+            UserRolesModel.findOne({ displayName })
         ]);
 
-        if (byName || byShort) {
-            const message = byName && byShort 
+        if (byName || byDisplayName) {
+            const message = byName && byDisplayName 
                 ? "exists" 
-                : byShort 
-                ? "short_name_exists" 
+                : byDisplayName 
+                ? "displayname_exists" 
                 : "name_exists";
             
-            const code = byName && byShort 
-                ? `Role with Name: ${name} and Short Name: ${shortName} exists` 
-                : byShort 
-                ? `Role with Short Name: ${shortName} exists` 
+            const code = byName && byDisplayName 
+                ? `Role with Name: ${name} and Display Name: ${shortName} exists` 
+                : byDisplayName 
+                ? `Role with Display Name: ${shortName} exists` 
                 : `Role with Name: ${name} exists`;
 
             return res.status(400).json({ status: "error", message, code, data:formData });
@@ -55,8 +57,8 @@ router.post("/add", verifyToken, async (req, res) => {
 
 
 // GET
-router.get("/get", verifyToken, async (req, res) => {
-    console.log(req.user);  // Consider removing this in production
+router.post("/get", verifyToken, async (req, res) => {
+    console.log(req.user); 
 
     try {
         const data = await UserRolesModel.find();
@@ -69,7 +71,7 @@ router.get("/get", verifyToken, async (req, res) => {
 
 // DELETE BY ID
 router.post("/delete", verifyToken, async (req, res) => {
-    const { id, action } = req.body;
+    const { id, action } = req.body.data;
     console.log(req.body);
     try {
         if(id){

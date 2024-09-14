@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import { useCookies } from 'react-cookie';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import {useNavigate } from 'react-router-dom';
-import CustomInput from '../common/CustomInput';
+import CustomInput from '../forms/CustomInput';
 import FormButton from '../common/FormButton';
 import axios from 'axios';
 
 const LoginForm: React.FC = () => {
+  const {user} = useAuth();
   const [data, setData] = useState({email:"", password:""});
   const {t} = useTranslation("common");
   const [_, setCookies] = useCookies(["access_token"]);
   const navigation = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
-
+  console.log(user);
   // handle inputs
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement| HTMLTextAreaElement>)=>{
     console.log(API_URL);
@@ -58,7 +60,7 @@ const LoginForm: React.FC = () => {
                     type="email" id='lemail' name="email" value={data.email} onChange={(event) => handleInputs(event)} label={t("FORMS.email")}
                 />
                 <CustomInput 
-                    type="password" id='lpassword' name="password" value={data.password} onChange={(event) => handleInputs(event)} label={t("FORMS.password")}
+                    type="password" id='lpassword' name="password" value={data.password} onChange={(event) => handleInputs(event)} label={t("FORMS.password") }
                 />
                 <div className="btn-wrap text-right">
                     <FormButton btnText={t("BUTTONS.submit")} />

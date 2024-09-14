@@ -1,13 +1,14 @@
 import { ObjectId } from 'mongodb';
+import { PagePermission } from './types';
 
-export interface Role {
-  _id: ObjectId;
+ // User Roles Interface
+ export interface UserRole {
   name: string;
-  shortName: string;
-  permissions: string[];
-  isEditable: boolean;
-  type: 'default' | string;
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number; 
+  displayName?: string;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isEditable?: boolean;
+  type: 'default' | 'created';
+  permissions: PagePermission[];
 }

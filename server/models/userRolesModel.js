@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const UserRolesSchema = new Schema({
   name: { type: String, required: true, unique: true },
-  shortName: { type: String, unique: true },
+  displayName: { type: String, unique: true },
   description: { type: String },
   createdAt: { type: Date, default: Date.now },
   isEditable: { type: Boolean, default: true },
@@ -17,4 +17,4 @@ const UserRolesSchema = new Schema({
   }]
 });
 
-export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'UserRoles');
+export const UserRolesModel = mongoose.model('UserRoles', UserRolesSchema, 'userRoles');

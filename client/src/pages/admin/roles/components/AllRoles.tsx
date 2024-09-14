@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useCookies } from 'react-cookie';
 import { format } from 'date-fns';
 import axios from 'axios';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/common/DataTable';
-import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
+import { ColumnDef, RowData } from '@tanstack/react-table';
 import { IoTrash, IoCreateOutline } from "react-icons/io5";
 import Popup from '../../../../components/common/CustomAlert';
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next';
-import { getRecords } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
+
 
 interface DataType {
     name: string;
@@ -34,6 +35,7 @@ const AllRoles = () => {
     const [loader, setLoader] = useState(true);
     const JWT_TOKEN = cookies.access_token;
     const API_URL = process.env.REACT_APP_API_URL;
+    console.log(user);
 
     const columns: ColumnDef<RowData, any>[] = useMemo(() => [
         {
@@ -117,10 +119,10 @@ const AllRoles = () => {
     const getAllRoles = async () => {
         setLoader(true);
         try {
-            const res = await getRecords({ type: "roles" }); 
+            const res = await getRecords({type: "roles"});  
             console.log(res);
             if (res.status === "success") {
-                setData(res.data || []);
+                setData(res.data || []); 
             }else{
                 setData([]);
             }
@@ -141,20 +143,15 @@ const AllRoles = () => {
         console.log(data);
         if(data.id && data.action){
             try{
-                await axios.post(`${API_URL}/roles/delete`, data,
-                    {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
-                 ).then(response=>{
-                  if(response.data.status === "success"){ 
-                      console.log(response.data);
-                      getAllRoles();
-                      // setFormData(response.data.data);
-                      // navigation("/");
-                  }else{
-                    console.error({error:response.data.message, code:response.data.code}); 
-                  }
-                }).catch(error =>{
-                  console.error(error);
-                })
+                const response = await deleteRecordById({type:'roles', body:data});
+                if(response.status === "success"){ 
+                    console.log(response.data);
+                    getAllRoles();
+                    // setFormData(response.data.data);
+                    // navigation("/");
+                }else{
+                  console.error({error:response.data.message, code:response.data.code}); 
+                }
           
               }catch(error){
                 console.log(error);

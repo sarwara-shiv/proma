@@ -10,7 +10,7 @@ import { IoTrash, IoCreateOutline } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
 import Popup from '../../../../components/common/CustomAlert';
-import { getRecords } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
 
 interface DataType { 
     name: string;
@@ -107,7 +107,7 @@ const AllUsers = () => {
     const getAllUsers = async () => {
         setLoader(true);
         try {
-            const res = await getRecords({ type: "users" }); 
+            const res = await getRecords({type: "auth" }); 
             console.log(res);
             if (res.status === "success") {
                 setData(res.data || []);
@@ -133,23 +133,19 @@ const AllUsers = () => {
         if(data.action){
             if(data.id && data.action === 'delete'){
                 try{
-                    await axios.post(`${API_URL}/auth/delete`, data,
-                        {headers :{'Authorization':`Bearer ${JWT_TOKEN}`,'Content-Type': 'application/json'}}
-                     ).then(response=>{
-                      if(response.data.status === "success"){ 
-                          setAlertData({...alertData, isOpen:true, title:response.data.code, content:"adfasdf", type:'success'});
-                          getAllUsers();
-                          // setFormData(response.data.data);
-                          // navigation("/");
-                      }else{
-                        console.error({error:response.data.message, code:response.data.code}); 
-                        setAlertData({...alertData, isOpen:true, title:response.data.code, type:'error'});
+                    try{
+                        const response = await deleteRecordById({type:'users', body:data});
+                        if(response.status === "success"){ 
+                            console.log(response.data);
+                            getAllUsers();
+                            setAlertData({...alertData, isOpen:true, title:response.code, content:"adfasdf", type:'success'});
+                        }else{
+                            setAlertData({...alertData, isOpen:true, title:response.code, type:'error'});
+                        }
+                  
+                      }catch(error){
+                        console.log(error);
                       }
-                    }).catch(error =>{
-                      console.error(error);
-                      setAlertData({...alertData, isOpen:true, title:"Error", content:error, type:'error'});
-                    })
-               
                   }catch(error){
                     setAlertData({...alertData, isOpen:true, title:"Error", content:"unknown Error", type:'error'});
                   }

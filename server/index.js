@@ -8,7 +8,7 @@ import initializeDefaultData from './initDefaultData.js';
 
 import {userRouter} from "./routes/users/users.js"; 
 import { rolesRouter } from './routes/roles/userRoles.js';
-import { groupsRouter } from './routes/groups/userGroups.js';
+// import { groupsRouter } from './routes/groups/userGroups.js'; 
 
 
 const app = express();
@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3001;
 // ROUTES
 app.use("/auth", userRouter);
 app.use("/roles", rolesRouter);
-app.use("/groups", groupsRouter); 
+// app.use("/groups", groupsRouter); 
 //app.use(userRouter);
 
 // DB CONNECTION

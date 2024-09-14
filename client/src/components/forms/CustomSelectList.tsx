@@ -84,7 +84,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
 
         {inputType === 'checkbox' &&
           data.map((item, index) => (
-            <div key={item._id} className="inline-flex items-center">
+            <div key={item._id} className="inline-flex items-center my-1">
               <input
                 type="checkbox"
                 name={name}

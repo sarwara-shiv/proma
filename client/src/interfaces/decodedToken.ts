@@ -1,9 +1,9 @@
-import { Role } from "./userRoles";
+import { UserRole } from "./userRoles";
 
 export interface DecodedToken {
     username?: string;  
     role?: string;        
-    roles?: Role[];      
+    roles?: UserRole[];      
     email?: string;       
 }
   

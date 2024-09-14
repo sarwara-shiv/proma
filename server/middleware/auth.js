@@ -1,6 +1,7 @@
+import UserModel from '../models/userModel.js';
+import Pages from '../pagesConfig.js';
+import { getEffectivePermissions } from './permissionsHelper.js';
 import jwt from 'jsonwebtoken';
-import { UserModel } from '../routes/users/users.model.js';
-import { Project, Task, Documentation } from '../models/schemas';  // Adjust the import path as needed
 
 const verifyToken = async (req, res, next) => {
   const token = req.headers['authorization'];
@@ -8,40 +9,43 @@ const verifyToken = async (req, res, next) => {
   if (!token) {
     return res.status(403).json({ message: 'No token provided' });
   }
-
+  
+  
   try {
+
     const SECRET_KEY = process.env.SECRET_KEY;
     const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY);
     
     // Check if the user exists
-    const user = await UserModel.findById(decoded.id);
+    const user = await UserModel.findById(decoded.id).populate('roles');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check for page-specific permissions
-    const { page } = req.body; // Adjust based on where page info comes from
-    const resourceId = req.params.id; // Adjust based on your resource ID source
-    const resourceType = req.body.resourceType; // Adjust based on your resource type source
+    const { page } = req.body; // page should match one of the `Pages` entries
+    const pageConfig = Object.values(Pages).find(p => p.name === page);
 
-    let permissions = {};
-    if (resourceType === 'project') {
-      const project = await Project.findById(resourceId).populate('permissions.person');
-      permissions = project.permissions.find(p => p.person.equals(user._id))?.permissions.find(p => p.page === page) || {};
-    } else if (resourceType === 'task') {
-      const task = await Task.findById(resourceId).populate('permissions.person');
-      permissions = task.permissions.find(p => p.person.equals(user._id))?.permissions.find(p => p.page === page) || {};
-    } else if (resourceType === 'documentation') {
-      const documentation = await Documentation.findById(resourceId).populate('permissions.person');
-      permissions = documentation.permissions.find(p => p.person.equals(user._id))?.permissions.find(p => p.page === page) || {};
+    if (!pageConfig) {
+      return res.status(400).json({ message: 'Invalid page' });
     }
 
+    // Admin role automatically grants full permissions
+    if (user.roles.some(role => role.name === 'admin' || role.name === 'Admin')) {
+      console.log('--------- user admin');
+      req.permissions = { canView: true, canCreate: true, canUpdate: true, canDelete: true };
+      req.user = user;
+      return next();
+    }
+
+    const permissions = await getEffectivePermissions(user, page);    
+
+    // Check if the user has view permissions for the requested page 
     if (!permissions.canView) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    req.user = user;
     req.permissions = permissions;
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Unauthorized' });

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import CustomInput from '../../../../components/common/CustomInput';
+import CustomInput from '../../../../components/forms/CustomInput';
 import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
 import axios from 'axios';
 import { useAuth } from '../../../../hooks/useAuth'; 
 import Popup from '../../../../components/common/CustomAlert';
-import { getRecords } from '../../../../hooks/dbHooks';
-import CustomSelectList from '../../../../components/common/CustomSelectList';
+import { getRecords, addRecords } from '../../../../hooks/dbHooks';
+import CustomSelectList from '../../../../components/forms/CustomSelectList';
 
 interface FormData {
   username?: string;
@@ -37,7 +37,7 @@ const UsersForm: React.FC<ArgsType> = ({ action="add", data = {} }) => {
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const res = await getRecords({ type: "roles" });
+                const res = await getRecords({ type: "roles", body:{} });
                 if (res.status === "success") {
                     setRolesData(res.data);
                 }
@@ -62,12 +62,13 @@ const UsersForm: React.FC<ArgsType> = ({ action="add", data = {} }) => {
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const response = await axios.post(`${API_URL}/auth/register`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${JWT_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await addRecords({type: "users", body:{ ...formData}}); 
+            // const response = await axios.post(`${API_URL}/auth/register`, formData, {
+            //     headers: {
+            //         'Authorization': `Bearer ${JWT_TOKEN}`,
+            //         'Content-Type': 'application/json',
+            //     },
+            // });
             if (response.data.status === "success") {
                 setAlertData({ ...alertData, isOpen: true, content: 'User Created', type: 'success' });
             } else {
@@ -92,6 +93,7 @@ const UsersForm: React.FC<ArgsType> = ({ action="add", data = {} }) => {
                                 value={formData.username} 
                                 label={t(`FORMS.username`)}
                                 onChange={handleInputs}
+                                fieldType='username'
                                 required
                             />
                         </div>

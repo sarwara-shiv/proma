@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import User from './routes/users/users.model.js'; 
-import { UserRolesModel } from './routes/roles/userRoles.model.js';
+import UserModel from './models/userModel.js';
+import { UserRolesModel } from './models/userRolesModel.js';
 
 const router = express.Router();
 
@@ -13,78 +13,80 @@ const initializeDefaultData = async () => {
     if (roleCount === 0) {
       await UserRolesModel.insertMany([
         {
-          name: 'Admin', 
-          shortName: 'Admin', 
+          name: 'admin', 
+          displayName: 'Admin', 
           isEditable: false, 
           type: 'default',
           permissions: [
-            { page: 'Dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
-          name: 'Manager', 
-          shortName: 'Manager', 
+          name: 'manager', 
+          displayName: 'Manager', 
           isEditable: false, 
           type: 'default',
           permissions: [
-            { page: 'Dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'Documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'dashboard', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'users', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
-          name: 'Frontend Developer', 
-          shortName: 'FrontendDev', 
+          name: 'FrontendDev', 
+          displayName: 'Frontend Developer', 
           isEditable: false, 
           type: 'created',
           permissions: [
-            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
           ]
         },
         {
-          name: 'Fullstack Developer', 
-          shortName: 'FullstackDev', 
+          displayName: 'Fullstack Developer', 
+          name: 'fullstackDev', 
           isEditable: false, 
           type: 'created',
           permissions: [
-            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
           ]
         },
         {
-          name: 'UI/UX Designer', 
-          shortName: 'UIUX', 
+          displayName: 'UI/UX Designer', 
+          name: 'uiux', 
           isEditable: false, 
           type: 'created',
           permissions: [
-            { page: 'Projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
-            { page: 'Tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+            { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
           ]
         },
         {
-          name: 'Ecommerce Manager', 
-          shortName: 'EcommerceMgr', 
+          displayName: 'Ecommerce Manager', 
+          name: 'ecommerceMgr', 
           isEditable: false, 
           type: 'created',
           permissions: [
-            { page: 'Projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'Tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
           ]
         },
         {
-          name: 'Guest', 
-          shortName: 'Guest', 
+          displayName: 'Guest', 
+          name: 'guest', 
           isEditable: false, 
           type: 'default',
           permissions: [
-            { page: 'Documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
           ]
         }
       ]);
@@ -94,18 +96,18 @@ const initializeDefaultData = async () => {
     }
 
     // Step 2: Check for Admin Users
-    const adminRole = await UserRolesModel.findOne({ name: "Admin" });
+    const adminRole = await UserRolesModel.findOne({ name: "admin" });
     if (!adminRole) {
       console.log('Admin role does not exist. Cannot create admin user.');
       return;
     }
 
-    const adminUser = await User.findOne({ 'roles': adminRole._id });
+    const adminUser = await UserModel.findOne({ 'roles': adminRole._id });
 
     if (!adminUser) {
       // No user with Admin role found; create an admin user
       const hashedPassword = await bcrypt.hash('Pass@123', 10);
-      const newAdminUser = new User({
+      const newAdminUser = new UserModel({
         username: 'admin',
         email: "admin@proma.de",
         password: hashedPassword,
@@ -113,7 +115,7 @@ const initializeDefaultData = async () => {
       });
 
       await newAdminUser.save();
-      console.log('Admin user created. email: admin@proma.de, pass: Pass@123');
+      console.log('Admin user created. email: admin@proma.de, pass: Pass@123'); 
     } else {
       console.log('Admin user already exists.');
     }

@@ -18,11 +18,10 @@ interface NavItem {
   icon? :ReactNode;
   subMenu?: SubMenuItem[];
 }
-
+ 
 const navItems: NavItem[] = [
   { link: "roles", title: "roles", icon: <FaUserTie />, subMenu: [] },
   { link: "users", title: "users", icon: <FaUsers />, subMenu: [] },
-  // { link: "groups", title: "userGroups", icon: <FaUsers />, subMenu: [] },
   { link: "projects", title: "projects", icon:<MdOutlineInstallDesktop />, subMenu: [] }, 
 ];
 

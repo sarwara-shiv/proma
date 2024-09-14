@@ -1,14 +1,48 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { UserModel } from './users.model.js'; 
 import { verifyToken } from '../../middleware/auth.js';
+import UserModel from '../../models/userModel.js'; 
 
 const router = express.Router();
 
 // REGISTER
 router.post("/register", async (req, res) => {
-    const { username, password, email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body;
+    const { username, password, email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body.data;
+    try {
+        const userByName = await UserModel.findOne({ username });
+        const userByEmail = await UserModel.findOne({ email });
+
+        if (userByName || userByEmail) {
+            const code = userByName && userByEmail
+                ? "user_name_email_exists"
+                : userByEmail
+                ? "user_email_exists"
+                : "user_name_exists";
+            
+            const message = userByName && userByEmail
+                ? `User with Name: ${username} and email: ${email} exists`
+                : userByEmail
+                ? `User with email: ${email} exists`
+                : `Username: ${username} exists`;
+            return res.status(200).json({ status: "error", message, code });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new UserModel({ username, password: hashedPassword, email });
+        await newUser.save();
+
+        return res.status(201).json({ status: "success", message: "User created", code: "data_added" });
+    } catch (error) {
+        console.error("Error creating user:", error);  // Log error for debugging
+        return res.status(500).json({ status: "error", message: "User creation failed", code: "unknown_error", error });
+    }
+});
+
+
+// Add
+router.post("/add", verifyToken, async (req, res) => {
+    const { username, password="Pass@123", email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body.data;
     try {
         const userByName = await UserModel.findOne({ username });
         const userByEmail = await UserModel.findOne({ email });
@@ -41,7 +75,7 @@ router.post("/register", async (req, res) => {
 
 // UPDATE
 router.post("/update", verifyToken, async (req, res) => {
-    const {fields, fieldsType, id} = req.body;
+    const {fields, fieldsType, id} = req.body.data;
     if(id){
         if(fields){
             const record = await UserModel.findOne({ _id:id });
@@ -88,6 +122,8 @@ router.post("/login", async (req, res) => {
             return res.status(500).json({ status: "error", message: "Server configuration error", code: "config_error" });
         }
 
+        console.log('logged in user: ------ ', user); 
+
         // Generate a JWT token
         const token = jwt.sign(
             { id: user._id, email: user.email, username: user.username, role: "admin", roles:user.roles },
@@ -102,6 +138,7 @@ router.post("/login", async (req, res) => {
             code: "loggedin",
             userID: user._id,
             role: "admin",
+            roles:user.roles,
             useremail: user.email,
             username: user.username
         });
@@ -112,7 +149,7 @@ router.post("/login", async (req, res) => {
 });
 
 // GET
-router.get("/get", verifyToken, async (req, res) => {
+router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user);  // Consider removing this in production
 
     try {
@@ -137,7 +174,7 @@ router.get('/check-users', verifyToken, (req, res) => {
 
 // DELETE BY ID
 router.post("/delete", verifyToken, async (req, res) => {
-    const { id, action } = req.body;
+    const { id, action } = req.body.data;
     console.log(req.body);
     try {
         if(id){

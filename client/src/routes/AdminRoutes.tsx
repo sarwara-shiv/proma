@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/users/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
-import UserGroups from '../pages/admin/groups/userGroups';
 import Projects from '../pages/common/projects/Workspace';
 
 interface RouteConfig {
@@ -22,11 +21,6 @@ const routes: RouteConfig[] = [
     path: '/roles',
     element: <UserRoles />,
     params: ['action', 'id'], 
-  },
-  {
-    path: '/groups',
-    element: <UserGroups />,
-    params: ['action', 'id'],  
   },
   {
     path: '/projects', 
