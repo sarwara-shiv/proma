@@ -7,7 +7,11 @@ declare module '@tanstack/table-core' {
       width?:string,
       color?:string,
       backgroundColor?:string,
-      tColor?:string
+      tColor?:string,
+      maxWidth?:string,
+      minWidth?:string,
+      lineHeight?:number,
+      fontSize?:string
     }
   }
 }

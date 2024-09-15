@@ -12,6 +12,7 @@ import Popup from '../../../../components/common/CustomAlert';
 import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/forms/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
+import { NavLink } from 'react-router-dom';
 
 interface DataType { 
     name: string;
@@ -74,11 +75,12 @@ const AllUsers = () => {
                     } */}
                     <div>
                         <DeleteById data={{id:row.original._id, type:"users", page:"auth"}} content={`Delte Role: ${row.original.username}`} onYes={onDelete}/>
-                        <div onClick={() => confirmDelete(row.original._id, "update", row.original.username)}
-                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words" title='delete'
+                        <NavLink
+                            to={`update`} state={{data:row.original}} title="update"
+                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
                             >
-                            <IoCreateOutline />
-                        </div>
+                              <IoCreateOutline />
+                        </NavLink>
                     </div>
                     
                 </div>
@@ -121,7 +123,7 @@ const AllUsers = () => {
     }
 
     const onDelete = (data:any)=>{
-        if(data === "success"){ 
+        if(data.status === "success"){ 
             getAllUsers();
         }else{
           console.error({error:data.message, code:data.code}); 

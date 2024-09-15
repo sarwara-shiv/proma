@@ -82,6 +82,7 @@
     "all":"All",
     "add":"Add",
     "update":"Update",
+    "type":"Type",
     "delete":"Delete",
     "create":"Create",
     "workspace":"Workspace",

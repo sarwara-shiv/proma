@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-
+export * from './userRolesModel.js'
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },

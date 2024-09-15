@@ -173,24 +173,24 @@ router.get('/check-users', verifyToken, (req, res) => {
 });
 
 // DELETE BY ID
-router.post("/delete", verifyToken, async (req, res) => {
-    const { id, action } = req.body.data;
-    console.log(req.body);
-    try {
-        if(id){
-            const result = await UserModel.findByIdAndDelete(id);
-            if(result){
-                return res.json({ status: "success", message:result, code:"deleted" });
-            }else{
-                return res.json({ status: "error", message:result, code:"unknown_id"});
-            }
-        }else{
-            return res.json({ status: "error", message:"id not provided", code:"unknown_id"});
-        }
-    } catch (error) {
-        console.error("Error deleting :", error);  // Log error for debugging
-        return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
-    }
-});
+// router.post("/delete", verifyToken, async (req, res) => {
+//     const { id, action } = req.body.data;
+//     console.log(req.body);
+//     try {
+//         if(id){
+//             const result = await UserModel.findByIdAndDelete(id);
+//             if(result){
+//                 return res.json({ status: "success", message:result, code:"deleted" });
+//             }else{
+//                 return res.json({ status: "error", message:result, code:"unknown_id"});
+//             }
+//         }else{
+//             return res.json({ status: "error", message:"id not provided", code:"unknown_id"});
+//         }
+//     } catch (error) {
+//         console.error("Error deleting :", error);  // Log error for debugging
+//         return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
+//     }
+// });
 
 export { router as userRouter };

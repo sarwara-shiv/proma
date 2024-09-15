@@ -6,13 +6,16 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { PermissionsMap, UserRole } from '../../../../interfaces';
 import PagePermissionsSelect from '../../../../components/forms/PagePermissionsSelect';
 import CustomAlert from '../../../../components/common/CustomAlert';
-import { addRecords } from '../../../../hooks/dbHooks';
+import { addRecords, addUpdateRecords } from '../../../../hooks/dbHooks';
+import { ObjectId } from 'mongodb';
 
 interface ArgsType {
+  action?:"add" | "update";
   data?: UserRole; // Optional formData prop
+  id?:ObjectId | null
 }
 
-const RolesForm: React.FC<ArgsType> = ({ data }) => {
+const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
   const { name = '', displayName = '', description = '', permissions = [] } = data || {};
   const { user } = useAuth();
   const [alertData, setAlertData] = useState({isOpen:false, title:"", content:'', data:{}, type:"success"});
@@ -48,7 +51,11 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
     event.preventDefault();
 
     try {
-      const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
+
+      if(action === 'add'){
+      }
+      // const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
+      const response = await addUpdateRecords({type: "roles", action, id:id&&id, body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
             console.log(response);
         if (response.status === "success") {
             setAlertData({...alertData, isOpen:true, title:"Role Added", type:"success", content:'Role added'})
@@ -57,7 +64,6 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
           setAlertData({...alertData, isOpen:true, title:response.code, type:"fail", content:response.message})
           console.error('Error:', response.message, 'Code:', response.code);
         }
-      // console.log({ ...formData, permissions: Object.values(selectedPermissions) });
       
     } catch (error) {
       console.error('Error during form submission:', error);
@@ -108,7 +114,7 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
           <PagePermissionsSelect onPermissionsChange={handlePermissionsChange} initialPermissions={selectedPermissions} />
 
           <div className="mt-6 text-right">
-            <FormButton btnText={t('create')} />
+            <FormButton btnText={action === 'update' ? t('update') : t('create')} />
           </div>
         </form>
         <CustomAlert isOpen={alertData.isOpen} onClose={()=>setAlertData({...alertData, isOpen:false})} title={alertData.title} content={alertData.content} />

@@ -8,6 +8,7 @@ import initializeDefaultData from './initDefaultData.js';
 
 import {userRouter} from "./routes/users/users.js"; 
 import { rolesRouter } from './routes/roles/userRoles.js';
+import { resourceRouter } from './routes/dynamicRoutes.js';
 // import { groupsRouter } from './routes/groups/userGroups.js'; 
 
 
@@ -24,6 +25,7 @@ const mongoURI = process.env.DB_LOCAL_URL;
 const PORT = process.env.PORT || 3001; 
 
 // ROUTES
+app.use("/resource", resourceRouter);
 app.use("/auth", userRouter);
 app.use("/roles", rolesRouter);
 // app.use("/groups", groupsRouter); 

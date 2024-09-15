@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
 import { UserRole } from '../../../../interfaces';
 import DeleteById from '../../../../components/forms/DeleteById';
+import { NavLink } from 'react-router-dom';
 
 
 const AllRoles = () => {
@@ -23,17 +24,19 @@ const AllRoles = () => {
           accessorKey: 'name',
           meta:{
             style :{
-            textAlign:'left',
-            tColor:'text-slate-900'
+                textAlign:'left',
+                tColor:'text-slate-900',
+                width:"140px"
             }
         }
         },
         {
-          header: `${t('shortName')}`,
-          accessorKey: 'shortName',
+          header: `${t('displayName')}`,
+          accessorKey: 'displayName',
           meta:{
                 style :{
-                    textAlign:'center',
+                    textAlign:'left',
+                    width:"140px"
                 }
             }
         },
@@ -75,11 +78,12 @@ const AllRoles = () => {
                     {row.original.isEditable && 
                     <div>
                         <DeleteById data={{id:row.original._id, type:"roles", page:"roles"}} content={`Delte Role: ${row.original.displayName}`} onYes={onDelete}/>
-                        <div onClick={() => confirmDelete(row.original._id, "edit")}
-                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words" title='delete'
+                        <NavLink
+                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
                             >
-                            <IoCreateOutline />
-                        </div>
+                              <IoCreateOutline /> 
+                        </NavLink>
                     </div>
                     }
                     
@@ -124,7 +128,7 @@ const AllRoles = () => {
 
     const onDelete = (data:any)=>{
         console.log(data);
-        if(data === "success"){ 
+        if(data.status === "success"){ 
             getAllRoles();
         }else{
           console.error({error:data.message, code:data.code}); 
@@ -164,7 +168,7 @@ const AllRoles = () => {
                         </div>
                         
                     ) : (
-                        <p>No roles found</p>
+                        <p>{t('noDataFound')}</p>
                     )}
                 </div>
             )}

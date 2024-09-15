@@ -23,6 +23,7 @@ const Users = () => {
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
+  const { data } = location.state || {}; 
   const [pageTitle, setPageTitle] = useState("users");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
@@ -47,7 +48,7 @@ const Users = () => {
             {
               action && 
               action === "register" ? <UsersForm /> : 
-              action ==="update" ? <p>update</p> : <AllUsers /> 
+              action ==="update" ? <UsersForm  data={data} action='update'/> : <AllUsers /> 
             }
         </div>
       </div>

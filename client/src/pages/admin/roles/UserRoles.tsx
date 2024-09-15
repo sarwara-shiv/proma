@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import RolesForm from './components/RolesForm';
 import AllRoles from './components/AllRoles';
+import { ObjectId } from 'mongodb';
 
 interface NavItem {
   link: string;
@@ -25,8 +26,9 @@ const UserRoles = () => {
   const location = useLocation();
   const [pageTitle, setPageTitle] = useState("roles");
   const {pathname} = location;
+  const { data, objectId } = location.state || {}; 
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
-  useEffect(()=>{
+  useEffect(()=>{ 
 
   },[])
 
@@ -43,11 +45,11 @@ const UserRoles = () => {
         </div>
       </header>
       <div className='content py-14  mb-7'>
-        <div className='content-wrap p-4 '>
+        <div className='content-wrap p-4 '> 
             {
               action && 
               action === "add" ? <RolesForm /> : 
-              action ==="update" ? <p>update</p> : <AllRoles />
+              action ==="update" ? <RolesForm  data={data} id={objectId} action='update'/> : <AllRoles />
             }
         </div>
       </div>

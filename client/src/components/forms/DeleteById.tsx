@@ -20,12 +20,11 @@ const DeleteById: React.FC<ArgsType> = ({ data, onYes, onNo, title="Are you sure
         if(data.id && data.page && data.type){
             try{
                 const response = await deleteRecordById({type:data.type, body:data});
-                if(response.status === "success"){ 
+                if(response.status === "success"){
                     onYes && onYes(response);
                 }else{
                   console.error({status:"error",error:response.message, code:response.code}); 
                 }
-          
               }catch(error){
                 console.error({status:"error",error:"server error", code:"server_error"}); 
               }
@@ -53,7 +52,7 @@ const DeleteById: React.FC<ArgsType> = ({ data, onYes, onNo, title="Are you sure
             data={popupData}
             content={<p className='text-left'>{content}</p>} 
             yesFunction={()=>handleDeleteAction()} 
-            noFunction={()=>setIsPopupOpen(!isPopupOpen)}/>
+            noFunction={()=>setIsPopupOpen(false)}/>
     </>
   )
 }
