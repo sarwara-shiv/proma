@@ -6,13 +6,13 @@ interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string | null;
-  content: React.ReactNode;
+  content: React.ReactNode | string;
   data?:any;
   display?:'timer' | null;
   type?:"info" | "error" | "warning" | "success" | string;
 }
 
-const Popup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, type ="info", display}) => {
+const CustomAlert: React.FC<PopupProps> = ({ isOpen, onClose, title, content, type ="info", display}) => {
   if (!isOpen) return null; // Render nothing if not open
 
   return (
@@ -34,4 +34,4 @@ const Popup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, type ="i
   );
 };
 
-export default Popup;
+export default CustomAlert;

@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
 
 // Add
 router.post("/add", verifyToken, async (req, res) => {
-    const { username, password="Pass@123", email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body.data;
+    const { username, password="Pass@123", email, permissions=[], roles=[], isActive = true, isEditable=true} = req.body.data;
     try {
         const userByName = await UserModel.findOne({ username });
         const userByEmail = await UserModel.findOne({ email });
@@ -55,7 +55,7 @@ router.post("/add", verifyToken, async (req, res) => {
                 : "user_name_exists";
             
             const message = userByName && userByEmail
-                ? `User with Name: ${username} and email: ${email} exists`
+                ? `User with Name: ${username} and email: ${email} exists` 
                 : userByEmail
                 ? `User with email: ${email} exists`
                 : `Username: ${username} exists`;

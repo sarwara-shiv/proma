@@ -7,7 +7,7 @@ const UserRolesSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   isEditable: { type: Boolean, default: true },
   updatedAt: { type: Date, default: Date.now },
-  type: { type: String, enum: ["default", "created"] },
+  type: { type: String, enum: ["default", "created", "custom"], default:"custom" },
   permissions: [{
     page: { type: String },
     canCreate: { type: Boolean, default: false },

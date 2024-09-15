@@ -20,7 +20,7 @@ app.use(cors());
 mongoose.set('debug', true);
 
 const DB_PASS = process.env.DB_PASS;
-const mongoURI = process.env.DB_URL;
+const mongoURI = process.env.DB_LOCAL_URL;
 const PORT = process.env.PORT || 3001; 
 
 // ROUTES

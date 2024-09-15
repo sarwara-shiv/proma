@@ -4,7 +4,10 @@ declare module '@tanstack/table-core' {
   interface ColumnMeta<TData extends RowData, TValue> {
     style?: {
       textAlign?: 'left' | 'center' | 'right',
-      width?:string
+      width?:string,
+      color?:string,
+      backgroundColor?:string,
+      tColor?:string
     }
   }
 }

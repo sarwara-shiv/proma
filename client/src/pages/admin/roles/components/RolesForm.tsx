@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import CustomInput from '../../../../components/forms/CustomInput';
-import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
-import axios from 'axios';
 import { useAuth } from '../../../../hooks/useAuth'; 
-import { PagePermission, PermissionsMap, UserRole } from '../../../../interfaces';
-import PagePermissionsForm from '../../../../components/forms/PagePermissions';
+import { PermissionsMap, UserRole } from '../../../../interfaces';
+import PagePermissionsSelect from '../../../../components/forms/PagePermissionsSelect';
+import CustomAlert from '../../../../components/common/CustomAlert';
 import { addRecords } from '../../../../hooks/dbHooks';
 
 interface ArgsType {
@@ -16,8 +15,7 @@ interface ArgsType {
 const RolesForm: React.FC<ArgsType> = ({ data }) => {
   const { name = '', displayName = '', description = '', permissions = [] } = data || {};
   const { user } = useAuth();
-  const [cookies] = useCookies(['access_token']);
-  const JWT_TOKEN = cookies.access_token;
+  const [alertData, setAlertData] = useState({isOpen:false, title:"", content:'', data:{}, type:"success"});
 
   // Initialize formData state with props
   const [formData, setFormData] = useState({ name, displayName, description });
@@ -33,8 +31,8 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
   const { t } = useTranslation();
   const API_URL = process.env.REACT_APP_API_URL;
 
-  // Handle permission changes from the PagePermissionsForm component
-  const handlePermissionsChange = (newPermissions: PermissionsMap) => {
+  // Handle permission changes from the PagePermissionsSelect component
+  const handlePermissionsChange = (newPermissions: PermissionsMap) => { 
     setSelectedPermissions(newPermissions);
     console.log('Selected Permissions:', newPermissions);
   };
@@ -53,10 +51,11 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
       const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
             console.log(response);
         if (response.status === "success") {
-          alert("Data saved successfully");
-          console.log('Response Data:', response.data);
+            setAlertData({...alertData, isOpen:true, title:"Role Added", type:"success", content:'Role added'})
+            console.log('Response Data:', response.data);
         } else {
-          console.error('Error:', response.data.message, 'Code:', response.data.code);
+          setAlertData({...alertData, isOpen:true, title:response.code, type:"fail", content:response.message})
+          console.error('Error:', response.message, 'Code:', response.code);
         }
       // console.log({ ...formData, permissions: Object.values(selectedPermissions) });
       
@@ -106,12 +105,13 @@ const RolesForm: React.FC<ArgsType> = ({ data }) => {
           </div>
 
           {/* Page Permissions Form */}
-          <PagePermissionsForm onPermissionsChange={handlePermissionsChange} initialPermissions={selectedPermissions} />
+          <PagePermissionsSelect onPermissionsChange={handlePermissionsChange} initialPermissions={selectedPermissions} />
 
           <div className="mt-6 text-right">
             <FormButton btnText={t('create')} />
           </div>
         </form>
+        <CustomAlert isOpen={alertData.isOpen} onClose={()=>setAlertData({...alertData, isOpen:false})} title={alertData.title} content={alertData.content} />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ router.post("/add", verifyToken, async (req, res) => {
 
     // Validate input
     if (!name || !displayName) {
-        return res.status(400).json({
+        return res.status(200).json({
             status: "error",
             message: "Role name and short name are required",
             code: "validation_error",
@@ -22,7 +22,7 @@ router.post("/add", verifyToken, async (req, res) => {
     const formData = { name, displayName, permissions, description };
 
     try {
-        // Check if a role with the same name or shortName already exists
+        // Check if a role with the same name or display name already exists
         const [byName, byDisplayName] = await Promise.all([
             UserRolesModel.findOne({ name }),
             UserRolesModel.findOne({ displayName })
@@ -36,12 +36,12 @@ router.post("/add", verifyToken, async (req, res) => {
                 : "name_exists";
             
             const code = byName && byDisplayName 
-                ? `Role with Name: ${name} and Display Name: ${shortName} exists` 
+                ? `Role with Name: ${name} and Display Name: ${name} exists` 
                 : byDisplayName 
-                ? `Role with Display Name: ${shortName} exists` 
+                ? `Role with Display Name: ${name} exists` 
                 : `Role with Name: ${name} exists`;
 
-            return res.status(400).json({ status: "error", message, code, data:formData });
+            return res.status(200).json({ status: "error", message, code, data:formData });
         }
 
         // Create and save the new role
@@ -61,7 +61,7 @@ router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user); 
 
     try {
-        const data = await UserRolesModel.find();
+        const data = await UserRolesModel.find().sort({createdAt:1, type:1});
         return res.json({ status: "success", data, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging

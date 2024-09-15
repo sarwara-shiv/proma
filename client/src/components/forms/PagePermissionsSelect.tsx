@@ -17,7 +17,7 @@ const initialPagePermissions: Omit<PagePermission, 'page'> = {
   canDelete: false,
 };
 
-const PagePermissionsForm: React.FC<PagePermissionsFormProps> = ({ onPermissionsChange, initialPermissions = {} }) => {
+const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissionsChange, initialPermissions = {} }) => {
   const {t} = useTranslation();
   // State to track the selected permissions for each page, initialized with props
   const [permissionsState, setPermissionsState] = useState<PermissionsMap>(initialPermissions);
@@ -82,4 +82,4 @@ const PagePermissionsForm: React.FC<PagePermissionsFormProps> = ({ onPermissions
   );
 };
 
-export default PagePermissionsForm;
+export default PagePermissionsSelect;

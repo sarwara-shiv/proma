@@ -42,10 +42,11 @@ const DataTable: React.FC<TableProps> = ({data, columns}) => {
         {getRowModel().rows.map((row) => (
           <tr key={row.id} className="hover:bg-gray-100 border-b">
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className="px-2 py-1 text-sm text-gray-900" 
+              <td key={cell.id} className={`px-2 py-1 text-sm ${cell.column.columnDef.meta?.style?.tColor || 'text-slate-500' } ` }
               style={{
                 width:cell.column.columnDef.meta?.style?.width || 'auto',
                 textAlign: cell.column.columnDef.meta?.style?.textAlign || 'center',
+                color:cell.column.columnDef.meta?.style?.color || ''
             }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

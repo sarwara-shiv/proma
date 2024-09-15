@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useCookies } from 'react-cookie';
 import { format } from 'date-fns';
-import axios from 'axios';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/common/DataTable';
 import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
@@ -11,6 +10,8 @@ import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
 import Popup from '../../../../components/common/CustomAlert';
 import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
+import DeleteById from '../../../../components/forms/DeleteById';
+import CustomAlert from '../../../../components/common/CustomAlert';
 
 interface DataType { 
     name: string;
@@ -26,16 +27,12 @@ interface DataType {
 
 const AllUsers = () => {
     const {t} = useTranslation();
-    const { user } = useAuth();
-    const [cookies] = useCookies(['access_token']);
     const [alertData, setAlertData] = useState({isOpen:false, content:"", type:"info", title:""}); 
     const [data, setData] = useState<DataType[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [popupData, setPopupData] = useState<any | null>(null);
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
-    const JWT_TOKEN = cookies.access_token;
-    const API_URL = process.env.REACT_APP_API_URL;
 
     const columns: ColumnDef<RowData, any>[] = useMemo(() => [
         {
@@ -73,20 +70,16 @@ const AllUsers = () => {
             header:`${t('actions')}`,
             cell: ({ row }: { row: any }) => (
                 <div style={{ textAlign: 'right' }}>
-                    {row.original.isEditable && 
+                    {/* {row.original.isEditable && <></>
+                    } */}
                     <div>
-                        <div onClick={() => confirmDelete(row.original._id, "delete", row.original.username)}
-                            className="p-1 ml-1 inline-block text-red-500 hover:text-red-500/50 cursor-pointer whitespace-normal break-words" title='delete'
-                            >
-                            <IoTrash />
-                        </div>
+                        <DeleteById data={{id:row.original._id, type:"users", page:"auth"}} content={`Delte Role: ${row.original.username}`} onYes={onDelete}/>
                         <div onClick={() => confirmDelete(row.original._id, "update", row.original.username)}
                             className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words" title='delete'
                             >
                             <IoCreateOutline />
                         </div>
                     </div>
-                    }
                     
                 </div>
             ),
@@ -125,6 +118,14 @@ const AllUsers = () => {
     const confirmDelete = (id:string, action:String, content:string | "")=>{
        setPopupData({id, action});
        setPopupContent({...popupContent, isOpen:!popupContent.isOpen, title:"Delete ?", content});
+    }
+
+    const onDelete = (data:any)=>{
+        if(data === "success"){ 
+            getAllUsers();
+        }else{
+          console.error({error:data.message, code:data.code}); 
+        }
     }
 
     const handleRowAction = async(data:any)=>{
@@ -182,7 +183,7 @@ const AllUsers = () => {
                 </div>
             )}
 
-        <Popup
+        <CustomAlert
             onClose = {()=> setAlertData({...alertData, 'isOpen':!alertData.isOpen})}
             isOpen ={alertData.isOpen}
             content = {alertData.content}
