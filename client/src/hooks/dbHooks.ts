@@ -8,7 +8,8 @@ interface GetRecordsArgs {
   body?:any
   limit?: number;
   action?:'add' | 'update';
-  id?:ObjectId | null
+  id?:string | null;
+  checkDataBy?:string[];
 }
 
 const getRecords = async (args: GetRecordsArgs) => {
@@ -66,7 +67,7 @@ const addRecords = async (args: GetRecordsArgs) => {
 };
 
 const addUpdateRecords = async (args: GetRecordsArgs) => {
-  const { type, body, action="add", id=null } = args;
+  const { type, body, action="add", id=null, checkDataBy=[] } = args;
   console.log(args);
   if (type) {
     const JWT_TOKEN = Cookies.get('access_token');  // Correct usage of js-cookie
@@ -75,7 +76,7 @@ const addUpdateRecords = async (args: GetRecordsArgs) => {
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/${action}`, 
         {
-          page:type === 'auth' ? 'users' : type, data:body?body :{}, action, id
+          page:type === 'auth' ? 'users' : type, data:body || {}, action, id, checkDataBy
         }, 
         {
           headers: {
@@ -85,6 +86,7 @@ const addUpdateRecords = async (args: GetRecordsArgs) => {
         });
       return response.data;
     } catch (error) {
+      console.log(error);
       return { status: "error", code: "unknown_error", error };
     }
   } else {

@@ -73,6 +73,17 @@
         "user_update": "Update Role",
         "user_delete": "Delete Role"
     },
+    "RESPONSE":{
+        "invalid_resource": "Resource not found",
+        "id_required": "ID required",
+        "data_exists": "Data exists",
+        "record_exists": "Data exists",
+        "unknown_error": "Server error",
+        "server_error": "Server error",
+        "record_updated": "Data Updated Successfully",
+        "record_deleted": "Data Deleted Successfully",
+        "record_added": "Data Added Successfully"
+    },
     "page":"Page",
     "name":"Name",
     "shortName":"Short Name",

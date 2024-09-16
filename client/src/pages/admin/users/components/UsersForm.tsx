@@ -2,18 +2,22 @@ import React, { useState, useEffect } from 'react';
 import CustomInput from '../../../../components/forms/CustomInput';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
-import { addRecords } from '../../../../hooks/dbHooks';
+import { addRecords, addUpdateRecords } from '../../../../hooks/dbHooks';
 import { User } from '@/interfaces/users';
 import { PermissionsMap } from '../../../../interfaces';
 import {RolesSelect, PagePermissionsSelect} from '../../../../components/forms';
 import CustomAlert from '../../../../components/common/CustomAlert';
 
 interface ArgsType {
+  id?:string | null;
+  action?:"add" | "update";
   data?: User; // Optional formData prop
-  action?: string;
+  checkDataBy?:string[];
 }
 
-const UsersForm: React.FC<ArgsType> = ({ action = "add", data }) => {
+const checkDataBy: string[] = ['username', 'email'];
+
+const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const { username = '', password = '', email = '', roles = [], permissions = {} } = data || {};
   const [alertData, setAlertData] = useState({ isOpen: false, content: "", type: "info", title: "" });
   const [formData, setFormData] = useState({ username, password, email, roles, permissions });
@@ -38,13 +42,30 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data }) => {
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-        console.log({ ...formData, permissions: selectedPermissions } );
-      const response = await addRecords({ type: "users", body: { ...formData, permissions: selectedPermissions } });
-      if (response.status === "success") {
-        setAlertData({ ...alertData, isOpen: true, content: 'User Created', type: 'success' });
-      } else {
-        setAlertData({ ...alertData, isOpen: true, content: response.message, type: 'error', title: response.code });
-      }
+      const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...formData, permissions: selectedPermissions}}); 
+            console.log(response);
+        if (response.status === "success") {
+            // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
+            const content = `${t(`RESPONSE.${response.code}`)}`;
+            setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
+            console.log('Response Data:', response.data);
+        } else {
+          let content = `${t(`RESPONSE.${response.code}`)}`
+          if(response.data){
+            content = Object.entries(response.data).map(([key, value]) => {
+                return value && `${key} exists`;
+            }).filter(Boolean).join(', ');
+          }
+          setAlertData({...alertData, isOpen:true, title:"Fail", type:"fail", content});
+          console.error('Error:', response.message, 'Code:', response.code);
+        }
+      //   console.log({ ...formData, permissions: selectedPermissions } );
+      // const response = await addRecords({ type: "users", body: { ...formData, permissions: selectedPermissions } });
+      // if (response.status === "success") {
+      //   setAlertData({ ...alertData, isOpen: true, content: 'User Created', type: 'success' });
+      // } else {
+      //   setAlertData({ ...alertData, isOpen: true, content: response.message, type: 'error', title: response.code });
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -64,7 +85,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data }) => {
                 value={formData.username}
                 label={t(`FORMS.username`)}
                 onChange={handleInputs}
-                fieldType='username'
+                fieldType='keyword'
                 required
               />
             </div>

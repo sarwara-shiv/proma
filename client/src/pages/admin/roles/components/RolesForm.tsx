@@ -12,8 +12,11 @@ import { ObjectId } from 'mongodb';
 interface ArgsType {
   action?:"add" | "update";
   data?: UserRole; // Optional formData prop
-  id?:ObjectId | null
+  id?:string | null;
+  checkDataBy?:string[];
 }
+
+const checkDataBy: string[] = ['name', 'displayName'];
 
 const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
   const { name = '', displayName = '', description = '', permissions = [] } = data || {};
@@ -55,13 +58,21 @@ const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
       if(action === 'add'){
       }
       // const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
-      const response = await addUpdateRecords({type: "roles", action, id:id&&id, body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
+      const response = await addUpdateRecords({type: "roles", checkDataBy:checkDataBy, action, id, body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
             console.log(response);
         if (response.status === "success") {
-            setAlertData({...alertData, isOpen:true, title:"Role Added", type:"success", content:'Role added'})
+            // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
+            const content = `${t(`RESPONSE.${response.code}`)}`;
+            setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
             console.log('Response Data:', response.data);
         } else {
-          setAlertData({...alertData, isOpen:true, title:response.code, type:"fail", content:response.message})
+          let content = `${t(`RESPONSE.${response.code}`)}`
+          if(response.data){
+            content = Object.entries(response.data).map(([key, value]) => {
+                return value && `${key} exists`;
+            }).filter(Boolean).join(', ');
+          }
+          setAlertData({...alertData, isOpen:true, title:"Fail", type:"fail", content});
           console.error('Error:', response.message, 'Code:', response.code);
         }
       
@@ -74,7 +85,6 @@ const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
     <div className="content flex justify-center">
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
         <h2 className="text-lg font-bold mb-4">{t('Role Form')}</h2>
-
         <form onSubmit={submitForm}>
           <div className="fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="mb-4">
@@ -84,7 +94,7 @@ const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
                 value={formData.displayName}
                 label={t('FORMS.displayName')}
                 onChange={handleInputs}
-                fieldType='name'
+                fieldType='fullname'
               />
             </div>
             <div className="mb-4">
