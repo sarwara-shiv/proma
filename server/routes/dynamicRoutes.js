@@ -172,4 +172,13 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
 });
 
 
+/**
+ * 
+ * TODO
+ * - get records / with / without pagination
+ * - get record by id
+ * - update field
+ * - give permissions to user to update details and password
+ */
+
 export { router as resourceRouter };
