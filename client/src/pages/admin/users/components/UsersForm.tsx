@@ -8,6 +8,7 @@ import { PermissionsMap } from '../../../../interfaces';
 import {RolesSelect, PagePermissionsSelect} from '../../../../components/forms';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import ToggleSwitch from '../../../../components/common/ToggleSwitch';
+import { AlertPopupType, FlashPopupType } from '@/interfaces';
 
 interface ArgsType {
   id?:string | null;
@@ -20,7 +21,7 @@ const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const { username = '', password = '', email = '', roles = [], permissions = {}, isActive=false } = data || {};
-  const [alertData, setAlertData] = useState({ isOpen: false, content: "", type: "info", title: "" });
+  const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive });
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const { t } = useTranslation();
@@ -155,7 +156,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           isOpen={alertData.isOpen}
           content={alertData.content}
           title={alertData.title}
-          type={alertData.type}
+          type={alertData.type || 'info'} 
         />
 
         

@@ -8,6 +8,7 @@ declare module '@tanstack/table-core' {
       color?:string,
       backgroundColor?:string,
       tColor?:string,
+      tFontSize?:string,
       maxWidth?:string,
       minWidth?:string,
       lineHeight?:number,

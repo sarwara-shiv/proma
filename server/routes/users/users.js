@@ -153,7 +153,7 @@ router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user);  // Consider removing this in production
 
     try {
-        const data = await UserModel.find();
+        const data = await UserModel.find().populate('roles');
         return res.json({ status: "success", data, code:"success", message:""});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging

@@ -42,10 +42,10 @@ const DataTable: React.FC<TableProps> = ({data, columns}) => {
       </thead>
       <tbody>
         {getRowModel().rows.map((row) => (
-          <tr key={row.id} className="hover:bg-gray-100 border-b">
+          <tr key={row.id} className="hover:bg-gray-100 border-b text-xs">
             {row.getVisibleCells().map((cell) => (
               <td key={cell.id} className={
-                `px-2 py-1 text-sm 
+                `px-2 py-1 ${cell.column.columnDef.meta?.style?.tFontSize || 'text-xs '}
                 ${cell.column.columnDef.meta?.style?.tColor || 'text-slate-500' } 
                 ` 
               }

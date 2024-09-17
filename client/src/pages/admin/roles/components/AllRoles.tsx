@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
-import DataTable from '../../../../components/common/DataTable';
+import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef, RowData } from '@tanstack/react-table';
 import { IoCreateOutline } from "react-icons/io5";
 import { useTranslation } from 'react-i18next';
