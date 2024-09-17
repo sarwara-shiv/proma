@@ -97,9 +97,9 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const { ...data } = req.body.data;
   const { id, checkDataBy } = req.body; 
+
   const model = getModel(resource);
 
-  console.log(id, checkDataBy);
   if (!model) {
     return res.json({ status: "error", message:'Model not found', code:"invalid_resource" });
   }
@@ -110,7 +110,7 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
   try {
 
     const exists = checkDataBy && checkDataBy.length > 0 
-      ? await checkIfRecordExists(model, checkDataBy, data) 
+      ? await checkIfRecordExists(model, checkDataBy, data, id) 
       : {};
 
     // If any key in the 'exists' object is true, it means a conflict exists

@@ -2,11 +2,13 @@ import { PermissionsMap } from "./types";
 
 // User Interface
 export interface User {
+  _id?: string;
   username: string;
   email: string;
-  password: string;
+  password?: string;
   roles?: string[]; // Array of ObjectId references to UserRoles
   permissions?: PermissionsMap; // Map of permissions for pages
   createdAt?: Date;
   updatedAt?: Date;
+  isActive?:Boolean;
 }

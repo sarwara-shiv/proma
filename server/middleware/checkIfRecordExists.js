@@ -5,29 +5,21 @@ const checkIfRecordExists = async (model, checkDataBy, data, id = null) => {
       const result = {};
   
       if (Array.isArray(checkDataBy) && checkDataBy.length > 0) {
-        // Iterate over each key in checkDataBy
         for (const key of checkDataBy) {
-          // Retrieve the value from the data object for the current key
           const value = data[key];
-  
-          // If the value is defined, perform the query
           if (value !== undefined) {
             const query = { [key]: value };
-  
-            // Check if a record exists with the current field value
             const existingRecord = await model.findOne(query);
-  
-            // Update the result object based on whether a record was found and ID check
             if (existingRecord) {
               if (!id || (id && existingRecord.id !== id)) {
-                result[key] = true; // Record exists and either no id or conflicting id
+                result[key] = true; 
               }
             } else {
-              result[key] = false; // No existing record for this key
+              // result[key] = false; 
             }
           } else {
             // If no value for this key in data, indicate no match
-            result[key] = false;
+            //result[key] = false;
           }
         }
       }

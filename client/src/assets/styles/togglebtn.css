@@ -1,0 +1,61 @@
+/* ToggleSwitch.css */
+
+/* Hide the checkbox itself */
+
+.toggle-checkbox {
+    display: none;
+  }
+  
+  /* The label will act as the custom toggle button */
+  .toggle-label {
+    display: inline-block;
+    width: 35px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 25px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  
+  
+  /* Create the circle inside the toggle */
+  .toggle-label::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Change the background when the checkbox is checked */
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #4caf50;
+  }
+  
+  /* Move the circle to the right when the checkbox is checked */
+  .toggle-checkbox:checked + .toggle-label::before {
+    transform: translateX(15px);
+    -webkit-transform: translateX(15px);
+    -moz-transform: translateX(15px);
+  }
+  /*--------- small size */
+  .size-sm .toggle-label{
+    width: 25px;
+    height: 15px;
+   }
+  .size-sm .toggle-label::before{
+    width: 13px;
+    height: 13px;
+   }
+   .size-sm .toggle-checkbox:checked + .toggle-label::before {
+    transform: translateX(10px);
+    -webkit-transform: translateX(10px);
+    -moz-transform: translateX(10px);
+  }
+  

@@ -13,6 +13,8 @@ import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/forms/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
+import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
+import { User } from '@/interfaces/users';
 
 interface DataType { 
     name: string;
@@ -29,30 +31,50 @@ interface DataType {
 const AllUsers = () => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState({isOpen:false, content:"", type:"info", title:""}); 
-    const [data, setData] = useState<DataType[]>([]);
+    const [data, setData] = useState<User[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [popupData, setPopupData] = useState<any | null>(null);
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
 
-    const columns: ColumnDef<RowData, any>[] = useMemo(() => [
+    const columns: ColumnDef<User, any>[] = useMemo(() => [
         {
           header: `${t('username')}`,
           accessorKey: 'username',
-          meta:{
-            style :{
-            textAlign:'left',
+          id:"username",
+            meta:{
+                style :{
+                textAlign:'left',
+                }
             }
-        }
         },
         {
           header: `${t('email')}`,
           accessorKey: 'email',
-          meta:{
-            style :{
-            textAlign:'center',
+          id:"email",
+            meta:{
+                style :{
+                textAlign:'center',
+                }
             }
-        }
+        },
+        {
+             header: `${t('status')}`,
+            accessorKey: 'isActive',
+            id:"isActive",
+            meta:{
+                style :{
+                textAlign:'center',
+                }
+            },
+            cell: (info) => {
+                const initialState = info.row.original.isActive ? true :false;
+                return (
+                    <>  {info.row.original.isActive }
+                            <ToggleBtnCell initialState={initialState} id={info.cell.id} name={info.cell.id} onChange={onCellChange}/>
+                    </>
+              )
+            },
         },
         {
           header: `${t('createdAt')}`, 
@@ -61,11 +83,11 @@ const AllUsers = () => {
             const date = new Date(getValue());
             return <span>{format(date, 'dd.MM.yyyy')}</span>;
           },
-          meta:{
-            style :{
-            textAlign:'center',
+            meta:{
+                style :{
+                textAlign:'center',
+                }
             }
-        }
         },
         {
             header:`${t('actions')}`,
@@ -76,10 +98,10 @@ const AllUsers = () => {
                     <div>
                         <DeleteById data={{id:row.original._id, type:"users", page:"auth"}} content={`Delte Role: ${row.original.username}`} onYes={onDelete}/>
                         <NavLink
-                            to={`update`} state={{data:row.original}} title="update"
+                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
                             className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
                             >
-                              <IoCreateOutline />
+                              <IoCreateOutline /> 
                         </NavLink>
                     </div>
                     
@@ -93,6 +115,10 @@ const AllUsers = () => {
             }
         }
       ], []);
+
+      const onCellChange = (value:Boolean | string)=>{
+        console.log(value);
+      }
 
 
     useEffect(() => {

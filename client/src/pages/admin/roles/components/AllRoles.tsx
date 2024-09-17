@@ -18,7 +18,7 @@ const AllRoles = () => {
     const [popupData, setPopupData] = useState<any | null>(null);
     const [loader, setLoader] = useState(true);
 
-    const columns: ColumnDef<RowData, any>[] = useMemo(() => [
+    const columns: ColumnDef<RowData, any>[] = useMemo(() => [ 
         {
           header: `${t('name')}`,
           accessorKey: 'name',

@@ -7,6 +7,7 @@ import { User } from '@/interfaces/users';
 import { PermissionsMap } from '../../../../interfaces';
 import {RolesSelect, PagePermissionsSelect} from '../../../../components/forms';
 import CustomAlert from '../../../../components/common/CustomAlert';
+import ToggleSwitch from '../../../../components/common/ToggleSwitch';
 
 interface ArgsType {
   id?:string | null;
@@ -18,9 +19,9 @@ interface ArgsType {
 const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
-  const { username = '', password = '', email = '', roles = [], permissions = {} } = data || {};
+  const { username = '', password = '', email = '', roles = [], permissions = {}, isActive=false } = data || {};
   const [alertData, setAlertData] = useState({ isOpen: false, content: "", type: "info", title: "" });
-  const [formData, setFormData] = useState({ username, password, email, roles, permissions });
+  const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive });
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const { t } = useTranslation();
 
@@ -42,7 +43,11 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...formData, permissions: selectedPermissions}}); 
+      let data = formData;
+      if(action === 'update'){
+        delete data.password;
+      }
+      const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...data, permissions: selectedPermissions}}); 
             console.log(response);
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
@@ -71,11 +76,17 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
     }
   };
 
+  const handleStatus = (isActive:boolean)=>{
+    setFormData({...formData, 'isActive':isActive});
+  }
+
   return (
     <div className='content flex justify-center'>
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
-        <h2 className="text-lg font-bold mb-4">{t('newUser')}</h2>
-
+        <div className='flex flex-row justify-between align-center'>
+          <h2 className="text-lg font-bold mb-4">{t('newUser')}</h2>
+          <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
+        </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2'>
             <div className="mb-4">
@@ -101,16 +112,17 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
               />
             </div>
           </div>
-
-          <div className="mb-4">
-            <CustomInput
-              name='password'
-              type="password"
-              value={formData.password}
-              label={t(`FORMS.password`)}
-              onChange={handleInputs}
-            />
-          </div>
+          {action !== 'update' && 
+            <div className="mb-4">
+              <CustomInput
+                name='password'
+                type="password"
+                value={formData.password}
+                label={t(`FORMS.password`)}
+                onChange={handleInputs}
+              />
+            </div>
+          }
 
           {/* Render roles once they are fetched */}
           {/* {rolesData.length > 0 && (
@@ -134,7 +146,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           </div>
 
           <div className="mt-6 text-right">
-            <FormButton btnText={t(`create`)} />
+            <FormButton  btnText={action === 'update' ? t('update') : t('create')} />
           </div>
         </form>
 

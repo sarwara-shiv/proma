@@ -34,7 +34,7 @@ const UserRoles = () => {
 
   return (
     <div className='page-wrap relative'>
-      <header className='border-b border-1 border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-100 top-14'>
+      <header className='border-b z-20 border-1 border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-100 top-14'>
         <div className='container flex justify-between flex-row mx-auto'>
           <div className='nav-wrap'>
             <PageTitel text={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)} /> 
