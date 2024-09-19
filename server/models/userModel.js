@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-
+import bcrypt from 'bcryptjs';
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
@@ -18,7 +18,17 @@ const UserSchema = new Schema({
   isActive:{type:Boolean, default:true},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  resetPasswordToken:{type:String},
+  resetPasswordExpires:{type:Date}
 });
+
+UserSchema.method.hashPassword = async function(password){
+  return await bcrypt.hash(password, 10);
+}
+
+UserSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 const UserModel = mongoose.model('User', UserSchema);
 

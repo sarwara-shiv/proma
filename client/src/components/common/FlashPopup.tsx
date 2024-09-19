@@ -6,7 +6,7 @@ import { FlashPopupType } from '@/interfaces';
 const FlashPopup: React.FC<FlashPopupType> = ({
   isOpen,
   message,
-  duration = 30000,
+  duration = 3000,
   onClose,
   position = 'top-right',
   type='success',

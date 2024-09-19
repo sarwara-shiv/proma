@@ -173,24 +173,130 @@ router.get('/check-users', verifyToken, (req, res) => {
 });
 
 // DELETE BY ID
-// router.post("/delete", verifyToken, async (req, res) => {
-//     const { id, action } = req.body.data;
-//     console.log(req.body);
-//     try {
-//         if(id){
-//             const result = await UserModel.findByIdAndDelete(id);
-//             if(result){
-//                 return res.json({ status: "success", message:result, code:"deleted" });
-//             }else{
-//                 return res.json({ status: "error", message:result, code:"unknown_id"});
-//             }
-//         }else{
-//             return res.json({ status: "error", message:"id not provided", code:"unknown_id"});
-//         }
-//     } catch (error) {
-//         console.error("Error deleting :", error);  // Log error for debugging
-//         return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
-//     }
-// });
+router.post("/delete", verifyToken, async (req, res) => {
+    const { id, action } = req.body.data;
+    console.log(req.body);
+    try {
+        if(id){
+            const result = await UserModel.findByIdAndDelete(id);
+            if(result){
+                return res.json({ status: "success", message:result, code:"deleted" });
+            }else{
+                return res.json({ status: "error", message:result, code:"unknown_id"});
+            }
+        }else{
+            return res.json({ status: "error", message:"id not provided", code:"unknown_id"});
+        }
+    } catch (error) {
+        console.error("Error deleting :", error);  // Log error for debugging
+        return res.status(500).json({ status: "error", message: "could not delete roles", error, code:"unknown_error" });
+    }
+});
+
+// Generate and send password reset link
+router.post('/forgot-password', async(req, res)=>{
+    const {email} = req.body;
+
+    try{
+        const user = await UserModel.findOne({email});
+        if(!user){
+            return res.json({ status: "error", message:"User not found with email", code:"user_with_email_not_found" });
+        }
+
+        const SECRET_KEY = process.env.SECRET_KEY;
+        const resetToken = jwt.sign(
+            {id:user._id},
+            SECRET_KEY, {expiresIn:'24h'}
+        );
+
+        // Update user with the reset token and expiration time
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 24*60*60*1000; // 24 hours
+
+        await user.save();
+
+        // Setup nodemiler
+        if(process.env.EMAIL_USER){
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                  user: process.env.EMAIL_USER,
+                  pass: process.env.EMAIL_PASS
+                }
+            });
+
+            // send email
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: 'Password Reset',
+                html: `<p>You requested for a password reset</p>
+                       <p>Click this <a href="${process.env.CLIENT_URL}/reset-password/${resetToken}">link</a> to reset your password.</p>`
+              };
+            
+              transporter.sendMail(mailOptions, (error, info)=>{
+                if(error){
+                    return res.json({ status: "error", message:"Email not sent", code:"error_sending_email", error });
+                }
+                return res.json({ status: "success", message:"Password reset email sent", code:"password_reset_email_sent" });
+            })  
+        }
+
+        return res.json({ status: "success", message:"Password reset email sent", code:"passoword_reset_link", link:`${process.env.CLIENT_URL}/reset-password/${resetToken}`});
+
+    }catch(error){
+        return res.status(500).json({ status: "error", message: "server error", error, code:"unknown_error" });
+    }
+})
+
+// Reset Password
+router.post('/reset-password/:token', async(req,res)=>{
+    const {token} = req.params;
+    const {password} =req.body;
+    try{
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+
+        const user = await UserModel.findOne({
+            _id:decoded.id,
+            resetPasswordToken:token,
+            resetPasswordExpires:{$gt: Date.now()} // token should not be expired
+        });
+
+        if(!user){
+            return res.json({ status: "error", message:"Invalid or expired token", code:"invalid_expired_token" });
+        }
+
+        user.password = await bcrypt.hash(password, 10);
+        user.resetPasswordToken = undefined;  
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.json({ status: "success", message:"Password reset successfully", code:"password_reset_success" });
+        
+    }catch(error){
+        return res.status(500).json({ status: "error", message: "server error", error, code:"unknown_error" });
+    }
+})
+
+// admin reset password
+router.post('/admin-reset-password', verifyToken, async(req,res)=>{
+    const {id, password} =req.body;
+    console.log(password);
+    try{
+        const user = await UserModel.findById({id});
+        if(!user){
+            return res.json({ status: "error", message:"User not found with email", code:"user_not_found" });
+        }
+        user.password = await bcrypt.hash(password, 10);
+        await user.save();
+
+        return res.json({ status: "success", message:"User Password Saved", code:"password_reset_success" });
+
+    }catch(error){
+        return res.json({ status: "error", message:"Server error", code:"server error" });
+    }
+    
+})
+
 
 export { router as userRouter };

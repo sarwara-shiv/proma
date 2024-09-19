@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../../../../hooks/useAuth';
-import { useCookies } from 'react-cookie';
 import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
-import { IoTrash, IoCreateOutline } from "react-icons/io5";
+import { IoTrash, IoCreateOutline, IoLockClosed } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import Popup from '../../../../components/common/CustomAlert';
 import { getRecords, deleteRecordById, addUpdateRecords } from '../../../../hooks/dbHooks';
-import DeleteById from '../../../../components/forms/DeleteById';
+import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
 import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
@@ -18,6 +15,7 @@ import { User } from '@/interfaces/users';
 import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import { AlertPopupType, FlashPopupType } from '@/interfaces';
+import ChangePassword from './ChangePassword';
 
 interface DataType { 
     name: string;
@@ -127,6 +125,11 @@ const AllUsers = () => {
                             >
                               <IoCreateOutline /> 
                         </NavLink>
+                        <div onClick={()=>changePassword({id:row.original._id as string, username:row.original.username})} 
+                        className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                            >
+                              <IoLockClosed />
+                        </div>
                     </div>
                     
                 </div>
@@ -134,7 +137,7 @@ const AllUsers = () => {
             meta:{
                 style :{
                 textAlign:'right',
-                width:"50px"
+                width:"100px"
                 }
             }
         }
@@ -143,6 +146,10 @@ const AllUsers = () => {
     useEffect(() => {
         getAllUsers();
     }, []);
+
+    const changePassword = ({id, username}:{id:string, username:string})=>{
+        setAlertData({...alertData, content:<ChangePassword id={id} username={username} />, 'title':`${username}`,  'isOpen':true, 'type':'form'})  
+    }
 
       // HANDLE CELL CHANGE
     const handleCellChange = (value:Boolean | string, rowData:any)=>{
@@ -283,6 +290,7 @@ const AllUsers = () => {
 
         <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
         
+
         </div>
 
     );

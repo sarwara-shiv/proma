@@ -15,5 +15,5 @@ export interface AlertPopupType {
     content: React.ReactNode | string;
     data?:any;
     display?:'timer' | null;
-    type?:"info" | "error" | "fail" | "warning" | "success";
+    type?:"info" | "error" | "fail" | "warning" | "success" | "form";
   }

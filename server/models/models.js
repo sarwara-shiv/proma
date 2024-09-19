@@ -157,6 +157,13 @@ const DocumentationSchema = new Schema({
 });
 
 
+// PASSWORD RESET SCHEMA
+const PasswordReset = new Schema({
+  email:{type:String, required:true, unique:true},
+  email:{type:String, required:true, unique:true},
+})
+
+
 
 // Create Models
 const TaskStatus = mongoose.model('TaskStatus', TaskStatusSchema);
@@ -166,5 +173,8 @@ const ProjectPriority = mongoose.model('ProjectPriority', ProjectPrioritySchema)
 const Task = mongoose.model('Task', TaskSchema);
 const Project = mongoose.model('Project', ProjectSchema);
 const Documentation = mongoose.model('Documentation', DocumentationSchema);
+
+
+
 
 export { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation };

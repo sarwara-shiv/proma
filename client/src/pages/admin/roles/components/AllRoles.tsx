@@ -7,7 +7,7 @@ import { IoCreateOutline } from "react-icons/io5";
 import { useTranslation } from 'react-i18next';
 import { getRecords, deleteRecordById } from '../../../../hooks/dbHooks';
 import { UserRole } from '../../../../interfaces';
-import DeleteById from '../../../../components/forms/DeleteById';
+import DeleteById from '../../../../components/actions/DeleteById';
 import { NavLink } from 'react-router-dom';
 
 
