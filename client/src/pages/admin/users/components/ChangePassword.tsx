@@ -10,21 +10,27 @@ interface ArgsType{
 
 const ChangePassword: React.FC<ArgsType>  = ({id, username}) => {
     const {t} = useTranslation();
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState({type:"success", text:""});
     const [formData, setFormData] = useState<{password:string, rPassword:string}>({password:'Pass@123', rPassword:'Pass@123'});
 
     const handleInput = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
+        setMessage({...message, text:""});
         const {name, value} = event.target;
         setFormData({...formData, [name]:value});
     }
 
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setMessage('');
+        setMessage({...message, text:""});
         if(formData.password === formData.rPassword){
-            const response = adminResetPassword({id, password:formData.password});
+            const response = await adminResetPassword({id, password:formData.password}); 
+            if(response.status === 'success'){
+                setMessage({...message, type:"success", text:`${t(`RESPONSE.${response.code}`)}`});
+            }else{
+                setMessage({...message, type:'error', text:`${t(`RESPONSE.${response.code}`)}`});
+            }
         }else{
-            setMessage('Password & repeat Password does not match');
+            setMessage({...message, type:'error', text:`${t(`RESPONSE.password_not_same`)}`});
         }
     }
 
@@ -32,6 +38,9 @@ const ChangePassword: React.FC<ArgsType>  = ({id, username}) => {
     <div>
           <div className='flex flex-row justify-between align-center'>
             <h2 className="text-md font-bold mb-4">{t('changePassword')}</h2>
+            <span className={`${message.type === 'error' ? 'text-red-500' : 'text-green-500'} italic text-xs`}>
+                {message.text  && message.text}
+            </span>
           </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
@@ -53,7 +62,6 @@ const ChangePassword: React.FC<ArgsType>  = ({id, username}) => {
                         onChange={handleInput}
                     />
             </div>
-            {message  && message}
             <div className="mt-0 text-right">
                 <FormButton  btnText={t('update')} />
             </div>

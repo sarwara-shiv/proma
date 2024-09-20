@@ -5,6 +5,7 @@ import { useAuth } from "./hooks/useAuth";
 import AdminRoutes from "./routes/AdminRoutes";
 import UserRoutes from "./routes/UserRoutes";
 import Unauthorised from "./pages/Unauthorised";
+import ResetPassword from "./pages/auth/ResetPassword";
 function App() {
   const {t} = useTranslation("common");
   const {isAuthenticated, role, roles} = useAuth();
@@ -14,6 +15,8 @@ function App() {
       <Router>
         <Routes >
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
             {isAdmin && (
               <Route path="/admin/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/unauthorized" />} />
             )}

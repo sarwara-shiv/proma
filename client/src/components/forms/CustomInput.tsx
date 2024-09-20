@@ -45,7 +45,7 @@ const CustomInput: React.FC<argsType> = (args) => {
 
     const regExPattern = {
         password: `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\\-_+#!$%&=?*])[A-Za-z\\d@\\-_+#!$%&=?*]{6,}$`, // at least one uppercase, one lowercase, one digit, and one special character
-        email: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
+        email: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, 
         mobile: `^\\+?[1-9]\\d{1,14}$`,
         url: `^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$`,
         keyword: `^[A-Za-z0-9_-]+$`,
@@ -61,6 +61,10 @@ const CustomInput: React.FC<argsType> = (args) => {
         (type === "password" && regExPattern["password"]) || 
         (type === "url" && regExPattern["url"]) || 
         ".";
+    const    fieldInfo = fieldType || 
+        (type === "email" && "email") || 
+        (type === "password" && "password") || 
+        (type === "url" && "url") || "";
 
     const handleBlur = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const inputValue = event.target.value;
@@ -80,7 +84,7 @@ const CustomInput: React.FC<argsType> = (args) => {
     };
 
     const getInfoContent = () => {
-        switch (fieldType) {
+        switch (fieldInfo) {
             case 'password':
                 return 'Password must be at least 6 characters long with at least one uppercase letter, one lowercase letter, and one digit.';
             case 'email':

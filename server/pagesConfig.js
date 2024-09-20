@@ -8,6 +8,13 @@ const Pages = {
       access:['admin', 'manager'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    AUTH: {
+      name: 'users',
+      displayName: 'Users',
+      model:"Users",
+      access:['admin', 'manager'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     USER_ROLES: {
       name: 'roles',
       displayName: 'UserRoles',

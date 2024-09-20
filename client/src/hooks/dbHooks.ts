@@ -114,7 +114,7 @@ const forgotPassword = async(args:ForgotPassword) =>{
         'Content-Type': 'application/json'
       }
     });
-
+    console.log(response);
     return response.data; 
   }catch(error){
     return { status: "error", code: "server_error" };
@@ -157,14 +157,17 @@ const adminResetPassword = async(args:AdminResetPassword) =>{
   const API_URL = process.env.REACT_APP_API_URL;
 
   try{
-    const response = await axios.post(`${API_URL}/auth/admin-reset-password`, {id, password},
+    const response = await axios.post(`${API_URL}/auth/admin-reset-password`, 
       {
-      headers: {
-        'Authorization': `Bearer ${JWT_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
+        page:'users',id, password
+      }, 
+      {
+        headers: {
+          'Authorization': `Bearer ${JWT_TOKEN}`, 
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log(response.data);
     return response.data; 
   }catch(error){
     return { status: "error", code: "server_error" };

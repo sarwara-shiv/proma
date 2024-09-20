@@ -196,9 +196,9 @@ router.post("/delete", verifyToken, async (req, res) => {
 // Generate and send password reset link
 router.post('/forgot-password', async(req, res)=>{
     const {email} = req.body;
-
     try{
         const user = await UserModel.findOne({email});
+        console.log(user);
         if(!user){
             return res.json({ status: "error", message:"User not found with email", code:"user_with_email_not_found" });
         }
@@ -242,7 +242,7 @@ router.post('/forgot-password', async(req, res)=>{
             })  
         }
 
-        return res.json({ status: "success", message:"Password reset email sent", code:"passoword_reset_link", link:`${process.env.CLIENT_URL}/reset-password/${resetToken}`});
+        return res.json({ status: "success", message:"Password reset email sent", code:"passoword_reset_link", link:`${process.env.CLIENT_URL}/reset-password/${resetToken}`}); 
 
     }catch(error){
         return res.status(500).json({ status: "error", message: "server error", error, code:"unknown_error" });
@@ -282,8 +282,9 @@ router.post('/reset-password/:token', async(req,res)=>{
 router.post('/admin-reset-password', verifyToken, async(req,res)=>{
     const {id, password} =req.body;
     console.log(password);
+    console.log(id);
     try{
-        const user = await UserModel.findById({id});
+        const user = await UserModel.findOne({_id:id});
         if(!user){
             return res.json({ status: "error", message:"User not found with email", code:"user_not_found" });
         }
@@ -296,6 +297,10 @@ router.post('/admin-reset-password', verifyToken, async(req,res)=>{
         return res.json({ status: "error", message:"Server error", code:"server error" });
     }
     
+})
+
+router.post("/test-req", async (req, res) => {
+    return req;
 })
 
 

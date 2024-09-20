@@ -6,6 +6,7 @@ import {useNavigate } from 'react-router-dom';
 import CustomInput from '../forms/CustomInput';
 import FormButton from '../common/FormButton';
 import axios from 'axios';
+import FormsTitle from '../common/FormsTitle';
 
 const LoginForm: React.FC = () => {
   const {user} = useAuth();
@@ -14,11 +15,8 @@ const LoginForm: React.FC = () => {
   const [_, setCookies] = useCookies(["access_token"]);
   const navigation = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
-  console.log(user);
   // handle inputs
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement| HTMLTextAreaElement>)=>{
-    console.log(API_URL);
-
     const field = event.target.name;
     setData({...data, [field]:event.target.value});
   }
@@ -51,10 +49,14 @@ const LoginForm: React.FC = () => {
     }
   }
 
+  const toggleContent = (value:string)=>{
+    console.log(value);
+  }
+
   return (
     <div className='login-wrap form-container sm:mx-auto sm:w-full sm:max-w-sm shadow-lg p-4 rounded-lg bg-white'>
       <form className="space-y-6" onSubmit={(e)=>submitForm(e)}>
-            <h2 className="text-lg text-primary">Login</h2>
+            <FormsTitle text ={t('PAGES.login')} />
             <div className="fields-wrap flex flex-col">
                 <CustomInput 
                     type="email" id='lemail' name="email" value={data.email} onChange={(event) => handleInputs(event)} label={t("FORMS.email")}

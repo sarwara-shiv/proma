@@ -4,12 +4,12 @@ import { ReactComponent as LogoIconSvg } from '../../assets/images/svg/logo-icon
 
 interface ArgsType {
     type?: string;
-    size?: 'base' | 'sm'| 'md'| 'lg'| 'xl';
+    size?: 'base' | 'xs' | 'sm'| 'md'| 'lg'| 'xl';
     height?: number;
     onClick?: () => void;
 }
 
-const Logo: React.FC<ArgsType> = ({ type, size = '', height, onClick }) => {
+const Logo: React.FC<ArgsType> = ({ type, size = 'base', height, onClick }) => {
     return (
         <div className={`logo-wrap logo-wrap--${size}`} onClick={onClick}>
             {type === 'icon' ? (
