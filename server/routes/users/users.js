@@ -151,6 +151,7 @@ router.post("/login", async (req, res) => {
 // GET
 router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user);  // Consider removing this in production
+    console.log(req.permissions);  // Consider removing this in production
 
     try {
         const data = await UserModel.find().populate('roles');

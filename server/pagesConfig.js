@@ -2,15 +2,15 @@
 
 const Pages = {
     USERS: {
-      name: 'users',
+      name: 'users', // store in permissions object as page
       displayName: 'Users',
-      model:"Users",
-      access:['admin', 'manager'],
-      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+      model:"Users", // MongoDb schema model name
+      access:['admin', 'manager'], // default access to
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'] // actions
     },
     AUTH: {
-      name: 'users',
-      displayName: 'Users',
+      name: 'auth',
+      displayName: 'auth',
       model:"Users",
       access:['admin', 'manager'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
