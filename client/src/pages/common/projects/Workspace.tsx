@@ -10,6 +10,8 @@ import ProjectsForm from './components/ProjectsForm';
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
   { link: "projects/add", title: "projects_add" },
+  { link: "projects/tasks/all", title: "tasks_all" },
+  { link: "projects/tasks/add", title: "tasks_add" },
 ];
 
 const Project = () => {
