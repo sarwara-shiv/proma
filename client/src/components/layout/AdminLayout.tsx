@@ -1,8 +1,9 @@
 import { Outlet } from 'react-router-dom';
-import AdminNavbar from '../admin/AdminNavbar';
+import AdminNavbar from '../navigation/AdminNavbar';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../common/Logo';
 import { useTranslation } from 'react-i18next';
+import UserNavbar from '../navigation/UserNavbar';
 
 const AdminLayout = () => {
     const { t } = useTranslation();

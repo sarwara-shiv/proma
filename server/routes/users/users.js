@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { verifyToken } from '../../middleware/auth.js';
 import UserModel from '../../models/userModel.js'; 
+import { UserRolesModel } from '../../models/userRolesModel.js';
 
 const router = express.Router();
 
@@ -123,10 +124,20 @@ router.post("/login", async (req, res) => {
         }
 
         console.log('logged in user: ------ ', user); 
+        let rolePermissions = [];
+        let userPermissions = Array.from(user.permissions);
+
+        user.roles.forEach(role => {
+            if (role.permissions) {
+              rolePermissions = [...rolePermissions, ...role.permissions];
+            }
+        });
+
+        const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, email: user.email, username: user.username, role: "admin", roles:user.roles },
+            { id: user._id, email: user.email, username: user.username, role: "admin", roles:user.roles, permissions:combinedPermissions },
             SECRET_KEY,
             { expiresIn: '10h' }
         );
@@ -161,6 +172,7 @@ router.post("/get", verifyToken, async (req, res) => {
         return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});
     }
 });
+
 
 // LOGOUT
 router.post("/logout", (req, res) => {
@@ -298,11 +310,44 @@ router.post('/admin-reset-password', verifyToken, async(req,res)=>{
         return res.json({ status: "error", message:"Server error", code:"server error" });
     }
     
-})
+});
 
-router.post("/test-req", async (req, res) => {
-    return req;
-})
+
+
+// merge permissions
+const mergePermissions = (rolePermissions, userPermissions) => {
+    const mergedPermissions = new Map();
+  
+    // Add role-based permissions first
+    rolePermissions.forEach(permission => {
+      mergedPermissions.set(permission.page, {
+        canCreate: permission.canCreate,
+        canUpdate: permission.canUpdate,
+        canDelete: permission.canDelete,
+        canView: permission.canView,
+      });
+    });
+  
+    // Add user-specific permissions (override if already present)
+    userPermissions.forEach((permission, page) => {
+      if (mergedPermissions.has(page)) {
+        const rolePerm = mergedPermissions.get(page);
+        mergedPermissions.set(page, {
+          canCreate: permission.canCreate ?? rolePerm.canCreate,
+          canUpdate: permission.canUpdate ?? rolePerm.canUpdate,
+          canDelete: permission.canDelete ?? rolePerm.canDelete,
+          canView: permission.canView ?? rolePerm.canView,
+        });
+      } else {
+        mergedPermissions.set(page, permission);
+      }
+    });
+  
+    return Array.from(mergedPermissions, ([page, permissions]) => ({
+      page,
+      ...permissions,
+    }));
+  };
 
 
 export { router as userRouter };

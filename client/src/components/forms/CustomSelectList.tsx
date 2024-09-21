@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Define the type for a single option in the data array
 interface Option {
@@ -25,6 +25,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
   selectedValue,
   onChange,
 }) => {
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (inputType === 'checkbox') {
       const checkedBoxes = Array.from(
@@ -43,15 +44,17 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
         className={`fields-${inputType}-wrapper ${(inputType === 'checkbox' || inputType === 'radio') && 'items-center space-x-2'}`}
       >
         {inputType === 'radio' &&
-          data.map((item, index) => (
-            <div key={item._id} className="inline-flex items-center">
+          data.map((item, index) => {
+            const checked = Array.isArray(selectedValue) ? selectedValue.includes(item._id) : selectedValue === item._id;
+
+            return (
+            <div key={item._id} className="inline-flex items-center mb-2">
               <input
                 type="radio"
                 name={name}
                 value={item._id}
                 className="peer sr-only"
                 id={`${name}-${index}`}
-                // checked={item._id === selectedValue}
                 onChange={handleChange}
               />
               <label
@@ -77,10 +80,11 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                   duration-150
                 "
               >
-                {item.name}
+                {item.displayName}
               </label>
             </div>
-          ))}
+          )}
+          )}
 
         {inputType === 'checkbox' &&
           data.map((item, index) => (

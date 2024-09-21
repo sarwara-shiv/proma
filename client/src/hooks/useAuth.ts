@@ -25,6 +25,7 @@ function useAuth() {
       isAuthenticated: true,
       role: user.role || null,
       roles: user.roles || [], 
+      permissions: user.permissions || [], 
       user,
     };
   } else {
@@ -32,6 +33,7 @@ function useAuth() {
       isAuthenticated: false,
       role: null,
       roles:[],
+      Permissions:[],
       user: null,
     };
   }

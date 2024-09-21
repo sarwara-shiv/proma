@@ -6,6 +6,17 @@ const DynamicFieldSchema = new Schema({
   value: { type: Schema.Types.Mixed, required: true },
 });
 
+// Ticket Schema
+const TicketSchema = new Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // User who created the ticket
+  tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }], // Tasks associated with the ticket
+  status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
 // Page-Level Permissions Schema
 const PagePermissionSchema = new Schema({
   page: { type: String, required: true },  // Page or Section name
@@ -38,7 +49,7 @@ const TaskPrioritySchema = new Schema({
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
-// Task Schema
+// Update Task Schema to reference Ticket
 const TaskSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String },
@@ -57,9 +68,22 @@ const TaskSchema = new Schema({
   customFields: [DynamicFieldSchema],
   subTasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   permissions: [PermissionSchema],
+  ticket: { type: Schema.Types.ObjectId, ref: 'Ticket' }, // Reference to the Ticket
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+// Close ticket when all tasks are completed
+TicketSchema.methods.checkCompletion = async function () {
+  const ticket = this;
+  const tasks = await mongoose.model('Task').find({ _id: { $in: ticket.tasks } });
+  const allCompleted = tasks.every(task => task.status === 'completed');
+
+  if (allCompleted) {
+    ticket.status = 'closed';
+    await ticket.save();
+  }
+};
 
 // Kickoff Question Schema
 const KickoffQuestionSchema = new Schema({
@@ -142,6 +166,7 @@ const ProjectSchema = new Schema({
   permissions: [PermissionSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 // Documentation Schema
@@ -154,6 +179,7 @@ const DocumentationSchema = new Schema({
   permissions: [PermissionSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 
@@ -173,8 +199,8 @@ const ProjectPriority = mongoose.model('ProjectPriority', ProjectPrioritySchema)
 const Task = mongoose.model('Task', TaskSchema);
 const Project = mongoose.model('Project', ProjectSchema);
 const Documentation = mongoose.model('Documentation', DocumentationSchema);
+const Ticket = mongoose.model('Ticket', TicketSchema);
 
 
 
-
-export { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation };
+export { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket };

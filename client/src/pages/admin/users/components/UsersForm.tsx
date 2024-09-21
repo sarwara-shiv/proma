@@ -3,12 +3,14 @@ import CustomInput from '../../../../components/forms/CustomInput';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
 import { addRecords, addUpdateRecords } from '../../../../hooks/dbHooks';
-import { User } from '@/interfaces/users';
-import { PermissionsMap } from '../../../../interfaces';
+import { User } from '../../../../interfaces/users';
+import { PermissionsMap, UserRole, UserWithRoles } from '../../../../interfaces';
 import {RolesSelect, PagePermissionsSelect} from '../../../../components/forms';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import ToggleSwitch from '../../../../components/common/ToggleSwitch';
 import { AlertPopupType, FlashPopupType } from '@/interfaces';
+import UserRolesSelect from '../../../../components/forms/UserRolesSelect';
+import FlashPopup from '../../../../components/common/FlashPopup';
 
 interface ArgsType {
   id?:string | null;
@@ -24,9 +26,24 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive });
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
+  const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
+  const [selectedRoleName, setSelectedRoleName] = useState<string>('');
   const { t } = useTranslation();
 
+  useEffect(()=>{
+    if(formData.roles && formData.roles.length > 0){
+      console.log(formData.roles);
+      const roleIds = formData.roles.map((role) => {
+        const rdata = role as unknown as UserRole;
+        if (rdata._id) {
+          setSelectedRoleName(rdata.name);
+          return rdata._id;
+        }
+      });
+    
+    }
 
+  },[])
   const handlePermissionsChange = (newPermissions: PermissionsMap) => {
     setSelectedPermissions(newPermissions);
     console.log('Selected Permissions:', newPermissions);
@@ -37,7 +54,9 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
     setFormData({ ...formData, [field]: event.target.value });
   };
 
-  const handleRoleChange = (value: string | string[]) => {
+  const handleRoleChange = (value: string | string[], name:string) => {
+    console.log(name);
+    setSelectedRoleName(name);
     setFormData({ ...formData, roles: Array.isArray(value) ? value : [value] });
   };
 
@@ -53,7 +72,8 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
-            setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
+            // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
+            setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
             console.log('Response Data:', response.data);
         } else {
           let content = `${t(`RESPONSE.${response.code}`)}`
@@ -65,13 +85,6 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           setAlertData({...alertData, isOpen:true, title:"Fail", type:"fail", content});
           console.error('Error:', response.message, 'Code:', response.code);
         }
-      //   console.log({ ...formData, permissions: selectedPermissions } );
-      // const response = await addRecords({ type: "users", body: { ...formData, permissions: selectedPermissions } });
-      // if (response.status === "success") {
-      //   setAlertData({ ...alertData, isOpen: true, content: 'User Created', type: 'success' });
-      // } else {
-      //   setAlertData({ ...alertData, isOpen: true, content: response.message, type: 'error', title: response.code });
-      // }
     } catch (error) {
       console.error(error);
     }
@@ -126,24 +139,15 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           }
 
           {/* Render roles once they are fetched */}
-          {/* {rolesData.length > 0 && (
-            <CustomSelectList
-              label={t('roles')}
-              name='roles'
-              data={rolesData}
-              selectedValue={roles}
-              inputType="radio"
-              onChange={handleSelectChange}
-            />
-          )} */}
-
-            <RolesSelect onChange={handleRoleChange} selectedRoles={[]}/>
+            <UserRolesSelect onChange={handleRoleChange} selectedRoles={formData.roles} />
 
           <div className="mt-6">
-            <PagePermissionsSelect
-              initialPermissions={selectedPermissions}
-              onPermissionsChange={handlePermissionsChange}
-            />
+            {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && 
+              <PagePermissionsSelect
+                initialPermissions={selectedPermissions}
+                onPermissionsChange={handlePermissionsChange}
+              />
+            }
           </div>
 
           <div className="mt-6 text-right">
@@ -159,6 +163,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           type={alertData.type || 'info'} 
         />
 
+<FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
         
       </div>
     </div>

@@ -20,18 +20,20 @@ export interface PageConfig {
   root:string;
   access?:string[];
   icon?:IconType;
-  
+  subMenu?:PageConfig;
+  sortOrder:number
 }
 
 // Create an object to hold all your pages' configurations
 const PagesConfig: Record<string, PageConfig> = {
   USERS: {
     name: 'users',
-    root:"auth",
+    root:"users",
     displayName: 'Users',
     icon:FaUsers,
     access:['admin', 'manager'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:2
   },
   USER_ROLES: {
     name: 'roles',
@@ -39,7 +41,8 @@ const PagesConfig: Record<string, PageConfig> = {
     icon:FaUserTie,
     displayName: 'User Roles',
     access:['admin', 'manager'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:1
   },
   PROJECTS: {
     name: 'projects',
@@ -47,21 +50,24 @@ const PagesConfig: Record<string, PageConfig> = {
     root:"projects",
     icon:MdOutlineInstallDesktop,
     access:['all'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:3
   },
   TASKS: {
     name: 'tasks',
     displayName: 'Tasks',
     root:"tasks",
     access:['all'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:5
   },
   DOCUMENTATION: {
     name: 'documentation',
     displayName: 'Documentation',
     root:"documentation",
     access:['all'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:6
   },
   // Add more pages here as needed
 };

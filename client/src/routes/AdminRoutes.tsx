@@ -4,42 +4,33 @@ import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/users/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
 import Projects from '../pages/common/projects/Workspace';
+import routes from '../config/routesConfig';
+import { ReactElement } from 'react';
 
-interface RouteConfig {
-  path: string;
-  element: React.ReactNode;
-  params?: string[];
-}
-
-const routes: RouteConfig[] = [
-  {
-    path: '/users',
-    element: <Users />,
-    params: ['action', 'id'], 
-  },
-  {
-    path: '/roles',
-    element: <UserRoles />,
-    params: ['action', 'id'], 
-  },
-  {
-    path: '/projects', 
-    element: <Projects />,
-    params: ['action', 'id'], 
-  },
-];
+const routeComponents: Record<string, ReactElement> = {
+  Users: <Users />,
+  UserRoles: <UserRoles />,
+  Projects: <Projects />,
+};
 
 const AdminRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<AdminLayout />}>
-        {routes.map(({ path, element, params }) => (
-          <Route
-            key={path}
-            path={generateRoutePath(path, params)} 
-            element={element}
-          />
-        ))}
+      {routes.map(({ path, element, params,access }) => {
+          const Component = routeComponents[element];
+          if (!Component) {
+            console.error(`Component ${element} not found`);
+            return null;
+          }
+          return ( 
+            <Route
+              key={path}
+              path={generateRoutePath(path, params)}
+              element={Component} // Use the mapped component
+            />
+          );
+        })}
       </Route>
     </Routes>
   );

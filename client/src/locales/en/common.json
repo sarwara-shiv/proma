@@ -2,6 +2,8 @@
     "adminPanel":"Admin Panel",
     "NAV" :{
         "roles":"Roles",
+        "tasks":"Tasks",
+        "documentation":"Documentation",
         "roles_all":"All Roles",
         "roles_add":"Add Roles",
         "roles_update":"Add Roles",

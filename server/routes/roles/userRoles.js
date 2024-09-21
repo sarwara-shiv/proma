@@ -69,6 +69,18 @@ router.post("/get", verifyToken, async (req, res) => {
     }
 });
 
+router.post("/getpermissions", verifyToken, async (req, res) => {
+    console.log(req.user); 
+
+    try {
+        const data = await UserRolesModel.find().sort({createdAt:1, type:1});
+        return res.json({ status: "success", data, code:"success"});
+    } catch (error) {
+        console.error("Error fetching roles:", error);  // Log error for debugging
+        return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});
+    }
+});
+
 // DELETE BY ID
 // router.post("/delete", verifyToken, async (req, res) => {
 //     const { id, action } = req.body.data;

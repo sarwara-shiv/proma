@@ -47,36 +47,40 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
   return (
     <div>
       <h3 className='text-md font-semibold pt-2 pb-2'>{t('FORMS.pagePermissions')}</h3> 
-      {Object.keys(PagesConfig).map((pageKey) => {
+      {Object.keys(PagesConfig).map((pageKey, index) => {
         const pageConfig: PageConfig = PagesConfig[pageKey];
 
         return (
-          <div key={pageConfig.name} className='inline-flex items-center my-1 flex-col justify-start gap-2'>
-            <div className='p-1'>
-              <div style={{ border: '1px solid #ccc', padding: '10px' }}>
-              <h4 className='text-dark me-2 pb-1 border-b border-gray-200 mb- text-sm mb-2'>
-                {/* {pageConfig.icon && <pageConfig.icon />}  */}
-                <span className='text-slate-300'>{t('page')}</span> : {pageConfig.displayName}
-              </h4>
-              <div className='text-sm text-slate-400 '>
-                {pageConfig.actions.map((action: PageAction) => (
-                  <label key={action} style={{ marginRight: '10px', display: 'inline-block' }} className='cursor-pointer'>
-                    <input
-                      type="checkbox"
-                      className='peer sr-only'
-                      checked={permissionsState[pageConfig.name]?.[action] || false}
-                      onChange={() => handlePermissionChange(pageConfig.name, action)}
-                      style={{ marginRight: '5px' }}
-                    />
-                    <span className='peer-checked:text-primary px-1 py-1 bg-gray-200/50 rounded peer-checked:bg-primary-light
-                  peer-checked:text-primary'>{t(`FORMS.${action}`)}</span>
-                  </label>
-                ))}
+          <>
+            {pageConfig.access?.includes('all') && 
+              <div key={`${pageConfig.name}-${index}`} className='inline-flex items-center my-1 flex-col justify-start gap-2'>
+                <div className='p-1'>
+                  <div style={{ border: '1px solid #ccc', padding: '10px' }}>
+                  <h4 className='text-dark me-2 pb-1 border-b border-gray-200 mb- text-sm mb-2'>
+                    {/* {pageConfig.icon && <pageConfig.icon />}  */}
+                    <span className='text-slate-300'>{t('page')}</span> : {pageConfig.displayName}
+                  </h4>
+                  <div className='text-sm text-slate-400 '>
+                    {pageConfig.actions.map((action: PageAction, index) => (
+                      <label key={`action-${index}`} style={{ marginRight: '10px', display: 'inline-block' }} className='cursor-pointer'>
+                        <input
+                          type="checkbox"
+                          className='peer sr-only'
+                          checked={permissionsState[pageConfig.name]?.[action] || false}
+                          onChange={() => handlePermissionChange(pageConfig.name, action)}
+                          style={{ marginRight: '5px' }}
+                        />
+                        <span className='peer-checked:text-primary px-1 py-1 bg-gray-200/50 rounded peer-checked:bg-primary-light
+                      peer-checked:text-primary'>{t(`FORMS.${action}`)}</span>
+                      </label>
+                    ))}
+                  </div>
+                  </div>
+                </div>
               </div>
-              </div>
-            </div>
-          </div>
-        );
+            }
+          </>        
+          );
       })}
     </div>
   );
