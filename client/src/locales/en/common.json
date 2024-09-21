@@ -120,7 +120,7 @@
     "user":"User",
     "userGroups":"User Groups",
     "project":"Project",
-    "projects":"Projuects‚",
+    "projects":"Projects",
     "users":"Users",
     "roles":"Roles",
     "role":"Role",
@@ -129,5 +129,13 @@
     "error":"Error",
     "success":"Success",
     "info":"Information",
+    "newProject":"New Project",
+    "updateProject":"Update Project",
+    "newRole":"New Role",
+    "updateRole":"Update Role",
+    "newTask":"New Task",
+    "updateTask":"Update Task",
+    "updateUser":"Update User",
     "newUser":"New User"
+
 }

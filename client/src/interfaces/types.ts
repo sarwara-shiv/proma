@@ -1,3 +1,10 @@
+import { ReactNode } from "react";
+
+export interface NavItem {
+  link: string;
+  title: string;
+  icon?: ReactNode;
+}
 // Dynamic Fields Interface
 export interface DynamicField {
     key: string;
@@ -126,12 +133,12 @@ export interface DynamicField {
     customPriority?: string; // Refers to ProjectPriority objectId
     startDate: Date;
     endDate?: Date;
-    kickoff: Kickoff;
-    documentation: string[]; // Array of Documentation objectIds
+    kickoff?: Kickoff;
+    documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: string[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
-    customFields: DynamicField[];
-    permissions: Permission[];
+    customFields?: DynamicField[];
+    permissions?: Permission[];
     createdAt?: Date;
     updatedAt?: Date;
   }

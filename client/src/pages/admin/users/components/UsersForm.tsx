@@ -98,7 +98,9 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
     <div className='content flex justify-center'>
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
         <div className='flex flex-row justify-between align-center'>
-          <h2 className="text-lg font-bold mb-4">{t('newUser')}</h2>
+          <h2 className="text-lg font-bold mb-4">
+            { action==='update' ? t('updateUser') : t('newUser')}
+            </h2>
           <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>

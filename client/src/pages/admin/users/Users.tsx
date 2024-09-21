@@ -27,9 +27,6 @@ const Users = () => {
   const [pageTitle, setPageTitle] = useState("users");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
-  useEffect(()=>{
-
-  },[])
 
   return (
     <div className='page-wrap relative'>
