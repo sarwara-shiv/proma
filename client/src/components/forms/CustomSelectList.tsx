@@ -1,10 +1,4 @@
-import React, { useEffect, useState } from 'react';
-
-// Define the type for a single option in the data array
-interface Option {
-  _id: string;
-  name: string;
-}
+import React from 'react';
 
 // Define the types for the props
 interface CustomSelectListProps {
