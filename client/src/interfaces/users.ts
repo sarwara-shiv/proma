@@ -7,8 +7,9 @@ export interface User {
   username: string;
   email: string;
   password?: string;
-  roles?: string[]; // Array of ObjectId references to UserRoles
-  permissions?: PermissionsMap; // Map of permissions for pages
+  groups?: string[]; 
+  roles?: string[]; 
+  permissions?: PermissionsMap; 
   createdAt?: Date;
   updatedAt?: Date;
   isActive?:Boolean;
@@ -19,8 +20,9 @@ export interface UserWithRoles {
   username: string;
   email: string;
   password?: string;
-  roles?: UserRole[]; // Array of ObjectId references to UserRoles
-  permissions?: PermissionsMap; // Map of permissions for pages
+  groups?: UserRole[]; 
+  roles?: UserRole[]; 
+  permissions?: PermissionsMap; 
   createdAt?: Date;
   updatedAt?: Date;
   isActive?:Boolean;

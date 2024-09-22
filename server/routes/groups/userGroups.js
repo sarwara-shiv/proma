@@ -1,15 +1,15 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
-import { userGroupsModel } from './userGroups.model.js';
+import  UserGroupModel from '../../models/userGroupModel.js';
 
 const router = express.Router();
 
 // CREATE
 router.post("/add", verifyToken, async (req, res) => {
-    const { name, shortName, permissions = [], description } = req.body;
+    const { name, displayName, description, isEditable=true } = req.body;
 
     // Validate input
-    if (!name || !shortName) {
+    if (!name || !displayName) {
         return res.status(400).json({
             status: "error",
             message: "Group name and short name are required",
@@ -17,13 +17,13 @@ router.post("/add", verifyToken, async (req, res) => {
         });
     }
 
-    const formData = { name, shortName, permissions, description };
+    const formData = { name, displayName, description };
 
     try {
         // Check if a Group with the same name or shortName already exists
         const [byName, byShort] = await Promise.all([
-            userGroupsModel.findOne({ name }),
-            userGroupsModel.findOne({ shortName })
+            UserGroupModel.findOne({ name }),
+            UserGroupModel.findOne({ shortName })
         ]);
 
         if (byName || byShort) {
@@ -43,7 +43,7 @@ router.post("/add", verifyToken, async (req, res) => {
         }
 
         // Create and save the new Group
-        const newData = new userGroupsModel(formData);
+        const newData = new UserGroupModel(formData);
         await newData.save();
         return res.status(201).json({ status: "success", message: "created", code: "data_added" });
 
@@ -55,11 +55,11 @@ router.post("/add", verifyToken, async (req, res) => {
 
 
 // GET
-router.get("/get", verifyToken, async (req, res) => {
+router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user);  // Consider removing this in production
 
     try {
-        const data = await userGroupsModel.find();
+        const data = await UserGroupModel.find();
         return res.json({ status: "success", data, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
@@ -73,7 +73,7 @@ router.post("/delete", verifyToken, async (req, res) => {
     console.log(req.body);
     try {
         if(id){
-            const result = await userGroupsModel.findByIdAndDelete(id);
+            const result = await UserGroupModel.findByIdAndDelete(id);
             if(result){
                 return res.json({ status: "success", message:result, code:"deleted" });
             }else{

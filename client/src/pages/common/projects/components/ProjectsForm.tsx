@@ -87,9 +87,10 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
                   text-primary
                   font-semibold 
                   border-b
+                  p-2.5
                   border-slate-200
                   focus:outline-none 
-                  focus:border-none
+                  focus:border-b
                   `}
               />
               <div className=''>
@@ -105,8 +106,10 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2'>
             <div className="mb-4">
-              <MentionUserInput />
-              <PersonsInvolvedForm />
+                <PersonsInvolvedForm />
+            </div>
+            <div className="mb-4">
+              <MentionUserInput type='text'/>
             </div>
           </div>
         </form>

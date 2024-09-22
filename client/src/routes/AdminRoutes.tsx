@@ -6,11 +6,13 @@ import UserRoles from '../pages/admin/roles/UserRoles';
 import Projects from '../pages/common/projects/Workspace';
 import routes from '../config/routesConfig';
 import { ReactElement } from 'react';
+import UserGroups from '../pages/admin/groups/UserGroups';
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
   UserRoles: <UserRoles />,
   Projects: <Projects />,
+  UserGroups: <UserGroups />,
 };
 
 const AdminRoutes = () => {

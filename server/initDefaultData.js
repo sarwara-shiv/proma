@@ -2,11 +2,58 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import UserModel from './models/userModel.js';
 import { UserRolesModel } from './models/userRolesModel.js';
+import UserGroupModel from './models/userGroupModel.js' 
 
 const router = express.Router();
 
 const initializeDefaultData = async () => {
   try {
+    // Step 0: Add Default Roles
+    const groupCount = await UserGroupModel.countDocuments();
+    if(groupCount === 0){
+      await UserGroupModel.insertMany([
+        {
+          name:'manager',
+          displayName:'Manager',
+          type: 'default',
+          isEditable:false,
+        },
+        {
+          name:'contentManager',
+          displayName:'Content Manager',
+          type: 'default',
+          isEditable:false,
+        },
+        {
+          name:'frontendDeveloper',
+          displayName:'Frontend Developer',
+          type: 'default',
+          isEditable:false,
+        },
+        {
+          name:'backendDeveloper',
+          displayName:'Backend Developer',
+          type: 'default',
+          isEditable:false,
+        },
+        {
+          name:'uiux',
+          displayName:'UI/UX',
+          type: 'default',
+          isEditable:false,
+        },
+        {
+          name:'qa',
+          displayName:'QA',
+          type: 'default',
+          isEditable:false,
+        },
+      ]);
+      console.log('Default Groups created.');
+    }else{
+      console.log('Default groups exists');
+    }
+
     // Step 1: Add Default Roles
     const roleCount = await UserRolesModel.countDocuments();
     
@@ -24,6 +71,7 @@ const initializeDefaultData = async () => {
             { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
@@ -38,56 +86,22 @@ const initializeDefaultData = async () => {
             { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
-          name: 'FrontendDev', 
-          displayName: 'Frontend Developer', 
+          name: 'employee', 
+          displayName: 'Employee', 
           isEditable: false, 
-          type: 'created',
+          type: 'default',
           permissions: [
-            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-          ]
-        },
-        {
-          displayName: 'Fullstack Developer', 
-          name: 'fullstackDev', 
-          isEditable: false, 
-          type: 'created',
-          permissions: [
-            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-          ]
-        },
-        {
-          displayName: 'UI/UX Designer', 
-          name: 'uiux', 
-          isEditable: false, 
-          type: 'created',
-          permissions: [
-            { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
-            { page: 'tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
-          ]
-        },
-        {
-          displayName: 'QA', 
-          name: 'qa', 
-          isEditable: false, 
-          type: 'created',
-          permissions: [
-            { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
-            { page: 'tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
-          ]
-        },
-        {
-          displayName: 'Ecommerce Manager', 
-          name: 'ecommerceMgr', 
-          isEditable: false, 
-          type: 'created',
-          permissions: [
-            { page: 'projects', canCreate: true, canUpdate: true, canDelete: false, canView: true },
-            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: false, canView: true },
+            { page: 'dashboard', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'users', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'roles', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
+            { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
           ]
         },
         {

@@ -9,7 +9,7 @@ export interface PagePermissions {
   canView: boolean;
   canCreate: boolean;
   canUpdate: boolean;
-  canDelete: boolean;
+  canDelete: boolean; 
 }
 
 // Define the structure for a page configuration
@@ -51,7 +51,16 @@ const PagesConfig: Record<string, PageConfig> = {
     icon:MdOutlineInstallDesktop,
     access:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
-    sortOrder:3
+    sortOrder:4
+  },
+  USER_GROUPS: {
+    name: 'groups',
+    displayName: 'User Groups',
+    root:"groups",
+    icon:MdOutlineInstallDesktop,
+    access:['admin', 'manager'], 
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:2
   },
   TASKS: {
     name: 'tasks',
@@ -59,7 +68,7 @@ const PagesConfig: Record<string, PageConfig> = {
     root:"tasks",
     access:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
-    sortOrder:5
+    sortOrder:6
   },
   DOCUMENTATION: {
     name: 'documentation',
@@ -67,7 +76,7 @@ const PagesConfig: Record<string, PageConfig> = {
     root:"documentation",
     access:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
-    sortOrder:6
+    sortOrder:7
   },
   // Add more pages here as needed
 };

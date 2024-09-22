@@ -22,6 +22,13 @@ const Pages = {
       access:['admin', 'manager'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    USER_GROUPS: {
+      name: 'groups',
+      displayName: 'UserGroups',
+      model:"UserGroups",
+      access:['admin', 'manager'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     PROJECTS: {
       name: 'projects',
       displayName: 'Projects',

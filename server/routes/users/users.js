@@ -106,8 +106,7 @@ router.post("/update", verifyToken, async (req, res) => {
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;  // Fixed typo here
     try {
-        const user = await UserModel.findOne({ email }).populate('roles');
-        console.log(user);
+        const user = await UserModel.findOne({ email }).populate('roles').populate('groups');
         if (!user) {
             return res.status(404).json({ status: "error", message: `User does not exist with email: ${email}`, code: "unknown_user" });
         }
@@ -124,7 +123,7 @@ router.post("/login", async (req, res) => {
 
         console.log('logged in user: ------ ', user); 
         let rolePermissions = [];
-        let userPermissions = Array.from(user.permissions);
+        let userPermissions = user.permissions ? Array.from(user.permissions) : [];
 
         user.roles.forEach(role => {
             if (role.permissions) {
@@ -132,15 +131,17 @@ router.post("/login", async (req, res) => {
             }
         });
 
+        console.log(user.roles);
         const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, email: user.email, username: user.username, role: "admin", roles:user.roles, permissions:combinedPermissions },
+            { id: user._id, email: user.email, username: user.username, role: "admin", groups:user.groups, roles:user.roles, permissions:combinedPermissions },
             SECRET_KEY,
             { expiresIn: '10h' }
         );
 
+        console.log('logged in');
         res.json({
             status: "success",
             message: "Login successful",

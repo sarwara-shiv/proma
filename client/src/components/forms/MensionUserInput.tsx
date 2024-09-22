@@ -3,11 +3,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import UserSearchPopup from './UserSearchPopup';
 import { User } from '../../interfaces';
 
-const MentionUserInput: React.FC = () => {
+interface ArgsType{
+  type?: 'text' | 'textarea';
+}
+
+const MentionUserInput: React.FC<ArgsType> = ({type="textarea"}) => {
   const [text, setText] = useState('');
   const [query, setQuery] = useState('');
   const [showPopup, setShowPopup] = useState(false);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement >(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const match = text.match(/@\w*$/);
@@ -19,7 +24,7 @@ const MentionUserInput: React.FC = () => {
     }
   }, [text]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setText(e.target.value);
   };
 
@@ -30,13 +35,24 @@ const MentionUserInput: React.FC = () => {
 
   return (
     <div className="relative">
-      <textarea
-        ref={inputRef}
-        value={text}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded"
-        rows={5}
-      />
+      {type === 'text' &&  
+        <input
+          type='text'
+          ref={inputRef}
+          value={text}
+          onChange={handleChange}
+          className="w-full h-10 p-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-none focus:border-gray-300"
+        />
+      }
+      {type === 'textarea' &&  
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-none focus:border-gray-300 "
+          rows={4}
+        />
+      }
       {showPopup && (
         <UserSearchPopup
           query={query}

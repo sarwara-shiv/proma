@@ -10,6 +10,6 @@ import { PagePermission } from './types';
   createdAt?: Date;
   updatedAt?: Date;
   isEditable?: boolean;
-  type: 'default' | 'created';
+  type?: 'default' | 'created';
   permissions: PagePermission[];
 }

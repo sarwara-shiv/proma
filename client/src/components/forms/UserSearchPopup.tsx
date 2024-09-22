@@ -28,12 +28,12 @@ const UserSearchPopup: React.FC<UserSearchPopupProps> = ({ query, onSelect, onCl
   }, [query]);
 
   return (
-    <div className="absolute bg-white border border-gray-300 shadow-lg mt-2 z-10">
-      <ul>
+    <div className="absolute bg-white border border-gray-300 shadow-lg mt-2 z-10 top-[1.5rem]">
+      <ul className='text-sm'>
         {users.map(user => (
           <li
             key={user._id}
-            className="p-2 hover:bg-gray-200 cursor-pointer"
+            className="px-2 py-1 text-xs  hover:bg-green-100 cursor-pointer text-slate-400 font-normal border-b-1 border-slate-400 hover:text-slate-800"
             onClick={() => {
               onSelect(user);
               onClose();

@@ -45,7 +45,7 @@ export interface DynamicField {
   // Other Persons Involved in Task
   export interface PersonsInvolved {
     role: ObjectId; // Reference to Role
-    persons: ObjectId[]; // Array of User references
+    persons?: ObjectId[]; // Array of User references
 }
   
   // Task Interface

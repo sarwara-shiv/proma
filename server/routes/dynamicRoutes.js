@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
+import UserGroupModel from '../models/userGroupModel.js'; 
 import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
 
 const router = express.Router();
@@ -20,6 +21,8 @@ const getModel = (resource) => {
         return UserModel;
       case 'users':
         return UserModel;
+      case 'groups':
+        return UserGroupModel; 
       case 'documentation':
         return Documentation;
       default:

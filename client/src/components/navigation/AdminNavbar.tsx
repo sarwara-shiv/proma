@@ -7,17 +7,20 @@ import LogoutButton from '../auth/LogoutButton';
 
 const AdminNavbar = () => {
     const { t } = useTranslation();
-    const { user, permissions } = useAuth();
+    const { user, permissions, roles } = useAuth();
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
     // Check user permissions
     const hasAccess = (page: PageConfig): boolean => {
+        const isAdmin = roles.some(d=>d.name === 'admin' || d.name === 'manager');
+        if(isAdmin)return true;
         if (page.access?.includes('all')) return true;
         if (permissions) {
             return permissions.some(permission => page.name?.includes(permission.page as string));
         }
         return false;
     };
+    console.log(PagesConfig);
 
     // Toggle submenu
     const handleToggleSubMenu = (title: string) => {
