@@ -61,10 +61,12 @@ const TaskSchema = new Schema({
   priority: { type: String, enum: predefinedPriorities, default: 'medium' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  otherPersonsInvolved: [{
-    person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    role: { type: String, required: true },
-  }],
+  otherPersonsInvolved: [
+    {
+      role: { type: Schema.Types.ObjectId, ref: 'Role', required: true },
+      persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+    },
+  ],
   customFields: [DynamicFieldSchema],
   subTasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   permissions: [PermissionSchema],
@@ -149,7 +151,7 @@ const ProjectPrioritySchema = new Schema({
 });
 
 // Project Schema
-const ProjectSchema = new Schema({
+const ProjectSchema = new Schema({ 
   name: { type: String, required: true },
   description: { type: String, required: true },
   status: { type: String, enum: predefinedProjectStatuses, default: 'notStarted' },
@@ -160,7 +162,12 @@ const ProjectSchema = new Schema({
   endDate: { type: Date },
   kickoff: KickoffSchema,
   documentation: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
-  personsInvolved: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  personsInvolved: [
+    {
+      role: { type: Schema.Types.ObjectId, ref: 'Role', required: true },
+      persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+    },
+  ],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   customFields: [DynamicFieldSchema],
   permissions: [PermissionSchema],

@@ -39,6 +39,8 @@ const getRecords = async (args: GetRecordsArgs) => {
   }
 };
 
+
+
 const addRecords = async (args: GetRecordsArgs) => {
   const { type, body, action="add", id=null } = args;
 
@@ -211,4 +213,31 @@ const deleteRecordById = async (args: DeleteByIdArgs) => {
   }
 };
 
-export { getRecords, deleteRecordById, addRecords, addUpdateRecords, resetPassword, forgotPassword, adminResetPassword };
+// search user by username
+interface SearchByUsername {
+  query:string
+}
+const searchUserByUsername = async(args:SearchByUsername)=>{
+  const {query} = args;
+  if(query){
+    try{
+      const JWT_TOKEN = Cookies.get('access_token'); 
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await axios.get(`${API_URL}/auth/search-users?username=${query}`, 
+        {
+        headers: {
+          'Authorization': `Bearer ${JWT_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response.data;
+    }catch(error){
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  }else{
+    return { status: "error", code: "invalid_data" };
+  }
+}
+
+export { searchUserByUsername, getRecords, deleteRecordById, addRecords, addUpdateRecords, resetPassword, forgotPassword, adminResetPassword };

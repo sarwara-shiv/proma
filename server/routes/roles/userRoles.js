@@ -61,7 +61,7 @@ router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user); 
 
     try {
-        const data = await UserRolesModel.find().sort({createdAt:1, type:1});
+        const data = await UserRolesModel.find().sort({type:1});
         return res.json({ status: "success", data, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging

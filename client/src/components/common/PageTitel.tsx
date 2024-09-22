@@ -5,7 +5,7 @@ interface ArgsType{
 }
 const PageTitel: React.FC<ArgsType> = ({ text, action }) => {
   return (
-    <h1 className='text-2xl text-slate-300 font-semibold mb-2'>
+    <h1 className='text-xl text-slate-300 font-semibold'>
       {text} {action && <span className='text-primary font-semibold'> : {action}</span>}
     </h1>
   )

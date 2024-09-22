@@ -29,17 +29,8 @@ const Users = () => {
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
 
   return (
-    <div className='page-wrap relative'>
-      <header className='border-b border-1 z-20 border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-100 top-14'>
-        <div className='container flex justify-between flex-row mx-auto'>
-          <div className='nav-wrap'>
-            <PageTitel text={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)} /> 
-          </div>
-          <div>
-            <PageSubmenu basePath={basePath} navItems={navItems} />
-          </div>
-        </div>
-      </header>
+    <div className='page-wrap relative mt-8'>
+      <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
       <div className='content py-14  mb-7'>
         <div className='content-wrap p-4 '>
             {

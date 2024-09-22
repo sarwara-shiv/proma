@@ -29,7 +29,7 @@ const AdminLayout = () => {
             {/* Main content wrapper */}
             <div className="flex flex-1 mt-13"> {/* mt-16 to offset for the fixed header */}
                 {/* Sidebar */}
-                <aside className="bg-white w-64 h-full border-r border-gray-200 shadow-md fixed top-16 left-0 z-20">
+                <aside className="bg-white w-64 h-full border-none border-gray-200 shadow-none fixed top-16 left-0 z-20">
                     <AdminNavbar />
                 </aside>
 

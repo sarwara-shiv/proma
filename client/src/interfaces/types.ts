@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-
+import { ObjectId } from 'mongodb';
 export interface NavItem {
   link: string;
   title: string;
@@ -43,10 +43,10 @@ export interface DynamicField {
   }
   
   // Other Persons Involved in Task
-  export interface OtherPersonInvolved {
-    person: string; // Refers to User objectId
-    role: string;
-  }
+  export interface PersonsInvolved {
+    role: ObjectId; // Reference to Role
+    persons: ObjectId[]; // Array of User references
+}
   
   // Task Interface
   export interface Task {
@@ -60,7 +60,7 @@ export interface DynamicField {
     priority: 'high' | 'medium' | 'low';
     customPriority?: string; // Refers to TaskPriority objectId
     responsiblePerson: string; // Refers to User objectId
-    otherPersonsInvolved: OtherPersonInvolved[];
+    otherPersonsInvolved: PersonsInvolved[];
     customFields: DynamicField[];
     subTasks: string[]; // Array of Task objectIds
     permissions: Permission[];
@@ -135,7 +135,7 @@ export interface DynamicField {
     endDate?: Date;
     kickoff?: Kickoff;
     documentation?: string[]; // Array of Documentation objectIds
-    personsInvolved: string[]; // Array of User objectIds
+    personsInvolved: PersonsInvolved[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
     customFields?: DynamicField[];
     permissions?: Permission[];

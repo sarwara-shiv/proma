@@ -28,7 +28,7 @@ const AdminNavbar = () => {
     const sortedPages = Object.values(PagesConfig).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
     return (
-        <div className="w-64 bg-white text-gray-700 max-h-[60vh] overflow-auto shadow-xs">
+        <div className="w-full bg-white text-gray-200 max-h-[60vh] overflow-auto shadow-xs">
             <nav className="flex flex-col p-4">
                 <ul className="space-y-2">
                     {sortedPages.map((page, index) => {
@@ -39,10 +39,10 @@ const AdminNavbar = () => {
                                         <NavLink
                                             to={`/admin/${page.root}`}
                                             className={({ isActive }) =>
-                                                `flex-1 rounded-lg flex items-center justify-start ${isActive ? "text-primary" : "text-gray-700 hover:text-primary"}`
+                                                `flex-1 rounded-lg text-sm flex items-center justify-start ${isActive ? "text-primary font-bold" : "text-gray-400 font-light hover:text-primary"}`
                                             }
                                         >
-                                            <span className='icon me-2 rounded-full bg-primary-light p-1'>
+                                            <span className='icon me-2 w-[20px] h-[20px] rounded-full bg-primary-light p-1'>
                                                 {page.icon && <page.icon />}
                                             </span>
                                             {t(`NAV.${page.name}`)}

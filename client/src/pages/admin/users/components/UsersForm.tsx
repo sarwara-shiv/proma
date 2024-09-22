@@ -11,6 +11,7 @@ import ToggleSwitch from '../../../../components/common/ToggleSwitch';
 import { AlertPopupType, FlashPopupType } from '@/interfaces';
 import UserRolesSelect from '../../../../components/forms/UserRolesSelect';
 import FlashPopup from '../../../../components/common/FlashPopup';
+import FormsTitle from '../../../../components/common/FormsTitle';
 
 interface ArgsType {
   id?:string | null;
@@ -98,9 +99,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
     <div className='content flex justify-center'>
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
         <div className='flex flex-row justify-between align-center'>
-          <h2 className="text-lg font-bold mb-4">
-            { action==='update' ? t('updateUser') : t('newUser')}
-            </h2>
+          <FormsTitle text= { action==='update' ? t('updateUser') : t('newUser')} classes='mb-3'/> 
           <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>

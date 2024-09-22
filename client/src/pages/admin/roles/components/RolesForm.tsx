@@ -8,6 +8,7 @@ import PagePermissionsSelect from '../../../../components/forms/PagePermissionsS
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { addRecords, addUpdateRecords } from '../../../../hooks/dbHooks';
 import { ObjectId } from 'mongodb';
+import FormsTitle from '../../../../components/common/FormsTitle';
 
 interface ArgsType {
   action?:"add" | "update";
@@ -84,9 +85,7 @@ const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
   return (
     <div className="content flex justify-center">
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
-        <h2 className="text-lg font-bold mb-4">
-          { action==='update' ? t('updateRole') : t('newRole')}
-          </h2>
+        <FormsTitle text= { action==='update' ? t('updateRole') : t('newRole')} classes='mb-3'/> 
         <form onSubmit={submitForm}>
           <div className="fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="mb-4">

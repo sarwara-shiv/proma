@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { verifyToken } from '../../middleware/auth.js';
 import UserModel from '../../models/userModel.js'; 
-import { UserRolesModel } from '../../models/userRolesModel.js';
 
 const router = express.Router();
 
@@ -312,6 +311,20 @@ router.post('/admin-reset-password', verifyToken, async(req,res)=>{
     
 });
 
+// search user by username
+router.get('/search-users', async(req,res)=>{
+    const query = req.query.username;
+    if(query){
+        try {
+            const users = await UserModel.find({ username: { $regex: query, $options: 'i' } }).limit(10);
+            return res.json({ status: "success", message:"users found", code:"users_found", data:users });
+          } catch (error) {
+            res.status(500).json({ message: error.message });
+          }
+    }else{
+        res.status(500).json({ message: error.message });
+    }
+});
 
 
 // merge permissions

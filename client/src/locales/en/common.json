@@ -16,6 +16,7 @@
         "projects":"Projects",
         "projects_all":"Projects",
         "projects_add":"Add Project",
+        "kickoff":"kickoff",
         "tasks_all":"Tasks",
         "tasks_add":"Add Tasks",
         "projects_update":"Update Projects",
@@ -31,6 +32,7 @@
         "workspace_update":"New Workspace",
         "workspace_delete":"New Workspace"
     },
+
     "FORMS":{
         "roleName":"Name",
         "shortName":"Short Name",
@@ -44,9 +46,14 @@
         "name":"Name",
         "canView":"View",
         "canCreate":"Create",
+        "status":"Status",
         "canUpdate":"Update",
         "canDelete":"Delete",
-        "pagePermissions":"Page Permissions"
+        "pagePermissions":"Page Permissions",
+        "projectName":"Project Name",
+        "priority":"Priority",
+        "personsInvolved":"Persons Involved",
+        "taskName":"Task Name"
     },
     "BUTTONS":{
         "submit":"Submit",
@@ -129,16 +136,39 @@
     "noData":"No Data Found",
     "warning":"Warning",
     "error":"Error",
+    "selectOption":"Select Option",
+    "select":"Select",
+    "username":"Username",
+    "displayName":"Display Name",
+    "description":"Description",
     "success":"Success",
     "info":"Information",
     "newProject":"New Project",
     "updateProject":"Update Project",
+    "userRole":"Role",
     "newRole":"New Role",
     "updateRole":"Update Role",
     "tasks":"Tasks",
     "newTask":"New Task",
     "updateTask":"Update Task",
     "updateUser":"Update User",
-    "newUser":"New User"
+    "newUser":"New User",
+    "comment-status":"------------------------------------- STATUSES",
+    "completed":"Completed",
+    "inProgress":"In Progress",
+    "onHold":"On Hold",
+    "cancelled":"Cancelled",
+    "toDo":"TODO",
+    "blocked":"Blocked",
+    "pendingReview":"Pending Review",
+    "open":"Open",
+    "closed":"Closed",
+    "answered":"Answered",
+    "waiting":"Waiting",
+    "notAnswered":"Not Answered",
+    "high":"High",
+    "low":"Low",
+    "medium":"Medium",
+    "notStarted":"Not Started"
 
 }

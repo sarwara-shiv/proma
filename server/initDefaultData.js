@@ -71,6 +71,16 @@ const initializeDefaultData = async () => {
           ]
         },
         {
+          displayName: 'QA', 
+          name: 'qa', 
+          isEditable: false, 
+          type: 'created',
+          permissions: [
+            { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+          ]
+        },
+        {
           displayName: 'Ecommerce Manager', 
           name: 'ecommerceMgr', 
           isEditable: false, 

@@ -68,10 +68,11 @@ const AllUsers = () => {
                 }
             },
             cell:info=>{
-                const originalData = info.row.original as { roles: string[] }; 
-                const roles = originalData?.roles?.[0] || ''; 
+                const originalData = info.row.original; 
+                const roles = originalData?.roles as unknown as UserRole[]
+                const role = roles[0] ? roles[0].displayName : '';
                 return(                 
-                    <span>{}</span>
+                    <span>{role}</span>
                 )
             }
         },
