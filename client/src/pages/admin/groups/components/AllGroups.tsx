@@ -107,7 +107,6 @@ const AllGroups = () => {
         setLoader(true);
         try {
             const res = await getRecords({type: "groups"});  
-            console.log(res);
             if (res.status === "success") {
                 setData(res.data || []); 
             }else{
@@ -127,7 +126,6 @@ const AllGroups = () => {
     }
 
     const onDelete = (data:any)=>{
-        console.log(data);
         if(data.status === "success"){ 
             getAllGroups();
         }else{
@@ -136,12 +134,10 @@ const AllGroups = () => {
     }
     const handleRowAction = async(data:any)=>{
         setIsPopupOpen(!isPopupOpen);
-        console.log(data);
         if(data.id && data.action){
             try{
                 const response = await deleteRecordById({type:'groups', body:data});
                 if(response.status === "success"){ 
-                    console.log(response.data);
                     getAllGroups();
                 }else{
                   console.error({error:response.data.message, code:response.data.code}); 

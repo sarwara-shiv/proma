@@ -33,7 +33,6 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
 
   useEffect(()=>{
     if(formData.roles && formData.roles.length > 0){
-      console.log(formData.roles);
       const roleIds = formData.roles.map((role) => {
         const rdata = role as unknown as UserRole;
         if (rdata._id) {
@@ -47,7 +46,6 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   },[])
   const handlePermissionsChange = (newPermissions: PermissionsMap) => {
     setSelectedPermissions(newPermissions);
-    console.log('Selected Permissions:', newPermissions);
   };
 
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -56,7 +54,6 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   };
 
   const handleRoleChange = (value: string | string[], name:string) => {
-    console.log(name);
     setSelectedRoleName(name);
     setFormData({ ...formData, roles: Array.isArray(value) ? value : [value] });
   };
@@ -69,13 +66,11 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
         delete data.password;
       }
       const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...data, permissions: selectedPermissions}}); 
-            console.log(response);
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
             // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
             setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
-            console.log('Response Data:', response.data);
         } else {
           let content = `${t(`RESPONSE.${response.code}`)}`
           if(response.data){

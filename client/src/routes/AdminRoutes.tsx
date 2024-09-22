@@ -29,7 +29,7 @@ const AdminRoutes = () => {
             <Route
               key={path}
               path={generateRoutePath(path, params)}
-              element={Component} // Use the mapped component
+              element={Component} // Use the mapped component 
             />
           );
         })}

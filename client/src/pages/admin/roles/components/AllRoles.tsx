@@ -107,7 +107,6 @@ const AllRoles = () => {
         setLoader(true);
         try {
             const res = await getRecords({type: "roles"});  
-            console.log(res);
             if (res.status === "success") {
                 setData(res.data || []); 
             }else{
@@ -127,7 +126,6 @@ const AllRoles = () => {
     }
 
     const onDelete = (data:any)=>{
-        console.log(data);
         if(data.status === "success"){ 
             getAllRoles();
         }else{
@@ -136,12 +134,10 @@ const AllRoles = () => {
     }
     const handleRowAction = async(data:any)=>{
         setIsPopupOpen(!isPopupOpen);
-        console.log(data);
         if(data.id && data.action){
             try{
                 const response = await deleteRecordById({type:'roles', body:data});
                 if(response.status === "success"){ 
-                    console.log(response.data);
                     getAllRoles();
                 }else{
                   console.error({error:response.data.message, code:response.data.code}); 

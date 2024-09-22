@@ -110,7 +110,6 @@ router.post("/login", async (req, res) => {
         if (!user) {
             return res.status(404).json({ status: "error", message: `User does not exist with email: ${email}`, code: "unknown_user" });
         }
-        
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ status: "error", message: "Invalid password", code: "invalid_password" });
@@ -121,7 +120,6 @@ router.post("/login", async (req, res) => {
             return res.status(500).json({ status: "error", message: "Server configuration error", code: "config_error" });
         }
 
-        console.log('logged in user: ------ ', user); 
         let rolePermissions = [];
         let userPermissions = user.permissions ? Array.from(user.permissions) : [];
 
@@ -131,7 +129,6 @@ router.post("/login", async (req, res) => {
             }
         });
 
-        console.log(user.roles);
         const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
 
         // Generate a JWT token
@@ -141,8 +138,7 @@ router.post("/login", async (req, res) => {
             { expiresIn: '10h' }
         );
 
-        console.log('logged in');
-        res.json({
+       return res.json({
             status: "success",
             message: "Login successful",
             token,
@@ -166,7 +162,7 @@ router.post("/get", verifyToken, async (req, res) => {
 
     try {
         const data = await UserModel.find().populate('roles');
-        return res.json({ status: "success", data, code:"success", message:""});
+        return res.json({ status: "success", data, code:"success", message:""}); 
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
         return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import UsersForm from './components/UsersForm';
 import AllUsers from './components/UsersList';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface NavItem {
   link: string;
@@ -20,6 +21,7 @@ const navItems: NavItem[] = [
 ];
 
 const Users = () => {
+  const {user} = useAuth();
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
@@ -27,7 +29,6 @@ const Users = () => {
   const [pageTitle, setPageTitle] = useState("users");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
-
   return (
     <div className='page-wrap relative mt-8'>
       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>

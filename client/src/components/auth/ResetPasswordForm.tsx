@@ -25,7 +25,6 @@ const ResetPasswordForm = () => {
     setMessage({...message, text:""});
     if(formData.password === formData.rPassword){
         const response = await resetPassword({password:formData.password, token:token || ''}); 
-        console.log(response);
         if(response.status === 'success'){
             setPage('login');
             setMessage({...message, type:"success", text:`${t(`RESPONSE.${response.code}`)}`});

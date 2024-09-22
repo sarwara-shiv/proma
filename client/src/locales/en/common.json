@@ -15,7 +15,7 @@
         "users_delete":"delete User",
         "groups":"User Groups",
         "groups_all":"Groups",
-        "groups_add":"Add UserGroup",
+        "groups_add":"Add User Group",
         "groups_update":"update User Group",
         "groups_delete":"delete User Group",
         "projects":"Projects",

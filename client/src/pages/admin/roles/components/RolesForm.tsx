@@ -60,12 +60,10 @@ const RolesForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
       }
       // const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
       const response = await addUpdateRecords({type: "roles", checkDataBy:checkDataBy, action, id, body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
-            console.log(response);
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
             setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
-            console.log('Response Data:', response.data);
         } else {
           let content = `${t(`RESPONSE.${response.code}`)}`
           if(response.data){

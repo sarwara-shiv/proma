@@ -16,7 +16,7 @@ const getRecords = async (args: GetRecordsArgs) => {
   console.log(args);
   const { type, body } = args;
   if (type) {
-    const JWT_TOKEN = Cookies.get('access_token');  // Correct usage of js-cookie
+    const JWT_TOKEN = Cookies.get('access_token'); 
     const API_URL = process.env.REACT_APP_API_URL;
 
     try {

@@ -34,7 +34,6 @@ const ForgotPasswordForm = () => {
           );
         }
         setMessage(content);
-        console.log(response);
       }else{
         const content = `${t(`RESPONSE.${response.code}`)}`;
         setAlertData({...alertData, isOpen:true, title:"Fail", type:"fail", content});

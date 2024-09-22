@@ -155,7 +155,6 @@ const AllUsers = () => {
       // HANDLE CELL CHANGE
     const handleCellChange = (value:Boolean | string, rowData:any)=>{
         if(rowData.id && rowData.field && rowData.row){
-            console.log(rowData.row);
             if(rowData.row && rowData.row[rowData.field]){
                 rowData.row[rowData.field] = value;
             }
@@ -176,7 +175,6 @@ const AllUsers = () => {
 
     // UPDTE USER DATA
     const updateData = async({id, newData}:{id:string, newData:any})=>{
-        console.log(id, newData);
             
         try{
             const response = await addUpdateRecords({type: "users", checkDataBy:[], action:"update", id, body:{ ...newData}}); 
@@ -199,7 +197,6 @@ const AllUsers = () => {
         setLoader(true);
         try {
             const res = await getRecords({type: "auth" }); 
-            console.log(res);
             if (res.status === "success") {
                 setData(res.data || []);
             }else{
@@ -228,14 +225,12 @@ const AllUsers = () => {
 
     const handleRowAction = async(data:any)=>{
         setPopupContent({...popupContent, isOpen:!popupContent.isOpen});
-        console.log(data);
         if(data.action){
             if(data.id && data.action === 'delete'){
                 try{
                     try{
                         const response = await deleteRecordById({type:'users', body:data});
                         if(response.status === "success"){ 
-                            console.log(response.data);
                             getAllUsers();
                             setAlertData({...alertData, isOpen:true, title:response.code, content:"adfasdf", type:'success'});
                         }else{

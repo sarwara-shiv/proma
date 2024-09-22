@@ -26,7 +26,7 @@ const initializeDefaultData = async () => {
         },
         {
           name:'frontendDeveloper',
-          displayName:'Frontend Developer',
+          displayName:'Frontend Developer', 
           type: 'default',
           isEditable:false,
         },
@@ -86,7 +86,7 @@ const initializeDefaultData = async () => {
             { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
-            { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
           ]
         },
         {

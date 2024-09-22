@@ -16,8 +16,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { link: "groups", title: "roles_all", icon: <FaUserTie /> },
-  { link: "groups/add", title: "roles_add", icon: <MdAdd /> },
+  { link: "groups", title: "groups_all", icon: <FaUserTie /> },
+  { link: "groups/add", title: "groups_add", icon: <MdAdd /> },
 ];
 
 const UserGroups = () => {

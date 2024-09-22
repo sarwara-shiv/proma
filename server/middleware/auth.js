@@ -5,17 +5,17 @@ import jwt from 'jsonwebtoken';
 
 const verifyToken = async (req, res, next) => {
   const token = req.headers['authorization'];
-
   if (!token) {
     return res.status(403).json({ message: 'No token provided' });
   }
   
   
   try {
-
+    
     const SECRET_KEY = process.env.SECRET_KEY;
     const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY);
-    
+
+
     // Check if the user exists
     const user = await UserModel.findById(decoded.id).populate('roles');
     if (!user) {
@@ -31,7 +31,7 @@ const verifyToken = async (req, res, next) => {
 
     // Admin role automatically grants full permissions
     if (user.roles.some(role => role.name === 'admin' || role.name === 'Admin')) {
-      console.log('--------- user admin');
+  
       req.permissions = { canView: true, canCreate: true, canUpdate: true, canDelete: true };
       req.user = user;
       return next();
