@@ -6,38 +6,45 @@ import { useTranslation } from 'react-i18next';
 import { IoIosRemove, IoMdAdd } from "react-icons/io";
 import { ObjectId } from 'mongodb';
 
-
-const PersonsInvolvedForm = () => {
+interface ArgsType{
+  selectedValues:PersonsInvolved[];
+  onChange:(value:PersonsInvolved[])=>void
+}
+const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) => {
   const {t} = useTranslation();
   const [loader, setLoader] = useState<boolean>(false);
-  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [userGroups, setUserGroups] = useState<UserRole[]>([]);
   const [pInvolved, setPinvolved] = useState<PersonsInvolved[]>([]);
 
   useEffect(()=>{
-    getRoles();
+    getGroups();
 
   },[])
+  useEffect(()=>{
+    onChange(pInvolved);
 
-  const getRoles = async()=>{
+  },[pInvolved])
+
+  const getGroups = async()=>{
     setLoader(true);
       try {
-          const res = await getRecords({type:'roles'});  
+          const res = await getRecords({type:'groups'});  
           console.log(res);
           if (res.status === "success") {
-            setUserRoles(res.data || []); 
+            setUserGroups(res.data || []); 
           }else{
-            setUserRoles([]);
+            setUserGroups([]);
           }
       } catch (error) {
           console.error("Error fetching roles:", error);
-          setUserRoles([]);
+          setUserGroups([]);
       }finally{
           setLoader(false);
       }
   }
 
   // Add User to person involved
-  const addPersonRole = (role:ObjectId)=>{
+  const addPersonGroup = (role:ObjectId)=>{
     if(pInvolved && pInvolved.length > 0){
       setPinvolved(prevVal => {
         // Check if the role already exists
@@ -54,9 +61,11 @@ const PersonsInvolvedForm = () => {
     }else{
       setPinvolved([...pInvolved, {role}]);
     }
+
+
   }
 
-  const isRoleAdded = (role:ObjectId)=>{
+  const isGroupAdded = (role:ObjectId)=>{
     const roleExists = pInvolved.some(d=>d.role===role);
     return roleExists ? true : false;
   }
@@ -65,20 +74,21 @@ const PersonsInvolvedForm = () => {
     <div> 
       <FormsTitle text={t('FORMS.personsInvolved')}/>
       <div className='flex flex-row flex-wrap gap-2 mt-3 text-sm'>
-        {userRoles && userRoles.map((item,index)=>{
-          let roleId = item._id as unknown as ObjectId;
+        {userGroups && userGroups.map((item,index)=>{
+          let _id = item._id as unknown as ObjectId;
+          const isGroup = isGroupAdded(_id);
           return (
             <div key={`pi-${index}-${item._id}`} className={`
                 p-2 mb-2 flex flex-row items-center rounded-sm  cursor-pointer
-                ${isRoleAdded(roleId) ? 'text-primary bg-primary-light': 'text-slate-400 bg-slate-100'}
+                ${isGroup ? 'text-primary bg-primary-light': 'text-slate-400 bg-slate-100'}
               `}
-             onClick={()=>addPersonRole(roleId)}>
+             onClick={()=>addPersonGroup(_id)}>
               <h2>{item.displayName}</h2>
               <div className={`
                 flex items-center flex-row justify-center text-lg ml-2  rounded-full
-                 ${isRoleAdded(roleId) ? 'bg-white text-red-600': 'bg-primary-light text-green-600'}
+                 ${isGroup ? 'bg-white text-red-600': 'bg-primary-light text-green-600'}
                 `}>
-                {isRoleAdded(roleId) ? <IoIosRemove />: <IoMdAdd />}
+                {isGroup ? <IoIosRemove />: <IoMdAdd />}
               </div>
             </div>
           );

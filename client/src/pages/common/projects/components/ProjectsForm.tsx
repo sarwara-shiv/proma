@@ -1,6 +1,6 @@
 import FormsTitle from '../../../../components/common/FormsTitle';
 import { CustomInput, CustomSelectList } from '../../../../components/forms';
-import { Project } from '@/interfaces';
+import { PersonsInvolved, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
@@ -70,6 +70,10 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
     setFormData({...formData, [name]:value});
   };
 
+  const handlePersonsInvolved = (value:PersonsInvolved[])=>{
+    console.log(value);
+  }
+
 
   return (
     <div className='content flex justify-center flex-col '>
@@ -106,7 +110,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2'>
             <div className="mb-4">
-                <PersonsInvolvedForm />
+                <PersonsInvolvedForm selectedValues={formData.personsInvolved} onChange={handlePersonsInvolved}/>
             </div>
             <div className="mb-4">
               <MentionUserInput type='text'/>

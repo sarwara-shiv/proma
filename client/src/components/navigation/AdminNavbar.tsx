@@ -20,7 +20,7 @@ const AdminNavbar = () => {
         }
         return false;
     };
-    console.log(PagesConfig);
+
 
     // Toggle submenu
     const handleToggleSubMenu = (title: string) => {

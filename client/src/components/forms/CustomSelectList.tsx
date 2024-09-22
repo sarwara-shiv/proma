@@ -25,7 +25,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
       const checkedBoxes = Array.from(
         document.querySelectorAll(`input[name="${name}"]:checked`)
       ).map((input) => (input as HTMLInputElement).value);
-      onChange(checkedBoxes); // Return array of selected values for checkboxes
+      onChange(checkedBoxes); 
     } else {
       onChange(event.target.value); // Return single selected value for radio or dropdown
     }

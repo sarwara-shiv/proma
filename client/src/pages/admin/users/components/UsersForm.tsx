@@ -12,6 +12,7 @@ import { AlertPopupType, FlashPopupType } from '@/interfaces';
 import UserRolesSelect from '../../../../components/forms/UserRolesSelect';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import FormsTitle from '../../../../components/common/FormsTitle';
+import UserGroupsSelect from '../../../../components/forms/UserGroupsSelect';
 
 interface ArgsType {
   id?:string | null;
@@ -23,15 +24,16 @@ interface ArgsType {
 const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
-  const { username = '', password = '', email = '', roles = [], permissions = {}, isActive=false } = data || {};
+  const { username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false } = data || {};
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
-  const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive });
+  const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive, groups });
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [selectedRoleName, setSelectedRoleName] = useState<string>('');
   const { t } = useTranslation();
 
   useEffect(()=>{
+    console.log(data);
     if(formData.roles && formData.roles.length > 0){
       const roleIds = formData.roles.map((role) => {
         const rdata = role as unknown as UserRole;
@@ -40,7 +42,6 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           return rdata._id;
         }
       });
-    
     }
 
   },[])
@@ -56,6 +57,9 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const handleRoleChange = (value: string | string[], name:string) => {
     setSelectedRoleName(name);
     setFormData({ ...formData, roles: Array.isArray(value) ? value : [value] });
+  };
+  const handleGroupsChange = (value: string | string[], name:string) => {
+    setFormData({ ...formData, groups: Array.isArray(value) ? value : [value] });
   };
 
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -136,6 +140,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
 
           {/* Render roles once they are fetched */}
             <UserRolesSelect onChange={handleRoleChange} selectedRoles={formData.roles} />
+            <UserGroupsSelect onChange={handleGroupsChange} selectedValues={formData.groups} type='multiple'/> 
 
           <div className="mt-6">
             {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && 

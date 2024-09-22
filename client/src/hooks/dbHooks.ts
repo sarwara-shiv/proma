@@ -13,7 +13,6 @@ interface GetRecordsArgs {
 }
 
 const getRecords = async (args: GetRecordsArgs) => {
-  console.log(args);
   const { type, body } = args;
   if (type) {
     const JWT_TOKEN = Cookies.get('access_token'); 
@@ -70,7 +69,6 @@ const addRecords = async (args: GetRecordsArgs) => {
 
 const addUpdateRecords = async (args: GetRecordsArgs) => {
   const { type, body, action="add", id=null, checkDataBy=[] } = args;
-  console.log(args);
   if (type) {
     const JWT_TOKEN = Cookies.get('access_token');  // Correct usage of js-cookie
     const API_URL = process.env.REACT_APP_API_URL;
@@ -116,7 +114,6 @@ const forgotPassword = async(args:ForgotPassword) =>{
         'Content-Type': 'application/json'
       }
     });
-    console.log(response);
     return response.data; 
   }catch(error){
     return { status: "error", code: "server_error" };
@@ -169,7 +166,6 @@ const adminResetPassword = async(args:AdminResetPassword) =>{
           'Content-Type': 'application/json'
         }
       });
-      console.log(response.data);
     return response.data; 
   }catch(error){
     return { status: "error", code: "server_error" };

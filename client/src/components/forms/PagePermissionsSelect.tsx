@@ -51,7 +51,7 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
         const pageConfig: PageConfig = PagesConfig[pageKey];
 
         return (
-          <>
+          <div key={`wrap-${index}`} className='inline-flex'>
             {pageConfig.access?.includes('all') && 
               <div key={`${pageConfig.name}-${index}`} className='inline-flex items-center my-1 flex-col justify-start gap-2'>
                 <div className='p-1'>
@@ -61,8 +61,8 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
                     <span className='text-slate-300'>{t('page')}</span> : {pageConfig.displayName}
                   </h4>
                   <div className='text-sm text-slate-400 '>
-                    {pageConfig.actions.map((action: PageAction, index) => (
-                      <label key={`action-${index}`} style={{ marginRight: '10px', display: 'inline-block' }} className='cursor-pointer'>
+                    {pageConfig.actions.map((action: PageAction, pindex) => (
+                      <label key={`action-${index}-${pindex}`} style={{ marginRight: '10px', display: 'inline-block' }} className='cursor-pointer'>
                         <input
                           type="checkbox"
                           className='peer sr-only'
@@ -79,7 +79,7 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
                 </div>
               </div>
             }
-          </>        
+          </div>        
           );
       })}
     </div>

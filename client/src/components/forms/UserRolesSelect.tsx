@@ -22,7 +22,6 @@ const UserRolesSelect:React.FC<ArgsType> = ({type="single", selectedRoles=[], on
           try {
             const res = await getRecords({ type: "roles", body: {} }); 
             if (res.status === "success") {
-              console.log(res.data);
               setRolesData(res.data);
             }
           } catch (error) {
@@ -46,7 +45,6 @@ const UserRolesSelect:React.FC<ArgsType> = ({type="single", selectedRoles=[], on
         const {name, value} = event.target;
         if(typeof value === 'string'){
             if(type === 'single'){
-                console.log(value);
                 setSingleValueSelect(value);
                 const sRole = rolesData.find((role:any)=>{
                     return role['_id'] === value;

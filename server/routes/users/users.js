@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
 
 // Add
 router.post("/add", verifyToken, async (req, res) => {
-    const { username, password="Pass@123", email, permissions=[], roles=[], isActive = true, isEditable=true} = req.body.data;
+    const { username, password="Pass@123", email, permissions=[], groups=[], roles=[], isActive = true, isEditable=true} = req.body.data;
     try {
         const userByName = await UserModel.findOne({ username });
         const userByEmail = await UserModel.findOne({ email });
@@ -161,7 +161,7 @@ router.post("/get", verifyToken, async (req, res) => {
     console.log(req.permissions);  // Consider removing this in production
 
     try {
-        const data = await UserModel.find().populate('roles');
+        const data = await UserModel.find().populate('roles').populate('groups');
         return res.json({ status: "success", data, code:"success", message:""}); 
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
