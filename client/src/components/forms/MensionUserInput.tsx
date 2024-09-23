@@ -4,11 +4,15 @@ import UserSearchPopup from './UserSearchPopup';
 import { User } from '../../interfaces';
 
 interface ArgsType{
-  type?: 'text' | 'textarea';
+  inputType?: 'text' | 'textarea';
+  data?:any;
+  type?:"text" | "users";
+  initialValues?:string | User[];
+  onClick?:(user:User, data:any)=>void;
 }
 
-const MentionUserInput: React.FC<ArgsType> = ({type="textarea"}) => {
-  const [text, setText] = useState('');
+const MentionUserInput: React.FC<ArgsType> = ({inputType="textarea", type="text", data, onClick}) => {
+  const [text, setText] = useState(type==='users' ? '@' : '');
   const [query, setQuery] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const inputRef = useRef<HTMLInputElement >(null);
@@ -25,29 +29,43 @@ const MentionUserInput: React.FC<ArgsType> = ({type="textarea"}) => {
   }, [text]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setText(e.target.value);
+    const {value} = e.target;
+    if(type === 'users'){
+      if(value.startsWith('@')) setText(value);
+    }else{
+      setText(e.target.value);
+    }
   };
+
+  const pattern = type === 'users' ? `^@` : '';
 
   const handleSelectUser = (user: User) => {
     const newText = text.replace(/@\w*$/, `@${user.username}`);
-    setText(newText);
+    if(type === 'users'){
+      setText('@');
+    }else{
+      setText('');
+    }
+    onClick && onClick(user, data);
   };
 
   return (
     <div className="relative">
-      {type === 'text' &&  
+      {inputType === 'text' &&  
         <input
           type='text'
           ref={inputRef}
           value={text}
           onChange={handleChange}
+          {...pattern ? {pattern} : {}}
           className="w-full h-10 p-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-none focus:border-gray-300"
         />
       }
-      {type === 'textarea' &&  
+      {inputType === 'textarea' &&  
         <textarea
           ref={textareaRef}
           value={text}
+          {...pattern ? {pattern} : {}}
           onChange={handleChange}
           className="w-full p-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-none focus:border-gray-300 "
           rows={4}

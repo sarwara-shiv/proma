@@ -108,12 +108,9 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
                 />
               </div>
           </div>
-          <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2'>
+          <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
                 <PersonsInvolvedForm selectedValues={formData.personsInvolved} onChange={handlePersonsInvolved}/>
-            </div>
-            <div className="mb-4">
-              <MentionUserInput type='text'/>
             </div>
           </div>
         </form>
