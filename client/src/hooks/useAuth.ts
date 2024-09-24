@@ -30,6 +30,7 @@ function useAuth() {
     };
   } else {
     return {
+      _id:null,
       isAuthenticated: false,
       role: null,
       roles:[],

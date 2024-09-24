@@ -58,7 +58,9 @@
         "projectName":"Project Name",
         "priority":"Priority",
         "personsInvolved":"Persons Involved",
-        "taskName":"Task Name"
+        "taskName":"Task Name",
+        "startDate":"Start Date",
+        "cratedBy":"Created By"
     },
     "BUTTONS":{
         "submit":"Submit",
@@ -160,6 +162,8 @@
     "newUser":"New User",
     "updateGroup":"Update User Group",
     "newGroup":"New User Group",
+    "startDate":"Start Date",
+    "cratedBy":"Created By",
     "comment-status":"------------------------------------- STATUSES",
     "completed":"Completed",
     "inProgress":"In Progress",

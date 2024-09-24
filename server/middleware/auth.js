@@ -17,7 +17,7 @@ const verifyToken = async (req, res, next) => {
 
 
     // Check if the user exists
-    const user = await UserModel.findById(decoded.id).populate('roles');
+    const user = await UserModel.findById(decoded._id).populate('roles');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

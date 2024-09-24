@@ -8,7 +8,7 @@ const router = express.Router();
 
 // REGISTER
 router.post("/register", async (req, res) => {
-    const { username, password, email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body.data;
+    const { name="", username, password, email, permissions=[], roles=[], isActive = true, isEditable=true } = req.body.data;
     try {
         const userByName = await UserModel.findOne({ username });
         const userByEmail = await UserModel.findOne({ email });
@@ -133,7 +133,7 @@ router.post("/login", async (req, res) => {
 
         // Generate a JWT token
         const token = jwt.sign(
-            { id: user._id, email: user.email, username: user.username, role: "admin", groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+            { _id: user._id, email: user.email, username: user.username, role: "admin", groups:user.groups, roles:user.roles, permissions:combinedPermissions },
             SECRET_KEY,
             { expiresIn: '10h' }
         );
@@ -310,10 +310,10 @@ router.post('/admin-reset-password', verifyToken, async(req,res)=>{
 
 // search user by username
 router.get('/search-users', async(req,res)=>{
-    const query = req.query.username;
+    const query = req.query.name;
     if(query){
         try {
-            const users = await UserModel.find({ username: { $regex: query, $options: 'i' } }).limit(10);
+            const users = await UserModel.find({ name: { $regex: query, $options: 'i' } }).limit(10);
             return res.json({ status: "success", message:"users found", code:"users_found", data:users });
           } catch (error) {
             res.status(500).json({ message: error.message });

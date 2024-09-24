@@ -63,7 +63,7 @@ export interface DynamicField {
     otherPersonsInvolved: PersonsInvolved[];
     customFields: DynamicField[];
     subTasks: string[]; // Array of Task objectIds
-    permissions: Permission[];
+    permissions?: Permission[];
     createdAt?: Date;
     updatedAt?: Date;
   }
@@ -141,6 +141,7 @@ export interface DynamicField {
     permissions?: Permission[];
     createdAt?: Date;
     updatedAt?: Date;
+    createdBy: ObjectId | null 
   }
   
   // Documentation Interface

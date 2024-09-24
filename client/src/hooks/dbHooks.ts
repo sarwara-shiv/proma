@@ -2,6 +2,14 @@ import axios from 'axios';
 import Cookies from 'js-cookie';  // Correct library
 import { ObjectId } from 'mongodb';
 
+const JWT_TOKEN = Cookies.get('access_token');  
+const API_URL = process.env.REACT_APP_API_URL;
+
+const headers = {
+  'Authorization': `Bearer ${JWT_TOKEN}`, 
+  'Content-Type': 'application/json'
+}
+
 // GET ALL DATA
 interface GetRecordsArgs {
   type: "roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks";
@@ -15,8 +23,6 @@ interface GetRecordsArgs {
 const getRecords = async (args: GetRecordsArgs) => {
   const { type, body } = args;
   if (type) {
-    const JWT_TOKEN = Cookies.get('access_token'); 
-    const API_URL = process.env.REACT_APP_API_URL;
 
     try {
       const response = await axios.post(`${API_URL}/${type === "users" ? "auth" : type}/get`, 
@@ -24,10 +30,7 @@ const getRecords = async (args: GetRecordsArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body : {}
         }, 
         {
-          headers: {
-            'Authorization': `Bearer ${JWT_TOKEN}`, 
-            'Content-Type': 'application/json'
-          }
+          headers
         });
       return response.data;
     } catch (error) {
@@ -44,8 +47,6 @@ const addRecords = async (args: GetRecordsArgs) => {
   const { type, body, action="add", id=null } = args;
 
   if (type) {
-    const JWT_TOKEN = Cookies.get('access_token');  // Correct usage of js-cookie
-    const API_URL = process.env.REACT_APP_API_URL;
 
     try {
       const response = await axios.post(`${API_URL}/${type === "users" ? "auth" : type}/${action}`, 
@@ -53,10 +54,7 @@ const addRecords = async (args: GetRecordsArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body :{}
         }, 
         {
-          headers: {
-            'Authorization': `Bearer ${JWT_TOKEN}`, 
-            'Content-Type': 'application/json'
-          }
+          headers
         });
       return response.data;
     } catch (error) {
@@ -67,22 +65,40 @@ const addRecords = async (args: GetRecordsArgs) => {
   }
 };
 
+// GET ALL DATA
+interface GeTRecordsWithID {
+  type: "roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks";
+  body?:any
+  id?:string | string[];
+}
+
+// get single record with ID
+const getRecordWithID = async(args:GeTRecordsWithID)=>{
+  const {type, body={}, id}  = args;
+  if(type && id){
+    try{
+      const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithId`,{
+        page:type === 'auth' ? 'users' : type, data:body || {}, id
+      }, {
+        headers
+      });
+      return response.data; 
+    }catch(error){
+      return { status: "error", code: "invalid_data" };
+    }
+  }
+}
+
 const addUpdateRecords = async (args: GetRecordsArgs) => {
   const { type, body, action="add", id=null, checkDataBy=[] } = args;
   if (type) {
-    const JWT_TOKEN = Cookies.get('access_token');  // Correct usage of js-cookie
-    const API_URL = process.env.REACT_APP_API_URL;
-
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/${action}`, 
         {
           page:type === 'auth' ? 'users' : type, data:body || {}, action, id, checkDataBy
         }, 
         {
-          headers: {
-            'Authorization': `Bearer ${JWT_TOKEN}`, 
-            'Content-Type': 'application/json'
-          }
+          headers
         });
       return response.data;
     } catch (error) {
@@ -100,8 +116,6 @@ interface ForgotPassword {
 }
 const forgotPassword = async(args:ForgotPassword) =>{
   const {email} = args;
-  const JWT_TOKEN = Cookies.get('access_token'); 
-  const API_URL = process.env.REACT_APP_API_URL;
 
   try{
     const response = await axios.post(`${API_URL}/auth/forgot-password`, 
@@ -109,10 +123,7 @@ const forgotPassword = async(args:ForgotPassword) =>{
         email
       },
       {
-      headers: {
-        'Authorization': `Bearer ${JWT_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+        headers
     });
     return response.data; 
   }catch(error){
@@ -127,16 +138,11 @@ interface ResetPassword {
 }
 const resetPassword = async(args:ResetPassword) =>{
   const {password, token} = args;
-  const JWT_TOKEN = Cookies.get('access_token'); 
-  const API_URL = process.env.REACT_APP_API_URL;
 
   try{
     const response = await axios.post(`${API_URL}/auth/reset-password/${token}`, {password},
       {
-      headers: {
-        'Authorization': `Bearer ${JWT_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+        headers
     });
 
     return response.data; 
@@ -152,8 +158,6 @@ interface AdminResetPassword {
 }
 const adminResetPassword = async(args:AdminResetPassword) =>{
   const {id, password} = args;
-  const JWT_TOKEN = Cookies.get('access_token'); 
-  const API_URL = process.env.REACT_APP_API_URL;
 
   try{
     const response = await axios.post(`${API_URL}/auth/admin-reset-password`, 
@@ -161,10 +165,7 @@ const adminResetPassword = async(args:AdminResetPassword) =>{
         page:'users',id, password
       }, 
       {
-        headers: {
-          'Authorization': `Bearer ${JWT_TOKEN}`, 
-          'Content-Type': 'application/json'
-        }
+        headers
       });
     return response.data; 
   }catch(error){
@@ -186,8 +187,6 @@ interface DeleteByIdArgs {
 const deleteRecordById = async (args: DeleteByIdArgs) => {
   const { type, body } = args;
   if (type) {
-    const JWT_TOKEN = Cookies.get('access_token'); 
-    const API_URL = process.env.REACT_APP_API_URL;
 
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/delete`, 
@@ -195,10 +194,7 @@ const deleteRecordById = async (args: DeleteByIdArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body:{}
         },
         {
-        headers: {
-          'Authorization': `Bearer ${JWT_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
+          headers
       });
       return response.data; 
     } catch (error) {
@@ -217,14 +213,9 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
   const {query} = args;
   if(query){
     try{
-      const JWT_TOKEN = Cookies.get('access_token'); 
-      const API_URL = process.env.REACT_APP_API_URL;
-      const response = await axios.get(`${API_URL}/auth/search-users?username=${query}`, 
+      const response = await axios.get(`${API_URL}/auth/search-users?name=${query}`, 
         {
-        headers: {
-          'Authorization': `Bearer ${JWT_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
+          headers
       });
 
       return response.data;
@@ -236,4 +227,4 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
   }
 }
 
-export { searchUserByUsername, getRecords, deleteRecordById, addRecords, addUpdateRecords, resetPassword, forgotPassword, adminResetPassword };
+export { searchUserByUsername, getRecords, deleteRecordById, addRecords, addUpdateRecords, resetPassword, forgotPassword, adminResetPassword, getRecordWithID };

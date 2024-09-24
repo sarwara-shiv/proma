@@ -6,6 +6,7 @@ import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
 import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -169,6 +170,41 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
     }
     // res.status(200).json({ message: 'Record deleted successfully' });
     return res.json({ status: "success", message:'Record deleted', code:"record_deleted" });
+  } catch (error) {
+    return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
+  }
+});
+
+// Common delete route: /tasks/delete (pass id in the body)
+router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
+  const { resource } = req.params;
+  const { id } = req.body.data; // The ID should be passed in the body
+  const model = getModel(resource);
+
+  if (!model) {
+    // return res.status(400).json({ error: 'Invalid resource type' });
+    return res.json({ status: "error", message:'model not found', code:"invalid_resource" });
+  }
+
+  if (!id) {
+    // return res.status(400).json({ error: 'ID is required for deletion' });
+    return res.json({ status: "error", message:'ID not found', code:"id_required" });
+  }
+
+  try {
+    let records;
+    if(Array.isArray(id)){
+      const ObjectIds = id.map(id=>mongoose.Types.ObjectId(id));
+      records = await model.find({_id:{$in:ObjectIds}});
+    }else{
+      records = await model.findById(id);
+    }
+    if (!records) {
+      // return res.status(404).json({ error: 'Record not found' });
+      return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
+    }
+    // res.status(200).json({ message: 'Record deleted successfully' });
+    return res.json({ status: "success", message:'Record found', code:"record_found", data:records});
   } catch (error) {
     return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
   }

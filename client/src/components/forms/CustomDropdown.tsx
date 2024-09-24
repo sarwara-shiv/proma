@@ -81,8 +81,8 @@ const CustomDropdown: React.FC<ArgsType> = ({
 
       {/* Custom dropdown trigger */}
       <div
-        className={`p-2 border rounded-md cursor-pointer flex justify-between items-center 
-        text-gray-900 text-sm
+        className={`cursor-pointer flex justify-between items-center 
+        w-fullbg-gray-50 border  text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700
         ${getColorClasses(value) ?  getColorClasses(value) : 'text-gray-900'}
         `}
         onClick={toggleDropdown}

@@ -1,12 +1,18 @@
 import FormsTitle from '../../../../components/common/FormsTitle';
 import { CustomInput, CustomSelectList } from '../../../../components/forms';
-import { PersonsInvolved, Project } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, PersonsInvolved, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
 import CustomDropdown from '../../../../components/forms/CustomDropdown';
-import MentionUserInput from '../../../../components/forms/MensionUserInput';
 import PersonsInvolvedForm from './PersonsInvolvedForm';
+import { addUpdateRecords } from '../../../../hooks/dbHooks';
+import CustomAlert from '../../../../components/common/CustomAlert';
+import FlashPopup from '../../../../components/common/FlashPopup';
+import FormButton from '../../../../components/common/FormButton';
+import { useAuth } from '../../../../hooks/useAuth';
+import { ObjectId } from 'mongodb';
+import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 
 interface ArgsType {
   id?:string | null;
@@ -27,6 +33,7 @@ const initialValues: Project = {
   permissions: [],
   createdAt: new Date(),
   updatedAt: new Date(),
+  createdBy:null
 };
 
 const priorityColors=[
@@ -36,10 +43,15 @@ const priorityColors=[
   {value:"default", color:"text-yellow-600 bg-yellow-200"}
 ]
 
+const checkDataBy: string[] = ['name'];
 
 const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const {t} = useTranslation();
+  const {user} = useAuth();
   const [formData, setFormData] = useState<Project>(initialValues);
+  const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
+  const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
+
 
   useEffect(()=>{
     ProjectStatuses.map((d)=>{
@@ -54,7 +66,29 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
   },[])
 
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
-
+    event.preventDefault();
+    let data = formData;
+    try{
+      const createdBy = user && user._id ? user._id : null;
+      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id, body:{ ...data, createdBy}}); 
+        if (response.status === "success") {
+            // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
+            const content = `${t(`RESPONSE.${response.code}`)}`;
+            // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
+            setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
+        } else {
+          let content = `${t(`RESPONSE.${response.code}`)}`
+          if(response.data){
+            content = Object.entries(response.data).map(([key, value]) => {
+                return value && `${key} exists`;
+            }).filter(Boolean).join(', ');
+          }
+          setAlertData({...alertData, isOpen:true, title:"Fail", type:"fail", content});
+          console.error('Error:', response.message, 'Code:', response.code);
+        }
+    }catch(error){
+      console.log(error);
+    }
   }
 
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -63,15 +97,16 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
   };
 
   const handleStatusChange = (name: string, value: string, selectedData: { _id: string, name: string }) => {
-    console.log(`Dropdown Name: ${name}`);
-    console.log(`Selected Value: ${value}`);
-    console.log('Selected Data:', selectedData);
-
-    setFormData({...formData, [name]:value});
+    setFormData({...formData, [name]:value}); 
   };
 
   const handlePersonsInvolved = (value:PersonsInvolved[])=>{
-    console.log(value);
+    setFormData({...formData, personsInvolved:value});
+  }
+
+  const handleDateChange = (date: Date | null, name:string)=>{
+    console.log(date);
+    setFormData({...formData, [name]:date});
   }
 
 
@@ -82,7 +117,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           <FormsTitle text=  { action==='update' ? t('updateProject') : t('newProject')} classes='mb-3'/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
-          <div className='fields-wrap grid grid-cols-[1fr,200px,200px] gap-4 mb-6'>
+          <div className='fields-wrap grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,200px,200px,200px]  gap-4 mb-6'>
             <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
                 onChange={handleInputs}
                 className={`placeholder-slate-300 
@@ -97,6 +132,15 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
                   focus:border-b
                   `}
               />
+                <div className="w-full">
+                  <CustomDateTimePicker
+                      selectedDate={formData.startDate}
+                      onDateChange={handleDateChange}
+                      showTimeSelect={false}
+                      name="startDate"
+                      label={t('startDate')}
+                    />
+              </div>
               <div className=''>
                 <CustomDropdown data={ProjectStatuses} label={t('FORMS.status')} name='status'
                   onChange={handleStatusChange}
@@ -110,11 +154,30 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
+                <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} />
+            </div>
+            
+          </div>
+          <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+            <div className="mb-4">
                 <PersonsInvolvedForm selectedValues={formData.personsInvolved} onChange={handlePersonsInvolved}/>
             </div>
           </div>
+          <div className="mt-6 text-right">
+            <FormButton  btnText={action === 'update' ? t('update') : t('create')} />
+          </div>
         </form>
       </div>
+      <CustomAlert
+          onClose={() => setAlertData({ ...alertData, isOpen: !alertData.isOpen })}
+          isOpen={alertData.isOpen}
+          content={alertData.content}
+          title={alertData.title}
+          type={alertData.type || 'info'} 
+        />
+
+        <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
+ 
     </div>
   )
 }

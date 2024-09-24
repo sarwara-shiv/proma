@@ -39,7 +39,7 @@ const UserSearchPopup: React.FC<UserSearchPopupProps> = ({ query, onSelect, onCl
               onClose();
             }}
           >
-            {user.username}
+            {user.name}
           </li>
         ))}
       </ul>

@@ -21,12 +21,13 @@ interface ArgsType {
   checkDataBy?:string[];
 }
 
+
 const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
-  const { username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false } = data || {};
+  const { name="", username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false } = data || {};
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
-  const [formData, setFormData] = useState<User>({ username, password, email, roles, permissions, isActive, groups });
+  const [formData, setFormData] = useState<User>({ name, username, password, email, roles, permissions, isActive, groups });
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [selectedRoleName, setSelectedRoleName] = useState<string>('');
@@ -102,6 +103,17 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
+          <div className='fields-wrap grid grid-cols-1 md:grid-cols- gap-2'>
+          <CustomInput
+                name='name'
+                type="text"
+                value={formData.name}
+                label={t(`FORMS.name`)}
+                onChange={handleInputs}
+                fieldType='fullname'
+                required
+              />
+          </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-2 gap-2'>
             <div className="mb-4">
               <CustomInput

@@ -11,11 +11,14 @@ interface ArgsType{
   selectedValues:PersonsInvolved[];
   onChange:(value:PersonsInvolved[])=>void
 }
+
+
 const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) => {
   const {t} = useTranslation();
   const [loader, setLoader] = useState<boolean>(false);
   const [userGroups, setUserGroups] = useState<UserRole[]>([]);
   const [pInvolved, setPinvolved] = useState<PersonsInvolved[]>([]);
+  const [usersData, setUsersData] = useState<User[]>([]);
 
   useEffect(()=>{
     getGroups();
@@ -23,7 +26,6 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
   },[])
   useEffect(()=>{
     onChange(pInvolved);
-    console.log(pInvolved);
   },[pInvolved])
 
   const getGroups = async()=>{
@@ -43,32 +45,14 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
       }
   }
 
-  // Add User to person involved
-  const addPersonGroup = (role:ObjectId)=>{
-    // if(pInvolved && pInvolved.length > 0){
-    //   setPinvolved(prevVal => {
-    //     // Check if the role already exists
-    //     const roleExists = prevVal.some(d => d.role === role);
-  
-    //     if (roleExists) {
-    //       // Remove the role if it exists
-    //       return prevVal.filter(d => d.role !== role);
-    //     } else {
-    //       // Add the role if it doesn't exist
-    //       return [...prevVal, { role, persons:[] }];
-    //     }
-    //   });
-    // }else{
-    //   setPinvolved([...pInvolved, {role, persons:[]}]);
-    // }
-  }
-
   const addPersons = (user: User, data: any) => {
     const { role } = data;
     const { _id  }= user; // User's _id
     const person = _id as unknown as ObjectId;
 
     if(pInvolved && pInvolved.length > 0){
+
+      // set data
       setPinvolved(prevVal => {
         // Check if the role already exists
         const roleExists = prevVal.some(d => d.role === role);
@@ -98,10 +82,53 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
           return [...prevVal, { role, persons:[person] }];
         }
       });
+
+      // set users data
+      setUsersData((prevVal) => {
+          const userExists = prevVal.some(d => d._id === user._id);
+          if(userExists){
+            return [...prevVal];
+          }else{
+            return [...prevVal, user];
+          }
+      });
     }else{
       setPinvolved([...pInvolved, {role, persons:[person]}]);
+      setUsersData([...usersData, user]);
     }
   };
+
+  const removeUser = ({role, user}:{role:ObjectId, user:ObjectId})=>{
+    const person = user as unknown as ObjectId;
+
+    setPinvolved(prevVal => {
+      // Check if the role already exists
+      const roleExists = prevVal.some(d => d.role === role);
+
+      if (roleExists) {
+        const roleIndex = prevVal.findIndex((d) => d.role === role);
+        const roleData = prevVal[roleIndex];
+
+        if (!roleData.persons) {
+          roleData.persons = [];
+        }
+
+        const userExists = roleData.persons.some((p) => p === person);
+        console.log(userExists);
+
+        if (userExists) {
+          roleData.persons = roleData.persons.filter((p) => p !== person);
+          if (roleData.persons.length === 0) {
+            return prevVal.filter((_, index) => index !== roleIndex);
+          }
+          prevVal[roleIndex] = roleData;
+        }
+
+        return [...prevVal];
+      }
+      return [...prevVal];
+    });
+  }
   
 
   const isGroupAdded = (role:ObjectId)=>{
@@ -121,28 +148,29 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
                 p-2 mb-2 flex flex-col items-left rounded-sm  cursor-pointer
                 ${isGroup ? 'text-primary bg-primary-light': 'text-slate-400 bg-slate-100'}
               `}
-             onClick={()=>addPersonGroup(_id)}>
+             >
               <div className='flex flex-row items-center'>
                   <h2>{item.displayName}</h2>
-                  
-                  <div className={`
-                    flex items-center flex-row justify-center text-lg ml-2  rounded-full
-                    ${isGroup ? 'bg-white text-red-600': 'bg-primary-light text-green-600'}
-                    `}>
-                    {isGroup ? <IoIosRemove />: <IoMdAdd />}
-                  </div>
                 </div>
                 <div>
                 <div className='flex flex-row'>
                   {pInvolved && pInvolved.length > 0 && pInvolved.map((p,pk)=>{
                     return (
-                      <div key={`prk-${index}`}>                     
+                      <div key={`prk-${index}-${pk}-${p.role}`}>                     
                         {p.role as unknown as string === _id as unknown as string && 
                         <div className='flex flex-row gap-2 mt-2'>
                           {p.persons && p.persons.map((pers, persk)=>{
+                            const pId = pers as unknown as string;
+                            const user = usersData.find((ud) => ud._id as unknown as string === pId);
                             return (
-                              <div key={`pk-${pk}-${persk}`} className='bg-white p-1'>
-                                {pers as unknown as string}
+                              <div key={`pk-${pk}-${persk}`} className='bg-white p-1 flex flex-row items-center rounded-sm'>
+                                <span>{user && user.name}</span>
+                                <div onClick={()=>removeUser({role:_id, user:pers})}  className={`
+                                    flex items-center flex-row justify-center text-lg ml-2  rounded-full
+                                      bg-red-100 text-red-600
+                                    `}>
+                                      <IoIosRemove />
+                                  </div>
                               </div>
                             )
                           })}
