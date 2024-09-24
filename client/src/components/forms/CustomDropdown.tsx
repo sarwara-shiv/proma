@@ -76,7 +76,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
   return (
     <div className="relative flex flex-col" ref={dropdownRef}>
       {label && <label htmlFor={name} 
-      className='text-gray-400'
+      className='text-gray-400 text-sm'
       >{label}</label>}
 
       {/* Custom dropdown trigger */}

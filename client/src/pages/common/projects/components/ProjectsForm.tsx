@@ -117,7 +117,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           <FormsTitle text=  { action==='update' ? t('updateProject') : t('newProject')} classes='mb-3'/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
-          <div className='fields-wrap grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr,200px,200px,200px]  gap-4 mb-6'>
+          <div className='fields-wrap grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-4 mb-6'>
             <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
                 onChange={handleInputs}
                 className={`placeholder-slate-300 
@@ -132,6 +132,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
                   focus:border-b
                   `}
               />
+              <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-2'>
                 <div className="w-full">
                   <CustomDateTimePicker
                       selectedDate={formData.startDate}
@@ -150,6 +151,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
                 <CustomDropdown data={Priorities} label={t('FORMS.priority')} name='priority'
                   onChange={handleStatusChange} colorClasses={priorityColors}
                 />
+              </div>
               </div>
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>

@@ -1,0 +1,11 @@
+export { default as CustomAlert } from './CustomAlert';
+export { default as CustomPopup } from './CustomPopup';
+export { default as FlashPopup } from './FlashPopup';
+export { default as FormButton } from './FormButton';
+export { default as Headings } from './Headings';
+export { default as Loader } from './Loader';
+export { default as Logo } from './Logo';
+export { default as FormsTitle } from './FormsTitle';
+export { default as PageSubmenu } from './PageSubmenu';
+export { default as PageTitel } from './PageTitel';
+export { default as ToggleSwitch } from './ToggleSwitch';

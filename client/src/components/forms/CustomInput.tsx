@@ -123,7 +123,7 @@ const CustomInput: React.FC<argsType> = (args) => {
         <div className='input-wrap flex flex-col w-full mb-4 relative'>
             {label && (
                 <div className='flex items-center'>
-                    <label htmlFor={id ? id : name} className='text-gray-400 flex items-center'>
+                    <label htmlFor={id ? id : name} className='text-gray-400 flex items-center text-sm'>
                         {label}
                         {required && <span className={`${isValid ? 'text-gray-400' : 'text-red-500'} ml-1`}>*</span>}
                     </label>

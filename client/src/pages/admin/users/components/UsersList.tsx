@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
-import { ColumnDef, RowData, ColumnMeta } from '@tanstack/react-table';
-import { IoTrash, IoCreateOutline, IoLockClosed } from "react-icons/io5";
+import { ColumnDef } from '@tanstack/react-table';
+import { IoCreateOutline, IoLockClosed } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
 import { getRecords, deleteRecordById, addUpdateRecords } from '../../../../hooks/dbHooks';
@@ -17,15 +17,6 @@ import FlashPopup from '../../../../components/common/FlashPopup';
 import { AlertPopupType, FlashPopupType } from '@/interfaces';
 import ChangePassword from './ChangePassword';
 
-interface DataType { 
-    name: string;
-    shortName: string;
-    description?: string;
-    _id: string;
-    createdAt: string; // Changed to string for date representation
-    updatedAt: string; // Changed to string for date representation
-    permissions?: string[];
-}
 
 const AllUsers = () => {
     const {t} = useTranslation();

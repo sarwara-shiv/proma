@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS file for styling
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../assets/styles/datepicker.css'
 
 interface CustomDateTimePickerProps {
   selectedDate: Date | null;
@@ -34,7 +35,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
     <div className="relative inline-block w-full">
          {label && (
                 <div className='flex items-center'>
-                    <label className='text-gray-400 flex items-center'>
+                    <label className='text-gray-400 flex items-center text-sm'>
                         {label}
                     </label>
                 </div>
@@ -47,7 +48,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
         showTimeSelect={showTimeSelect} // Conditionally show time picker
         timeIntervals={15} // Time intervals for the time picker
         placeholderText={placeholder || "Select a date"}
-        className="w-fullbg-gray-50 border  text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700"
+        className="w-full bg-gray-50 border text-gray-900 text-sm rounded-sm focus:outline-none block p-2.5 dark:bg-gray-700"
       />
     </div>
   );
