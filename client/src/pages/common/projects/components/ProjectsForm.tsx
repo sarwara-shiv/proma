@@ -48,7 +48,7 @@ const checkDataBy: string[] = ['name'];
 const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
   const {t} = useTranslation();
   const {user} = useAuth();
-  const [formData, setFormData] = useState<Project>(initialValues);
+  const [formData, setFormData] = useState<Project>(data? data : initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
@@ -144,12 +144,12 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
               </div>
               <div className=''>
                 <CustomDropdown data={ProjectStatuses} label={t('FORMS.status')} name='status'
-                  onChange={handleStatusChange}
+                  onChange={handleStatusChange} selectedValue={formData.status}
                 />
               </div>
               <div className=''>
                 <CustomDropdown data={Priorities} label={t('FORMS.priority')} name='priority'
-                  onChange={handleStatusChange} colorClasses={priorityColors}
+                  onChange={handleStatusChange} colorClasses={priorityColors} selectedValue={formData.priority}
                 />
               </div>
               </div>
@@ -162,7 +162,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
-                <PersonsInvolvedForm selectedValues={formData.personsInvolved} onChange={handlePersonsInvolved}/>
+                <PersonsInvolvedForm selectedValues={formData.personsInvolved ? formData.personsInvolved : data?.personsInvolved ? data.personsInvolved : []} onChange={handlePersonsInvolved}/>
             </div>
           </div>
           <div className="mt-6 text-right">

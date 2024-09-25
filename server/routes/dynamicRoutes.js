@@ -178,7 +178,7 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
 // Common delete route: /tasks/delete (pass id in the body)
 router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
   const { resource } = req.params;
-  const { id } = req.body.data; // The ID should be passed in the body
+  const { id } = req.body; // The ID should be passed in the body
   const model = getModel(resource);
 
   if (!model) {
@@ -190,13 +190,16 @@ router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
     // return res.status(400).json({ error: 'ID is required for deletion' });
     return res.json({ status: "error", message:'ID not found', code:"id_required" });
   }
-
+  console.log('------ids');
+  console.log(id);
   try {
     let records;
     if(Array.isArray(id)){
-      const ObjectIds = id.map(id=>mongoose.Types.ObjectId(id));
-      records = await model.find({_id:{$in:ObjectIds}});
+      console.log('------ids 2');
+      console.log(id);
+      records = await model.find({_id:{$in:id}});
     }else{
+      console.log(id);
       records = await model.findById(id);
     }
     if (!records) {
@@ -209,6 +212,48 @@ router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
     return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
   }
 });
+
+
+// get data
+// Common delete route: /tasks/delete (pass id in the body)
+router.post('/:resource/getRecordsWithLimit', verifyToken, async (req, res) => {
+  const { resource } = req.params;
+  let { pageNr=1, limit=2, populateFields=[] } = req.body;
+  const model = getModel(resource);
+
+  if (!model) {
+    // return res.status(400).json({ error: 'Invalid resource type' });
+    return res.json({ status: "error", message:'model not found', code:"invalid_resource" });
+  }
+
+  pageNr = parseInt(pageNr);
+  limit = parseInt(limit);
+  const skip = (pageNr-1)*limit;
+  try{
+
+    let query = model.find().skip(skip).limit(limit);
+
+      // Dynamically populate fields if provided
+      if (populateFields && Array.isArray(populateFields)) {
+        populateFields.forEach((field) => {
+          query = query.populate(field);
+        });
+      }
+
+      // Execute the query
+      const records = await query;
+    const totalRecords = await model.countDocuments();
+  
+    if (!records) {
+      return res.json({ status: "error", message:'Record not found', code:"empty" });
+    }
+  
+    return res.json({ status: "success", totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage:pageNr, limit:limit, message:'Record found', code:"records_found", data:records});
+  }catch(error){
+    return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
+  }
+})
+
 
 
 /**

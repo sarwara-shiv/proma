@@ -4,7 +4,7 @@ import { IoTrash } from 'react-icons/io5';
 import { deleteRecordById } from '../../hooks/dbHooks';
 
 interface ArgsType{
-    data:{id:string, type:"roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks", page:string},
+    data:{id:string, type:string, page:string},
     popupData?:any;
     title?:string;
     content?:string;

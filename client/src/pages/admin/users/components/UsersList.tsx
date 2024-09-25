@@ -6,7 +6,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { IoCreateOutline, IoLockClosed } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import { getRecords, deleteRecordById, addUpdateRecords } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
@@ -14,8 +14,9 @@ import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
 import { User } from '@/interfaces/users';
 import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
-import { AlertPopupType, FlashPopupType } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, PaginationProps } from '@/interfaces';
 import ChangePassword from './ChangePassword';
+import Pagination from '../../../../components/common/Pagination';
 
 
 const AllUsers = () => {
@@ -27,6 +28,7 @@ const AllUsers = () => {
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
+    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
 
     const columns: ColumnDef<User, any>[] = useMemo(() => [
         {
@@ -61,7 +63,7 @@ const AllUsers = () => {
             cell:info=>{
                 const originalData = info.row.original; 
                 const roles = originalData?.roles as unknown as UserRole[]
-                const role = roles[0] ? roles[0].displayName : '';
+                const role = roles[0] ? roles[0].name : '';
                 return(                 
                     <span>{role}</span>
                 )
@@ -187,7 +189,7 @@ const AllUsers = () => {
     const getAllUsers = async () => {
         setLoader(true);
         try {
-            const res = await getRecords({type: "auth" }); 
+            const res = await getRecordsWithLimit({type: "auth", limit:50, pageNr:1, populateFields:['roles'] });  
             if (res.status === "success") {
                 setData(res.data || []);
             }else{
@@ -200,11 +202,6 @@ const AllUsers = () => {
             setLoader(false);
         }
     };
-
-    const confirmDelete = (id:string, action:String, content:string | "")=>{
-       setPopupData({id, action});
-       setPopupContent({...popupContent, isOpen:!popupContent.isOpen, title:"Delete ?", content});
-    }
 
     const onDelete = (data:any)=>{
         if(data.status === "success"){ 
@@ -240,6 +237,11 @@ const AllUsers = () => {
     }
 
 
+ const handlePageChange = (page: number) => {
+    setPaginationData({...paginationData, currentPage:page});
+    getAllUsers();
+  };
+
 
     return (
         <div className='p-4'>
@@ -250,6 +252,11 @@ const AllUsers = () => {
                     {data.length > 0 ? (
                         <div>
                             <DataTable columns={columns} data={data}/>
+                            {/* <Pagination
+                                currentPage={paginationData.currentPage} 
+                                totalPages={paginationData.totalPages} 
+                                onPageChange={handlePageChange} 
+                            /> */}
                                 <ConfirmPopup
                                     isOpen={popupContent.isOpen}
                                     onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}

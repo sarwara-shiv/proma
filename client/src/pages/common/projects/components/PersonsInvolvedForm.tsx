@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { PersonsInvolved, User, UserRole } from '@/interfaces'
-import { getRecords } from '../../../../hooks/dbHooks'
+import { getRecords, getRecordWithID } from '../../../../hooks/dbHooks'
 import FormsTitle from '../../../../components/common/FormsTitle';
 import { useTranslation } from 'react-i18next';
 import { IoIosRemove, IoMdAdd } from "react-icons/io";
@@ -17,15 +17,16 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
   const {t} = useTranslation();
   const [loader, setLoader] = useState<boolean>(false);
   const [userGroups, setUserGroups] = useState<UserRole[]>([]);
-  const [pInvolved, setPinvolved] = useState<PersonsInvolved[]>([]);
+  const [pInvolved, setPinvolved] = useState<PersonsInvolved[]>(selectedValues);
   const [usersData, setUsersData] = useState<User[]>([]);
 
   useEffect(()=>{
     getGroups();
-
+    getUsersData();
   },[])
   useEffect(()=>{
     onChange(pInvolved);
+    
   },[pInvolved])
 
   const getGroups = async()=>{
@@ -43,6 +44,26 @@ const PersonsInvolvedForm:React.FC<ArgsType> = ({selectedValues=[], onChange}) =
       }finally{
           setLoader(false);
       }
+  }
+
+  const getUsersData = async()=>{
+    console.log('getUserData');
+    const allPersonIds = selectedValues.map(item => item.persons).flat();
+    console.log(pInvolved);
+    console.log(selectedValues);
+    if(allPersonIds && allPersonIds.length > 0){
+      console.log(allPersonIds);
+      try{
+        const ids = allPersonIds as unknown as string[];
+        console.log(ids);
+        const response = await getRecordWithID({id:ids, type:'users'});
+        if(response.status === 'success' && response.data && response.data.length > 0){
+          setUsersData(response.data);
+        }
+      }catch(error){
+  
+      }
+    }
   }
 
   const addPersons = (user: User, data: any) => {

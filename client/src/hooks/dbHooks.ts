@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';  // Correct library
+import Cookies from 'js-cookie'; 
 import { ObjectId } from 'mongodb';
 
 const JWT_TOKEN = Cookies.get('access_token');  
@@ -12,7 +12,7 @@ const headers = {
 
 // GET ALL DATA
 interface GetRecordsArgs {
-  type: "roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks";
+  type: string;
   body?:any
   limit?: number;
   action?:'add' | 'update';
@@ -28,6 +28,35 @@ const getRecords = async (args: GetRecordsArgs) => {
       const response = await axios.post(`${API_URL}/${type === "users" ? "auth" : type}/get`, 
         {
           page:type === 'auth' ? 'users' : type, data:body?body : {}
+        }, 
+        {
+          headers
+        });
+      return response.data;
+    } catch (error) {
+      return { status: "error", code: "unknown_error" };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" };
+  }
+};
+
+// GET RECOREDS WITH LIMIT
+interface GetRecorsWithLimit{
+  type:string;
+  limit:number;
+  pageNr:number;
+  populateFields?:string[]
+}
+
+const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
+  const { type, limit, pageNr, populateFields=[] } = args;
+  if (type) {
+
+    try {
+      const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithLimit`,
+        {
+          page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields
         }, 
         {
           headers
@@ -65,11 +94,13 @@ const addRecords = async (args: GetRecordsArgs) => {
   }
 };
 
+
+
 // GET ALL DATA
 interface GeTRecordsWithID {
-  type: "roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks";
+  type:string;
   body?:any
-  id?:string | string[];
+  id?:string | string[] | ObjectId | ObjectId[];
 }
 
 // get single record with ID
@@ -180,7 +211,7 @@ interface DeleteDataType {
 }
 
 interface DeleteByIdArgs {
-  type: "roles" | "users" | "groups" | "auth" | "documentation" | "projects" | "tasks";
+  type:string;
   body: DeleteDataType;
 }
 
@@ -201,7 +232,7 @@ const deleteRecordById = async (args: DeleteByIdArgs) => {
       return { status: "error", code: "unknown_error", message:error, error };
     }
   } else {
-    return { status: "error", code: "invalid_data" };
+    return { status: "error", code: "invalid_data" }; 
   }
 };
 
@@ -227,4 +258,15 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
   }
 }
 
-export { searchUserByUsername, getRecords, deleteRecordById, addRecords, addUpdateRecords, resetPassword, forgotPassword, adminResetPassword, getRecordWithID };
+export { 
+  searchUserByUsername, 
+  getRecords, 
+  deleteRecordById, 
+  addRecords, 
+  addUpdateRecords, 
+  resetPassword, 
+  forgotPassword, 
+  adminResetPassword, 
+  getRecordsWithLimit,
+  getRecordWithID 
+};

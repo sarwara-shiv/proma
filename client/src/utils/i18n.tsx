@@ -25,7 +25,7 @@ i18n
   .init({
     fallbackLng: 'en', // Default language
     supportedLngs: ['en','de'], // List of supported languages
-    debug: true, // Enable debug mode for development
+    debug: false, // Enable debug mode for development
     resources,
     interpolation: {
       escapeValue: false, // React already escapes by default
