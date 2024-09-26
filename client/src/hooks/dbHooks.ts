@@ -1,3 +1,4 @@
+import { OrderByFilter, QueryFilters } from '@/interfaces';
 import axios from 'axios';
 import Cookies from 'js-cookie'; 
 import { ObjectId } from 'mongodb';
@@ -58,6 +59,38 @@ const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithLimit`,
         {
           page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields
+        }, 
+        {
+          headers
+        });
+      return response.data;
+    } catch (error) {
+      return { status: "error", code: "unknown_error" };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" };
+  }
+};
+
+
+interface GetRecorsWithFilters{
+  type:string;
+  limit:number;
+  filters?: QueryFilters;
+  pageNr:number;
+  populateFields?:string[]
+  orderBy?:OrderByFilter
+}
+
+const getRecordsWithFilters = async (args: GetRecorsWithFilters) => {
+  console.log(args);
+  const { type, limit, pageNr, populateFields=[], filters={}, orderBy={} } = args;
+  if (type) {
+
+    try {
+      const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithFilters`,
+        {
+          page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields, filters, orderBy
         }, 
         {
           headers
@@ -269,5 +302,6 @@ export {
   forgotPassword, 
   adminResetPassword, 
   getRecordsWithLimit,
-  getRecordWithID 
+  getRecordWithID,
+  getRecordsWithFilters 
 };

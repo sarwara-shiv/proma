@@ -7,6 +7,7 @@ import UserModel from '../models/userModel.js';
 import UserGroupModel from '../models/userGroupModel.js'; 
 import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
 import mongoose from 'mongoose';
+import moment from 'moment/moment.js';
 
 const router = express.Router();
 
@@ -251,6 +252,144 @@ router.post('/:resource/getRecordsWithLimit', verifyToken, async (req, res) => {
     return res.json({ status: "success", totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage:pageNr, limit:limit, message:'Record found', code:"records_found", data:records});
   }catch(error){
     return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
+  }
+})
+
+
+// get data
+// Common delete route: /tasks/delete (pass id in the body)
+router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) => {
+  const { resource } = req.params;
+  let { filters = {}, pageNr = 1, limit = 10, populateFields = [], orderBy={} } = req.body;
+  const model = getModel(resource);
+
+  if (!model) {
+    return res.json({ status: "error", message: 'Model not found', code: "invalid_resource" });
+  }
+
+  pageNr = parseInt(pageNr);
+  limit = parseInt(limit);
+  const skip = (pageNr - 1) * limit;
+
+  try {
+    // Initialize the query object
+    let queryObj = {};
+
+    // Dynamically construct the query object based on filterData
+    Object.keys(filters).forEach((key) => {
+      const value = filters[key];
+
+      // If the value is an object, check if it's a range (e.g., { from: X, till: Y })
+      if (typeof value === 'object' && value !== null) {
+
+        // date range
+        if (value.from || value.till) {
+          // Check if it's a date range or a number range
+          if (value.type === 'date') {
+            // Date or range filtering
+            queryObj[key] = {};
+        
+            if (value.from) {
+
+              let fromDate = new Date(value.from);
+              if(value.format){
+                fromDate = value.from ? moment(value.from, value.format).toDate() : null;
+              }
+              queryObj[key].$gte = fromDate 
+            }
+        
+            if (value.till) {
+              let tillDate = new Date(value.from);
+              if(value.format){
+                tillDate = value.till ? moment(value.till, value.format).toDate() : null;
+              }
+              queryObj[key].$lte = tillDate 
+            }
+          }
+
+          // numbers
+          if (value.type === 'number') {
+            // Number range filtering
+            queryObj[key] = {};
+        
+            if (value.from) {
+              queryObj[key].$gte = parseInt(value.from);  // Greater than or equal to 'from'
+            }
+        
+            if (value.till) {
+              queryObj[key].$lte = parseInt(value.till);  // Less than or equal to 'till'
+            }
+          }
+        }
+
+         // exact date
+         if(value.date){
+          const format = value.format ? value.format : 'DD.MM.YYYY';
+          const fromDate = moment(value.date, format).startOf('day').toDate();
+          const tillDate = moment(value.date, format).endOf('day').toDate();
+          
+          queryObj[key] = { $gte: fromDate, $lte: tillDate };
+          console.log({ $gte: fromDate, $lte: tillDate })
+        }
+        
+
+        
+      } else {
+        if (value !== null && value !== undefined && value !== "") {
+          queryObj[key] = value;
+        } else {
+          // Query for records where the field is not null, undefined, or empty
+          queryObj[key] = {
+            $ne: null,  // Field is not null
+            $ne: "",    // Field is not an empty string
+            $exists: true // Field exists in the document
+          };
+        }
+        // For other fields, simply assign the value (exact match)
+        queryObj[key] = value;
+      }
+    });
+
+    // Check if queryObj is empty, if it is, don't apply any filters (fetch all records)
+    let query = Object.keys(queryObj).length > 0 
+      ? model.find(queryObj).skip(skip).limit(limit) 
+      : model.find().skip(skip).limit(limit);
+
+      // sort data
+      if (Object.keys(orderBy).length > 0) {
+        query = query.sort(orderBy);
+      }
+  
+
+    // Dynamically populate fields if provided
+    if (populateFields && Array.isArray(populateFields)) {
+      populateFields.forEach((field) => {
+        query.populate(field);
+      });
+    }
+
+
+
+    // Execute the query
+    const records = await query;
+    const totalRecords = await model.countDocuments(queryObj); // Count using the same query object
+
+    if (!records || records.length === 0) {
+      return res.json({ status: "error", message: 'Record not found', code: "empty" });
+    }
+
+    return res.json({
+      status: "success",
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: pageNr,
+      limit: limit,
+      message: 'Record found',
+      code: "records_found",
+      data: records
+    });
+  } catch (error) {
+    return res.json({ status: "error", message: 'Server error', code: "unknown_error", error });
   }
 })
 

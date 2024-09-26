@@ -6,7 +6,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { IoCreateOutline, IoLockClosed } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit, getRecordsWithFilters } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
@@ -14,7 +14,7 @@ import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
 import { User } from '@/interfaces/users';
 import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
-import { AlertPopupType, FlashPopupType, PaginationProps } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, OrderByFilter, PaginationProps, QueryFilters } from '@/interfaces';
 import ChangePassword from './ChangePassword';
 import Pagination from '../../../../components/common/Pagination';
 
@@ -188,12 +188,21 @@ const AllUsers = () => {
     const getAllUsers = async () => {
         setLoader(true);
         try {
-            
-            const res = await getRecordsWithLimit({
+            const filters:QueryFilters = {
+                isActive:true,
+                // createdAt:{date:'23.09.2024', format:'DD.MM.YYYY'}
+            }
+
+            const orderBy:OrderByFilter={
+                createdAt:'desc'
+            }
+            const res = await getRecordsWithFilters({
                 type: "auth", 
                 limit:paginationData.limit as unknown as number, 
                 pageNr:paginationData.currentPage as unknown as number, 
-                populateFields:['roles'] 
+                populateFields:['roles'],
+                filters,
+                orderBy
             });  
             if (res.status === "success") {
                 setData(res.data || []);

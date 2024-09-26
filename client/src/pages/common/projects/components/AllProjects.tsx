@@ -3,7 +3,11 @@ import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
-import { IoCreateOutline, IoLockClosed } from "react-icons/io5";
+import { IoCreateOutline, IoEllipsisVertical, IoLockClosed } from "react-icons/io5";
+import { FaEye, FaTasks } from 'react-icons/fa';
+
+import { MdRocketLaunch } from "react-icons/md";
+
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
 import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit } from '../../../../hooks/dbHooks';
@@ -14,12 +18,17 @@ import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
 import { User } from '@/interfaces/users';
 import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
-import { AlertPopupType, FlashPopupType, PaginationProps, Project } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, NavItem, PaginationProps, Project } from '@/interfaces';
 import { getUsers } from '../../../../hooks/getRecords';
 import { ObjectId } from 'mongodb';
+import SubNavigationCell from '../../../../components/table/SubNavigationCell';
 
+interface ArgsType {
+    setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
+    navItems:NavItem[];
+}
 
-const AllProjects = () => {
+const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
     const [data, setData] = useState<Project[]>([]);
@@ -30,7 +39,10 @@ const AllProjects = () => {
     const [loader, setLoader] = useState(true);
     const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
     const [recordType, setRecordType] = useState<string>('projects');
-
+    
+    useEffect(()=>{
+        setSubNavItems(navItems)
+    },[])
 
     const columns: ColumnDef<Project, any>[] = useMemo(() => [
         {
@@ -47,6 +59,24 @@ const AllProjects = () => {
           header: `${t('status')}`,
           accessorKey: 'status',
           id:"status",
+          cell: ({ getValue }: { getValue: () => User }) => {
+            const status = getValue() && getValue();
+            return <span className={`px-1 rounded-sm bg-${status} text-${status}-dark `}>  {`${t(`${status}`)}`}</span>; 
+          },
+            meta:{
+                style :{
+                textAlign:'center',
+                }
+            }
+        },
+        {
+          header: `${t('priority')}`,
+          accessorKey: 'priority',
+          id:"priority",
+          cell: ({ getValue }: { getValue: () => User }) => {
+            const priority = getValue() && getValue();
+            return <span className={`px-1 rounded-sm bg-${priority} text-${priority}-dark `}>  {`${t(`${priority}`)}`}</span>;  
+          },
             meta:{
                 style :{
                 textAlign:'center',
@@ -108,10 +138,11 @@ const AllProjects = () => {
                 }
             }
         },
+        
         {
             header:`${t('actions')}`,
             cell: ({ row }: { row: any }) => (
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'center' }} className='text-md'>
                     {/* {row.original.isEditable && <></>
                     } */}
                     <div>
@@ -128,11 +159,52 @@ const AllProjects = () => {
             ),
             meta:{
                 style :{
-                textAlign:'right',
-                width:"100px"
+                textAlign:'center',
+                width:"60px"
                 }
             }
-        }
+        },
+        {
+            header:`${t('links')}`,
+            id:'links',
+            cell: ({ row }: { row: any }) => (
+                <div style={{ textAlign: 'center' }} className='hover:bg-white rounded-sm hover:shadow-sm'>
+                    {/* {row.original.isEditable && <></>
+                    } */}
+                    <div className='flex align-center justify-center flex-row py-[1px]'>
+                        <NavLink
+                            to={`kickoff`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
+                            className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                            >
+                              <MdRocketLaunch /> 
+                        </NavLink>
+                        <NavLink
+                            to={`tasks`} state={{objectId:row.original._id, data:row.original}} title={`${t('tasks')}`}
+                            className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                            >
+                              <FaTasks /> 
+                        </NavLink>
+                        <NavLink
+                            to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
+                            className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                            >
+                              <FaEye /> 
+                        </NavLink>
+                        <div className='inline-block p-1 ml-1 cursor-pointer hover:bg-primary-light hover:text-primary'>
+                            <SubNavigationCell id='' navItems={[]} rowData={{}} onClose={()=>{console.log('closed')}}/>
+                        </div>
+                    </div>
+                    
+                </div>
+            ),
+            meta:{
+                style :{
+                textAlign:'center',
+                width:"130px"
+                }
+            }
+        },
+        
       ], []);
 
     useEffect(() => {
@@ -241,10 +313,10 @@ const AllProjects = () => {
     setPaginationData({...paginationData, currentPage:page});
     getRecords();
   };
-
-
     return (
         <div className='p-4'>
+
+            <div className=''>TEST</div>
             {loader ? (
                 <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
             ) : (

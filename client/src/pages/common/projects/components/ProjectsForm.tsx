@@ -1,6 +1,6 @@
 import FormsTitle from '../../../../components/common/FormsTitle';
 import { CustomInput, CustomSelectList } from '../../../../components/forms';
-import { AlertPopupType, FlashPopupType, PersonsInvolved, Project } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, NavItem, PersonsInvolved, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
@@ -18,6 +18,8 @@ interface ArgsType {
   id?:string | null;
   action?:"add" | "update";
   data?: Project; 
+  navItems:NavItem[];
+  setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
   checkDataBy?:string[];
 }
 const initialValues: Project = {
@@ -44,8 +46,7 @@ const priorityColors=[
 ]
 
 const checkDataBy: string[] = ['name'];
-
-const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
+const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [formData, setFormData] = useState<Project>(data? data : initialValues);
@@ -54,6 +55,8 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id }) => {
 
 
   useEffect(()=>{
+    setSubNavItems(navItems)
+
     ProjectStatuses.map((d)=>{
       d.name = t(`${d.name}`)
       return d;
