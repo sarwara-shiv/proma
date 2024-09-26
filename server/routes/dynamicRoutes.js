@@ -351,16 +351,46 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
         queryObj[key] = value;
       }
     });
+    // METHOD:1
+    let query = model.find();
+    if (Object.keys(orderBy).length > 0) {
+      query = model.find().sort(orderBy);
+    }
+    // if (Object.keys(orderBy).length > 0) {
+    //   const sortObj = {};
+      
+    //   Object.keys(orderBy).forEach((field) => {
+    //     // Handle date fields specifically
+    //     if (filters[field]?.type === 'date') {
+    //       sortObj[field] = orderBy[field] === 'desc' ? -1 : 1;
+    //     } else {
+    //       const sortDirection = orderBy[field] === 'desc' ? -1 : 1;
+    //       sortObj[field] = sortDirection;
+    //     }
+    //   });
 
-    // Check if queryObj is empty, if it is, don't apply any filters (fetch all records)
-    let query = Object.keys(queryObj).length > 0 
-      ? model.find(queryObj).skip(skip).limit(limit) 
-      : model.find().skip(skip).limit(limit);
+    //   // Debugging output for sorting object
+    //   console.log('Sorting by:', sortObj);
 
-      // sort data
-      if (Object.keys(orderBy).length > 0) {
-        query = query.sort(orderBy);
-      }
+    //   // Apply the sort to the query
+    //   query = query.sort(sortObj);
+    // }
+
+    if (Object.keys(queryObj).length > 0) {
+      query = query.find(queryObj);
+    }
+
+    query = query.skip(skip).limit(limit);
+
+    // METHOD:2
+    // let query = Object.keys(queryObj).length > 0 
+    //   ? model.find(queryObj).skip(skip).limit(limit) 
+    //   : model.find().skip(skip).limit(limit);
+
+    //   // sort data
+    //   if (Object.keys(orderBy).length > 0) {
+    //     query = query.sort(orderBy);
+    //   }
   
 
     // Dynamically populate fields if provided

@@ -26,6 +26,7 @@ import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataCo
 import { CustomDropdown } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
+import Pagination from '../../../../components/common/Pagination';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -41,7 +42,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
-    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
+    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
     const [recordType, setRecordType] = useState<string>('projects');
     const [fitlers, setFilters] = useState<QueryFilters>({});
     
@@ -384,7 +385,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             }
 
             const orderBy:OrderByFilter={
-                createdAt:'desc'
+                priority:'asc',
             }
             const res = await getRecordsWithFilters({
                 type: "projects", 
@@ -396,6 +397,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             });  
             if (res.status === "success") {
                 setData(res.data || []);
+                setPaginationData({...paginationData, totalRecords:res.totalRecords, totalPages:res.totalPages, currentPage:res.currentPage})
             }else{
                 setData([]);
             }
@@ -441,14 +443,11 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     }
 
 
- const handlePageChange = (page: number) => {
-    setPaginationData({...paginationData, currentPage:page});
-    getRecords();
-  };
+    const handlePageChange =  (page: number) => {
+        setPaginationData({...paginationData, currentPage:page})
+    };
     return (
         <div className='p-4'>
-
-            <div className=''>TEST</div>
             {loader ? (
                 <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
             ) : (
@@ -456,6 +455,12 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                     {data.length > 0 ? (
                         <div>
                             <DataTable columns={columns} data={data}/>
+                            <Pagination
+                                currentPage={paginationData.currentPage} 
+                                totalPages={paginationData.totalPages} 
+                                onPageChange={handlePageChange} 
+                                totalRecords={paginationData.totalRecords}
+                            /> 
                             {/* <Pagination
                                 currentPage={paginationData.currentPage} 
                                 totalPages={paginationData.totalPages} 

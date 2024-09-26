@@ -31,7 +31,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
   return (
     <>
-      {currentPage !== totalPages && 
+      {totalPages > 1 && 
         <div className="pagination-controls flex flex-row gap-2 text-sm font-bold text-slate-500 p-2 justify-end my-3">
           {/* First Page */}
           {/* <button className={`${commonClasses} ${currentPage === 1 ? 'bg-primary-light text-primary' : ''} text-lg`}
