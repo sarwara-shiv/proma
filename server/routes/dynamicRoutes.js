@@ -335,16 +335,18 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
 
         
       } else {
-        if (value !== null && value !== undefined && value !== "") {
-          queryObj[key] = value;
-        } else {
-          // Query for records where the field is not null, undefined, or empty
+        if(value === 'empty'){
           queryObj[key] = {
             $ne: null,  // Field is not null
             $ne: "",    // Field is not an empty string
             $exists: true // Field exists in the document
           };
+        }else{
+          if (value !== null && value !== undefined && value !== "") {
+            queryObj[key] = value;
+          } 
         }
+
         // For other fields, simply assign the value (exact match)
         queryObj[key] = value;
       }

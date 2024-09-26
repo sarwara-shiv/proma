@@ -4,31 +4,37 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../assets/styles/datepicker.css'
+import { ObjectId } from 'mongodb';
 
 interface CustomDateTimePickerProps {
   selectedDate: Date | null;
-  onDateChange: (date: Date | null, name:string) => void;
+  onDateChange?: (recordId:string|ObjectId, date: Date | null, name:string) => void;
+  onChange?: (recordId:string|ObjectId, value: Date | null, name: string) => void;
   showTimeSelect: boolean;
   label?:string;
   placeholder?:string;
   required?: boolean;
+  recordId?:string|ObjectId;
   name?:string;
 }
 
-const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
+const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({ 
   selectedDate,
   onDateChange,
+  onChange,
   showTimeSelect,
   name="",
   placeholder,
   required=false,
-  label
+  recordId='',
+  label,
 }) => {
   const [startDate, setStartDate] = useState<Date | null>(selectedDate);
 
   const handleChange = (date: Date | null) => {
     setStartDate(date);
-    onDateChange(date, name);
+    onDateChange && onDateChange(recordId, date, name);
+    onChange && onChange(recordId, date, name);
   };
 
   return (

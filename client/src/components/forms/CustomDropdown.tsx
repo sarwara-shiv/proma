@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,12 +15,12 @@ interface ColorData{
 
 interface ArgsType {
   data: DataType[];
-  onChange: (name: string, value: string, data: DataType) => void;
+  onChange: (recordId:string|ObjectId, name: string, value: string, data: DataType) => void;
   label?: string;
   name?: string;
   selectedValue?: string;
+  recordId?:string | ObjectId
   colorClasses?:ColorData[]
-
 }
 
 const CustomDropdown: React.FC<ArgsType> = ({
@@ -28,7 +29,8 @@ const CustomDropdown: React.FC<ArgsType> = ({
   data,
   onChange,
   selectedValue = '',
-  colorClasses=[]
+  colorClasses=[],
+  recordId=''
 }) => {
   const [value, setValue] = useState<string>(selectedValue);
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +59,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
   const handleItemClick = (_id: string, selectedData: DataType) => {
     setValue(_id);
     setIsOpen(false); // Close dropdown after selection
-    onChange(name, _id, selectedData); // Trigger the parent's onChange
+    onChange(recordId, name, _id, selectedData); // Trigger the parent's onChange
   };
 
   const getColorClasses = (value:string)=>{

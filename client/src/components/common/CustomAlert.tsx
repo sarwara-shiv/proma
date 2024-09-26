@@ -1,10 +1,27 @@
 // Popup.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IoClose } from "react-icons/io5";
 import { AlertPopupType } from '@/interfaces';
 
 
 const CustomAlert: React.FC<AlertPopupType> = ({ isOpen, onClose, title, content, type ="info", display}) => {
+  const popupRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        onClose && onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null; 
   const typeClasses = {
     'success': 'text-green-500 text-sm',
@@ -15,9 +32,10 @@ const CustomAlert: React.FC<AlertPopupType> = ({ isOpen, onClose, title, content
     'form': 'text-slate-500 text-lg',
   }
 
+
   return (
     <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50`}>
-      <div className={`bg-white p-2 rounded shadow-lg max-w-sm w-full`}>
+      <div className={`bg-white p-2 rounded shadow-lg max-w-sm w-full`} ref={popupRef}>
         <div className="relative flex justify-between items-center border-b mb-2">
           <h2 className={`font-semibold ${typeClasses[type]}`}>
             {title ? title : type === 'error' ? 'Error' : type === 'success' ? 'Success' : type === 'warning' ? 'Warning' : 'Info'}

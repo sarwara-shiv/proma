@@ -28,6 +28,7 @@ const initialValues: Project = {
   status: 'notStarted',
   priority: 'medium',
   startDate: new Date(),
+  endDate: new Date(), 
   documentation: [],
   personsInvolved: [],
   tasks: [],
@@ -99,7 +100,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
     setFormData({...formData, [name]:value});
   };
 
-  const handleStatusChange = (name: string, value: string, selectedData: { _id: string, name: string }) => {
+  const handleStatusChange = (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
     setFormData({...formData, [name]:value}); 
   };
 
@@ -107,7 +108,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
     setFormData({...formData, personsInvolved:value});
   }
 
-  const handleDateChange = (date: Date | null, name:string)=>{
+  const handleDateChange = (recordId:string|ObjectId, date: Date | null, name:string)=>{
     console.log(date);
     setFormData({...formData, [name]:date});
   }
@@ -135,7 +136,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
                   focus:border-b
                   `}
               />
-              <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-2'>
+              <div className='grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
                 <div className="w-full">
                   <CustomDateTimePicker
                       selectedDate={formData.startDate}
@@ -143,6 +144,15 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
                       showTimeSelect={false}
                       name="startDate"
                       label={t('startDate')}
+                    />
+              </div>
+                <div className="w-full">
+                  <CustomDateTimePicker
+                      selectedDate={formData.endDate || null}
+                      onDateChange={handleDateChange}
+                      showTimeSelect={false}
+                      name="endDate"
+                      label={t('endDate')}
                     />
               </div>
               <div className=''>

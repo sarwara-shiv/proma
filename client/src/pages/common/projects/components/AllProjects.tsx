@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
@@ -10,7 +10,7 @@ import { MdRocketLaunch } from "react-icons/md";
 
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit, getRecordsWithFilters } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
@@ -18,10 +18,14 @@ import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
 import { User } from '@/interfaces/users';
 import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
-import { AlertPopupType, FlashPopupType, NavItem, PaginationProps, Project } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, NavItem, OrderByFilter, PaginationProps, Project, QueryFilters } from '@/interfaces';
 import { getUsers } from '../../../../hooks/getRecords';
 import { ObjectId } from 'mongodb';
 import SubNavigationCell from '../../../../components/table/SubNavigationCell';
+import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
+import { CustomDropdown } from '../../../../components/forms';
+import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
+import { getColorClasses } from '../../../../mapping/ColorClasses';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -39,10 +43,17 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const [loader, setLoader] = useState(true);
     const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
     const [recordType, setRecordType] = useState<string>('projects');
+    const [fitlers, setFilters] = useState<QueryFilters>({});
+    
     
     useEffect(()=>{
         setSubNavItems(navItems)
+        getRecords();
     },[])
+
+    useEffect(() => {
+        getRecords();
+    }, [paginationData.currentPage]);
 
     const columns: ColumnDef<Project, any>[] = useMemo(() => [
         {
@@ -59,9 +70,27 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           header: `${t('status')}`,
           accessorKey: 'status',
           id:"status",
-          cell: ({ getValue }: { getValue: () => User }) => {
+          cell: ({ getValue, row }) => {
             const status = getValue() && getValue();
-            return <span className={`px-1 rounded-sm bg-${status} text-${status}-dark `}>  {`${t(`${status}`)}`}</span>; 
+            const _id = row.original._id
+            return (
+                <>  
+                    <span onClick={()=>handleCellClick(
+                        {
+                            name:'status', 
+                            value:status, 
+                            content:<CustomDropdown 
+                                        data={ProjectStatuses} 
+                                        label={''} 
+                                        name='status'
+                                        onChange={handleDataChange} selectedValue={status} recordId={_id} 
+                                    />, 
+                            title:`${t('status')}`
+                        }
+                    )} 
+                    className={`cursor-pointer underline italic px-1 rounded-sm ${getColorClasses(status)}`}>  {`${t(`${status}`)}`}</span>
+                </>
+            ); 
           },
             meta:{
                 style :{
@@ -73,9 +102,28 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           header: `${t('priority')}`,
           accessorKey: 'priority',
           id:"priority",
-          cell: ({ getValue }: { getValue: () => User }) => {
+          cell: ({ getValue, row }) => {
             const priority = getValue() && getValue();
-            return <span className={`px-1 rounded-sm bg-${priority} text-${priority}-dark `}>  {`${t(`${priority}`)}`}</span>;  
+            const _id = row.original._id
+            return (
+                <>  
+                    <span
+                    onClick={()=>handleCellClick(
+                        {
+                            name:'priority', 
+                            value:priority, 
+                            content:<CustomDropdown 
+                                        data={Priorities} 
+                                        label={''} 
+                                        name='priority'
+                                        onChange={handleDataChange} selectedValue={priority} recordId={_id} 
+                                    />, 
+                            title:`${t('priority')}`
+                        }
+                    )} 
+                    className={`cursor-pointer underline italic px-1 rounded-sm ${getColorClasses(priority)}`}>  {`${t(`${priority}`)}`}</span>
+                </>
+            ); 
           },
             meta:{
                 style :{
@@ -83,6 +131,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 }
             }
         },
+        
         {
           header: `${t('createdBy')}`,
           accessorKey: 'createdBy',
@@ -98,32 +147,76 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             }
         },
         {
-          header: `${t('startDate')}`,
-          accessorKey: 'startDate',
-          id:"startDate",
-          cell: ({ getValue }: { getValue: () => string }) => {
-            const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
-            return <span>{date}</span>;
-          },
-            meta:{
-                style :{
-                textAlign:'center',
-                }
-            }
+            header: `${t('startDate')}`,
+            accessorKey: 'startDate',
+            id:"startDate",
+            cell: ({ getValue, row }) => {
+              const startDate = getValue() && getValue();
+              const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+              const _id = row.original._id
+              return (
+                  <>  
+                      <span
+                      onClick={()=>handleCellClick(
+                          {
+                              name:'startDate', 
+                              value:startDate, 
+                              content:<CustomDateTimePicker
+                                  selectedDate={startDate}
+                                  onChange={handleDateChange}
+                                  showTimeSelect={false}
+                                  recordId={_id}
+                                  name="startDate"
+                                  label=''
+                              />, 
+                              title:`${t('startDate')}`
+                          }
+                      )} 
+                      className={`cursor-pointer underline italic px-1 rounded-s `}>  {date}</span>
+                  </>
+              ); 
+            },
+              meta:{
+                  style :{
+                  textAlign:'center',
+                  }
+              }
         },
         {
-          header: `${t('endDate')}`,
-          accessorKey: 'endDate',
-          id:"endDate",
-          cell: ({ getValue }: { getValue: () => string }) => {
-            const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
-            return <span>{date}</span>;
-          },
-            meta:{
-                style :{
-                textAlign:'center',
-                }
-            }
+            header: `${t('endDate')}`,
+            accessorKey: 'endDate',
+            id:"endDate",
+            cell: ({ getValue, row }) => {
+              const endDate = getValue() && getValue();
+              const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+              const _id = row.original._id
+              return (
+                  <>  
+                      <span
+                      onClick={()=>handleCellClick(
+                          {
+                              name:'endDate', 
+                              value:endDate, 
+                              content:<CustomDateTimePicker
+                                  selectedDate={endDate}
+                                  onChange={handleDateChange}
+                                  showTimeSelect={false}
+                                  recordId={_id}
+                                  name="endDate"
+                                  label=''
+                              />, 
+                              title:`${t('endDate')}`
+                          }
+                      )} 
+                      className={`cursor-pointer underline italic px-1 rounded-s `}>  {date || '-'}</span>
+                  </>
+              ); 
+            },
+              meta:{
+                  style :{
+                  textAlign:'center',
+                  }
+              }
         },
         {
           header: `${t('createdAt')}`, 
@@ -207,9 +300,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
         
       ], []);
 
-    useEffect(() => {
-        getRecords();
-    }, []);
+
 
     const getUserData= async({id}:{id:ObjectId})=>{
       const user = await getUsers({id:id});
@@ -217,7 +308,33 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
       return false
     }
 
-      // HANDLE CELL CHANGE
+    const handleDataChange = async (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
+        console.log(recordId, name, value, selectedData);
+        setCellData(recordId, value, name); 
+    };
+    const handleCellClick = ({name, value, content, title}:{name: string, value: string, content:ReactNode, title:string}) => {
+        setAlertData({...alertData, isOpen:true, content:content, type:'form', title});
+    };
+
+    const handleDateChange = (recordId:string|ObjectId, value: Date | null, name:string)=>{
+        console.log(recordId, value, name);
+        setCellData(recordId, value, name);
+    }
+
+    const setCellData=(recordId:string|ObjectId, value: Date | string | ObjectId| null, name:string)=>{
+        setData(prevVal => {
+            return prevVal.map(d=>{
+                if(d._id === recordId){
+                    updateData({id:recordId as unknown as string, newData:{[name]:value}});
+                    return {...d, [name]:value};
+                }
+                return {...d}
+            })
+        })
+    }
+    
+
+    // HANDLE CELL CHANGE
     const handleCellChange = (value:Boolean | string, rowData:any)=>{
         if(rowData.id && rowData.field && rowData.row){
             if(rowData.row && rowData.row[rowData.field]){
@@ -242,7 +359,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const updateData = async({id, newData}:{id:string, newData:any})=>{
             
         try{
-            const response = await addUpdateRecords({type: "users", checkDataBy:[], action:"update", id, body:{ ...newData}}); 
+            const response = await addUpdateRecords({type: recordType, checkDataBy:[], action:"update", id, body:{ ...newData}}); 
             if(response.status === 'success'){
                 const content = `${t(`RESPONSE.${response.code}`)}`;
                 // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content});
@@ -261,7 +378,22 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const getRecords = async () => {
         setLoader(true);
         try {
-            const res = await getRecordsWithLimit({type: "projects", limit:50, pageNr:1, populateFields:['createdBy'] });  
+            const filters:QueryFilters = {
+                // isActive:true,
+                // createdAt:{date:'23.09.2024', format:'DD.MM.YYYY'}
+            }
+
+            const orderBy:OrderByFilter={
+                createdAt:'desc'
+            }
+            const res = await getRecordsWithFilters({
+                type: "projects", 
+                limit:paginationData.limit as unknown as number, 
+                pageNr:paginationData.currentPage as unknown as number, 
+                populateFields:['createdBy'],
+                filters,
+                orderBy
+            });  
             if (res.status === "success") {
                 setData(res.data || []);
             }else{
