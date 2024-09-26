@@ -50,6 +50,7 @@ interface GetRecorsWithLimit{
 }
 
 const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
+  console.log(args);
   const { type, limit, pageNr, populateFields=[] } = args;
   if (type) {
 

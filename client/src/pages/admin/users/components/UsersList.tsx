@@ -28,8 +28,7 @@ const AllUsers = () => {
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [loader, setLoader] = useState(true);
-    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
-
+    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
     const columns: ColumnDef<User, any>[] = useMemo(() => [
         {
           header: `${t('username')}`,
@@ -139,7 +138,7 @@ const AllUsers = () => {
 
     useEffect(() => {
         getAllUsers();
-    }, []);
+    }, [paginationData.currentPage]);
 
     const changePassword = ({id, username}:{id:string, username:string})=>{
         setAlertData({...alertData, content:<ChangePassword id={id} username={username} />, 'title':`${username}`,  'isOpen':true, 'type':'form'})  
@@ -189,9 +188,17 @@ const AllUsers = () => {
     const getAllUsers = async () => {
         setLoader(true);
         try {
-            const res = await getRecordsWithLimit({type: "auth", limit:50, pageNr:1, populateFields:['roles'] });  
+            
+            const res = await getRecordsWithLimit({
+                type: "auth", 
+                limit:paginationData.limit as unknown as number, 
+                pageNr:paginationData.currentPage as unknown as number, 
+                populateFields:['roles'] 
+            });  
             if (res.status === "success") {
                 setData(res.data || []);
+                // console.log(res);
+                setPaginationData({...paginationData, totalRecords:res.totalRecords, totalPages:res.totalPages, currentPage:res.currentPage})
             }else{
                 setData([]);
             }
@@ -237,9 +244,9 @@ const AllUsers = () => {
     }
 
 
- const handlePageChange = (page: number) => {
-    setPaginationData({...paginationData, currentPage:page});
-    getAllUsers();
+ const handlePageChange =  (page: number) => {
+    setPaginationData({...paginationData, currentPage:page})
+    console.log(paginationData);
   };
 
 
@@ -252,11 +259,12 @@ const AllUsers = () => {
                     {data.length > 0 ? (
                         <div>
                             <DataTable columns={columns} data={data}/>
-                            {/* <Pagination
+                             <Pagination
                                 currentPage={paginationData.currentPage} 
                                 totalPages={paginationData.totalPages} 
                                 onPageChange={handlePageChange} 
-                            /> */}
+                                totalRecords={paginationData.totalRecords}
+                            /> 
                                 <ConfirmPopup
                                     isOpen={popupContent.isOpen}
                                     onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}
