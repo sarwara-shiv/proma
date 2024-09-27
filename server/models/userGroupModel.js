@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 const UserGroupSchema = new Schema({
   name: { type: String, required: true, unique: true },
+  _cid:{type:String},
   displayName: { type: String, required: true, unique: true },
   description: { type: String},
   isEditable: { type: Boolean, default: true },

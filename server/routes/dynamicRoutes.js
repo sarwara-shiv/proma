@@ -6,7 +6,7 @@ import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
 import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
-import mongoose from 'mongoose';
+import { generateUniqueId } from '../utils/idGenerator.js';
 import moment from 'moment/moment.js';
 
 const router = express.Router();
@@ -36,7 +36,7 @@ const getModel = (resource) => {
 router.post('/:resource/add', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const model = getModel(resource);  // Retrieve the model based on the resource
-  const { data } = req.body;         // Destructure the data from req.body
+  let { data } = req.body;         // Destructure the data from req.body
   const { checkDataBy } = req.body;  // Fields to check for existing records
 
   if (!model) {
@@ -69,8 +69,12 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
         const password = data.password;
         const hashedPassword = await bcrypt.hash(password, 10);
         data.password = hashedPassword;
-        console.log("-------", data);
       }
+
+      const _cid = await generateUniqueId(resource);
+      console.log(_cid);
+
+      data = {...data, _cid};
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
   

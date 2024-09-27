@@ -1,6 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
 export * from './userRolesModel.js'
 export * from './userGroupModel.js'
+
+const CounterSchema = new Schema({
+  _id: { type: String, required: true },  // e.g., 'project', 'task', 'question'
+  sequence_value: { type: Number, required: true },
+});
+
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
@@ -10,13 +16,16 @@ const DynamicFieldSchema = new Schema({
 // Ticket Schema
 const TicketSchema = new Schema({
   title: { type: String, required: true },
+  _cid:{type:String},
   description: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // User who created the ticket
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }], // Tasks associated with the ticket
   status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }, 
 });
+
+
 
 // Page-Level Permissions Schema
 const PagePermissionSchema = new Schema({
@@ -52,6 +61,7 @@ const TaskPrioritySchema = new Schema({
 
 // Update Task Schema to reference Ticket
 const TaskSchema = new Schema({
+  _cid:{type:String},
   title: { type: String, required: true },
   description: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -116,6 +126,7 @@ const KickoffResponsibilitySchema = new Schema({
 
 // Kickoff Schema
 const KickoffSchema = new Schema({
+  _cid:{type:String},
   description: { type: String },
   date: { type: Date, required: true },
   customFields: [DynamicFieldSchema],
@@ -153,6 +164,7 @@ const ProjectPrioritySchema = new Schema({
 
 // Project Schema
 const ProjectSchema = new Schema({ 
+  _cid:{type:String},
   name: { type: String, required: true },
   description: { type: String, required: true },
   status: { type: String, enum: predefinedProjectStatuses, default: 'notStarted' },
@@ -179,6 +191,7 @@ const ProjectSchema = new Schema({
 
 // Documentation Schema
 const DocumentationSchema = new Schema({
+  _cid:{type:String},
   title: { type: String, required: true },
   description: { type: String },
   link: { type: String, required: true },
@@ -208,7 +221,8 @@ const Task = mongoose.model('Task', TaskSchema);
 const Project = mongoose.model('Project', ProjectSchema);
 const Documentation = mongoose.model('Documentation', DocumentationSchema);
 const Ticket = mongoose.model('Ticket', TicketSchema);
+const Counter = mongoose.model('Counter', CounterSchema);
 
 
 
-export { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket };
+export { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

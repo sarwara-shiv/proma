@@ -73,7 +73,7 @@ const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
 };
 
 
-interface GetRecorsWithFilters{
+interface GetRecorsWithFilters{ 
   type:string;
   limit:number;
   filters?: QueryFilters;

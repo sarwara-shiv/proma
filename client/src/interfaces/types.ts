@@ -51,6 +51,7 @@ export interface DynamicField {
   // Task Interface
   export interface Task {
     _id?:ObjectId;
+    _cid?:string;
     title: string;
     description?: string;
     createdBy: string; // Refers to User objectId
@@ -72,6 +73,7 @@ export interface DynamicField {
   // Kickoff Question Interface
   export interface KickoffQuestion {
     question: string;
+    _cid?:string;
     askedBy: string; // Refers to User objectId
     shouldBeAnsweredBy: 'Person' | 'Client' | 'Other';
     status: 'answered' | 'pending' | 'waiting' | 'notAnswered';
@@ -90,6 +92,7 @@ export interface DynamicField {
   // Kickoff Interface
   export interface Kickoff {
     _id?:ObjectId;
+    _cid?:string;
     description?: string;
     date: Date;
     customFields: DynamicField[];
@@ -128,6 +131,7 @@ export interface DynamicField {
   // Project Interface
   export interface Project {
     _id?:ObjectId;
+    _cid?:string;
     name: string;
     description: string;
     status: 'notStarted' | 'inProgress' | 'completed' | 'onHold' | 'cancelled';
@@ -150,6 +154,7 @@ export interface DynamicField {
   // Documentation Interface
   export interface Documentation {
     title: string;
+    _cid?:string;
     description?: string;
     link: string;
     customFields: DynamicField[];

@@ -13,6 +13,7 @@ import FormButton from '../../../../components/common/FormButton';
 import { useAuth } from '../../../../hooks/useAuth';
 import { ObjectId } from 'mongodb';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
+import { formatDate, compareDates, isPastDate } from '../../../../utils/dateUtils';
 
 interface ArgsType {
   id?:string | null;
@@ -109,8 +110,29 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
   }
 
   const handleDateChange = (recordId:string|ObjectId, date: Date | null, name:string)=>{
-    console.log(date);
-    setFormData({...formData, [name]:date});
+    if(name && date){
+      let saveDate = 0;
+      const nDate = formatDate(date);
+      const oDateName = name === 'startDate' ? 'endDate' : 'startDate';
+      const oDate = formData[oDateName];
+      if(name === 'endDate' && oDate){
+        const noDate = formatDate(oDate);
+        console.log(noDate);
+        saveDate = compareDates(date, oDate); // -1 means end date is less then startDate, 0 means equal so no save;
+      }
+      if(name === 'startDate' && oDate){
+        const noDate = formatDate(oDate);
+        console.log(noDate);
+        saveDate = compareDates(oDate, date); // -1 means end date is less then startDate, 0 means equal so no save;
+      }
+
+      if(saveDate > 0){
+        setFormData({...formData, [name]:date});
+      }else{
+        setAlertData({...alertData, type:"error", content:`${t('endDateBiggerThanStartDate')}`, isOpen:true})
+      }
+
+    }
   }
 
 

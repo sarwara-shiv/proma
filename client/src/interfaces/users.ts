@@ -4,6 +4,7 @@ import { UserRole } from './userRoles';
 // User Interface
 export interface User {
   _id?: string;
+  _cid?:string;
   username: string;
   name?:string;
   email: string;
@@ -18,6 +19,7 @@ export interface User {
 // User Interface
 export interface UserWithRoles {
   _id?: string;
+  _cid?:string;
   username: string;
   name?:string;
   email: string;

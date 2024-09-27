@@ -9,10 +9,11 @@ import ProjectsForm from './components/ProjectsForm';
 import Tasks from '../tasks/Tasks';
 import Kickoff from '../kickoff/Kickoff';
 import ProjectDetails from './components/ProjectDetails';
+import { IoMdAdd } from 'react-icons/io';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
-  { link: "projects/add", title: "projects_add" },
+  { link: "projects/add", title: "projects_add", icon:<IoMdAdd />},
 ];
 
 const Project = () => {

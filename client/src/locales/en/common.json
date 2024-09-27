@@ -120,6 +120,7 @@
         "password_not_same": "Password and Repeat Password are not same"
     },
     "alreadyHasAccount":"Already has account? ",
+    "endDateBiggerThanStartDate":"End Date should be less then Start Date",
     "page":"Page",
     "notDefined":"Not Defined",
     "name":"Name",

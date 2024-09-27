@@ -4,6 +4,7 @@ import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import PageTitel from './PageTitel';
+import { IoMdAdd } from 'react-icons/io';
 
 interface NavItem {
   link: string;
@@ -41,7 +42,8 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
                       : "text-gray-700 hover:text-primary "}`
                   }
                 >
-                  {item.icon && <span className='icon me-1 p-0'>{item.icon}</span>}
+                  {item.icon && <span className='icon me-1/50 text-[15px] p-0'>{item.icon}</span>}
+                  {!item.icon && item.title.toLowerCase().indexOf("add") !== -1 && <span className='icon me-1/50 text-[15px] p-0'><IoMdAdd /></span>}
                   {t(`NAV.${item.title}`)}
                 </NavLink>
               ))}

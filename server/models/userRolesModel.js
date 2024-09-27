@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const UserRolesSchema = new Schema({
   name: { type: String, required: true, unique: true },
+  _cid:{type:String},
   displayName: { type: String, unique: true },
   description: { type: String },
   createdAt: { type: Date, default: Date.now },

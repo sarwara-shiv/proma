@@ -4,6 +4,7 @@ import { PagePermission } from './types';
  // User Roles Interface
  export interface UserRole {
   _id?:ObjectId;
+  _cid?:string;
   name: string;
   displayName?: string;
   description?: string;

@@ -3,13 +3,31 @@ import bcrypt from 'bcrypt';
 import UserModel from './models/userModel.js';
 import { UserRolesModel } from './models/userRolesModel.js';
 import UserGroupModel from './models/userGroupModel.js' 
+import { Counter } from './models/models.js';
 
 const router = express.Router();
 
 const initializeDefaultData = async () => {
   try {
+
+    // INITIALIZE COUNTER
+    const counter = await Counter.countDocuments();
+    if(counter === 0){
+      await Counter.insertMany([
+        { _id: 'projects', sequence_value: 1000 },
+        { _id: 'tasks', sequence_value: 1000 },
+        { _id: 'users', sequence_value: 1000 },
+        { _id: 'groups', sequence_value: 1000 }, 
+        { _id: 'documentations', sequence_value: 1000 },
+        { _id: 'questions', sequence_value: 1000 },
+        { _id: 'tickets', sequence_value: 1000 },
+      ])
+
+      console.log('default counter created');
+    }
+
     // Step 0: Add Default Roles
-    const groupCount = await UserGroupModel.countDocuments();
+    const groupCount = await UserGroupModel.countDocuments(); 
     if(groupCount === 0){
       await UserGroupModel.insertMany([
         {
