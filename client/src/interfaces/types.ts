@@ -57,6 +57,7 @@ export interface DynamicField {
     createdBy: string; // Refers to User objectId
     startDate: Date;
     endDate: Date;
+    sortOrder?:number;
     status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
     customStatus?: string; // Refers to TaskStatus objectId
     priority: 'high' | 'medium' | 'low';

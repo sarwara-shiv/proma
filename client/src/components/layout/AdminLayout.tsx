@@ -3,7 +3,6 @@ import AdminNavbar from '../navigation/AdminNavbar';
 import { useAuth } from '../../hooks/useAuth';
 import Logo from '../common/Logo';
 import { useTranslation } from 'react-i18next';
-import UserNavbar from '../navigation/UserNavbar';
 
 const AdminLayout = () => {
     const { t } = useTranslation();
@@ -29,10 +28,11 @@ const AdminLayout = () => {
             {/* Main content wrapper */}
             <div className="flex flex-1 mt-13"> {/* mt-16 to offset for the fixed header */}
                 {/* Sidebar */}
-                <aside className="bg-white w-64 h-full border-none border-gray-200 shadow-none fixed top-16 left-0 z-20">
-                    <AdminNavbar />
+                <aside className="bg-gray-50 w-64 h-full shadow-none fixed top-16 left-0 z-20">
+                    <div className='py-4 h-full border-r border-gray-200'>
+                        <AdminNavbar />
+                    </div>
                 </aside>
-
                 {/* Main Content */}
                 <main className="flex-1 pt-16 ml-64 p-70 overflow-auto">
                   <Outlet />

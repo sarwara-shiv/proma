@@ -4,10 +4,10 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { FaUserTie } from 'react-icons/fa';
 import { MdAdd } from "react-icons/md";
 import { useTranslation } from 'react-i18next';
-import PageSubmenu from '../../../components/common/PageSubmenu';
 import GroupsForm from './components/GroupsForm';
 import AllGroups from './components/AllGroups';
 import { ObjectId } from 'mongodb';
+import PageSubmenu  from '../../../components/common/PageSubmenu';
 
 interface NavItem {
   link: string;

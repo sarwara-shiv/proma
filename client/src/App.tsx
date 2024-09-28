@@ -11,7 +11,7 @@ function App() {
   const {isAuthenticated, role, roles} = useAuth();
   const isAdmin = roles?.some(role => role.name.toLowerCase() === 'admin');
   return (
-    <div className="App bg-gray-100 min-h-screen">
+    <div className="App bg-gray-50 min-h-screen">
       <Router>
         <Routes >
           <Route path="/login" element={<Login />} />

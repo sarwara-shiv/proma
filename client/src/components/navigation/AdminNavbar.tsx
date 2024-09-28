@@ -31,7 +31,7 @@ const AdminNavbar = () => {
     const sortedPages = Object.values(PagesConfig).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
     return (
-        <div className="w-full bg-white text-gray-200 max-h-[60vh] overflow-auto shadow-xs">
+        <div className="w-full text-gray-200 max-h-[60vh] overflow-auto shadow-xs">
             <nav className="flex flex-col p-4">
                 <ul className="space-y-2">
                     {sortedPages.map((page, index) => {

@@ -67,6 +67,7 @@ const TaskSchema = new Schema({
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  sortOrder: { type: Number},
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },
   priority: { type: String, enum: predefinedPriorities, default: 'medium' },

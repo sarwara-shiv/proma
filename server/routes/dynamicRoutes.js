@@ -357,28 +357,28 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
     });
     // METHOD:1
     let query = model.find();
-    if (Object.keys(orderBy).length > 0) {
-      query = model.find().sort(orderBy);
-    }
     // if (Object.keys(orderBy).length > 0) {
-    //   const sortObj = {};
-      
-    //   Object.keys(orderBy).forEach((field) => {
-    //     // Handle date fields specifically
-    //     if (filters[field]?.type === 'date') {
-    //       sortObj[field] = orderBy[field] === 'desc' ? -1 : 1;
-    //     } else {
-    //       const sortDirection = orderBy[field] === 'desc' ? -1 : 1;
-    //       sortObj[field] = sortDirection;
-    //     }
-    //   });
-
-    //   // Debugging output for sorting object
-    //   console.log('Sorting by:', sortObj);
-
-    //   // Apply the sort to the query
-    //   query = query.sort(sortObj);
+    //   query = model.find().sort(orderBy);
     // }
+    if (Object.keys(orderBy).length > 0) {
+      const sortObj = {};
+      
+      Object.keys(orderBy).forEach((field) => {
+        // Handle date fields specifically
+        if (filters[field]?.type === 'date') {
+          sortObj[field] = orderBy[field] === 'desc' ? -1 : 1;
+        } else {
+          const sortDirection = orderBy[field] === 'desc' ? -1 : 1;
+          sortObj[field] = sortDirection;
+        }
+      });
+
+      // Debugging output for sorting object
+      console.log('Sorting by:', sortObj);
+
+      // Apply the sort to the query
+      query = query.sort(sortObj);
+    }
 
     if (Object.keys(queryObj).length > 0) {
       query = query.find(queryObj);

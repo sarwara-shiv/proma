@@ -16,7 +16,7 @@ interface PageSubmenuProps {
   title:string;
   action?:string;
   basePath:string;
-  navItems: NavItem[];
+  navItems: NavItem[]; 
 }
 
 const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, action }) => {
@@ -25,7 +25,7 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
   const currentPath = location.pathname.replace(`${basePath}/`, '');
 
   return (
-    <header className='border-b z-20 border-none border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-100 top-14'>
+    <header className='border-b z-20 border-none border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-50 top-14'>
         <div className='container flex justify-between flex-col mx-auto'>
           <div className='nav-wrap'>
             <PageTitel text={title} action={action} /> 

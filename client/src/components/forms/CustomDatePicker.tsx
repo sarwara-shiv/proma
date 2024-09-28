@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../assets/styles/datepicker.css';
+import { format } from 'date-fns';
 import { ObjectId } from 'mongodb';
 import { FaCalendarAlt } from 'react-icons/fa'; // Importing a calendar icon from react-icons
 
@@ -28,11 +29,11 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   recordId = '',
   label,
 }) => {
-  const [startDate, setStartDate] = useState<Date | null>(selectedDate);
+  const [dateValue, setDateValue] = useState<Date | null>(selectedDate);
   const datePickerRef = useRef<any>(null); // Create a reference to control DatePicker
 
   const handleChange = (date: Date | null) => {
-    setStartDate(date);
+    setDateValue(date);
     if (onDateChange) onDateChange(recordId, date, name);
     if (onChange) onChange(recordId, date, name);
   };
@@ -54,7 +55,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
       <div className="relative flex items-center w-full">
         <input
           type="text"
-          value={startDate ? startDate.toLocaleDateString('de-DE') : ''}
+          value={dateValue ? format(new Date(dateValue), 'dd.MM.yyyy') : ''}
           placeholder={placeholder || 'Select a date'}
           className="w-full bg-gray-50 border text-gray-900 text-sm rounded-sm focus:outline-none block p-2.5 pr-10 dark:bg-gray-700"
           readOnly
@@ -71,7 +72,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
 
       {/* DatePicker is hidden but connected to the input field */}
       <DatePicker
-        selected={startDate}
+        selected={dateValue}
         onChange={handleChange}
         dateFormat="dd.MM.yyyy"
         timeFormat={showTimeSelect ? 'HH:mm' : undefined}

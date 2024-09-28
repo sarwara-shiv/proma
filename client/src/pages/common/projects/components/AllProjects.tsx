@@ -267,13 +267,13 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                     } */}
                     <div className='flex align-center justify-center flex-row py-[1px]'>
                         <NavLink
-                            to={`kickoff`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
+                            to={`kickoff/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
                             className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                             >
                               <MdRocketLaunch /> 
                         </NavLink>
                         <NavLink
-                            to={`tasks`} state={{objectId:row.original._id, data:row.original}} title={`${t('tasks')}`}
+                            to={`tasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('tasks')}`}
                             className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                             >
                               <FaTasks /> 
@@ -453,7 +453,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             ) : (
                 <div className='data-wrap'>
                     {data.length > 0 ? (
-                        <div>
+                        <div className='relative bg-white p-4 rounded-md overflow-y-auto w-full'>
                             <DataTable columns={columns} data={data}/>
                             <Pagination
                                 currentPage={paginationData.currentPage} 
