@@ -163,10 +163,10 @@ export interface QaTask extends BaseTask {
     _id?:ObjectId;
     _cid?:string;
     description?: string;
-    date: Date;
-    customFields: DynamicField[];
-    questions: KickoffQuestion[];
-    projectTimeline: {
+    date?: Date;
+    customFields?: DynamicField[];
+    questions?: KickoffQuestion[];
+    projectTimeline?: {
       startDate: Date;
       endDate: Date;
       keyMilestones: {
@@ -175,14 +175,14 @@ export interface QaTask extends BaseTask {
       }[];
     };
     projectGoals: string[];
-    attendees: string[]; // Array of User objectIds
+    attendees?: string[]; // Array of User objectIds
     notes?: string;
-    actionItems: {
+    actionItems?: {
       item: string;
       assignedTo: string; // Refers to User objectId
       dueDate?: Date;
     }[];
-    responsibilities: KickoffResponsibility[];
+    responsibilities?: KickoffResponsibility[];
     mainTasks?:MainTask[];
   }
   
@@ -203,7 +203,7 @@ export interface QaTask extends BaseTask {
     _id?:ObjectId;
     _cid?:string;
     name: string;
-    description: string;
+    description?: string;
     status: 'notStarted' | 'inProgress' | 'completed' | 'onHold' | 'cancelled';
     customStatus?: string; // Refers to ProjectStatus objectId
     priority: 'high' | 'medium' | 'low';
@@ -215,6 +215,7 @@ export interface QaTask extends BaseTask {
     documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: PersonsInvolved[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
+    mainTasks?:MainTask[];
     customFields?: DynamicField[];
     permissions?: Permission[];
     createdAt?: Date;

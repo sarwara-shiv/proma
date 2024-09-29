@@ -278,6 +278,7 @@ const ProjectSchema = new Schema({
     },
   ],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+  mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
   customFields: [DynamicFieldSchema],
   permissions: [PermissionSchema],
   createdAt: { type: Date, default: Date.now },

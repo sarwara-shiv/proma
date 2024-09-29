@@ -150,8 +150,9 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
           <FormsTitle text=  { action==='update' ? t('updateProject') : t('newProject')} classes='mb-3'/> 
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
-          <div className='fields-wrap grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-4 mb-6'>
-            <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
+          <div className='fields-wrap grid grid-cols-[1fr_auto] gap-4 mb-6'>
+            <div className='w-full'>
+              <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
                 onChange={handleInputs}
                 className={`placeholder-slate-300 
                   w-full
@@ -164,43 +165,43 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
                   focus:outline-none 
                   focus:border-b
                   `}
-              />
+                  />
+              </div>
 
               <div className="">
-                 <CustomSelectList name="projectType" label="projectType" inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
-                </div>
-
-              <div className='grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
-                <div className="w-full">
-                  <CustomDateTimePicker
-                      selectedDate={formData.startDate}
-                      onDateChange={handleDateChange}
-                      showTimeSelect={false}
-                      name="startDate"
-                      label={t('startDate')}
-                    />
-                </div>
-                <div className="w-full">
-                  <CustomDateTimePicker
-                      selectedDate={formData.endDate || null}
-                      onDateChange={handleDateChange}
-                      showTimeSelect={false}
-                      name="endDate"
-                      label={t('endDate')}
-                    />
-              </div>
-              <div className=''>
-                <CustomDropdown data={ProjectStatuses} label={t('FORMS.status')} name='status'
-                  onChange={handleStatusChange} selectedValue={formData.status}
-                />
-              </div>
-              <div className=''>
-                <CustomDropdown data={Priorities} label={t('FORMS.priority')} name='priority'
-                  onChange={handleStatusChange} colorClasses={priorityColors} selectedValue={formData.priority}
-                />
-              </div>
+                 <CustomSelectList name="projectType" label={t('projectType')} inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
               </div>
           </div>
+          <div className='grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
+                  <div className="w-full">
+                    <CustomDateTimePicker
+                        selectedDate={formData.startDate}
+                        onDateChange={handleDateChange}
+                        showTimeSelect={false}
+                        name="startDate"
+                        label={t('startDate')}
+                      />
+                  </div>
+                  <div className="w-full">
+                    <CustomDateTimePicker
+                        selectedDate={formData.endDate || null}
+                        onDateChange={handleDateChange}
+                        showTimeSelect={false}
+                        name="endDate"
+                        label={t('endDate')}
+                      />
+                </div>
+                <div className=''>
+                  <CustomDropdown data={ProjectStatuses} label={t('FORMS.status')} name='status'
+                    onChange={handleStatusChange} selectedValue={formData.status}
+                  />
+                </div>
+                <div className=''>
+                  <CustomDropdown data={Priorities} label={t('FORMS.priority')} name='priority'
+                    onChange={handleStatusChange} colorClasses={priorityColors} selectedValue={formData.priority}
+                  />
+                </div>
+            </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
                 <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} />
