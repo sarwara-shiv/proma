@@ -4,6 +4,7 @@ import UserModel from './models/userModel.js';
 import { UserRolesModel } from './models/userRolesModel.js';
 import UserGroupModel from './models/userGroupModel.js' 
 import { Counter } from './models/models.js';
+import { generateUniqueId } from './utils/idGenerator.js'
 
 const router = express.Router();
 
@@ -16,11 +17,13 @@ const initializeDefaultData = async () => {
       await Counter.insertMany([
         { _id: 'projects', sequence_value: 1000 },
         { _id: 'tasks', sequence_value: 1000 },
+        { _id: 'qatasks', sequence_value: 1000 },
         { _id: 'users', sequence_value: 1000 },
+        { _id: 'roles', sequence_value: 1000 },
         { _id: 'groups', sequence_value: 1000 }, 
         { _id: 'documentations', sequence_value: 1000 },
         { _id: 'questions', sequence_value: 1000 },
-        { _id: 'tickets', sequence_value: 1000 },
+        { _id: 'tickets', sequence_value: 1000 },  
       ])
 
       console.log('default counter created');
@@ -32,36 +35,42 @@ const initializeDefaultData = async () => {
       await UserGroupModel.insertMany([
         {
           name:'manager',
+          _cid:await generateUniqueId('groups'),
           displayName:'Manager',
           type: 'default',
           isEditable:false,
         },
         {
           name:'contentManager',
+          _cid:await generateUniqueId('groups'),
           displayName:'Content Manager',
           type: 'default',
           isEditable:false,
         },
         {
           name:'frontendDeveloper',
+          _cid:await generateUniqueId('groups'),
           displayName:'Frontend Developer', 
           type: 'default',
           isEditable:false,
         },
         {
           name:'backendDeveloper',
+          _cid:await generateUniqueId('groups'),
           displayName:'Backend Developer',
           type: 'default',
           isEditable:false,
         },
         {
           name:'uiux',
+          _cid:await generateUniqueId('groups'),
           displayName:'UI/UX',
           type: 'default',
           isEditable:false,
         },
         {
           name:'qa',
+          _cid:await generateUniqueId('groups'),
           displayName:'QA',
           type: 'default',
           isEditable:false,
@@ -79,6 +88,7 @@ const initializeDefaultData = async () => {
       await UserRolesModel.insertMany([
         {
           name: 'admin', 
+          _cid:await generateUniqueId('roles'),
           displayName: 'Admin', 
           isEditable: false, 
           type: 'default',
@@ -95,6 +105,7 @@ const initializeDefaultData = async () => {
         {
           name: 'manager', 
           displayName: 'Manager', 
+          _cid:await generateUniqueId('roles'),
           isEditable: false, 
           type: 'default',
           permissions: [
@@ -109,6 +120,7 @@ const initializeDefaultData = async () => {
         },
         {
           name: 'employee', 
+          _cid:await generateUniqueId('roles'),
           displayName: 'Employee', 
           isEditable: false, 
           type: 'default',
@@ -124,6 +136,7 @@ const initializeDefaultData = async () => {
         },
         {
           displayName: 'Guest', 
+          _cid:await generateUniqueId('roles'),
           name: 'guest', 
           isEditable: false, 
           type: 'default',
@@ -150,7 +163,9 @@ const initializeDefaultData = async () => {
       // No user with Admin role found; create an admin user
       const hashedPassword = await bcrypt.hash('Pass@123', 10);
       const newAdminUser = new UserModel({
+        name:'Admin',
         username: 'admin',
+        _cid:await generateUniqueId('users'),
         email: "admin@proma.de",
         password: hashedPassword,
         roles: [adminRole._id], 
@@ -159,9 +174,9 @@ const initializeDefaultData = async () => {
       await newAdminUser.save();
       console.log('Admin user created. email: admin@proma.de, pass: Pass@123'); 
     } else {
-      console.log('Admin user already exists.');
+      console.log('Admin user already exists.'); 
     }
-  } catch (error) {
+  } catch (error) { 
     console.error('Error initializing default data:', error); 
   }
 };

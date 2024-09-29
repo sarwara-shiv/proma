@@ -76,8 +76,6 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       }
 
       const _cid = await generateUniqueId(resource);
-      console.log(_cid);
-
       if(_cid) data = {...data, _cid};
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
