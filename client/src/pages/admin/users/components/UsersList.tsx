@@ -31,6 +31,16 @@ const AllUsers = () => {
     const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
     const columns: ColumnDef<User, any>[] = useMemo(() => [
         {
+          header: `${t('id')}`,
+          accessorKey: '_cid',
+          id:"_cid",
+            meta:{
+                style :{
+                textAlign:'left',
+                }
+            }
+        },
+        {
           header: `${t('username')}`,
           accessorKey: 'username',
           id:"username",

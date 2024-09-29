@@ -47,29 +47,76 @@ export interface DynamicField {
     role: ObjectId; // Reference to Role
     persons?: ObjectId[]; // Array of User references
 }
+
+
+
+export interface BaseTask {
+  _cid?: string;  // Optional Client or Company ID
+  _pid: ObjectId;  // Project reference
+  name: string;
+  startDate?: Date;
+  dueDate?: Date;
+  endDate?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  description?: string;
+  createdBy: ObjectId;  // User reference
+  sortOrder?: number;
+  priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities
+  customPriority?:ObjectId;  // Custom priority reference
+  status: 'toDo' | 'inProgress' | 'done';  // Assuming these are your predefined statuses
+  customStatus?: ObjectId;  // Custom status reference
+  responsiblePerson: ObjectId;  // User reference
+  customFields: DynamicField[];  // Array of custom fields
+  subTasks: ObjectId[];  // Array of references to subtasks (Tasks)
+  ticket?: ObjectId;  // Reference to Ticket
+  permissions: Permission[];  // Array of permissions
+}
+
+export interface TestCase {
+  testCaseId: string;
+  description: string;
+  result: 'pass' | 'fail';  // Assuming test case result types
+}
+
+export interface Bug {
+  bugId: string;
+  description: string;
+  status: 'open' | 'closed' | 'inProgress';  // Assuming bug status types
+}
+
+export interface QaTask extends BaseTask {
+  testCases: TestCase[];  // Array of test cases
+  bugs: Bug[];  // Array of bugs
+}
+
   
   // Task Interface
-  export interface Task {
-    _id?:ObjectId;
-    _cid?:string;
-    title: string;
-    description?: string;
-    createdBy: string; // Refers to User objectId
-    startDate: Date;
-    endDate: Date;
-    sortOrder?:number;
-    status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
-    customStatus?: string; // Refers to TaskStatus objectId
-    priority: 'high' | 'medium' | 'low';
-    customPriority?: string; // Refers to TaskPriority objectId
-    responsiblePerson: string; // Refers to User objectId
+  export interface Task extends BaseTask {
     otherPersonsInvolved: PersonsInvolved[];
-    customFields: DynamicField[];
-    subTasks: string[]; // Array of Task objectIds
-    permissions?: Permission[];
-    createdAt?: Date;
-    updatedAt?: Date;
   }
+  
+  // export interface Task {
+  //   _id?:ObjectId;
+  //   _cid?:string;
+  //   title: string;
+  //   description?: string;
+  //   createdBy: string; // Refers to User objectId
+  //   startDate: Date;
+  //   endDate: Date;
+  //   sortOrder?:number;
+  //   status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
+  //   customStatus?: string; // Refers to TaskStatus objectId
+  //   priority: 'high' | 'medium' | 'low';
+  //   customPriority?: string; // Refers to TaskPriority objectId
+  //   responsiblePerson: string; // Refers to User objectId
+  //   otherPersonsInvolved: PersonsInvolved[];
+  //   customFields: DynamicField[];
+  //   subTasks: string[]; // Array of Task objectIds
+  //   permissions?: Permission[];
+  //   createdAt?: Date;
+  //   updatedAt?: Date;
+  // }
   
   // Kickoff Question Interface
   export interface KickoffQuestion {
@@ -79,6 +126,7 @@ export interface DynamicField {
     shouldBeAnsweredBy: 'Person' | 'Client' | 'Other';
     status: 'answered' | 'pending' | 'waiting' | 'notAnswered';
     answerDate?: Date;
+    askedDate?: Date;
     answer?: string;
   }
   
@@ -88,6 +136,26 @@ export interface DynamicField {
     work: string;
     role: string;
     additionalDetails?: string;
+  }
+
+  export interface NoteSchema {
+    text: string;
+    createdAt:Date;
+  };
+
+  export interface MainTask{
+    _id?:ObjectId;
+    _pid:string; // Project ObjectId
+  name:string;
+  category:string;
+  startDate?:Date;
+  dueDate?:Date;
+  endDate?:Date;
+  responsiblePerson:ObjectId;
+  note?:NoteSchema[];
+  sortOrder?:number;
+  subtasks?:Task[];
+  status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
   }
   
   // Kickoff Interface
@@ -115,6 +183,7 @@ export interface DynamicField {
       dueDate?: Date;
     }[];
     responsibilities: KickoffResponsibility[];
+    mainTasks?:MainTask[];
   }
   
   // Project Status Interface
@@ -140,6 +209,7 @@ export interface DynamicField {
     priority: 'high' | 'medium' | 'low';
     customPriority?: string; // Refers to ProjectPriority objectId
     startDate: Date;
+    projectType?:'inhouse' | 'client';
     endDate?: Date;
     kickoff?: Kickoff;
     documentation?: string[]; // Array of Documentation objectIds

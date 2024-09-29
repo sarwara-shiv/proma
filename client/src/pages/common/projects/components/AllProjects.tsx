@@ -58,9 +58,29 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
 
     const columns: ColumnDef<Project, any>[] = useMemo(() => [
         {
+          header: `${t('id')}`,
+          accessorKey: '_cid',
+          id:"_cid",
+            meta:{
+                style :{
+                textAlign:'left',
+                }
+            }
+        },
+        {
           header: `${t('name')}`,
           accessorKey: 'name',
           id:"name",
+            meta:{
+                style :{
+                textAlign:'left',
+                }
+            }
+        },
+        {
+          header: `${t('projectType')}`,
+          accessorKey: 'projectType',
+          id:"projectType",
             meta:{
                 style :{
                 textAlign:'left',
@@ -232,32 +252,6 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 }
             }
         },
-        
-        {
-            header:`${t('actions')}`,
-            cell: ({ row }: { row: any }) => (
-                <div style={{ textAlign: 'center' }} className='text-md'>
-                    {/* {row.original.isEditable && <></>
-                    } */}
-                    <div>
-                        <DeleteById data={{id:row.original._id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
-                        <NavLink
-                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
-                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
-                            >
-                              <IoCreateOutline /> 
-                        </NavLink>
-                    </div>
-                    
-                </div>
-            ),
-            meta:{
-                style :{
-                textAlign:'center',
-                width:"60px"
-                }
-            }
-        },
         {
             header:`${t('links')}`,
             id:'links',
@@ -288,7 +282,6 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                             <SubNavigationCell id='' navItems={[]} rowData={{}} onClose={()=>{console.log('closed')}}/>
                         </div>
                     </div>
-                    
                 </div>
             ),
             meta:{
@@ -298,7 +291,31 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 }
             }
         },
-        
+        {
+            header:`${t('actions')}`,
+            cell: ({ row }: { row: any }) => (
+                <div style={{ textAlign: 'center' }} className='text-md'>
+                    {/* {row.original.isEditable && <></>
+                    } */}
+                    <div>
+                        <DeleteById data={{id:row.original._id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                        <NavLink
+                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                            >
+                              <IoCreateOutline /> 
+                        </NavLink>
+                    </div>
+                    
+                </div>
+            ),
+            meta:{
+                style :{
+                textAlign:'center',
+                width:"60px"
+                }
+            }
+        },
       ], []);
 
 

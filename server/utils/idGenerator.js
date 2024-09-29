@@ -13,6 +13,10 @@ const getPrefix = (resource) => {
         return 'PR';
       case 'tasks':
         return 'TA';
+      case 'qatasks':
+        return 'QA';
+      case 'maintasks':
+        return 'MT';
       case 'roles':
         return 'RO';
       case 'auth':
@@ -40,8 +44,8 @@ const generateUniqueId = async (resource, prefix) => {
       throw new Error(`Failed to update counter for ${resource}`);
     }
     const prefix = getPrefix(resource); 
-    // Return the unique ID with the prefix (e.g., "P1001", "T1002", "Q1003")
-    return `${prefix}${counter.sequence_value}`;
+    if (prefix) return `${prefix}${counter.sequence_value}`;
+    else return null;
   } catch (error) {
     console.error('Error generating unique ID:', error);
     throw error;

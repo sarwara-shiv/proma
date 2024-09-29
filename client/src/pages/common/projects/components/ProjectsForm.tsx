@@ -3,7 +3,7 @@ import { CustomInput, CustomSelectList } from '../../../../components/forms';
 import { AlertPopupType, FlashPopupType, NavItem, PersonsInvolved, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
+import { ProjectStatuses, Priorities, ProjectType } from '../../../../config/predefinedDataConfig';
 import CustomDropdown from '../../../../components/forms/CustomDropdown';
 import PersonsInvolvedForm from './PersonsInvolvedForm';
 import { addUpdateRecords } from '../../../../hooks/dbHooks';
@@ -28,6 +28,7 @@ const initialValues: Project = {
   description: '',
   status: 'notStarted',
   priority: 'medium',
+  projectType:'client',
   startDate: new Date(),
   endDate: new Date(), 
   documentation: [],
@@ -135,6 +136,12 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
     }
   }
 
+  const handleProjectType = (value:string | string[])=>{
+    console.log(value);
+    if (typeof value === 'string' || value instanceof String)
+    setFormData({...formData, projectType:value === 'inhouse' ? 'inhouse' : 'client'});
+  }
+
 
   return (
     <div className='content flex justify-center flex-col '>
@@ -158,6 +165,11 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
                   focus:border-b
                   `}
               />
+
+              <div className="">
+                 <CustomSelectList name="projectType" label="projectType" inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
+                </div>
+
               <div className='grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
                 <div className="w-full">
                   <CustomDateTimePicker
@@ -167,7 +179,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
                       name="startDate"
                       label={t('startDate')}
                     />
-              </div>
+                </div>
                 <div className="w-full">
                   <CustomDateTimePicker
                       selectedDate={formData.endDate || null}

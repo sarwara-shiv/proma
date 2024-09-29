@@ -5,6 +5,16 @@ const ProjectStatuses = [
     {_id: 'onHold', name:'onHold'},
     {_id: 'cancelled', name:'cancelled'},
 ]
+const ProjectType = [
+    {_id: 'inhouse', name:'inhouse', label:'In House'},
+    {_id: 'client', name:'client', label:"Client"},
+]
+const MilestoneStatus = [
+    {_id: 'completed', name:'inhouse'},
+    {_id: 'inProgress', name:'inProgress'},
+    {_id: 'onHold', name:'onHold'},
+    {_id: 'notStared', name:'notStared'},
+]
 const TaskStatuses = [
     {_id: 'toDo', name:'toDo'},
     {_id: 'inProgress', name:'inProgress'},
@@ -29,4 +39,4 @@ const QuestionsStatuses = [
     {_id: 'notAnswered', name:'notAnswered'},
 ]
 
-export {ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses}
+export {ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses}

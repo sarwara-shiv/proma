@@ -27,6 +27,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
       ).map((input) => (input as HTMLInputElement).value);
       onChange(checkedBoxes); 
     } else {
+      console.log(event.target.value);
       onChange(event.target.value); // Return single selected value for radio or dropdown
     }
   };
@@ -50,6 +51,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                 className="peer sr-only"
                 id={`${name}-${index}`}
                 onChange={handleChange}
+                {...checked ? {checked:true} : {}}
               />
               <label
                 htmlFor={`${name}-${index}`}
@@ -74,7 +76,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                   duration-150
                 "
               >
-                {item.displayName}
+                {item.displayName || item.name}
               </label>
             </div>
           )}
@@ -115,7 +117,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                   duration-150
                 "
               >
-                {item.name}
+                {item.displayName || item.name}
               </label>
             </div>
           ))}
@@ -124,7 +126,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
           <select name={name} onChange={handleChange} defaultValue={selectedValue as string}>
             {data.map((item, index) => (
               <option key={item._id} value={item._id}>
-                {item.name}
+                {item.displayName || item.name}
               </option>
             ))}
           </select>

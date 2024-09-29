@@ -1,7 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import bcrypt from 'bcrypt';
-import { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation } from '../models/models.js';
+import { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
@@ -27,6 +27,10 @@ const getModel = (resource) => {
         return UserGroupModel; 
       case 'documentation':
         return Documentation;
+      case 'qataks':
+        return QaTask;
+      case 'maintasks':
+        return MainTask;
       default:
         return null;
     }
@@ -74,7 +78,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       const _cid = await generateUniqueId(resource);
       console.log(_cid);
 
-      data = {...data, _cid};
+      if(_cid) data = {...data, _cid};
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
   

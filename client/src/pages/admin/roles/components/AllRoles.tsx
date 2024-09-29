@@ -20,6 +20,17 @@ const AllRoles = () => {
 
     const columns: ColumnDef<RowData, any>[] = useMemo(() => [ 
         {
+          header: `${t('id')}`,
+          accessorKey: '_cid',
+          id:'_cid',
+          meta:{
+            style :{
+                textAlign:'left',
+                tColor:'text-slate-900',
+            }
+         }
+        },
+        {
           header: `${t('name')}`,
           accessorKey: 'name',
           meta:{
@@ -28,7 +39,7 @@ const AllRoles = () => {
                 tColor:'text-slate-900',
                 width:"140px"
             }
-        }
+         }
         },
         {
           header: `${t('displayName')}`,

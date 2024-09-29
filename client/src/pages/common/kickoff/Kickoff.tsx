@@ -43,6 +43,8 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
           <NoData content='' >
             <div className='btn btn-outline' onClick={()=>setPageType('add')}>Add Kick-Off Data</div> 
           </NoData>
+
+          
           </>
         }
     </>
