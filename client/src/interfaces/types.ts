@@ -174,7 +174,10 @@ export interface QaTask extends BaseTask {
         milestoneDate: Date;
       }[];
     };
-    projectGoals: string[];
+    goals?: string[];
+    inScope?: string[];
+    outOfScope?: string[];
+    keyDeliverables?: string[];
     attendees?: string[]; // Array of User objectIds
     notes?: NoteSchema[];
     actionItems?: {

@@ -233,7 +233,10 @@ const KickoffSchema = new Schema({
       },
     }],
   },
-  projectGoals: [{ type: String }],
+  goals: [{ type: String }],
+  keyDeliverables: [{ type: String }],
+  inScope: [{ type: String }],
+  outOfScope: [{ type: String }],
   attendees: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   notes: [NoteSchema],
   actionItems: [{

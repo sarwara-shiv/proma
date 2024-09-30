@@ -1,6 +1,6 @@
 import React from 'react'
 interface ArgsType{
-    text:string;
+    text:string | React.ReactNode;
     action?:string;
     color?:string;
     size?: 'md' | 'lg' | 'xl' | '2xl';
