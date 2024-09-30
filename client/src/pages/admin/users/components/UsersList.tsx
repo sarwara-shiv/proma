@@ -199,7 +199,7 @@ const AllUsers = () => {
         setLoader(true);
         try {
             const filters:QueryFilters = {
-                isActive:true,
+                // isActive:true,
                 // createdAt:{date:'23.09.2024', format:'DD.MM.YYYY'}
             }
 

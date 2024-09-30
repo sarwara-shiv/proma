@@ -25,7 +25,7 @@ const KickoffForm: React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}
     },
     projectGoals: [],
     attendees: [],
-    notes: '',
+    notes: [],
     actionItems: [],
     responsibilities: [],
   });

@@ -35,7 +35,7 @@ const getPrefix = (resource) => {
 const generateUniqueId = async (resource, prefix) => {
   try {
     const counter = await Counter.findByIdAndUpdate(
-        resource,
+        resource === 'auth' ? 'users' : resource,
       { $inc: { sequence_value: 1 } },
       { new: true, upsert: true }
     );

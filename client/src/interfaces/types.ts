@@ -167,8 +167,8 @@ export interface QaTask extends BaseTask {
     customFields?: DynamicField[];
     questions?: KickoffQuestion[];
     projectTimeline?: {
-      startDate: Date;
-      endDate: Date;
+      startDate?: Date;
+      endDate?: Date;
       keyMilestones: {
         milestone: string;
         milestoneDate: Date;
@@ -176,7 +176,7 @@ export interface QaTask extends BaseTask {
     };
     projectGoals: string[];
     attendees?: string[]; // Array of User objectIds
-    notes?: string;
+    notes?: NoteSchema[];
     actionItems?: {
       item: string;
       assignedTo: string; // Refers to User objectId
