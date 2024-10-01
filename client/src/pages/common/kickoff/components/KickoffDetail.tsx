@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Kickoff, KickoffResponsibility, Milestone, Project, User } from '@/interfaces';
+import { Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
 import { PageTitel } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
@@ -8,6 +8,11 @@ import { IoRemove } from 'react-icons/io5';
 import DragAndDropList from '../../../../components/forms/DragAndDropList';
 import KickoffResponsibilities from './KickoffResponsibilities';
 import KickoffMilestones from './KickoffMilestones';
+import { CustomInput } from '../../../../components/forms';
+import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
+import { getColorClasses } from '../../../../mapping/ColorClasses';
+import { getRecordWithID } from '../../../../hooks/dbHooks';
+import { ObjectId } from 'mongodb';
 
 interface ArgsType {
     id?: string | null;
@@ -37,24 +42,51 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
 
+    useEffect(()=>{
+        getData();
+    }, [])
+
     // Load data when the component mounts
     useEffect(() => {
         if (data) {
+            console.log(data);
             const user: User = data.createdBy as unknown as User;
             setCreatedBy(user);
 
             if (data.kickoff) {
                 setKickoffData(data.kickoff);
             }
-            if (data.kickoff?.responsibilities) {
-                setResponsibilities(data.kickoff.responsibilities);
-            }
         }
     }, [kickoffData]);
 
+    const getData = async ()=>{
+        try{
+            const populateFields = [
+                {path: 'kickoff.responsibilities.role'},
+                {path: 'kickoff.responsibilities.persons'},
+            ]
+            if(id){
+                const res = await getRecordWithID({id, populateFields, type:'projects'});
+                console.log(res);
+
+                if(res.status === 'success' && res.data){
+                    if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
+                    if (res.data.kickoff) {
+                        setKickoffData(res.data.kickoff);
+                    }
+                    data = {...res.data}
+
+                    console.log(res.data.kickoff.responsibilities);
+                }
+
+            }
+        }catch(error){
+            console.log(error);
+        }
+    }
+
     // Handle adding a new goal
-    const handleOnEnter = ({ name, value }: { name: string, value: string }) => {
-        console.log(value);
+    const handleOnEnter = ({ name, value }: { name: string, value: string | Date | null }) => {
         if (value && name) {
             setKickoffData((prevData) => {
                 // Make sure the name corresponds to an array in kickoffData
@@ -63,31 +95,18 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                         ...prevData,
                         [name]: [...(prevData[name] || []), value] // Add the new value to the array
                     };
+                }else{
+                    return {
+                        ...prevData,
+                        [name]: value // Add the new value to the array
+                    };
                 }
+
                 return prevData;
             });
         }
     };
 
-    // Handle removing a goal
-    const removeFromArray = ({ name, index }: { name: string, index: number }) => {
-        if ((index || index === 0) && name) {
-            // setKickoffData((prevData) => ({
-            //     ...prevData,
-            //     [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Remove goal at index
-            // }));
-            setKickoffData((prevData) => {
-                // Make sure the name corresponds to an array in kickoffData
-                if (name === 'goals' || name === 'inScope' || name === 'outOfScope' || name==='keyDeliverables') {
-                    return {
-                        ...prevData,
-                        [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Add the new value to the array
-                    };
-                }
-                return prevData;
-            });
-        }
-    };
 
     // Handle final update after drag-and-drop reordering
     const handleFinalUpdateGoals = (name:string, updatedItems: string[]) => {
@@ -132,12 +151,17 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
 
                         <tr>
                             <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
-                            <td className='border border-slate-300 p-2'>{format(new Date(data.startDate), 'dd.MM.yyyy')}</td>
+                            <td className='border border-slate-300 p-2'>
+                                {data.kickoff && data.kickoff.startDate ? format(new Date(data.kickoff.startDate), 'dd.MM.yyyy') : '-'}
+                            </td>
                         </tr>
 
                         <tr>
                             <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
-                            <td className='border border-slate-300 p-2'>{data.endDate && format(new Date(data.endDate), 'dd.MM.yyyy')}</td>
+                            <td className='border border-slate-300 p-2'>
+                                {data.endDate && format(new Date(data.endDate), 'dd.MM.yyyy')}
+                                {data.kickoff && data.kickoff.endDate ? format(new Date(data.kickoff.endDate), 'dd.MM.yyyy') : '-'}
+                            </td>
                         </tr>
 
                         <tr>
@@ -145,113 +169,152 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                             <td className='border border-slate-300 p-2'>{createdBy && createdBy.name}</td>
                         </tr>
                         <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
-                            <td className='border border-slate-300 p-2'>{data.description}</td>
+                            <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
+                        </tr>
+                        <tr>
+                            <td colSpan = {2} className='border border-slate-300 p-2'>{data.description}</td>
+                        </tr>
+                        <tr>
+                            <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
+                        </tr>
+                        <tr>
+                            <td colSpan = {2} className='border border-slate-300 p-2'>{data.kickoff?.context || ''}</td>
                         </tr>
                     </table>
 
-                    {/* Project goals */}
-                    <div className='border-collapse my-4 w-full'>
-                        <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' />
-                        </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                            <div className='block pt-2 pb-2'>
-                                <PageTitel text={`${t('FORMS.projectGoals')}`} color='slate-700' size='md' />
-                            </div>
-                            {kickoffData.goals && kickoffData.goals.length > 0 ? (
-                                <>
-                                    {/* Use DragAndDropList to render project goals */}
-                                    <DragAndDropList
-                                        name='goals'
-                                        items={kickoffData.goals}
-                                        onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                    />
-                                </>
-                            ) : (
+                    {/* Objectives */}
+                    <div className='mt-4 text-left'>
+                        <PageTitel text={`${t('projectObjectives')}`} color='slate-600' />
+                    </div>
+                    <div 
+                        className='grid grid-cols-1 lg:grid-cols-2'
+                    >
+                        <div className='mt-3'>
+                            <PageTitel text={t('projectGoals')} />
+                            <ul>
+                                {kickoffData.goals ? kickoffData.goals.map((goal,index)=>{
+
+                                    return (
+                                        <li key={`pgoals-${index}`}>
+                                            <span className='font-bold pr-2'>{index + 1}</span>{goal}
+                                        </li>
+                                    )
+                                }) :
                                 <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                            )}
-                            {/* Input for adding new goals */}
-                            <EnterInput name="goals" onEnter={handleOnEnter} />
+                            }
+                            </ul>
                         </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                                <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('FORMS.keyDeliverables')}`} color='slate-700' size='md' />
-                                </div>
-                                {kickoffData.keyDeliverables && kickoffData.keyDeliverables.length > 0 ? (
-                                    <>
-                                        {/* Use DragAndDropList to render project goals */}
-                                        <DragAndDropList
-                                            name='keyDeliverables'
-                                            items={kickoffData.keyDeliverables}
-                                            onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                        />
-                                    </>
-                                ) : (
-                                    <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                )}
-                                {/* Input for adding new goals */}
-                                <EnterInput name="keyDeliverables" onEnter={handleOnEnter} />
-                        </div>
+                        <div className='mt-3'>
+                            <PageTitel text={t('projectDeliverables')} />
+                            <ul>
+                                {kickoffData.keyDeliverables ? kickoffData.keyDeliverables.map((item,index)=>{
 
-                        <div className='mt-4 text-left'>
-                            <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' />
-                        </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                                <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
-                                </div>
-                                {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
-                                    <>
-                                        {/* Use DragAndDropList to render project goals */}
-                                        <DragAndDropList
-                                            name='inScope'
-                                            items={kickoffData.inScope}
-                                            onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                        />
-                                    </>
-                                ) : (
-                                    <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                )}
-                                {/* Input for adding new goals */}
-                                <EnterInput name="inScope" onEnter={handleOnEnter} />
-                        </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                                <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
-                                </div>
-                                {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
-                                    <>
-                                        {/* Use DragAndDropList to render project goals */}
-                                        <DragAndDropList
-                                            name='outOfScope'
-                                            items={kickoffData.outOfScope}
-                                            onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                        />
-                                    </>
-                                ) : (
-                                    <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                )}
-                                {/* Input for adding new goals */}
-                                <EnterInput name="outOfScope" onEnter={handleOnEnter} />
+                                    return (
+                                        <li key={`pdel-${index}`}>
+                                            <span className='font-bold pr-2'>{index + 1}</span>{item}
+                                        </li>
+                                    )
+                                }) :
+                                <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                            }
+                            </ul>
                         </div>
                     </div>
 
-                     {/* Project milestones */}
-                     <div className='border-collapse my-4 w-full'>
-                        <div>
-                        <KickoffMilestones
-                            milestones={kickoffData.milestones || []}
-                            name="keyMilestones"
-                            onChange={handleMilestone}
-                            />
+                    {/* Project Scope */}
+                    <div className='mt-4 text-left'>
+                        <PageTitel text={`${t('projectScope')}`} color='slate-600' />
+                    </div>
+                    <div 
+                        className='grid grid-cols-1 lg:grid-cols-2'
+                    >
+                        <div className='mt-3'>
+                            <PageTitel text={t('inScope')} />
+                            <ul>
+                                {kickoffData.inScope ? kickoffData.inScope.map((item,index)=>{
+
+                                    return (
+                                        <li key={`pinscope-${index}`}>
+                                            <span className='font-bold pr-2'>{index + 1}</span>{item}
+                                        </li>
+                                    )
+                                }) :
+                                <li className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</li>
+                            }
+                            </ul>
+                        </div>
+                        <div className='mt-3'>
+                            <PageTitel text={t('outOfScope')} />
+                            <ul>
+                                {kickoffData.outOfScope ? kickoffData.outOfScope.map((item,index)=>{
+
+                                    return (
+                                        <li key={`pdel-${index}`}>
+                                            <span className='font-bold pr-2'>{index + 1}</span>{item}
+                                        </li>
+                                    )
+                                }) :
+                                <li className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</li>
+                            }
+                            </ul>
                         </div>
                     </div>
-                     {/* Project responsibilities */}
-                     <div className='border-collapse my-4 w-full'>
-                        <div>
-                            <KickoffResponsibilities selectedValues={[]} onChange={handleResponsibilites}/>
+
+                    {/* Milestones */}
+                    <div className='mt-4'>
+                        <div className='mt-4 text-left mb-2'>
+                            <PageTitel text={`${t('projectMilestones')}`} color='slate-600' />
                         </div>
+                        <ul>
+                        {kickoffData.milestones && kickoffData.milestones.map((item, indes)=>{
+
+                            return (
+                                <li 
+                                className=''
+                                >
+                                <span>{item.name}</span>
+                                <span>{item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}</span>
+                                <span
+                                    className={getColorClasses(item.status)}
+                                >{t(`${item.status}`)}</span>
+                                </li>
+                            )
+                        }
+
+                        )}
+                        </ul>
+                    </div>
+
+                    {/* Responsibilities */}
+
+                    <div className='mt-4'>
+                        <div className='mt-4 text-left mb-2'>
+                            <PageTitel text={`${t('projectResponsibilities')}`} color='slate-600' />
+                        </div>
+                        <ul>
+                            {responsibilities && responsibilities.map((item,index)=>{
+                                const role:UserGroup = item.role as unknown as UserGroup; 
+                                const persons:User[] = item.persons as unknown as User[]; 
+                                const work = item.work;
+                                const details = item.details;
+                                return (
+                                    <li key={`prespo-${index}`}>
+                                        <span 
+                                        className='font-bold pr-1'
+                                        > {role.displayName}</span>
+                                       
+                                        {persons && persons.map((per,perIndex)=>{
+                                            return (
+                                                <span key={`pers-${index}-${perIndex}`}>{per.name}</span>
+                                            )
+                                        })}
+
+                                        <span> {work}</span>
+                                        <span> {details}</span>
+                                    </li>
+                                )
+                            })}
+                        </ul>
                     </div>
                 </>
             }

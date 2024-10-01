@@ -176,12 +176,11 @@ export interface QaTask extends BaseTask {
     _id?:ObjectId;
     _cid?:string;
     context?: string;
-    date?: Date;
     customFields?: DynamicField[];
     questions?: KickoffQuestion[];
     milestones?: Milestone[];
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: Date | null;
+    endDate?: Date | null;
     goals?: string[];
     inScope?: string[];
     outOfScope?: string[];

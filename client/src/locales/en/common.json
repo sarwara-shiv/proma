@@ -40,10 +40,14 @@
 
     "FORMS":{
         "roleName":"Name",
+        "fillOutRequiredFields":"Fill out all required fields",
         "kickoffResponsibilities":"Roles & Responsibilities",
+        "projectResponsibilities":"Roles & Responsibilities",
         "projectGoals":"Goals",
         "keyDeliverables":"Deliverables",
         "projectScope":"Scope",
+        "projectMilestones":"Milestones",
+        "dueDate":"Due Date",
         "scope":"Scope",
         "inScope":"In Scope",
         "outOfScope":"Out of Scope",
@@ -71,6 +75,7 @@
         "personsInvolved":"Persons Involved",
         "taskName":"Task Name",
         "startDate":"Start Date",
+        "endDate":"End Date",
         "cratedBy":"Created By"
     },
     "BUTTONS":{
@@ -130,6 +135,10 @@
         "record_added": "Data Added Successfully",
         "password_not_same": "Password and Repeat Password are not same"
     },
+    "projectResponsibilities":"Roles & Responsibilities",
+    "projectDeliverables":"Deliverables",
+        "projectScope":"Scope",
+        "projectMilestones":"Milestones",
     "kickoffResponsibilities":"Roles and Responsibilities",
     "projectGoals":"Goals",
     "rolesResponsibilities":"Roles and Responsibilities",

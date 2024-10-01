@@ -14,11 +14,7 @@ interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>; 
     checkDataBy?:string[];
 }
-const subNavItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: "projects/kickoff", title: "kickoff" },
-    { link: "projects/tasks/all", title: "tasks_all" },
-  ];
+
 const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => {
   const {t} = useTranslation();
   const {action} = useParams();
@@ -27,6 +23,12 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
   const location = useLocation();
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
+
+  const subNavItems: NavItem[] = [
+    { link: "projects", title: "projects_all" },
+    { link: `projects/kickoff/${id}`, title: "kickoff" },
+    { link: `projects/tasks/${id}`, title: "tasks" },
+  ];
 
   console.log(useLocation)
     useEffect(()=>{
@@ -37,8 +39,8 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
     <>
       {
           pageType && 
-          pageType === "add" ? <KickoffForm setSubNavItems={setSubNavItems} navItems={subNavItems}/> : 
-          pageType === "update" ? <KickoffForm setSubNavItems={setSubNavItems} navItems={subNavItems}/> :
+          pageType === "add" ? <KickoffForm data={data} id={id}/> : 
+          pageType === "update" ? <KickoffForm data={data} id={id} /> :
           data && data.kickoff ? <KickoffDetail data={data} id={id}/>: 
           <>
           <KickoffDetail data={data} id={id}/>

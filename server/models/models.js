@@ -207,13 +207,13 @@ const KickoffQuestionSchema = new Schema({
 });
 
 // Kickoff Responsibility Schema
-const KickoffResponsibilitySchema = new Schema({
+const KickoffResponsibilitySchema2 = new Schema({
   person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   work: { type: String, required: true },
   role: { type: String, required: true },
   additionalDetails: { type: String }
 });
-const KickoffResponsibilitySchema2 = new Schema({
+const KickoffResponsibilitySchema = new Schema({
     details:{type:String},
     work:{type:String},
     role: { type: Schema.Types.ObjectId, ref: 'UserGroups', required: true },
@@ -224,14 +224,13 @@ const KickoffResponsibilitySchema2 = new Schema({
 const KickoffSchema = new Schema({
   _cid:{type:String},
   context: { type: String },
-  date: { type: Date, required: true },
   customFields: [DynamicFieldSchema],
   questions: [KickoffQuestionSchema],
   startDate: { type: Date, required: true },
   endDate: { type: Date },
   milestones: [{
     namme: { type: String, required: true },
-    dueDate: { type: Date, required: true },
+    dueDate: { type: Date, required: true }, 
     status: { type: String, 
       enum: ['completed', 'inProgress', 'onHold', 'notStarted'],
       default:'notStarted'
@@ -249,7 +248,7 @@ const KickoffSchema = new Schema({
     dueDate: { type: Date },
   }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
-  responsibilities: [KickoffResponsibilitySchema2],
+  responsibilities: [KickoffResponsibilitySchema],
 });
 
 // Project Status Schema

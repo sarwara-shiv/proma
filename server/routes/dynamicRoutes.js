@@ -185,7 +185,7 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
 // Common delete route: /tasks/delete (pass id in the body)
 router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
   const { resource } = req.params;
-  const { id } = req.body; // The ID should be passed in the body
+  const { id, populateFields=[] } = req.body; // The ID should be passed in the body
   const model = getModel(resource);
 
   if (!model) {
@@ -207,7 +207,18 @@ router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
       records = await model.find({_id:{$in:id}});
     }else{
       console.log(id);
-      records = await model.findById(id);
+      // records = await model.findById(id);
+
+      let query = model.findById(id);
+
+      // Dynamically populate fields if provided
+      if (populateFields && Array.isArray(populateFields)) {
+        populateFields.forEach((field) => {
+          query = query.populate(field);
+        });
+      }
+
+      records = await query;
     }
     if (!records) {
       // return res.status(404).json({ error: 'Record not found' });

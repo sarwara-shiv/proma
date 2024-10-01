@@ -1,15 +1,22 @@
+import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import { Milestone } from '@/interfaces';
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
 import { IoRemove } from 'react-icons/io5';
+import { milestoneStatuses } from '../../../../config/predefinedDataConfig';
+import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 
 interface ArgsType {
   milestones: Milestone[] | [];
   name: string;
+  title?:string;
   onChange: (name: string, value: Milestone[]) => void;
 }
 
-const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange }) => {
+const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange, title }) => {
+    const {t} = useTranslation()
   const [milestoneValue, setMilestoneValue] = useState<Milestone[]>(milestones);
 
   // Single milestone state for form inputs
@@ -30,6 +37,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
 
   // Handle change in the form fields (name, due date, status) for the current milestone
   const handleCurrentMilestoneChange = (field: keyof Milestone, value: any) => {
+    console.log(field, value)
     setCurrentMilestone({ ...currentMilestone, [field]: value });
   };
 
@@ -46,59 +54,9 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
 
   return (
     <div>
-      <h3>Milestones</h3>
-
-      {/* Current Milestone Input Form */}
-      <div className="milestone-field border p-2 mb-4 relative">
-        {/* Milestone Name */}
-        <div>
-          <label htmlFor={`milestone-name`}>Milestone Name</label>
-          <input
-            type="text"
-            id={`milestone-name`}
-            value={currentMilestone.name}
-            onChange={(e) => handleCurrentMilestoneChange('name', e.target.value)}
-            className="border px-2 py-1 w-full"
-          />
-        </div>
-
-        {/* Milestone Due Date */}
-        <div>
-          <label htmlFor={`milestone-date`}>Due Date</label>
-          <input
-            type="date"
-            id={`milestone-date`}
-            value={currentMilestone.dueDate ? currentMilestone.dueDate.toISOString().substring(0, 10) : ''}
-            onChange={(e) => handleCurrentMilestoneChange('dueDate', e.target.value ? new Date(e.target.value) : null)}
-            className="border px-2 py-1 w-full"
-          />
-        </div>
-
-        {/* Milestone Status */}
-        <div>
-          <label htmlFor={`milestone-status`}>Status</label>
-          <select
-            id={`milestone-status`}
-            value={currentMilestone.status}
-            onChange={(e) => handleCurrentMilestoneChange('status', e.target.value as Milestone['status'])}
-            className="border px-2 py-1 w-full"
-          >
-            <option value="notStarted">Not Started</option>
-            <option value="inProgress">In Progress</option>
-            <option value="onHold">On Hold</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-
-        {/* Add Milestone Button */}
-        <div className="flex justify-end mt-2">
-          <CustomSmallButton type="add" onClick={handleAddMilestone} />
-        </div>
-      </div>
-
-      {/* List of Added Milestones */}
+        {title && <h3>{title}</h3>}
       {milestoneValue.map((milestone, index) => (
-        <div key={index} className="milestone-field border p-2 mb-4 relative">
+        <div key={index} className="milestone-field border-b p-2 mb-2 relative">
           {/* Milestone Remove Button */}
           <span
             className="cursor-pointer absolute top-0 right-0 p-0.5 bg-red-100 rounded-full text-red-500 text-sm"
@@ -108,13 +66,90 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
           </span>
 
           {/* Display Milestone Info */}
-          <div className="font-semibold">{milestone.name}</div>
-          <div className="text-gray-600">
-            Due: {milestone.dueDate ? milestone.dueDate.toISOString().substring(0, 10) : 'No date set'}
-          </div>
-          <div className="text-gray-600">Status: {milestone.status}</div>
+          <div 
+          className='grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 rounded-md pr-[20px] bg-white'
+          >
+
+          
+            <div className="flex flex-cols items-center">
+                {milestone.name}
+
+                <div className="text-gray-600 text-sm pl-2">
+                    <span className='text-sm text-slate-300'>
+                    {t('FORMS.dueDate')}: 
+                    </span>{milestone.dueDate ? format(new Date(milestone.dueDate), 'dd.MM.yyyy') : '-'}
+                </div>
+            </div>
+                <div className='
+                    flex justify-end
+                '>
+
+                    <div className="text-gray-600">
+                        {/* <span className={`text-sm text-slate-300`}>
+                        {t('FORMS.status')}: 
+                        </span> */}
+                        <span className={`text-sm py-1 px-2 rounded-sm bg-${milestone.status} text-${milestone.status}-dark`}>
+                            {t(`${milestone.status}`)}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
       ))}
+      {/* Current Milestone Input Form */}
+      <div className="
+        milestone-field border p-2 mb-4 relative 
+        ">
+        <div
+        className='grid 
+        md:grid-cols-1
+        lg:grid-cols-2
+        gap-2'
+        >
+         
+            {/* Milestone Name */}
+            <div>
+            <CustomInput name='name' id='milestone-name' 
+                value={currentMilestone.name} label={`${t('FORMS.name')}`}
+                onChange={(e) => handleCurrentMilestoneChange('name', e.target.value)}
+            />
+            </div>
+        <div className='
+                grid
+                sm:grid-cols-1
+                md:grid-cols-2
+                lg:grid-cols-2
+                gap-2
+            '>
+
+            {/* Milestone Due Date */}
+                <div>
+                <CustomDateTimePicker 
+                    name= 'dueDate'
+                    label={`${t('FORMS.dueDate')}`}
+                    onDateChange={(args)=>console.log(args)}
+                    selectedDate={currentMilestone.dueDate}
+                    onChange={(recordId, value, name) => handleCurrentMilestoneChange('dueDate', value)}
+                />
+                </div>
+
+                {/* Milestone Status */}
+                <div>
+                    <CustomDropdown data={milestoneStatuses} label={`${t('status')}`}  
+                    selectedValue={currentMilestone.status}
+                    onChange={(recordId, name, value, data)=>handleCurrentMilestoneChange('status', value as Milestone['status'])}
+                    />
+                </div>
+            </div>
+        </div>   
+        {/* Add Milestone Button */}
+        <div className="flex justify-end mt-2">
+          <CustomSmallButton type="add" onClick={handleAddMilestone} />
+        </div>
+      </div>
+
+      {/* List of Added Milestones */}
+   
     </div>
   );
 };

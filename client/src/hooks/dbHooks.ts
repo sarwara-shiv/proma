@@ -131,19 +131,24 @@ const addRecords = async (args: GetRecordsArgs) => {
 
 
 // GET ALL DATA
+interface pathInterface {
+  path:string
+}
+
 interface GeTRecordsWithID {
   type:string;
   body?:any
   id?:string | string[] | ObjectId | ObjectId[];
+  populateFields?:string[] | pathInterface[];
 }
 
 // get single record with ID
 const getRecordWithID = async(args:GeTRecordsWithID)=>{
-  const {type, body={}, id}  = args;
+  const {type, body={}, id, populateFields=[]}  = args;
   if(type && id){
     try{
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithId`,{
-        page:type === 'auth' ? 'users' : type, data:body || {}, id
+        page:type === 'auth' ? 'users' : type, data:body || {}, id, populateFields
       }, {
         headers
       });

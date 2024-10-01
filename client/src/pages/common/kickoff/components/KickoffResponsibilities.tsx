@@ -36,6 +36,7 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
           const res = await getRecords({type:'groups'});  
           if (res.status === "success") {
             setUserGroups(res.data || []); 
+            console.log(res.data)
           }else{
             setUserGroups([]);
           }
@@ -192,6 +193,7 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
                 ${isGroup ? 'text-primary bg-primary-light': 'text-slate-400 bg-slate-100'}
               `}
              >
+               
               <div className='flex flex-row items-center'>
                   <h2>{item.displayName}</h2>
                 </div>
