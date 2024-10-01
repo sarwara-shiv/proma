@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { IoRemove } from 'react-icons/io5';
 import DragAndDropList from '../../../../components/forms/DragAndDropList';
+import KickoffResponsibilities from './KickoffResponsibilities';
 
 interface ArgsType {
     id?: string | null;
@@ -19,22 +20,15 @@ const kickoffDataInitial: Kickoff = {
     outOfScope: [],
     keyDeliverables: [],
     responsibilities: [],
-    projectTimeline: {
-        keyMilestones: []
-    },
+    milestones:[],
     questions: [],
     notes: [],
     actionItems: [],
     mainTasks: [],
-    description: ''
+    context: ''
 };
 
-const emptyResponsibilities:KickoffResponsibility = {
-    person:'',
-    work:'',
-    role:'',
-    additionalDetails:''
-}
+
 
 const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
     const { t } = useTranslation();
@@ -104,10 +98,11 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
 
 
     // responsibilities
-    const addDeleteresponsibility = (action:'add' | 'delete', index:number|null)=>{
-        if(action === 'add'){
-            setResponsibilities([...responsibilities, emptyResponsibilities]);
-        }
+    const handleResponsibilites = (value:KickoffResponsibility[])=>{
+        setKickoffData((prevData) => ({
+            ...prevData,
+            responsibilities: value 
+        }));
     }
 
     return (
@@ -149,11 +144,11 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                     {/* Project goals */}
                     <div className='border-collapse my-4 w-full'>
                         <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('projectObjectives')}`} color='slate-300' />
+                            <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' />
                         </div>
                         <div className='bg-white p-2 text-left my-2 rounded-md'>
                             <div className='block pt-2 pb-2'>
-                                <PageTitel text={`${t('projectGoals')}`} color='slate-700' size='md' />
+                                <PageTitel text={`${t('FORMS.projectGoals')}`} color='slate-700' size='md' />
                             </div>
                             {kickoffData.goals && kickoffData.goals.length > 0 ? (
                                 <>
@@ -172,7 +167,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                         </div>
                         <div className='bg-white p-2 text-left my-2 rounded-md'>
                                 <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('keyDeliverables')}`} color='slate-700' size='md' />
+                                    <PageTitel text={`${t('FORMS.keyDeliverables')}`} color='slate-700' size='md' />
                                 </div>
                                 {kickoffData.keyDeliverables && kickoffData.keyDeliverables.length > 0 ? (
                                     <>
@@ -191,11 +186,11 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                         </div>
 
                         <div className='mt-4 text-left'>
-                            <PageTitel text={`${t('projectScope')}`} color='slate-300' />
+                            <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' />
                         </div>
                         <div className='bg-white p-2 text-left my-2 rounded-md'>
                                 <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('inScope')}`} color='slate-700' size='md'  />
+                                    <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
                                 </div>
                                 {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
                                     <>
@@ -214,7 +209,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                         </div>
                         <div className='bg-white p-2 text-left my-2 rounded-md'>
                                 <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('outOfScope')}`} color='slate-700' size='md'  />
+                                    <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
                                 </div>
                                 {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
                                     <>
@@ -230,6 +225,17 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                                 )}
                                 {/* Input for adding new goals */}
                                 <EnterInput name="outOfScope" onEnter={handleOnEnter} />
+                        </div>
+                    </div>
+
+                     {/* Project goals */}
+                     <div className='border-collapse my-4 w-full'>
+                        {/* <div className='text-left mt-4 border-b border-slate-200'>
+                            <PageTitel text={`${t('responsibilities')}`} color='slate-300' />
+                        </div> */}
+
+                        <div>
+                            <KickoffResponsibilities selectedValues={[]} onChange={handleResponsibilites}/>
                         </div>
                     </div>
                 </>

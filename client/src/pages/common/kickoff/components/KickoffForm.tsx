@@ -14,15 +14,11 @@ interface ArgsType {
 const KickoffForm: React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => {
   const [kickoff, setKickoff] = useState<Kickoff>({
     _cid: '',
-    description: '',
+    context: '',
     date: new Date(),
     customFields: [],
     questions: [],
-    projectTimeline: {
-      startDate: new Date(),
-      endDate: new Date(),
-      keyMilestones: [],
-    },
+    milestones: [],
     goals: [],
     inScope: [],
     outOfScope: [],

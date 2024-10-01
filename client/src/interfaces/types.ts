@@ -44,7 +44,7 @@ export interface DynamicField {
   
   // Other Persons Involved in Task
   export interface PersonsInvolved {
-    role: ObjectId; // Reference to Role
+    role: ObjectId; // Reference to user groups
     persons?: ObjectId[]; // Array of User references
 }
 
@@ -131,12 +131,19 @@ export interface QaTask extends BaseTask {
   }
   
   // Kickoff Responsibility Interface
-  export interface KickoffResponsibility {
+  export interface KickoffResponsibility2 {
     person: string; // Refers to User objectId
     work: string;
     role: string;
     additionalDetails?: string;
   }
+  export interface KickoffResponsibility {
+    persons?: ObjectId[];
+    work?: string;
+    role: ObjectId;
+    details?: string;
+  }
+
 
   export interface NoteSchema {
     text: string;
@@ -157,23 +164,24 @@ export interface QaTask extends BaseTask {
   subtasks?:Task[];
   status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
   }
+
+  export interface Milestone{
+    name:string,
+    dueDate:Date | null,
+    status: 'completed' | 'inProgress' |'onHold' | 'notStarted';
+  }
   
   // Kickoff Interface
   export interface Kickoff {
     _id?:ObjectId;
     _cid?:string;
-    description?: string;
+    context?: string;
     date?: Date;
     customFields?: DynamicField[];
     questions?: KickoffQuestion[];
-    projectTimeline?: {
-      startDate?: Date;
-      endDate?: Date;
-      keyMilestones: {
-        milestone: string;
-        milestoneDate: Date;
-      }[];
-    };
+    milestones?: Milestone[];
+    startDate?: Date;
+    endDate?: Date;
     goals?: string[];
     inScope?: string[];
     outOfScope?: string[];
@@ -212,8 +220,8 @@ export interface QaTask extends BaseTask {
     priority: 'high' | 'medium' | 'low';
     customPriority?: string; // Refers to ProjectPriority objectId
     startDate: Date;
-    projectType?:'inhouse' | 'client';
     endDate?: Date;
+    projectType?:'inhouse' | 'client';
     kickoff?: Kickoff;
     documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: PersonsInvolved[]; // Array of User objectIds

@@ -151,7 +151,7 @@ const QaTaskSchema = BaseTaskSchema.discriminator('QaTask', new Schema({
 const TaskSchema = BaseTaskSchema.discriminator('Task', new Schema({
   otherPersonsInvolved: [
         {
-          role: { type: Schema.Types.ObjectId, ref: 'Role', required: true },
+          role: { type: Schema.Types.ObjectId, ref: 'UserGroups', required: true },
           persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
         },
       ],
@@ -213,26 +213,30 @@ const KickoffResponsibilitySchema = new Schema({
   role: { type: String, required: true },
   additionalDetails: { type: String }
 });
+const KickoffResponsibilitySchema2 = new Schema({
+    details:{type:String},
+    work:{type:String},
+    role: { type: Schema.Types.ObjectId, ref: 'UserGroups', required: true },
+    persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+});
 
 // Kickoff Schema
 const KickoffSchema = new Schema({
   _cid:{type:String},
-  description: { type: String },
+  context: { type: String },
   date: { type: Date, required: true },
   customFields: [DynamicFieldSchema],
   questions: [KickoffQuestionSchema],
-  projectTimeline: {
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    keyMilestones: [{
-      milestone: { type: String, required: true },
-      milestoneDate: { type: Date, required: true },
-      milestoneStatus: { type: String, 
-        enum: ['completed', 'inProgress', 'onHold', 'notStarted'],
-        default:'notStarted'
-      },
-    }],
-  },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date },
+  milestones: [{
+    namme: { type: String, required: true },
+    dueDate: { type: Date, required: true },
+    status: { type: String, 
+      enum: ['completed', 'inProgress', 'onHold', 'notStarted'],
+      default:'notStarted'
+    },
+  }],
   goals: [{ type: String }],
   keyDeliverables: [{ type: String }],
   inScope: [{ type: String }],
@@ -245,7 +249,7 @@ const KickoffSchema = new Schema({
     dueDate: { type: Date },
   }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
-  responsibilities: [KickoffResponsibilitySchema],
+  responsibilities: [KickoffResponsibilitySchema2],
 });
 
 // Project Status Schema
@@ -270,13 +274,13 @@ const ProjectSchema = new Schema({
   priority: { type: String, enum: predefinedPriorities, default: 'medium' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'ProjectPriority' },
   startDate: { type: Date, required: true },
-  projectType:{type: String, enum:['client', 'inhouse'] , default: 'client'},
   endDate: { type: Date },
+  projectType:{type: String, enum:['client', 'inhouse'] , default: 'client'},
   kickoff: KickoffSchema,
   documentation: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
   personsInvolved: [
     {
-      role: { type: Schema.Types.ObjectId, ref: 'Role', required: true },
+      role: { type: Schema.Types.ObjectId, ref: 'UserGroups', required: true },
       persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     },
   ],
