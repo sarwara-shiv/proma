@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Kickoff, KickoffResponsibility, Project, User } from '@/interfaces';
+import { Kickoff, KickoffResponsibility, Milestone, Project, User } from '@/interfaces';
 import { PageTitel } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { IoRemove } from 'react-icons/io5';
 import DragAndDropList from '../../../../components/forms/DragAndDropList';
 import KickoffResponsibilities from './KickoffResponsibilities';
+import KickoffMilestones from './KickoffMilestones';
 
 interface ArgsType {
     id?: string | null;
@@ -102,6 +103,14 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
         setKickoffData((prevData) => ({
             ...prevData,
             responsibilities: value 
+        }));
+    }
+    // responsibilities
+    const handleMilestone = (name:string, value:Milestone[])=>{
+        console.log(value);
+        setKickoffData((prevData) => ({
+            ...prevData,
+            milestones: value 
         }));
     }
 
@@ -228,12 +237,18 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                         </div>
                     </div>
 
-                     {/* Project goals */}
+                     {/* Project milestones */}
                      <div className='border-collapse my-4 w-full'>
-                        {/* <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('responsibilities')}`} color='slate-300' />
-                        </div> */}
-
+                        <div>
+                        <KickoffMilestones
+                            milestones={kickoffData.milestones || []}
+                            name="keyMilestones"
+                            onChange={handleMilestone}
+                            />
+                        </div>
+                    </div>
+                     {/* Project responsibilities */}
+                     <div className='border-collapse my-4 w-full'>
                         <div>
                             <KickoffResponsibilities selectedValues={[]} onChange={handleResponsibilites}/>
                         </div>
