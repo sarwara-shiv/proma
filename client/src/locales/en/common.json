@@ -4,6 +4,7 @@
         "roles":"Roles",
         "tasks":"Tasks",
         "update":"Update",
+        "kickoff_update":"Kickoff Update",
         "view":"View",
         "documentation":"Documentation",
         "roles_all":"Roles",

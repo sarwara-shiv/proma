@@ -39,6 +39,17 @@ const CustomDropdown: React.FC<ArgsType> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(()=>{
+    if(selectedValue){
+      console.log(selectedValue);
+      data.map((d,k)=>{
+        if(d._id === 'selectedValue' || d.name === selectedValue){
+          setValue(d._id);
+        }
+      })
+    }
+  },[selectedValue])
+
+  useEffect(()=>{
     const handleClickOutside = (event: MouseEvent) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
           setIsOpen(false); // Close the dropdown if click outside
@@ -116,7 +127,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
               hover:bg-primary-light 
               hover:text-slate-800 
               cursor-pointer
-              ${item._id === value && 'bg-green-100'}
+              ${item._id === value || item.name === value && 'bg-green-100'}
               `}
             >
               {item.name}

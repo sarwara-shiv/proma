@@ -35,11 +35,11 @@ const Project = () => {
             {
               action && 
               action === "add" ? <ProjectsForm setSubNavItems={setSubNavItems} navItems={navItems}/> : 
-              action ==="update" ? <ProjectsForm  data={data} id={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
-              action ==="tasks" ? <Tasks  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
-              action ==="kickoff" ? <Kickoff  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
-              action ==="kickoff-update" ? <KickoffForm  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
-              action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} id={id} data={data}/>  :
+              action ==="update" ? <ProjectsForm  data={data} cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
+              action ==="tasks" ? <Tasks  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} cid={id} data={data}/>  :
               <AllProjects setSubNavItems={setSubNavItems} navItems={navItems}/>  
             }
         </div>

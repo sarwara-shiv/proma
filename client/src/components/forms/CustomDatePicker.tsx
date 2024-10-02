@@ -36,8 +36,12 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   const datePickerRef = useRef<any>(null); // Create a reference to control DatePicker
 
   useEffect(()=>{
-    console.log(selectedDate);
-  },[])
+    console.log(dateValue);
+    if(selectedDate){
+      setDateValue(selectedDate);
+      setManualInput(format(selectedDate, 'dd.MM.yyyy') );
+    }
+  },[selectedDate])
 
   // Function to handle the manual input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +118,7 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
         showTimeSelect={showTimeSelect}
         timeIntervals={15}
         ref={datePickerRef} // Ref to control the DatePicker
-        className="hidden" // Hide the default date picker
+        className="hidden absolute" // Hide the default date picker
       />
     </div>
   );

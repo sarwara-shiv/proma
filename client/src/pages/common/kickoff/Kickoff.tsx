@@ -12,15 +12,15 @@ import { IoPencil } from 'react-icons/io5';
 import { FaEye, FaRegEdit } from 'react-icons/fa';
 import CustomIconButton from '../../../components/common/CustomIconButton';
 interface ArgsType {
-    id?:string | null;
+    cid?:string | null;
     data?: Project; 
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>; 
     checkDataBy?:string[];
 }
 
-const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => {
+const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) => {
   const {t} = useTranslation();
-  const {action} = useParams();
+  const {id, action} = useParams();
   const [pageTitle, setPageTitle] = useState("kickOff");
   const [pageType, setPageType] = useState<string>('view');
   const location = useLocation();
@@ -29,8 +29,9 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
 
   const subNavItems: NavItem[] = [
     { link: "projects", title: "projects_all" },
-    { link: `projects/kickoff/${id}`, title: "kickoff" },
-    { link: `projects/tasks/${id}`, title: "tasks" },
+    { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
+    { link: `projects/kickoff-update/${cid || id}`, title: "kickoff_update" },
+    { link: `projects/tasks/${cid}`, title: "tasks" },
   ];
 
   console.log(useLocation)
@@ -86,17 +87,11 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
 
       {
           pageType && 
-          pageType === "add" ? <KickoffForm data={data} id={id}/> : 
-          pageType === "update" ? <KickoffForm data={data} id={id} /> :
-          data && data.kickoff ? <KickoffDetail data={data} id={id}/>: 
+          pageType === "add" ? <KickoffForm data={data} cid={cid}/> : 
+          pageType === "update" ? <KickoffForm data={data} cid={cid} /> :
+          data && data.kickoff ? <KickoffDetail data={data} cid={cid}/>: 
           <>
-          <KickoffDetail data={data} id={id}/>
-          <NoData content='' >
-            <div className='btn btn-outline' onClick={()=>setPageType('add')}>Add Kick-Off Data</div> 
-          </NoData>
-
-          
-          
+          <KickoffDetail data={data} cid={cid}/>
           </>
         }
     </>

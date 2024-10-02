@@ -16,7 +16,7 @@ import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker'
 import { formatDate, compareDates, isPastDate } from '../../../../utils/dateUtils';
 
 interface ArgsType {
-  id?:string | null;
+  cid?:string | null;
   action?:"add" | "update";
   data?: Project; 
   navItems:NavItem[];
@@ -49,7 +49,7 @@ const priorityColors=[
 ]
 
 const checkDataBy: string[] = ['name'];
-const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavItems, navItems }) => {
+const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
   const {user} = useAuth();
   const [formData, setFormData] = useState<Project>(data? data : initialValues);
@@ -76,7 +76,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, id, setSubNavIt
     let data = formData;
     try{
       const createdBy = user && user._id ? user._id : null;
-      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id, body:{ ...data, createdBy}}); 
+      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id:cid, body:{ ...data, createdBy}}); 
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;

@@ -1,7 +1,7 @@
 import { NavItem, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 interface ArgsType {
-    id?:string | null;
+    cid?:string | null;
     action?:"add" | "update";
     data?: Project; 
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -14,7 +14,7 @@ const navItems: NavItem[] = [
     { link: "projects/tasks/all", title: "tasks_all" },
     { link: "projects/tasks/add", title: "tasks_add" },
   ];
-const Tasks:React.FC<ArgsType> = ({id, action, data, checkDataBy, setSubNavItems}) => {
+const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems}) => {
     useEffect(()=>{
         setSubNavItems(navItems);
     }, []);

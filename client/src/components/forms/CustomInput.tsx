@@ -14,6 +14,7 @@ interface argsType {
     maxChar?: number;
     required?: boolean;
     pattern?: string;
+    disable?:boolean;
     fieldType?: "password" | "email" | "mobile" | "slug" | "name" | "fullname" | "username" | "url" | "keyword" | "numbers";
     onChange?: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onClick?: () => void;
@@ -34,6 +35,7 @@ const CustomInput: React.FC<argsType> = (args) => {
         minChar, 
         maxChar,
         info, 
+        disable=false,
         onChange, 
         onClick 
     } = args;
@@ -146,7 +148,9 @@ const CustomInput: React.FC<argsType> = (args) => {
             {type === 'textarea' ? (
                 <textarea
                     name={name}
-                    className={`${classes} bg-gray-50 border ${isValid ? 'border-gray-300 focus:ring-primary focus:border-primary' : 'border-red-500 focus:ring-red-500 focus:border-red-500'} text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700`}
+                    className={`${classes} 
+                    ${disable ? 'pointer-events-none' : ''}
+                    bg-gray-50 border ${isValid ? 'border-gray-300 focus:ring-primary focus:border-primary' : 'border-red-500 focus:ring-red-500 focus:border-red-500'} text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700`}
                     id={id ? id : name}              
                     placeholder={placeholder}
                     onChange={onChange}
@@ -161,7 +165,10 @@ const CustomInput: React.FC<argsType> = (args) => {
                     <input
                         type={showPassword && type === 'password' ? 'text' : type}
                         name={name}
-                        className={`${classes} bg-gray-50 border ${isValid ? 'border-gray-300 focus:ring-primary focus:border-primary' : 'border-red-500 focus:ring-red-500 focus:border-red-500'} text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700`}
+                        className={`
+                            ${classes} bg-gray-50 border 
+                            ${disable ? 'pointer-events-none' : ''}
+                            ${isValid ? 'border-gray-300 focus:ring-primary focus:border-primary' : 'border-red-500 focus:ring-red-500 focus:border-red-500'} text-gray-900 text-sm rounded-sm focus:outline-none block w-full p-2.5 dark:bg-gray-700`}
                         id={id ? id : name}                        
                         value={value}
                         required={required}
@@ -172,6 +179,7 @@ const CustomInput: React.FC<argsType> = (args) => {
                         onBlur={handleBlur}
                         minLength={minChar}
                         maxLength={maxChar}
+                        
                     />
                     {type === "password" && (
                         <div 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IoRemove } from 'react-icons/io5';
 import { FaGripLines } from 'react-icons/fa'; // Import an icon for the drag handle
 import { MdDragIndicator } from 'react-icons/md';
+import DeleteSmallButton from '../common/DeleteSmallButton';
 
 interface DragAndDropListProps {
   items: string[]; // The list of items (goals)
@@ -75,12 +76,13 @@ useEffect(()=>{
           <span className='flex-1'>{item}</span>
 
           {/* Remove button on the right */}
-          <span
-            className='cursor-pointer absolute top-0 right-0 p-0.5 bg-red-100 rounded-full text-red-500 text-sm'
+          <DeleteSmallButton onClick={()=>handleRemove(index)} />          
+          {/* <span
+            className='cursor-pointer absolute top-1/2 transform -translate-y-1/2  right-0 p-0.5 bg-red-100 rounded-full text-red-500 text-xs'
             onClick={() => handleRemove(index)}
           >
             <IoRemove />
-          </span>
+          </span> */}
         </li>
       ))}
     </ul>

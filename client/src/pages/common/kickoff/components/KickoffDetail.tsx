@@ -13,9 +13,10 @@ import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker'
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { getRecordWithID } from '../../../../hooks/dbHooks';
 import { ObjectId } from 'mongodb';
+import { useParams } from 'react-router-dom';
 
 interface ArgsType {
-    id?: string | null;
+    cid?: string | null;
     data?: Project;
     setSubNavItems?:React.Dispatch<React.SetStateAction<any>>;
 }
@@ -37,14 +38,18 @@ const kickoffDataInitial: Kickoff = {
 
 
 
-const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
+const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const { t } = useTranslation();
+    const {id} = useParams();
     const [createdBy, setCreatedBy] = useState<User>();
     const [projectData, setProjectData] = useState<Project>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
 
     useEffect(()=>{
+        if(!cid){
+            cid = id;
+        }
         getData();
     }, [])
 
@@ -63,8 +68,8 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                 {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
             ]
-            if(id){
-                const res = await getRecordWithID({id, populateFields, type:'projects'});
+            if(cid){
+                const res = await getRecordWithID({id:cid, populateFields, type:'projects'});
                 console.log(res);
 
                 if(res.status === 'success' && res.data){
@@ -138,46 +143,48 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                 <>
                     {/* Project Details */}
                     <table className='border-collapse my-4 w-full'>
-                        <tr className='border-1 border-slate-100 text-left'>
-                            <th colSpan={2} className='p-2'>
-                                <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
-                            </th>
-                        </tr>
-                        <tr className='border-1 border-slate-100'>
-                            <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('projectName')}</th>
-                            <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{projectData.name}</td>
-                        </tr>
+                        <tbody>
+                            <tr className='border-1 border-slate-100 text-left'>
+                                <th colSpan={2} className='p-2'>
+                                    <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
+                                </th>
+                            </tr>
+                            <tr className='border-1 border-slate-100'>
+                                <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('projectName')}</th>
+                                <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{projectData.name}</td>
+                            </tr>
 
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
-                            <td className='border border-slate-300 p-2'>
-                                {kickoffData.startDate ? format(new Date(kickoffData.startDate), 'dd.MM.yyyy') : '-'}
-                            </td>
-                        </tr>
+                            <tr>
+                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
+                                <td className='border border-slate-300 p-2'>
+                                    {kickoffData.startDate ? format(new Date(kickoffData.startDate), 'dd.MM.yyyy') : '-'}
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
-                            <td className='border border-slate-300 p-2'>
-                                {kickoffData.endDate ? format(new Date(kickoffData.endDate), 'dd.MM.yyyy') : '-'}
-                            </td>
-                        </tr>
+                            <tr>
+                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
+                                <td className='border border-slate-300 p-2'>
+                                    {kickoffData.endDate ? format(new Date(kickoffData.endDate), 'dd.MM.yyyy') : '-'}
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('createdBy')}</th>
-                            <td className='border border-slate-300 p-2'>{createdBy && createdBy.name}</td>
-                        </tr>
-                        <tr>
-                            <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
-                        </tr>
-                        <tr>
-                            <td colSpan = {2} className='border border-slate-300 p-2'>{projectData.description}</td>
-                        </tr>
-                        <tr>
-                            <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
-                        </tr>
-                        <tr>
-                            <td colSpan = {2} className='border border-slate-300 p-2'>{kickoffData?.context || ''}</td>
-                        </tr>
+                            <tr>
+                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('createdBy')}</th>
+                                <td className='border border-slate-300 p-2'>{createdBy && createdBy.name}</td>
+                            </tr>
+                            <tr>
+                                <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
+                            </tr>
+                            <tr>
+                                <td colSpan = {2} className='border border-slate-300 p-2'>{projectData.description}</td>
+                            </tr>
+                            <tr>
+                                <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
+                            </tr>
+                            <tr>
+                                <td colSpan = {2} className='border border-slate-300 p-2'>{kickoffData?.context || ''}</td>
+                            </tr>
+                        </tbody>
                     </table>
 
                     {/* Objectives */}
@@ -185,7 +192,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                         <PageTitel text={`${t('projectObjectives')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
-                        className='grid grid-cols-1 lg:grid-cols-2'
+                        className='grid grid-cols-1 lg:grid-cols-2 border-b pb-4'
                     >
                         <div className='mt-3 bg-white p-2 rounded-md lg:border-r'>
                             <PageTitel text={t('projectGoals')} />
@@ -224,7 +231,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                         <PageTitel text={`${t('projectScope')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
-                        className='grid grid-cols-1 lg:grid-cols-2'
+                        className='grid grid-cols-1 lg:grid-cols-2 border-b pb-4'
                     >
                         <div className='mt-3 bg-white p-2 rounded-md lg:border-r '>
                             <PageTitel text={t('inScope')} />
@@ -259,7 +266,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                     </div>
 
                     {/* Milestones */}
-                    <div className='mt-4'>
+                    <div className='mt-4 border-b pb-4'>
                         <div className='mt-4 text-left mb-2'>
                             <PageTitel text={`${t('projectMilestones')}`} color='slate-300' size='2xl'/>
                         </div>
@@ -268,12 +275,15 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                             console.log(item);
                             return (
                                 <li 
-                                className='py-2 my-1 border-b border-slate-200
+                                className='
                                 grid
                                 grid-cols-1 md:grid-cols-2
+                                py-1
                                 '
                                 >
+                                  
                                 <div>
+                                <b>- </b>
                                     <span 
                                         className=''
                                     >{item.name}</span>
@@ -283,7 +293,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
                                 </div>
                                 <div className='flex justify-end'>
                                     <span
-                                        className={`inline-flex ml-2 text-sm py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
+                                        className={`inline-flex ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
                                     >
                                         {/* <i className='text-slate-400'>{t('status')}: </i>  */}
                                         {t(`${item.status}`)}</span>
