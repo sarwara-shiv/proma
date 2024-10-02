@@ -10,6 +10,7 @@ import Kickoff from '../kickoff/Kickoff';
 import ProjectDetails from './components/ProjectDetails';
 import { IoMdAdd } from 'react-icons/io';
 import PageSubmenu from '../../../components/common/PageSubmenu';
+import KickoffForm from '../kickoff/components/KickoffForm';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
@@ -37,6 +38,7 @@ const Project = () => {
               action ==="update" ? <ProjectsForm  data={data} id={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="tasks" ? <Tasks  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff" ? <Kickoff  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action ==="kickoff-update" ? <KickoffForm  data={data} id={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} id={id} data={data}/>  :
               <AllProjects setSubNavItems={setSubNavItems} navItems={navItems}/>  
             }

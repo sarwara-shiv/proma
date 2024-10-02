@@ -8,6 +8,9 @@ import { IoMdAdd } from 'react-icons/io';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import NoData from '../../../components/common/NoData';
 import KickoffDetail from './components/KickoffDetail';
+import { IoPencil } from 'react-icons/io5';
+import { FaEye, FaRegEdit } from 'react-icons/fa';
+import CustomIconButton from '../../../components/common/CustomIconButton';
 interface ArgsType {
     id?:string | null;
     data?: Project; 
@@ -37,6 +40,50 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
 
   return (
     <>
+    <div>
+
+      <CustomIconButton 
+        text={`${pageType === 'view' ? t('NAV.update') : t('NAV.view')}`}
+        icon={pageType === 'view' ? <FaRegEdit /> : <FaEye />}
+        onClick={() => setPageType(pageType === 'view' ? 'update' : 'view')}
+        />
+    </div>
+
+
+        <div
+          className={` hidden
+            cursor-pointer
+            fixed bottom-[1em] right-[1em] h-[50px]
+            text-2xl shadow-md rounded-full z-50
+            flex items-center justify-start gap-2
+            bg-primary-light text-primary
+            border border-white
+            transition-all duration-300 ease-in-out
+            overflow-hidden
+            w-[50px] hover:w-[150px]     // Default and expanded width
+            hover:bg-primary hover:text-white hover:shadow-sm
+          `}
+          onClick={() => setPageType(pageType === 'view' ? 'update' : 'view')}
+        >
+          <div className="flex items-center pl-2">
+            {/* Icon */}
+            {pageType === 'view' ? <FaRegEdit /> : <FaEye />}
+          </div>
+
+          {/* Text with hover effect */}
+          <span
+            className={`
+              whitespace-nowrap
+              opacity-0 transition-opacity duration-50
+              ml-2
+              ${'hover:opacity-100'}     // Show text on hover
+            `}
+          >
+            {pageType === 'view' ? t('NAV.update') : t('NAV.view')}
+          </span>
+        </div>
+
+
       {
           pageType && 
           pageType === "add" ? <KickoffForm data={data} id={id}/> : 
@@ -48,6 +95,7 @@ const Kickoff:React.FC<ArgsType> = ({id, data, checkDataBy, setSubNavItems}) => 
             <div className='btn btn-outline' onClick={()=>setPageType('add')}>Add Kick-Off Data</div> 
           </NoData>
 
+          
           
           </>
         }

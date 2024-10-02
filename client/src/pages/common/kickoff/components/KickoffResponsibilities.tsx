@@ -11,10 +11,11 @@ import { CustomInput } from '../../../../components/forms';
 interface ArgsType{
   selectedValues:KickoffResponsibility[];
   onChange:(value:KickoffResponsibility[])=>void
+  title?:boolean;
 }
 
 
-const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange}) => {
+const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange, title=false}) => {
   const {t} = useTranslation();
   const [loader, setLoader] = useState<boolean>(false);
   const [userGroups, setUserGroups] = useState<UserRole[]>([]);
@@ -160,9 +161,11 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
   
         if (roleExists) {
           const roleIndex = prevVal.findIndex((d) => d.role === role);
-          const roleData = prevVal[roleIndex];
+          let roleData = prevVal[roleIndex];
+          console.log(roleData)
         if(field === 'work' || field === 'details'){
-            roleData[field] = value;
+           
+            roleData = {...roleData, [field]:value};
             prevVal[roleIndex] = roleData;
         }
 
@@ -182,7 +185,7 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
 
   return (
     <div> 
-      <FormsTitle text={t('FORMS.kickoffResponsibilities')}/>
+      {title && <FormsTitle text={t('FORMS.kickoffResponsibilities')}/>}
       <div className='text-sm fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
         {userGroups && userGroups.map((item,index)=>{
           let _id = item._id as unknown as ObjectId;
@@ -223,13 +226,13 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
                                 </div>
                                 
                                 {p.role && p.persons && p.persons.length > 0 && 
-                                <div className='flex flex-col'>
+                                <div className='flex flex-col mt-4'>
                                     <div className='w-full'>
-                                        <CustomInput type='text' label='work' value={p.work}
+                                        <CustomInput type='text' label={t('FORMS.work')} value={p.work}
                                         onChange={(e)=>handleInputChange({field:'work', role:_id, index, value:e.target.value})} />
                                     </div>
                                     <div className='w-full'>
-                                        <CustomInput type='textarea' label='details' value={p.details}
+                                        <CustomInput type='textarea' label={t('FORMS.details')} value={p.details}
                                         onChange={(e)=>handleInputChange({field:'details', role:_id, index,value:e.target.value})} />
                                     </div>
                                 </div>

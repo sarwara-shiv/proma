@@ -229,7 +229,7 @@ const KickoffSchema = new Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date },
   milestones: [{
-    namme: { type: String, required: true },
+    name: { type: String, required: true },
     dueDate: { type: Date, required: true }, 
     status: { type: String, 
       enum: ['completed', 'inProgress', 'onHold', 'notStarted'],

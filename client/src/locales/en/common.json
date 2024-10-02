@@ -3,6 +3,8 @@
     "NAV" :{
         "roles":"Roles",
         "tasks":"Tasks",
+        "update":"Update",
+        "view":"View",
         "documentation":"Documentation",
         "roles_all":"Roles",
         "roles_add":"Add Roles",
@@ -40,6 +42,9 @@
 
     "FORMS":{
         "roleName":"Name",
+        "work":"Work",
+        "details":"Details",
+        "timeline":"Timeline",
         "fillOutRequiredFields":"Fill out all required fields",
         "kickoffResponsibilities":"Roles & Responsibilities",
         "projectResponsibilities":"Roles & Responsibilities",
@@ -135,6 +140,9 @@
         "record_added": "Data Added Successfully",
         "password_not_same": "Password and Repeat Password are not same"
     },
+    "timeline":"Timeline",
+    "work":"Work",
+    "details":"Details",
     "projectResponsibilities":"Roles & Responsibilities",
     "projectDeliverables":"Deliverables",
         "projectScope":"Scope",

@@ -10,12 +10,13 @@ import KickoffResponsibilities from './KickoffResponsibilities';
 import KickoffMilestones from './KickoffMilestones';
 import { CustomInput } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
-import { addUpdateRecords } from '../../../../hooks/dbHooks';
+import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 
 interface ArgsType {
     id?: string | null;
     data?: Project;
     action?:string;
+    setSubNavItems?:React.Dispatch<React.SetStateAction<any>>;
 }
 
 
@@ -37,11 +38,14 @@ const kickoffDataInitial: Kickoff = {
 
 
 
-const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
+const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update', setSubNavItems }) => {
     const { t } = useTranslation();
+    const [formData, setFormData] = useState<Project>();
     const [createdBy, setCreatedBy] = useState<User>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
+
+    const tdClasses = 'border-b border-slate-100';
 
     // Load data when the component mounts
     useEffect(() => {
@@ -49,15 +53,47 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
             const user: User = data.createdBy as unknown as User;
             setCreatedBy(user);
 
-            if (data.kickoff) {
-                setKickoffData(data.kickoff);
-            }
-            if (data.kickoff?.responsibilities) {
-                setResponsibilities(data.kickoff.responsibilities);
-                setKickoffData({...kickoffData, responsibilities:data.kickoff.responsibilities})
-            }
+            // if (data.kickoff) {
+            //     setKickoffData(data.kickoff);
+            // }
+            // if (data.kickoff?.responsibilities) {
+            //     setResponsibilities(data.kickoff.responsibilities);
+            //     setKickoffData({...kickoffData, responsibilities:data.kickoff.responsibilities})
+            // }
         }
     }, [kickoffData]);
+
+    useEffect(()=>{
+        console.log('kickoff form');
+        getData();
+    }, [])
+
+    const getData = async ()=>{
+        try{
+            const populateFields = [
+                {path: 'kickoff.responsibilities.role'},
+                {path: 'kickoff.responsibilities.persons'},
+            ]
+            if(id){
+                const res = await getRecordWithID({id, type:'projects'});
+                console.log(res);
+
+                if(res.status === 'success' && res.data){
+                    if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
+                    if (res.data.kickoff) {
+                        setFormData(res.data);
+                        setKickoffData(res.data.kickoff);
+                    }
+                    data = {...res.data}
+
+                    console.log(res.data.kickoff.responsibilities);
+                }
+
+            }
+        }catch(error){
+            console.log(error);
+        }
+    }
 
     // Handle adding a new goal
     const handleOnEnter = ({ name, value }: { name: string, value: string | Date | null }) => {
@@ -76,7 +112,7 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
                     };
                 }
 
-                return prevData;
+                //return prevData;
             });
         }
     };
@@ -156,46 +192,38 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
     return (
         <div className='data-wrap'>
           <form onSubmit={submitForm}>
-            {data &&
+            {formData &&
                 <>
-                    {/* Project Details */}
-                    <table className='border-collapse my-4 w-full'>
-                        <tr className='border-1 border-slate-100 text-left'>
-                            <th colSpan={2} className='p-2'>
-                                <PageTitel text={`Project Details (${data._cid})`} color='slate-300' />
-                            </th>
-                        </tr>
-                        <tr className='border-1 border-slate-100'>
-                            <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('projectName')}</th>
-                            <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{data.name}</td>
-                        </tr>
+                <div className='w-full my-4 rounded-md'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2'>
+                        <div className='text-primary text-2xl md:text-3xl font-bold'>
+                            {formData.name}
+                        </div>
+                        <div className='text-slate-600 text-sm flex items-start justify-start'>
+                            <div>
+                                <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
+                            </div>
+                            <div className=''> 
+                                <span className='mx-2'> | </span>
+                                <i className='text-slate-400'>{t(`createdAt`)}: </i> 
+                                {formData.createdAt && format(new Date(formData.createdAt), 'dd.MM.yyyy')}
+                            </div>
+                        </div>
+                    </div>
 
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
-                            <td className='border border-slate-300 p-2'>{format(new Date(data.startDate), 'dd.MM.yyyy')}</td>
-                        </tr>
+                    <div className='mt-3 grid grid-cols-1'>
+                        <i className='text-slate-400'>{t(`description`)}</i>
+                        {formData.description}
+                    </div>
+                   
+                    </div>
 
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
-                            <td className='border border-slate-300 p-2'>{data.endDate && format(new Date(data.endDate), 'dd.MM.yyyy')}</td>
-                        </tr>
-
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('createdBy')}</th>
-                            <td className='border border-slate-300 p-2'>{createdBy && createdBy.name}</td>
-                        </tr>
-                        <tr>
-                            <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
-                            <td className='border border-slate-300 p-2'>{data.description}</td>
-                        </tr>
-                    </table>
-
-                    <div className='border-collapse my-4 w-full'>
-                        <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('FORMS.context')}`} color='slate-300' />
+                    <div className='border-collapse my-9 w-full '>
+                        <div className='text-left '>
+                            <PageTitel text={`${t('FORMS.timeline')}`} color='slate-300'  size='2xl'/>
                         </div>
 
-                        <div className='grid grid-cols-2 gap-2'>
+                        <div className='grid grid-cols-2 gap-2 bg-white p-3 rounded-md'>
                             <div>
                             <CustomDateTimePicker 
                                 name= 'starDate'
@@ -217,20 +245,23 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
                             </div>
 
                         </div>
-                        <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('FORMS.context')}`} color='slate-300' />
-                        </div>
-                        <div>
-                            <CustomInput type='textarea' name='contenxt' 
-                                onChange={(e)=>handleOnEnter({name:'context', value:e.target.value})}
 
-                            />
+                        <div className='my-9'>
+                            <div className='text-left mt-9'>
+                                <PageTitel text={`${t('FORMS.context')}`} color='slate-300' size='2xl' />
+                            </div>
+                            <div className='bg-white rounded-md p-3'>
+                                <CustomInput type='textarea' name='contenxt' value={kickoffData.context}
+                                    onChange={(e)=>handleOnEnter({name:'context', value:e.target.value})}
+
+                                />
+                            </div>
                         </div>
                     </div>
                     {/* Project goals */}
-                    <div className='border-collapse my-4 w-full'>
-                        <div className='text-left mt-4 border-b border-slate-200'>
-                            <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' />
+                    <div className='border-collapse my-9 w-full'>
+                        <div className='text-left mt-4 '>
+                            <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' size='2xl' />
                         </div>
                         <div className='bg-white p-2 text-left my-2 rounded-md'>
                             <div className='block pt-2 pb-2'>
@@ -271,58 +302,60 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
                                 <EnterInput name="keyDeliverables" onEnter={handleOnEnter} />
                         </div>
 
-                        <div className='mt-4 text-left'>
-                            <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' />
-                        </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                                <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
-                                </div>
-                                {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
-                                    <>
-                                        {/* Use DragAndDropList to render project goals */}
-                                        <DragAndDropList
-                                            name='inScope'
-                                            items={kickoffData.inScope}
-                                            onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                        />
-                                    </>
-                                ) : (
-                                    <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                )}
-                                {/* Input for adding new goals */}
-                                <EnterInput name="inScope" onEnter={handleOnEnter} />
-                        </div>
-                        <div className='bg-white p-2 text-left my-2 rounded-md'>
-                                <div className='block pt-2 pb-2'>
-                                    <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
-                                </div>
-                                {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
-                                    <>
-                                        {/* Use DragAndDropList to render project goals */}
-                                        <DragAndDropList
-                                            name='outOfScope'
-                                            items={kickoffData.outOfScope}
-                                            onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                        />
-                                    </>
-                                ) : (
-                                    <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                )}
-                                {/* Input for adding new goals */}
-                                <EnterInput name="outOfScope" onEnter={handleOnEnter} />
-                        </div>
+                        <div className='my-9'>       
+                            <div className='mt-4 text-left'>
+                                <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' size='2xl'   />
+                            </div>
+                            <div className='bg-white p-2 text-left my-2 rounded-md'>
+                                    <div className='block pt-2 pb-2'>
+                                        <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
+                                    </div>
+                                    {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
+                                        <>
+                                            {/* Use DragAndDropList to render project goals */}
+                                            <DragAndDropList
+                                                name='inScope'
+                                                items={kickoffData.inScope}
+                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                            />
+                                        </>
+                                    ) : (
+                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                                    )}
+                                    {/* Input for adding new goals */}
+                                    <EnterInput name="inScope" onEnter={handleOnEnter} />
+                            </div>
+                            <div className='bg-white p-2 text-left my-2 rounded-md'>
+                                    <div className='block pt-2 pb-2'>
+                                        <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
+                                    </div>
+                                    {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
+                                        <>
+                                            {/* Use DragAndDropList to render project goals */}
+                                            <DragAndDropList
+                                                name='outOfScope'
+                                                items={kickoffData.outOfScope}
+                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                            />
+                                        </>
+                                    ) : (
+                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                                    )}
+                                    {/* Input for adding new goals */}
+                                    <EnterInput name="outOfScope" onEnter={handleOnEnter} />
+                            </div>
+                        </div>  
                     </div>
 
                      {/* Project milestones */}
-                     <div className='border-collapse my-4 w-full'>
+                     <div className='my-9 w-full'>
                          <div className='block pt-2 pb-2'>
-                             <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-700' size='md'  />
+                             <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
                         </div>
                         {kickoffData.milestones && kickoffData.milestones.length > 0 ? 
                             <></> : <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
                         }
-                        <div>
+                        <div className='bg-white rounded-md p-3'>
                         <KickoffMilestones
                             milestones={kickoffData.milestones || []}
                             name="keyMilestones"
@@ -331,8 +364,11 @@ const KickoffForm: React.FC<ArgsType> = ({ id, data, action='update' }) => {
                         </div>
                     </div>
                      {/* Project responsibilities */}
-                     <div className='border-collapse my-4 w-full'>
-                        <div>
+                     <div className='border-collapse my-9 w-full'>
+                        <div className='block pt-2 pb-2'>
+                             <PageTitel text={`${t('FORMS.kickoffResponsibilities')}`} color='slate-300' size='2xl'  />
+                        </div>
+                        <div className=''>
                             <KickoffResponsibilities selectedValues={kickoffData.responsibilities || []} onChange={handleResponsibilites}/>
                         </div>
                     </div>

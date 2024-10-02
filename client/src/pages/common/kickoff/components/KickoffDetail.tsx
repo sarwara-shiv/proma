@@ -17,6 +17,7 @@ import { ObjectId } from 'mongodb';
 interface ArgsType {
     id?: string | null;
     data?: Project;
+    setSubNavItems?:React.Dispatch<React.SetStateAction<any>>;
 }
 
 
@@ -36,9 +37,10 @@ const kickoffDataInitial: Kickoff = {
 
 
 
-const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
+const KickoffDetail: React.FC<ArgsType> = ({ id, data, setSubNavItems }) => {
     const { t } = useTranslation();
     const [createdBy, setCreatedBy] = useState<User>();
+    const [projectData, setProjectData] = useState<Project>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
 
@@ -52,10 +54,6 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
             console.log(data);
             const user: User = data.createdBy as unknown as User;
             setCreatedBy(user);
-
-            if (data.kickoff) {
-                setKickoffData(data.kickoff);
-            }
         }
     }, [kickoffData]);
 
@@ -74,6 +72,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                     if (res.data.kickoff) {
                         setKickoffData(res.data.kickoff);
                     }
+                    setProjectData(res.data);
                     data = {...res.data}
 
                     console.log(res.data.kickoff.responsibilities);
@@ -135,32 +134,31 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
 
     return (
         <div className='data-wrap'>
-            {data &&
+            {projectData &&
                 <>
                     {/* Project Details */}
                     <table className='border-collapse my-4 w-full'>
                         <tr className='border-1 border-slate-100 text-left'>
                             <th colSpan={2} className='p-2'>
-                                <PageTitel text={`Project Details (${data._cid})`} color='slate-300' />
+                                <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
                             </th>
                         </tr>
                         <tr className='border-1 border-slate-100'>
                             <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('projectName')}</th>
-                            <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{data.name}</td>
+                            <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{projectData.name}</td>
                         </tr>
 
                         <tr>
                             <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
                             <td className='border border-slate-300 p-2'>
-                                {data.kickoff && data.kickoff.startDate ? format(new Date(data.kickoff.startDate), 'dd.MM.yyyy') : '-'}
+                                {kickoffData.startDate ? format(new Date(kickoffData.startDate), 'dd.MM.yyyy') : '-'}
                             </td>
                         </tr>
 
                         <tr>
                             <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
                             <td className='border border-slate-300 p-2'>
-                                {data.endDate && format(new Date(data.endDate), 'dd.MM.yyyy')}
-                                {data.kickoff && data.kickoff.endDate ? format(new Date(data.kickoff.endDate), 'dd.MM.yyyy') : '-'}
+                                {kickoffData.endDate ? format(new Date(kickoffData.endDate), 'dd.MM.yyyy') : '-'}
                             </td>
                         </tr>
 
@@ -172,26 +170,26 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                             <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
                         </tr>
                         <tr>
-                            <td colSpan = {2} className='border border-slate-300 p-2'>{data.description}</td>
+                            <td colSpan = {2} className='border border-slate-300 p-2'>{projectData.description}</td>
                         </tr>
                         <tr>
                             <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
                         </tr>
                         <tr>
-                            <td colSpan = {2} className='border border-slate-300 p-2'>{data.kickoff?.context || ''}</td>
+                            <td colSpan = {2} className='border border-slate-300 p-2'>{kickoffData?.context || ''}</td>
                         </tr>
                     </table>
 
                     {/* Objectives */}
                     <div className='mt-4 text-left'>
-                        <PageTitel text={`${t('projectObjectives')}`} color='slate-600' />
+                        <PageTitel text={`${t('projectObjectives')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
                         className='grid grid-cols-1 lg:grid-cols-2'
                     >
-                        <div className='mt-3'>
+                        <div className='mt-3 bg-white p-2 rounded-md lg:border-r'>
                             <PageTitel text={t('projectGoals')} />
-                            <ul>
+                            <ul >
                                 {kickoffData.goals ? kickoffData.goals.map((goal,index)=>{
 
                                     return (
@@ -204,9 +202,9 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                             }
                             </ul>
                         </div>
-                        <div className='mt-3'>
+                        <div className='mt-3 bg-white p-2 rounded-md'>
                             <PageTitel text={t('projectDeliverables')} />
-                            <ul>
+                            <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.keyDeliverables ? kickoffData.keyDeliverables.map((item,index)=>{
 
                                     return (
@@ -223,14 +221,14 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
 
                     {/* Project Scope */}
                     <div className='mt-4 text-left'>
-                        <PageTitel text={`${t('projectScope')}`} color='slate-600' />
+                        <PageTitel text={`${t('projectScope')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
                         className='grid grid-cols-1 lg:grid-cols-2'
                     >
-                        <div className='mt-3'>
+                        <div className='mt-3 bg-white p-2 rounded-md lg:border-r '>
                             <PageTitel text={t('inScope')} />
-                            <ul>
+                            <ul className=''>
                                 {kickoffData.inScope ? kickoffData.inScope.map((item,index)=>{
 
                                     return (
@@ -243,9 +241,9 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                             }
                             </ul>
                         </div>
-                        <div className='mt-3'>
+                        <div className='mt-3 bg-white p-2 rounded-md'>
                             <PageTitel text={t('outOfScope')} />
-                            <ul>
+                            <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.outOfScope ? kickoffData.outOfScope.map((item,index)=>{
 
                                     return (
@@ -263,20 +261,33 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
                     {/* Milestones */}
                     <div className='mt-4'>
                         <div className='mt-4 text-left mb-2'>
-                            <PageTitel text={`${t('projectMilestones')}`} color='slate-600' />
+                            <PageTitel text={`${t('projectMilestones')}`} color='slate-300' size='2xl'/>
                         </div>
-                        <ul>
+                        <ul className='bg-white p-2 rounded-md'>
                         {kickoffData.milestones && kickoffData.milestones.map((item, indes)=>{
-
+                            console.log(item);
                             return (
                                 <li 
-                                className=''
+                                className='py-2 my-1 border-b border-slate-200
+                                grid
+                                grid-cols-1 md:grid-cols-2
+                                '
                                 >
-                                <span>{item.name}</span>
-                                <span>{item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}</span>
-                                <span
-                                    className={getColorClasses(item.status)}
-                                >{t(`${item.status}`)}</span>
+                                <div>
+                                    <span 
+                                        className=''
+                                    >{item.name}</span>
+                                    <span className='ml-2'>
+                                    <i className='text-slate-400'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
+                                    </span>
+                                </div>
+                                <div className='flex justify-end'>
+                                    <span
+                                        className={`inline-flex ml-2 text-sm py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
+                                    >
+                                        {/* <i className='text-slate-400'>{t('status')}: </i>  */}
+                                        {t(`${item.status}`)}</span>
+                                </div>
                                 </li>
                             )
                         }
@@ -289,28 +300,40 @@ const KickoffDetail: React.FC<ArgsType> = ({ id, data }) => {
 
                     <div className='mt-4'>
                         <div className='mt-4 text-left mb-2'>
-                            <PageTitel text={`${t('projectResponsibilities')}`} color='slate-600' />
+                            <PageTitel text={`${t('projectResponsibilities')}`} color='slate-300' size='2xl'/>
                         </div>
-                        <ul>
+                        <ul className='bg-white p-3 rounded-md'>
                             {responsibilities && responsibilities.map((item,index)=>{
                                 const role:UserGroup = item.role as unknown as UserGroup; 
                                 const persons:User[] = item.persons as unknown as User[]; 
                                 const work = item.work;
                                 const details = item.details;
                                 return (
-                                    <li key={`prespo-${index}`}>
-                                        <span 
-                                        className='font-bold pr-1'
-                                        > {role.displayName}</span>
-                                       
-                                        {persons && persons.map((per,perIndex)=>{
-                                            return (
-                                                <span key={`pers-${index}-${perIndex}`}>{per.name}</span>
-                                            )
-                                        })}
-
-                                        <span> {work}</span>
-                                        <span> {details}</span>
+                                    <li key={`prespo-${index}`} className='
+                                        py-1 my-1 border-b
+                                    '>
+                                        <div>
+                                            <span 
+                                            className='font-bold pr-1'
+                                            > {role.displayName}</span>
+                                        
+                                            {persons && persons.map((per,perIndex)=>{
+                                                const seperator = perIndex !== 0 && ', ';
+                                                return (
+                                                    <span key={`pers-${index}-${perIndex}`}
+                                                    className='text-primary'
+                                                    >{seperator} {per.name}</span>
+                                                )
+                                            })}
+                                        </div>
+                                        <div className='grid grid-cols-1'>
+                                           {work &&  <span> {work}</span>}
+                                            {details && 
+                                                <span className='
+                                                italic text-sm text-slate-400
+                                                '> {details}</span>
+                                            }
+                                        </div>
                                     </li>
                                 )
                             })}

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../assets/styles/datepicker.css';
@@ -34,6 +34,10 @@ const CustomDateTimePicker: React.FC<CustomDateTimePickerProps> = ({
   const [dateValue, setDateValue] = useState<Date | null>(selectedDate);
   const [manualInput, setManualInput] = useState<string>(selectedDate ? format(selectedDate, 'dd.MM.yyyy') : '');
   const datePickerRef = useRef<any>(null); // Create a reference to control DatePicker
+
+  useEffect(()=>{
+    console.log(selectedDate);
+  },[])
 
   // Function to handle the manual input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
