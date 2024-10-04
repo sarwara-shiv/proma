@@ -58,7 +58,8 @@ const MentionUserInput: React.FC<ArgsType> = ({inputType="textarea", type="text"
           value={text}
           onChange={handleChange}
           {...pattern ? {pattern} : {}}
-          className="w-full h-10 p-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-none focus:border-gray-300"
+          className="
+w-full bg-gray-50 border text-gray-900 text-sm rounded-sm focus:outline-none block p-2.5 pr-10 dark:bg-gray-700          "
         />
       }
       {inputType === 'textarea' &&  

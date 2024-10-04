@@ -1,5 +1,13 @@
 import { ReactNode } from "react";
 import { ObjectId } from 'mongodb';
+
+export interface RelatedUpdates{
+  collection:string;
+  field:string;
+  type:'array' | 'string',
+  ids:(string | ObjectId)[]
+}
+
 export interface NavItem {
   link: string;
   title: string;
@@ -152,17 +160,18 @@ export interface QaTask extends BaseTask {
 
   export interface MainTask{
     _id?:ObjectId;
-    _pid:string; // Project ObjectId
-  name:string;
-  category:string;
-  startDate?:Date;
-  dueDate?:Date;
-  endDate?:Date;
-  responsiblePerson:ObjectId;
-  note?:NoteSchema[];
-  sortOrder?:number;
-  subtasks?:Task[];
-  status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
+    _pid:string;
+    name:string;
+    category:string;
+    startDate?:Date | null;
+    dueDate?:Date | null;
+    endDate?:Date | null;
+    responsiblePerson:ObjectId | null;
+    note?:NoteSchema[];
+    sortOrder?:number;
+    subtasks?:Task[];
+    status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
+    createdBy?:ObjectId
   }
 
   export interface Milestone{
@@ -225,7 +234,7 @@ export interface QaTask extends BaseTask {
     documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: PersonsInvolved[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
-    mainTasks?:MainTask[];
+    mainTasks?:ObjectId[];
     customFields?: DynamicField[];
     permissions?: Permission[];
     createdAt?: Date;

@@ -4,7 +4,7 @@ import CustomInput from './CustomInput';
 import { useTranslation } from 'react-i18next';
 import CustomDateTimePicker from './CustomDatePicker';
 import CustomDropdown from './CustomDropdown';
-import { milestoneStatuses } from '@/config/predefinedDataConfig';
+import { milestoneStatuses } from '../../config/predefinedDataConfig';
 import CustomSmallButton from '../common/CustomSmallButton';
 interface ArgsType {
     milestone: Milestone | null;

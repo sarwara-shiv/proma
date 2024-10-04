@@ -1,4 +1,4 @@
-import { OrderByFilter, QueryFilters } from '@/interfaces';
+import { OrderByFilter, QueryFilters, RelatedUpdates } from '@/interfaces';
 import axios from 'axios';
 import Cookies from 'js-cookie'; 
 import { ObjectId } from 'mongodb';
@@ -20,6 +20,14 @@ interface GetRecordsArgs {
   id?:string | null;
   checkDataBy?:string[];
 }
+
+// "relatedUpdates": [
+//   {
+//     "collection": "projects", // collection name
+//     "field": "mainTasks", // field to be updated
+//     "type": "array",  // Add to the array
+//     "ids": ["projectId1", "projectId2"]
+//   },
 
 const getRecords = async (args: GetRecordsArgs) => {
   const { type, body } = args;
@@ -159,13 +167,31 @@ const getRecordWithID = async(args:GeTRecordsWithID)=>{
   }
 }
 
-const addUpdateRecords = async (args: GetRecordsArgs) => {
-  const { type, body, action="add", id=null, checkDataBy=[] } = args;
+interface AddUpdateRecords {
+  type: string;
+  body?:any
+  limit?: number;
+  action?:'add' | 'update';
+  id?:string | null;
+  checkDataBy?:string[];
+  relatedUpdates?:RelatedUpdates[];
+}
+
+// interface RelatedUpdates{
+//   collection:string;
+//   field:string;
+//   type:'array' | 'string',
+//   ids:(string | ObjectId)[]
+// }
+
+
+const addUpdateRecords = async (args: AddUpdateRecords) => {
+  const { type, body, action="add", id=null, checkDataBy=[], relatedUpdates=[] } = args;
   if (type) {
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/${action}`, 
         {
-          page:type === 'auth' ? 'users' : type, data:body || {}, action, id, checkDataBy
+          page:type === 'auth' ? 'users' : type, data:body || {}, action, id, checkDataBy, relatedUpdates
         }, 
         {
           headers

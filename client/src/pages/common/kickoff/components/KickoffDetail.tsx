@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
-import { PageTitel } from '../../../../components/common';
-import EnterInput from '../../../../components/forms/EnterInput';
+import { AlertPopupType, Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
+import { CustomAlert, PageTitel } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { IoRemove } from 'react-icons/io5';
-import DragAndDropList from '../../../../components/forms/DragAndDropList';
-import KickoffResponsibilities from './KickoffResponsibilities';
-import KickoffMilestones from './KickoffMilestones';
-import { CustomInput } from '../../../../components/forms';
-import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
+import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
-import { getRecordWithID } from '../../../../hooks/dbHooks';
-import { ObjectId } from 'mongodb';
+import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
+import { milestoneStatuses } from '../../../../config/predefinedDataConfig';
 
 interface ArgsType {
     cid?: string | null;
@@ -45,11 +39,13 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const [projectData, setProjectData] = useState<Project>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
+    const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
 
     useEffect(()=>{
         if(!cid){
             cid = id;
         }
+
         getData();
     }, [])
 
@@ -135,6 +131,66 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
             ...prevData,
             milestones: value 
         }));
+    }
+
+    // milestone status
+    const toggleMilestoneStatus = (index:number, milestone:Milestone)=>{
+        setAlertData({...alertData, isOpen:true, 
+            content:<CustomDropdown
+            data={milestoneStatuses}
+            label={t('status')}
+            selectedValue={milestone && milestone.status ? milestone.status : ''}
+            onChange={(recordId, name, value, data) => changeMilestone(index, value as Milestone['status'])}
+          />
+        })
+    }
+
+    const changeMilestone = async (index:number, value:Milestone['status'])=>{
+        let saveKickoff = false;
+        if(index >= 0){
+            setKickoffData(prevVal => {
+                if (index >= 0 && prevVal.milestones && prevVal.milestones.length > 0) {
+                    const updatedMilestones = prevVal.milestones.map((milestone, i) => {
+                        if (i === index) {
+                            console.log(i, index);
+                            saveKickoff = true;
+                            return {
+                                ...milestone,
+                                status: value
+                            };
+                        }
+                        return milestone;
+                    });
+
+                    console.log(updatedMilestones);
+                    
+                    const cValue =  {
+                        ...prevVal,
+                        milestones: updatedMilestones
+                    };
+                    
+                    saveKickoffData(cValue);
+
+                    return cValue;
+                }
+                return prevVal;
+            })
+        }
+    }
+
+    const saveKickoffData = async(value:Kickoff)=>{
+        const pid = cid ? cid : id;
+        if(value && pid){
+            try{
+                const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:value}});
+                if(res.status === 'success'){
+                  console.log(res);
+                }
+    
+            }catch(error){
+                console.log(error);
+            }
+        }
     }
 
     return (
@@ -271,7 +327,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             <PageTitel text={`${t('projectMilestones')}`} color='slate-300' size='2xl'/>
                         </div>
                         <ul className='bg-white p-2 rounded-md'>
-                        {kickoffData.milestones && kickoffData.milestones.map((item, indes)=>{
+                        {kickoffData.milestones && kickoffData.milestones.map((item, index)=>{
                             console.log(item);
                             return (
                                 <li 
@@ -292,8 +348,8 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                     </span>
                                 </div>
                                 <div className='flex justify-end'>
-                                    <span
-                                        className={`inline-flex ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
+                                    <span onClick={()=>toggleMilestoneStatus(index, item )}
+                                        className={`cursor-pointer inline-flex ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
                                     >
                                         {/* <i className='text-slate-400'>{t('status')}: </i>  */}
                                         {t(`${item.status}`)}</span>
@@ -349,6 +405,13 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             })}
                         </ul>
                     </div>
+                    <CustomAlert
+                            onClose = {()=> setAlertData({...alertData, 'isOpen':!alertData.isOpen})}
+                            isOpen ={alertData.isOpen}
+                            content = {alertData.content}
+                            title = {alertData.title}
+                            type={alertData.type || 'info'}
+                    />
                 </>
             }
         </div>

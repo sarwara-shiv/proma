@@ -14,7 +14,7 @@ interface ColorData{
 }
 
 interface ArgsType {
-  data: DataType[];
+  data: DataType[] | any[];
   onChange: (recordId:string|ObjectId, name: string, value: string, data: DataType) => void;
   label?: string;
   name?: string;
@@ -102,7 +102,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
       >
         <span 
             className={`${getColorClasses(value) &&  getColorClasses(value)} `}
-        >{value ? data.find((item) => item._id === value)?.name : `${t('selectOption')}`}</span>
+        >{value ? data.find((item) => item._id === value)?.displayName || data.find((item) => item._id === value)?.name : `${t('selectOption')}`}</span>
         <span>
             <svg
                 className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"}`}
@@ -130,7 +130,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
               ${item._id === value || item.name === value && 'bg-green-100'}
               `}
             >
-              {item.name}
+              {item.displayName || item.name}
             </div>
           ))}
         </div>

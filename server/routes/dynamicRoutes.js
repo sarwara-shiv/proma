@@ -36,12 +36,21 @@ const getModel = (resource) => {
     }
 };
 
+// sample related updates
+// "relatedUpdates": [
+//   {
+//     "collection": "projects", // collection name
+//     "field": "mainTasks", // field to be updated
+//     "type": "array",  // Add to the array
+//     "ids": ["projectId1", "projectId2"]
+//   },
+
 
 router.post('/:resource/add', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const model = getModel(resource);  // Retrieve the model based on the resource
   let { data } = req.body;         // Destructure the data from req.body
-  const { checkDataBy } = req.body;  // Fields to check for existing records
+  const { checkDataBy, relatedUpdates=[] } = req.body;  // Fields to check for existing records
 
   if (!model) {
     return res.status(400).json({ 
@@ -79,6 +88,33 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       if(_cid) data = {...data, _cid};
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
+      console.log('-----------relatedUpdates--------------')
+      console.log(relatedUpdates)
+      if (relatedUpdates && Array.isArray(relatedUpdates)) {
+        for (const update of relatedUpdates) {
+          console.log(update);
+          const relatedModel = getModel(update.collection); // Get the model for the related collection
+          console.log(relatedModel);
+          if (relatedModel) {
+            if (update.type === 'array') {
+              // Add the new record ID to an array field
+              console.log('-------------------------')
+              console.log(savedRecord._id, update.ids)
+              await relatedModel.updateMany(
+                { _id: { $in: update.ids } },  // IDs to match in the related collection
+                { $addToSet: { [update.field]: savedRecord._id } }  // Add the ID to the array field
+              );
+            } else if (update.type === 'string') {
+              // Replace the existing ID in the field with the new record ID
+              await relatedModel.updateMany(
+                { _id: { $in: update.ids } },  // IDs to match in the related collection
+                { $set: { [update.field]: savedRecord._id } }  // Replace the ID in the field
+              );
+            }
+          }
+        }
+      }
+
   
       // Send a success response
       return res.status(201).json({ 

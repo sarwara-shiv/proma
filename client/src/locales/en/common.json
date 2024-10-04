@@ -44,6 +44,8 @@
     "FORMS":{
         "roleName":"Name",
         "work":"Work",
+        "category":"Category",
+        "responsiblePerson":"Responsible Person",
         "details":"Details",
         "timeline":"Timeline",
         "fillOutRequiredFields":"Fill out all required fields",

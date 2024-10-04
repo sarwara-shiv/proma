@@ -115,7 +115,7 @@ const bugSchema = new Schema({
 // });
 
 const BaseTaskSchema = new Schema({
-  _cid: { type: String },  // Company or Client ID
+  _cid: { type: String }, // task id
   _pid: { type: Schema.Types.ObjectId, ref: 'Project', required: true },  // Project this task belongs to
   name: { type: String, required: true },
   startDate: { type: Date },
@@ -170,9 +170,10 @@ const MainTaskSchema = new Schema({
   sortOrder:{type:Number},
   status: {
     type: String,
-    enum: ['answered', 'pending', 'waiting', 'notAnswered'],
-    default: 'pending'
+    enum: ['toDo', 'inProgress', 'completed', 'blocked', 'pendingReview'],
+    default: 'toDo'
   },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User'},
 })
 
 // Close ticket when all tasks are completed

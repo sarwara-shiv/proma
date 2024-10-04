@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Kickoff, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
-import { FormButton, PageTitel } from '../../../../components/common';
+import { AlertPopupType, FlashPopupType, Kickoff, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
+import { CustomAlert, FlashPopup, FormButton, PageTitel } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +46,8 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     const [createdBy, setCreatedBy] = useState<User>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
+    const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
+    const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
     const tdClasses = 'border-b border-slate-100';
 
@@ -177,10 +179,11 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       console.log(kickoffData);
-
-      if(verifyData() && cid){
+    const pid = cid ? cid : id;
+      if(verifyData() && pid){
         try{
-          const res = await addUpdateRecords({type:'projects', action:'update', id:cid, body:{kickoff:kickoffData}});
+            console.log(pid);
+          const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:kickoffData}});
           if(res.status === 'success'){
             console.log(res);
           }
@@ -404,6 +407,16 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
             }
           </div>
           </form>
+          <CustomAlert
+          onClose={() => setAlertData({ ...alertData, isOpen: !alertData.isOpen })}
+          isOpen={alertData.isOpen}
+          content={alertData.content}
+          title={alertData.title}
+          type={alertData.type || 'info'} 
+        />
+
+        <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
+ 
         </div>
     );
 };

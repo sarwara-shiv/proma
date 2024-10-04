@@ -5,6 +5,12 @@ const ProjectStatuses = [
     {_id: 'onHold', name:'onHold'},
     {_id: 'cancelled', name:'cancelled'},
 ]
+const TaskCategory = [
+    {_id: 'dev', name:'Development'},
+    {_id: 'qa', name:'QA'},
+    {_id: 'content', name:'ContentManagement'},
+    {_id: 'uiux', name:'UI/UX'},
+]
 const milestoneStatuses = [
     {_id: 'notStarted', name:'notStarted'},
     {_id: 'inProgress', name:'inProgress'},
@@ -44,4 +50,4 @@ const QuestionsStatuses = [
     {_id: 'notAnswered', name:'notAnswered'},
 ]
 
-export {milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses}
+export {milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

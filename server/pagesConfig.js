@@ -43,6 +43,13 @@ const Pages = {
       access:['admin', 'manager', 'FrontendDev', 'fullstackDev', 'uiux', 'ecommerceMgr'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    MAIN_TASKS: {
+      name: 'maintasks',
+      displayName: 'Main Tasks',
+      model:"MainTask",
+      access:['admin', 'manager', 'FrontendDev', 'fullstackDev', 'uiux', 'ecommerceMgr'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     DOCUMENTATION: {
       name: 'documentation',
       displayName: 'Documentation',
