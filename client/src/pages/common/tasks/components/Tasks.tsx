@@ -162,6 +162,31 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                     </tr>
                   )
                 })}
+                <tr>
+                  <td className='w-[10px] bg-green-200 border border-green-200'></td>
+                  <td 
+                  className='border-t border-b border-l p-1'
+                  colSpan={mainTask && mainTask.customFields ? mainTask.customFields.length + 6 : 6}>
+                      <input type='text' 
+                        placeholder={`+ ${t('addTasks')}`}
+                        className='
+                          text-xs
+                          border
+                          p-1
+                          text-slate-400
+                          border-transparent
+                          hover:border-slate-300
+                          hover:outline-none
+
+                          focus:border-slate-400
+                          focus:outline-none
+                          w-1/3
+                        '
+                      >
+                      
+                      </input>
+                  </td>
+                </tr>
               </tbody>
             </table>
            
