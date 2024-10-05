@@ -10,7 +10,7 @@ const CounterSchema = new Schema({
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
-  value: { type: Schema.Types.Mixed, required: true },
+  value: { type: Schema.Types.Mixed},
 });
 
 // Ticket Schema
@@ -132,7 +132,7 @@ const BaseTaskSchema = new Schema({
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   customFields: [DynamicFieldSchema],  // Custom fields array
-  subTasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks
+  subtasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks
   ticket: { type: Schema.Types.ObjectId, ref: 'Ticket' },  // Reference to the Ticket
   permissions: [PermissionSchema],  // Permissions for task
 }, {
@@ -158,7 +158,7 @@ const TaskSchema = BaseTaskSchema.discriminator('Task', new Schema({
 }, { _id: false }));
 
 const MainTaskSchema = new Schema({
-  _pid:{type:String, required:true}, // Project ObjectId
+  _pid:{type:String, required:true, ref:'Project'}, // Project ObjectId
   name:{type:String, required:true},
   category:{type:String, required:true}, 
   startDate: { type: Date},
@@ -168,12 +168,15 @@ const MainTaskSchema = new Schema({
   note:[NoteSchema],
   subtasks:[{type:Schema.Types.ObjectId, ref: 'Task' }],
   sortOrder:{type:Number},
+  customFields: [DynamicFieldSchema],
   status: {
     type: String,
     enum: ['toDo', 'inProgress', 'completed', 'blocked', 'pendingReview'],
     default: 'toDo'
   },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User'},
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 })
 
 // Close ticket when all tasks are completed

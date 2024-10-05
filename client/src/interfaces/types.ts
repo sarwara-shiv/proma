@@ -16,7 +16,7 @@ export interface NavItem {
 // Dynamic Fields Interface
 export interface DynamicField {
     key: string;
-    value: any; // Since `Schema.Types.Mixed` can accept any type
+    value?: any; // Since `Schema.Types.Mixed` can accept any type
   }
   
   export interface PermissionsMap {
@@ -169,9 +169,12 @@ export interface QaTask extends BaseTask {
     responsiblePerson:ObjectId | null;
     note?:NoteSchema[];
     sortOrder?:number;
+    customFields?: DynamicField[];
     subtasks?:Task[];
     status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
-    createdBy?:ObjectId
+    createdBy?:ObjectId,
+    createdAt?:Date,
+    updatedAt?: Date,
   }
 
   export interface Milestone{

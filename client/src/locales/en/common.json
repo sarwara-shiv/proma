@@ -2,6 +2,7 @@
     "adminPanel":"Admin Panel",
     "NAV" :{
         "roles":"Roles",
+        "maintasks":"Project Tasks",
         "tasks":"Tasks",
         "update":"Update",
         "kickoff_update":"Kickoff Update",
@@ -34,6 +35,10 @@
         "userGroups_add":"Add User Group",
         "userGroups_update":"Update User Group",
         "userGroups_delete":"Delete User Group",
+        "maintasks_all":"Main Tasks",
+        "maintasks_add":"Add Main Tasks",
+        "maintasks_update":"Update Main Tasks",
+        "maintasks_delete":"Delete Main Tasks",
         "workspace":"Workspace",
         "workspace_all":"Workspace",
         "workspace_add":"New Workspace",

@@ -10,10 +10,15 @@ interface ArgsType {
 const Loader: React.FC<ArgsType> = ({ type = 'small', loaderType = 'fade' }) => {
     return (
         <div
-            className={`loader-wrap ${type === 'full' ? 'full-loader' : 'small-loader'}`}
+            className={`loader-wrap ${type === 'full' ? 'fixed w-full ml-64 h-full top-0 right-0 full-loader' : 'small-loader'} 
+            justify-center flex`
+        }
             aria-live="polite"
         >
-            {loaderType === 'bounce' ? <BounceLoader width={50} /> : <FadeLoader width={50} />}
+            <div className={`${type === 'full' ? ' ml-64 relative w-full h-full flex justify-center items-center' : ''}`}>
+
+                {loaderType === 'bounce' ? <BounceLoader width={50} /> : <FadeLoader width={50} />}
+            </div>
         </div>
     );
 };

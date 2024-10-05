@@ -37,6 +37,27 @@ const routes: RouteConfig[] = [
     params: ['action', 'id'], 
     access:['all']
   },
+  {
+    path: '/tasks',
+    element: "Tasks",
+    page: "tasks",
+    params: ['action', 'id'], 
+    access:['all']
+  },
+  {
+    path: '/maintasks',
+    element: "MainTasks",
+    page: "maintasks",
+    params: ['action', 'id'], 
+    access:['all']
+  },
+  // {
+  //   path: '/kickoff',
+  //   element: "Kickoff",
+  //   page: "kickoff",
+  //   params: ['action', 'id'], 
+  //   access:['all']
+  // },
 ];
 
 export default routes;

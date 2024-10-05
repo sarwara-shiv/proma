@@ -14,7 +14,7 @@ import CustomIconButton from '../../../components/common/CustomIconButton';
 interface ArgsType {
     cid?:string | null;
     data?: Project; 
-    setSubNavItems: React.Dispatch<React.SetStateAction<any>>; 
+    setSubNavItems?: React.Dispatch<React.SetStateAction<any>>; 
     checkDataBy?:string[];
 }
 
@@ -36,7 +36,7 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
 
   console.log(useLocation)
     useEffect(()=>{
-        setSubNavItems(subNavItems);
+      setSubNavItems && setSubNavItems(subNavItems);
     }, []);
 
   return (

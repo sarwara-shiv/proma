@@ -267,7 +267,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                               <MdRocketLaunch /> 
                         </NavLink>
                         <NavLink
-                            to={`tasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('tasks')}`}
+                            to={`maintasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
                             className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                             >
                               <FaTasks /> 

@@ -5,12 +5,13 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AllProjects from './components/AllProjects';
 import ProjectsForm from './components/ProjectsForm';
-import Tasks from '../tasks/Tasks';
+import Tasks from '../tasks/components/Tasks';
 import Kickoff from '../kickoff/Kickoff';
 import ProjectDetails from './components/ProjectDetails';
 import { IoMdAdd } from 'react-icons/io';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import KickoffForm from '../kickoff/components/KickoffForm';
+import MainTasksProject from '../tasks/components/MaintTasksProject';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
@@ -36,7 +37,7 @@ const Project = () => {
               action && 
               action === "add" ? <ProjectsForm setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="update" ? <ProjectsForm  data={data} cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
-              action ==="tasks" ? <Tasks  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action ==="maintasks" ? <MainTasksProject  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} cid={id} data={data}/>  :

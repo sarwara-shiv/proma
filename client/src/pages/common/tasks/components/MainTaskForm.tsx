@@ -14,19 +14,21 @@ import { useAuth } from '../../../../hooks/useAuth';
 
 interface ArgsType{
     pid:ObjectId | string;
-    mainTasks:MainTask[];
-    onChange:(value:MainTask[])=>void
+    mainTasks?:MainTask[];
+    mainTask?:MainTask | null;
+    action?: 'add' | 'update';
+    onChange?:(value:MainTask[])=>void
 }
 
 const checkDataBy: string[] = ['name'];
 
-const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
+const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add'}) => {
     const {t} = useTranslation();
     const {user} = useAuth();
-    const [mainTasksData, setMainTasksData] = useState<MainTask[]>(mainTasks);
+    const [mainTasksData, setMainTasksData] = useState<MainTask[]>();
     const [userGroupsData, setUserGroupsData] = useState<UserGroup[]>();
     const [currentMainTask, setCurrentMainTask] = useState<MainTask>();
-    const [responsiblePerson, setResponsiblePerson] = useState<User>();
+    const [responsiblePerson, setResponsiblePerson] = useState<User | null>();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
@@ -45,12 +47,33 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
 
 
     useEffect(()=>{
-        setCurrentMainTask(emptyMainTask);
+        if(mainTasks) setMainTasksData(mainTasks)
+        if(mainTask){
+            action = 'update';
+            setCurrentMainTask(mainTask);
+            if(mainTask.responsiblePerson){
+                const rUser = mainTask.responsiblePerson as unknown as User;
+                setResponsiblePerson(rUser);
+            }
+        }else{
+            setCurrentMainTask(emptyMainTask);
+        }
         getUserGroupData();
     }, [])
     useEffect(()=>{
-        onChange(mainTasksData);
+        mainTasksData && onChange && onChange(mainTasksData);
     }, [mainTasksData]);
+    useEffect(()=>{
+        if(mainTask){
+            setCurrentMainTask(mainTask);
+            const rPerson = mainTask.responsiblePerson as unknown as User;
+            setResponsiblePerson(rPerson)
+        }
+        else{
+            setCurrentMainTask(emptyMainTask);
+            setResponsiblePerson(null)
+        }
+    }, [mainTask]);
 
     const getUserGroupData = async()=>{
         try{
@@ -93,19 +116,46 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
         if(currentMainTask){
             try{
                 try{
-                    const createdBy = user && user._id ? user._id : null;
-                    const relatedUpdates:RelatedUpdates[]= [{
-                        collection:'projects',
-                        field:'mainTasks',
-                        type:'array',
-                        ids:[pid]
-                    }]
-                    const response = await addUpdateRecords({type: "maintasks", checkDataBy:checkDataBy, action:'add', relatedUpdates, body:{ ...currentMainTask, createdBy}}); 
+                   
+                    let relatedUpdates:RelatedUpdates[]= []
+                    if(pid){
+                        relatedUpdates= [{
+                            collection:'projects',
+                            field:'mainTasks',
+                            type:'array',
+                            ids:[pid]
+                        }]
+                    }
+
+                    let newData = {...currentMainTask};
+
+                    let id = '';
+                    if(mainTask){
+                         action = 'update';
+                         id = mainTask._id as unknown as string;
+                         console.log(mainTask);
+                         console.log(currentMainTask);
+                    }else{
+                        const createdBy = user && user._id ? user._id : null;
+                        if(createdBy !== null){
+                            newData.createdBy = createdBy
+                        }
+                    }
+                    
+
+                    
+
+                    const response = await addUpdateRecords({id, type: "maintasks", checkDataBy:checkDataBy, action, relatedUpdates, body:{ ...newData}}); 
                       if (response.status === "success") {
                             console.log(response);
                           const content = `${t(`RESPONSE.${response.code}`)}`;
                           setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
-                          setMainTasksData([...mainTasks, currentMainTask]);
+                          if(mainTasks){
+                              setMainTasksData([...mainTasks, currentMainTask]);
+                            }else{
+                              setMainTasksData([currentMainTask]);
+
+                          }
                       } else {
                         let content = `${t(`RESPONSE.${response.code}`)}`
                         if(response.data){
@@ -126,13 +176,17 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
         }
         
     }
+
     
 
   return (
     <div className='
         bg-slate-100 p-2 rounded-md
     '>
-        <div className='fields grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4' >
+        <div className={`fields grid gap-2 
+            grid-cols-1  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4`
+        }
+        >
             <div className=''>
                 <CustomInput name='name' type='text'
                 value={currentMainTask?.name}
@@ -152,6 +206,13 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
                     onChange={(recordId, value, name)=>updateCurrentTask('dueDate', value)} />
                 </div>
             </div>
+            {/* {action === 'update' && 
+                <div>
+                    <CustomDateTimePicker selectedDate={currentMainTask?.endDate || null} name='endDate'
+                    label={t('FORMS.endDate')}
+                    onChange={(recordId, value, name)=>updateCurrentTask('endDate', value)} />
+                </div>
+            } */}
             <div className=''>
                 {userGroupsData && 
                     <CustomDropdown data={TaskCategory}  
@@ -182,7 +243,9 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid}) => {
             </div> */}
         </div>
         <div className='flex justify-end mt-2'>
-            <CustomSmallButton type='add' onClick={updateMainTasks} />
+            <CustomSmallButton type={action === 'update' ?  'update' : 'add'} 
+            text={action === 'update' ?  `${t('update')}` : `${t('add')}`}
+            onClick={updateMainTasks} />
         </div>
         <CustomAlert
           onClose={() => setAlertData({ ...alertData, isOpen: !alertData.isOpen })}
