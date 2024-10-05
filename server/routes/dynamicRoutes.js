@@ -193,6 +193,7 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
 router.post('/:resource/delete', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const { id } = req.body.data; // The ID should be passed in the body
+  const { relatedUpdates } = req.body; // remove ids from other objects as well
   const model = getModel(resource);
 
   if (!model) {
@@ -210,6 +211,33 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
     if (!deletedRecord) {
       // return res.status(404).json({ error: 'Record not found' });
       return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
+    }
+     // Handle related updates
+     if (relatedUpdates && Array.isArray(relatedUpdates)) {
+      await Promise.all(
+        relatedUpdates.map(async (update) => {
+          const { collection, field, type, ids } = update;
+          const relatedModel = getModel(collection);
+
+          if (!relatedModel) return; // Skip if related model not found
+
+          // If the field type is 'array', remove the provided ids from the field
+          if (type === 'array') {
+            await relatedModel.updateMany(
+              { [field]: { $in: ids } }, // Look for documents containing the ids in the specified field
+              { $pull: { [field]: { $in: ids } } } // Pull the ids from the array field
+            );
+          }
+
+          // If the field type is 'string', unset the field if the id matches
+          if (type === 'string') {
+            await relatedModel.updateMany(
+              { [field]: { $in: ids } }, // Look for documents containing the id in the field
+              { $unset: { [field]: "" } } // Remove the field if the id matches
+            );
+          }
+        })
+      );
     }
     // res.status(200).json({ message: 'Record deleted successfully' });
     return res.json({ status: "success", message:'Record deleted', code:"record_deleted" });

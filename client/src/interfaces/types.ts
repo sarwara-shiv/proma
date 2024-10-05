@@ -5,7 +5,7 @@ export interface RelatedUpdates{
   collection:string;
   field:string;
   type:'array' | 'string',
-  ids:(string | ObjectId)[]
+  ids?:(string | ObjectId)[]
 }
 
 export interface NavItem {
@@ -16,6 +16,7 @@ export interface NavItem {
 // Dynamic Fields Interface
 export interface DynamicField {
     key: string;
+    type?:'dropdown' |'string'|'number'|'date' | 'status';
     value?: any; // Since `Schema.Types.Mixed` can accept any type
   }
   
@@ -59,8 +60,9 @@ export interface DynamicField {
 
 
 export interface BaseTask {
+  _id?:string;
   _cid?: string;  // Optional Client or Company ID
-  _pid: ObjectId;  // Project reference
+  _mid: ObjectId;  // Main task id
   name: string;
   startDate?: Date;
   dueDate?: Date;

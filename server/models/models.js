@@ -10,6 +10,7 @@ const CounterSchema = new Schema({
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
+  type:{type:String, enum:['dropdown', 'status', 'string', 'number', 'date'], default:'string'},
   value: { type: Schema.Types.Mixed},
 });
 
@@ -116,7 +117,7 @@ const bugSchema = new Schema({
 
 const BaseTaskSchema = new Schema({
   _cid: { type: String }, // task id
-  _pid: { type: Schema.Types.ObjectId, ref: 'Project', required: true },  // Project this task belongs to
+  _mid: { type: Schema.Types.ObjectId, ref: 'MainTask', required: true },  // Main Task this task belongs to
   name: { type: String, required: true },
   startDate: { type: Date },
   dueDate: { type: Date },
@@ -130,7 +131,7 @@ const BaseTaskSchema = new Schema({
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
-  responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   customFields: [DynamicFieldSchema],  // Custom fields array
   subtasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks
   ticket: { type: Schema.Types.ObjectId, ref: 'Ticket' },  // Reference to the Ticket

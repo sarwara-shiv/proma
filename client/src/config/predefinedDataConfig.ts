@@ -11,6 +11,13 @@ const TaskCategory = [
     {_id: 'content', name:'ContentManagement'},
     {_id: 'uiux', name:'UI/UX'},
 ]
+const DynamicFieldsTypes = [
+    {_id: 'dropdown', name:'Dropdown'},
+    {_id: 'string', name:'String'},
+    {_id: 'number', name:'Number'},
+    {_id: 'date', name:'Date'},
+    {_id: 'status', name:'Status'},
+]
 const milestoneStatuses = [
     {_id: 'notStarted', name:'notStarted'},
     {_id: 'inProgress', name:'inProgress'},
@@ -50,4 +57,4 @@ const QuestionsStatuses = [
     {_id: 'notAnswered', name:'notAnswered'},
 ]
 
-export {milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

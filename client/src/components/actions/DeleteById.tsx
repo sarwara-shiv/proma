@@ -1,17 +1,22 @@
 import React, { useState } from 'react'
 import ConfirmPopup from '../common/CustomPopup';
-import { IoTrash } from 'react-icons/io5';
+import { IoRemove, IoTrash } from 'react-icons/io5';
 import { deleteRecordById } from '../../hooks/dbHooks';
+import { RelatedUpdates } from '@/interfaces';
+import { IoMdClose } from 'react-icons/io';
 
 interface ArgsType{
     data:{id:string, type:string, page:string},
     popupData?:any;
     title?:string;
     content?:string;
+    style?: 'default' | 'fill';
+    icon?:'bin' | 'close' | 'minus';
     onYes?:(data:any)=>void;
     onNo?:()=>void;
+    relatedUpdates?:RelatedUpdates[]
 }
-const DeleteById: React.FC<ArgsType> = ({ data, onYes, onNo, title="Are you sure?", content="Delete Data", popupData}) => {
+const DeleteById: React.FC<ArgsType> = ({style='default', icon='bin', data, onYes, onNo, title="Are you sure?", content="Delete Data", popupData, relatedUpdates=[]}) => {
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -41,9 +46,16 @@ const DeleteById: React.FC<ArgsType> = ({ data, onYes, onNo, title="Are you sure
   return (
     <>
          <div onClick={() => confirmDelete()}
-            className="p-1 ml-1 inline-block text-red-500 hover:text-red-500/50 cursor-pointer whitespace-normal break-words" title='delete'
+            title='delete'
+            className={`p-0.5 ml-1 inline-block text-red-500 hover:text-red-500/50 cursor-pointer whitespace-normal break-words
+                ${style === 'fill' ? 'rounded-full bg-red-100 ' : ''}
+              `} 
             >
-            <IoTrash />
+              {
+              icon === 'bin' ? <IoTrash /> :
+              icon === 'close' ? <IoMdClose /> :
+              icon === 'minus' ? <IoRemove /> :<IoTrash />
+              }
         </div>
         <ConfirmPopup
             isOpen={isPopupOpen}

@@ -278,16 +278,17 @@ interface DeleteDataType {
 interface DeleteByIdArgs {
   type:string;
   body: DeleteDataType;
+  relatedUpdates?:RelatedUpdates;
 }
 
 const deleteRecordById = async (args: DeleteByIdArgs) => {
-  const { type, body } = args;
+  const { type, body, relatedUpdates=[] } = args;
   if (type) {
 
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/delete`, 
         {
-          page:type === 'auth' ? 'users' : type, data:body?body:{}
+          page:type === 'auth' ? 'users' : type, data:body?body:{}, relatedUpdates
         },
         {
           headers
