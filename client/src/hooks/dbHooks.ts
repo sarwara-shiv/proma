@@ -1,4 +1,4 @@
-import { OrderByFilter, QueryFilters, RelatedUpdates } from '@/interfaces';
+import { DeleteRelated, OrderByFilter, QueryFilters, RelatedUpdates } from '@/interfaces';
 import axios from 'axios';
 import Cookies from 'js-cookie'; 
 import { ObjectId } from 'mongodb';
@@ -278,17 +278,18 @@ interface DeleteDataType {
 interface DeleteByIdArgs {
   type:string;
   body: DeleteDataType;
-  relatedUpdates?:RelatedUpdates;
+  relatedUpdates?:RelatedUpdates[];
+  deleteRelated?:DeleteRelated[]
 }
 
 const deleteRecordById = async (args: DeleteByIdArgs) => {
-  const { type, body, relatedUpdates=[] } = args;
+  const { type, body, relatedUpdates=[], deleteRelated=[] } = args;
   if (type) {
 
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/delete`, 
         {
-          page:type === 'auth' ? 'users' : type, data:body?body:{}, relatedUpdates
+          page:type === 'auth' ? 'users' : type, data:body?body:{}, relatedUpdates, deleteRelated
         },
         {
           headers

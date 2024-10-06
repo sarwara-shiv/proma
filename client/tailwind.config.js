@@ -21,8 +21,8 @@ module.exports = {
         "onHold-dark": "#f59e0b",  
         "cancelled": "#fee2e2",      
         "cancelled-dark": "#b91c1c",  
-        "toDo": "#f3f4f6",           
-        "toDo-dark": "#6b7280",    
+        "toDo": "#dfdfdf",           
+        "toDo-dark": "#6a6a6a",    
         "blocked": "#fde8e8",        
         "blocked-dark": "#c53030", 
         "pendingReview": "#fef9c3",  
@@ -42,7 +42,7 @@ module.exports = {
         "low": "#f1f8e9",           
         "low-dark": "#388e3c",     
         "medium": "#fff3e0",        
-        "medium-dark": "#ef6c00",  
+        "medium-dark": "#f59f16",  
         "notStarted": "#f3f4f6",    
         "notStarted-dark": "#4b5563", 
         "warning": "#fff8c5",        
@@ -61,6 +61,52 @@ module.exports = {
         "active-dark": "#16a34a",  
         "notActive": "#fca5a5",  
         "notActive-dark": "#dc2626", 
+        "default": '#dfdfdf',
+        "default-dark": '#696969',
+        "color1": "#3aafa9",           // Primary (Teal)
+        "color1-dark": "#2b7a78",
+
+        "color2": "#fef3c7",           // On Hold (Yellow)
+        "color2-dark": "#f59e0b",
+
+        "color3": "#fee2e2",           // Cancelled (Light Red)
+        "color3-dark": "#b91c1c",
+
+        "color4": "#e0ffe4",           // Answered (Light Green)
+        "color4-dark": "#2e7d32",
+
+        "color5": "#bfdbfe",           // Info (Light Blue)
+        "color5-dark": "#2563eb",
+
+        "color6": "#f8d7da",           // High (Light Pink/Red)
+        "color6-dark": "#c53030",
+
+        "color7": "#f1f8e9",           // Low (Light Green)
+        "color7-dark": "#388e3c",
+
+        "color8": "#e3f2fd",           // Waiting (Light Blue)
+        "color8-dark": "#1e40af",
+
+        "color9": "#fff3e0",           // Medium (Light Orange)
+        "color9-dark": "#f59f16",
+
+        "color10": "#fde2e2",          // Error (Light Red)
+        "color10-dark": "#b91c1c",
+
+        "color11": "#d1fae5",          // Success (Mint Green)
+        "color11-dark": "#16a34a",
+
+        "color12": "#e0f7fa",          // Open (Light Cyan)
+        "color12-dark": "#0288d1",
+
+        "color13": "#e6f4ea",          // Alternative Green for Cancelled to avoid repetition
+        "color13-dark": "#2f855a",     // Darker Green
+
+        "color14": "#fff8c5",          // Warning (Pale Yellow)
+        "color14-dark": "#d97706",
+
+        "color15": "#fce4ec",          // Not Answered (Pink)
+        "color15-dark": "#ad1457"
       }
     },
   },

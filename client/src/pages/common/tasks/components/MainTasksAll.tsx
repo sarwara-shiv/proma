@@ -191,7 +191,7 @@ const MainTasksAll = () => {
             }
         },
         {
-            header:`${t('links')}`,
+            header:`${t('tasks')}`,
             id:'links',
             cell: ({ row }: { row: any }) => (
                 <div style={{ textAlign: 'center' }} className='hover:bg-white rounded-sm hover:shadow-sm'>
@@ -200,9 +200,14 @@ const MainTasksAll = () => {
                     <div className='flex align-center justify-center flex-row py-[1px]'>
                         <NavLink
                             to={`tasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
-                            className="p-1 ml-1  inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                            className="p-1 ml-1  flex justify-center items-center inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                             >
                               <FaTasks /> 
+                              <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
+                              {row.original.subtasks && row.original.subtasks.length > 0 ? <>{row.original.subtasks.length}</>:
+                               0
+                              }
+                              </span>
                         </NavLink>
                     </div>
                 </div>

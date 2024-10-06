@@ -1,5 +1,5 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, BaseTask, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, Task, User } from '@/interfaces';
+import { AlertPopupType, BaseTask, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, Task, User } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
@@ -15,12 +15,6 @@ import { useAuth } from '../../../../hooks/useAuth';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { DeleteById } from '../../../../components/actions';
 import { FaAngleRight } from 'react-icons/fa';
-import SubtasksTable from './SubtasksTable';
-import { getColorClasses } from '../../../../mapping/ColorClasses';
-import { extractAllIds } from '../../../../utils/tasksUtils';
-import ColorPicker from '../../../../components/common/ColorPicker';
-import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { CustomDropdown } from '../../../../components/forms';
 interface ArgsType {
     cid?:string | null;
     pid?:ObjectId | string; // project id
@@ -39,20 +33,8 @@ let DeleteRelatedUpdates:RelatedUpdates[]= [{
  type:'array',
  ids:[]
 }]
-let DeleteRelatedUpdatesTasks:RelatedUpdates[]= [{
- collection:'tasks',
- field:'subtasks',
- type:'array',
- ids:[]
-}]
 
-interface SubTasksCount{
-  taskId:string|ObjectId;
-  isOpen:boolean
-}
-
-
-const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
+const TasksBackup:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
   const {id} = useParams();
   const {user} = useAuth();
   const {t} = useTranslation();
@@ -61,7 +43,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const [mainTaskId, setMainTaskId] = useState<ObjectId | string>(mtid ? mtid : '');
   const [mainTaskData, setMainTaskData] = useState<MainTask>();
   const [subtasks, setSubtasks] = useState<Task[]>();
-  const [subTasksCount, setSubTasksCount] = useState<SubTasksCount[]>();
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
@@ -137,11 +118,14 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
           const pid = cid ? cid : id;
           if(pid){
               const res = await getRecordWithID({id:mainTaskId, populateFields, type:'maintasks'});
+              console.log(res);
+
               if(res.status === 'success' && res.data){
                   setProjectData(res.data._pid);
                   setMainTaskData(res.data);
                   DeleteRelatedUpdates[0].ids = [res.data._id];
                   const stasks = res.data.subtasks as unknown as Task[];
+                  console.log(res.data.subtasks);
                   setSubtasks(stasks);
               }
               setLoader(false);
@@ -163,39 +147,27 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     })
   }
   // add custom fields to maintask
-  const addCustomFieldsMainTasks = (value:DynamicField, index:number|null)=>{ 
-      if(index !== null && index >= 0){
-        setMainTaskData((prevVal)=>{
-          if (!prevVal) return prevVal; 
-          let cfields = prevVal?.customFields;
-          if(cfields && Array.isArray(cfields)){
-            if(cfields[index]){
-              cfields[index] = value;
-              cfields = [...cfields];
-            }
-          }else{
-            cfields = [value];
-          }
-          return {...prevVal, customFields:[...cfields]}
-        })
-      }else{
-        setMainTaskData((prevVal)=>{
-          if (!prevVal) return prevVal; 
-          let cfields = prevVal?.customFields;
-          if(cfields && Array.isArray(cfields)){
-            cfields = [...cfields, value];
-          }else{
-            cfields = [value];
-          }
-          return {...prevVal, customFields:[...cfields]}
-        })
-      }
+  const addCustomFieldsMainTasks = (value:DynamicField)=>{
+    console.log(value);
+      setMainTaskData((prevVal)=>{
+        if (!prevVal) return prevVal; 
+        console.log('hasdata');
+        let cfields = prevVal?.customFields;
+        if(cfields && Array.isArray(cfields)){
+          cfields = [...cfields, value];
+        }else{
+          cfields = [value];
+        }
+        return {...prevVal, customFields:[...cfields]}
+      })
   }
 
   // delte custom fields from main tasks
   const  deleteCustomField = (index:number, key:string)=>{
+    console.log(index, key);
     setMainTaskData((prevVal)=>{
       if (!prevVal) return prevVal; 
+      console.log('hasdata');
       let cfields = prevVal?.customFields;
       if(cfields && Array.isArray(cfields)){
         cfields = cfields.filter((d,i)=>{
@@ -236,7 +208,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
          }]
         }
         const res = await addUpdateRecords({action:'add', type:'tasks', relatedUpdates, body:{name:value, _mid:mid, createdBy, responsiblePerson}})
-      
+        console.log(res);
         if(res.status === 'success'){
           const content = `${t(`RESPONSE.${res.code}`)}`;
           setFlashPopupData({...flashPopupData, isOpen:true, message:content});
@@ -247,90 +219,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
       }
     }
   }
-
-  const toggleSubTasksCount = (taskId: ObjectId | string) => {
-  
-    if (taskId) {
-      setSubTasksCount(prevVal => {
-        if (!prevVal) return [];
-  
-        // Check if the task already exists in the array
-        const taskExists = prevVal.find(d => d.taskId === taskId);
-  
-        if (taskExists) {
-          // If the task exists, toggle the isOpen property
-          return prevVal.map(d =>
-            d.taskId === taskId ? { ...d, isOpen: !d.isOpen } : d
-          );
-        } else {
-          // If the task doesn't exist, add a new entry
-          return [...prevVal, { taskId, isOpen: true }];
-        }
-      });
-    }
-  };
-
-  // edit custom field options
-  const editCustomFieldOptions= (index:number, cf:DynamicField)=>{
-    if(cf.type === 'dropdown' || cf.type === 'status'){
-      setAlertData({...alertData, isOpen:true, 
-        content: <CustomFieldForm selectedData={cf} index={index} onChange={(value, index) => addCustomFieldsMainTasks(value ,index)} />
-      })
-    }
-  }
-
-  const handleTaskCustomField = (
-    taskId: string | ObjectId,
-    customField: DynamicField,
-    value: any,
-    cfdata: DynamicField[]
-  ) => {
-    if (taskId && customField && value) {
-      const tcf: DynamicField = {
-        key: customField.key,
-        type: customField.type,
-        value: value,
-      };
-  
-      let nData: DynamicField[] = cfdata || []; // Ensure cfdata is an array or initialize it as an empty array
-  
-      const keyExists = nData.find((d) => d.key === customField.key);
-  
-      if (keyExists) {
-        // If key exists, update the value
-        nData = nData.map((d) => {
-          if (d.key === customField.key) {
-            return { ...d, value: value }; // Create a new object to avoid direct mutation
-          }
-          return d;
-        });
-      } else {
-        // If key doesn't exist, add the new custom field to the array
-        nData = [...nData, tcf];
-      }
-  
-      // Now call the updateTask function with the updated custom fields
-      updateTask(taskId, { customFields: nData });
-    }
-  };
-
-  // update task
-  const updateTask = async(taskId:string|ObjectId, cfdata:any)=>{
-
-    if(taskId && cfdata){
-      try{
-        const res = await addUpdateRecords({type:'tasks', action:'update', id:taskId as unknown as string, body:{...cfdata}});
-        if(res.status === 'success'){
-          const content = `${t(`RESPONSE.${res.code}`)}`;
-          setFlashPopupData({...flashPopupData, isOpen:true, message:content})
-           getData();
-        }
-      }catch(error){
-        console.log(error);
-      }
-    }
-  }
-  
 
 
   // delete task
@@ -348,46 +236,29 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                 </h1>
             </div>
             }
-            <div className='relative overflow-x-auto '>
-            <table className='w-full table-fixed'>
+
+            <table className='w-full rounded-sm'>
               <thead>
-                <tr key={'task-level-1'}className='text-sm font-normal'>
-                  <th className='w-[20px] sticky left-0 bg-white z-10'></th>
-                  <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></th>
-                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-10`}>{t('task')}</th>
-                  <th className={`${thStyles}  w-[160px] `}>{t('responsiblePerson')}</th>
-                  <th className={`${thStyles} w-[120px] text-center`}>{t('priority')}</th>
-                  <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('dueDate')}</th>
+                <tr className='text-sm font-normal'>
+                  <th className='w-[20px]'></th>
+                  <th className='w-[3px] bg-green-200 border border-green-200'></th>
+                  <th className={`${thStyles}`}>{t('task')}</th>
+                  <th className={`${thStyles}  w-[160px]`}>{t('responsiblePerson')}</th>
+                  <th className={`${thStyles} w-[120px]`}>{t('priority')}</th>
+                  <th className={`${thStyles} w-[120px]`}>{t('status')}</th>
+                  <th className={`${thStyles} w-[80px]`} >{t('dueDate')}</th>
                   {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                     return (
-                      <th key={`th-${index}-${cf.key}`} className={`${thStyles} w-[120px] relative`} >
+                      <th key={`th-${index}`} className={`${thStyles} w-[120px]`} >
                         <div
                           className='relative flex w-full h-full items-center justify-start group'
                         >
-                          {(cf.type === 'status' || cf.type === 'dropdown' )&&   
-                            <div 
-                            onClick={()=>editCustomFieldOptions(index, cf)}
-                            className='relative left-[-8px] py-0.8 px-0.8
-                              opacity-0 cursor-pointer
-                              group-hover:opacity-100
-                              hover:bg-slate-200
-                              rounded-sm
-                            '
-                            >
-                              <IoEllipsisVerticalSharp />
-                            </div>
-                          }
-                          <div>
-                            {cf.key}
-                          </div>
+                          {cf.key}
                           <div 
                           className='
                              absolute right-0 opacity-0
                               transition-opacity duration-300
-                              group-hover:opacity-100 text-center
-                              
+                              group-hover:opacity-100
                           '
                           >
                             <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} 
@@ -398,7 +269,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                       </th>
                     );
                   })}
-                 <th className='border-b border-t border-l min-w-[50px]'>
+                 <th className='border-b border-t border-l'>
                   <div 
                   onClick={openCustomFieldsPopup}
                   className='
@@ -417,13 +288,10 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   const cUser = st.createdBy as unknown as User;
                   const rUser = st.responsiblePerson as unknown as User;
                   const tskID = st._id;
-                  const ids = extractAllIds(st);
-                  let deleteRelated:DeleteRelated[];
- 
+                  console.log(DeleteRelatedUpdates)
                   return (
-                    <>
-                    <tr key={`task-data-${index}-${st._id}`} className='group hover:bg-slate-100'>
-                      <td className='w-[20px] sticky left-0 bg-white z-10 '>
+                    <tr key={`task-${index}`} className='group'>
+                      <td className='w-[20px]'>
                         <div 
                           className='
                             relative
@@ -432,22 +300,20 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                             flex
                             items-center
                             justify-center
-                            left-[-3px]
+                            left-[-10px]
                             opacity-0
                             group-hover:opacity-100
                           '
                           >
                             {tskID && 
-                              <DeleteById style='fill' deleteRelated={
-                                ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
-                              } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
+                              <DeleteById style='fill' icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
                                 onYes={getData}
                               />
                             }
                           </div>
                       </td>
-                      <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></td>
-                      <td className={`${tdStyles} w-[200px] sticky left-[23px] bg-white z-10 group-hover:bg-slate-100`}>
+                      <td className='w-[5px] bg-green-200 border border-green-200'></td>
+                      <td className={`${tdStyles}`}>
                         <div 
                           className='relative flex w-full h-full items-center justify-start group
                           
@@ -462,107 +328,47 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           '
                           >
                             {tskID && 
-                              <div 
-                              onClick={() => toggleSubTasksCount(tskID)}
-                              className="ml-1 cursor-pointer"
-                            >
-                              <FaAngleRight 
-                                className="text-slate-400"
-                                style={{
-                                  transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
-                                    ? 'rotate(90deg)' 
-                                    : 'rotate(0deg)',
-                                  transition: 'transform 0.3s ease', // For smooth rotation
-                                }} 
-                              />
-                            </div>
+                              <div className='
+                               ml-1 cursor-pointer
+                              '>
+                                  <FaAngleRight className='text-slate-400'/>
+                              </div>
+                              // <DeleteById style='fill' icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
+                              //   onYes={getData}
+                              // />
                             }
                           </div>
                           <div className='
                             group-hover:translate group-hover:translate-x-3 transition-all
                           '>
 
-                            {st.name} 
-                            {st.subtasks && st.subtasks.length > 0 && 
-                              <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
-                            }
+                            {st.name}
                           </div>
                         </div>
                       </td>
                       <td className={`${tdStyles}`}>{rUser ? rUser.name : ''}</td>
-                      <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>{st.priority}</td>
-                      <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>{t(`${st.status}`)}</td>
-                      <td className={`${tdStyles}`}>{st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''}</td>
+                      <td className={`${tdStyles}`}>{st.priority}</td>
+                      <td className={`${tdStyles}`}>{st.status}</td>
                       <td className={`${tdStyles}`}>{st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''}</td>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
-                        const tid = st._id ? st._id : '';
-
-                        const cfdata = fV;
-
-                        const cfcolor = cfdata && (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        `bg-${cfdata.value.color} text-${cfdata.value.color}-dark` : '';
-
-                        const cftype = cfdata ? cfdata.type : '';
-
-                        const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.value._id : cfdata : '';
-
+                        
                         return (
-                          <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
-                            {(cf.type === 'dropdown' || cf.type === 'status') && 
-                            <div className={`${cfcolor} `}>
-                              <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
-                              name={`tcf-${index}`} data={cf.value} 
-                              style='table' selectedValue={cfvalue}
-                              onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
-                            </div>
-                            }
+                          <td key={`th-${index}`} className={`${tdStyles}`}>
+                            {fV ? cf.value : ''}
                           </td>
                         );
                       })}
-                      <td className='border-b border-t border-l min-w-[50px]'></td>
+                      <td className='border-b border-t border-l'></td>
                     </tr>
-                        
-                      {/* SUBTASKS */}
-                      {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
-                        <tr>
-                          <td className='w-[20px] sticky left-0 z-10 bg-white'></td>
-                          <td className='w-[3px] text-center sticky left-[20px] z-10 bg-white'>
-                            <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
-                          </td>
-                          <td className='py-4'
-                          colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 7 : 7}
-                          >
-                              <SubtasksTable 
-                                mainTask={mainTaskData || null}
-                                subtasks={st.subtasks ? st.subtasks as unknown as Task[]: []}
-                                type='subtask'
-                                taskId={tskID}
-                                handleTaskCustomField={handleTaskCustomField}
-                                DeleteRelatedUpdates={DeleteRelatedUpdates}
-                                addCustomField={addCustomFieldsMainTasks}
-                                deleteCustomField={deleteCustomField}
-                                openCustomFieldsPopup={openCustomFieldsPopup}
-                                getData={getData}
-                                addTask={addTask}
-                              />
-                            </td>
-                        </tr>
-                      
-                      }
-                    </>
-                    
                   )
                 })}
                 <tr>
-                  <td className='w-[20px] sticky left-0 bg-white z-10'></td>
-                  <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></td>
+                  <td className='w-[20px]'></td>
+                  <td className='w-[3px] bg-green-200 border border-green-200'></td>
                   <td 
-                  className='border-t border-b border-l p-1
-                     w-[200px] sticky left-[23px] bg-white z-10
-                  '
-                  >
+                  className='border-t border-b border-l p-1'
+                  colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 7 : 7}>
                       <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null})} showButton={false} 
                       placeholder={`+ ${t('addTasks')}`}
                       customClasses='
@@ -576,16 +382,14 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
 
                           focus:border-slate-400
                           focus:outline-none
-                          w-full
+                          w-1/3
                       '/>
                   </td>
-                  <td className='border-b'
-                  colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
-                  ></td>
                 </tr>
               </tbody>
             </table>
-          </div>
+           
+
         </div>
       
       
@@ -614,4 +418,4 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   )
 }
 
-export default Tasks
+export default TasksBackup

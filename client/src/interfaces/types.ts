@@ -7,6 +7,11 @@ export interface RelatedUpdates{
   type:'array' | 'string',
   ids?:(string | ObjectId)[]
 }
+export interface DeleteRelated{
+  collection:string;
+  ids?:(string | ObjectId)[]
+}
+
 
 export interface NavItem {
   link: string;
@@ -78,7 +83,7 @@ export interface BaseTask {
   customStatus?: ObjectId;  // Custom status reference
   responsiblePerson: ObjectId;  // User reference
   customFields: DynamicField[];  // Array of custom fields
-  subTasks: ObjectId[];  // Array of references to subtasks (Tasks)
+  subtasks: ObjectId[];  // Array of references to subtasks (Tasks)
   ticket?: ObjectId;  // Reference to Ticket
   permissions: Permission[];  // Array of permissions
 }

@@ -12,7 +12,7 @@ const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
   type:{type:String, enum:['dropdown', 'status', 'string', 'number', 'date'], default:'string'},
   value: { type: Schema.Types.Mixed},
-});
+}, { _id: false });
 
 // Ticket Schema
 const TicketSchema = new Schema({
@@ -127,7 +127,7 @@ const BaseTaskSchema = new Schema({
   description: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   sortOrder: { type: Number },
-  priority: { type: String, enum: predefinedPriorities, default: 'medium' },
+  priority: { type: String, enum: predefinedPriorities, default: 'low' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference

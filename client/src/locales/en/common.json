@@ -47,6 +47,8 @@
     },
 
     "FORMS":{
+        "type":"Type",
+        "fieldName":"Field Name",
         "roleName":"Name",
         "work":"Work",
         "category":"Category",
@@ -150,6 +152,7 @@
     },
     "timeline":"Timeline",
     "work":"Work",
+    "subtask":"Subtask",
     "details":"Details",
     "addTasks":"Add Task",
     "responsiblePerson":"Responsible",

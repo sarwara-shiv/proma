@@ -19,7 +19,7 @@ const ConfirmPopup: React.FC<PopupProps> = ({ isOpen, onClose, title, content, y
   if (!isOpen) return null; // Render nothing if not open
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[999999999]">
       <div className="bg-white p-2 rounded shadow-lg max-w-sm w-full">
         <div className="flex justify-between items-center border-b pb-2 mb-2">
           <h2 className="font-semibold text-md">{title}</h2>

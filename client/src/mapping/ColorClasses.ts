@@ -23,9 +23,45 @@ export const statusClasses: { [key: string]: string } = {
   fail: 'bg-fail text-fail-dark',
   active: 'bg-active text-active-dark',
   notActive: 'bg-notActive text-notActive-dark',
+  default:'bg-default text-default-dark',
+  color1: 'bg-color1 text-color1-dark',
+  color2: 'bg-color2 text-color2-dark',
+  color3: 'bg-color3 text-color3-dark',
+  color4: 'bg-color4 text-color4-dark',
+  color5: 'bg-color5 text-color5-dark',
+  color6: 'bg-color6 text-color6-dark',
+  color7: 'bg-color7 text-color7-dark',
+  color8: 'bg-color8 text-color8-dark',
+  color9: 'bg-color9 text-color9-dark',
+  color10: 'bg-color10 text-color10-dark',
+  color11: 'bg-color11 text-color11-dark',
+  color12: 'bg-color12 text-color12-dark',
+  color13: 'bg-color13 text-color13-dark',
+  color14: 'bg-color14 text-color14-dark',
+  color15: 'bg-color15 text-color15-dark'
+
   };
+export const colorClasses: { [key: string]: string } = {
+  default:'bg-default text-default-dark',
+  color1: 'bg-color1 text-color1-dark',
+  color2: 'bg-color2 text-color2-dark',
+  color3: 'bg-color3 text-color3-dark',
+  color4: 'bg-color4 text-color4-dark',
+  color5: 'bg-color5 text-color5-dark',
+  color6: 'bg-color6 text-color6-dark',
+  color7: 'bg-color7 text-color7-dark',
+  color8: 'bg-color8 text-color8-dark',
+  color9: 'bg-color9 text-color9-dark',
+  color10: 'bg-color10 text-color10-dark',
+  color11: 'bg-color11 text-color11-dark',
+  color12: 'bg-color12 text-color12-dark',
+  color13: 'bg-color13 text-color13-dark',
+  color14: 'bg-color14 text-color14-dark',
+  color15: 'bg-color15 text-color15-dark'
+
+};
 
   // Optionally, you can also define a function to get the class
 export const getColorClasses = (status: string): string => {
-    return statusClasses[status] || 'text-slate-500'; // Fallback class
+    return statusClasses[status] || 'bg-default text-default-dark'; // Fallback class
 };

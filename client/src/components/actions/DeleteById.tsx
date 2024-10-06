@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import ConfirmPopup from '../common/CustomPopup';
 import { IoRemove, IoTrash } from 'react-icons/io5';
 import { deleteRecordById } from '../../hooks/dbHooks';
-import { RelatedUpdates } from '@/interfaces';
+import { DeleteRelated, RelatedUpdates } from '@/interfaces';
 import { IoMdClose } from 'react-icons/io';
 
 interface ArgsType{
@@ -13,10 +13,17 @@ interface ArgsType{
     style?: 'default' | 'fill';
     icon?:'bin' | 'close' | 'minus';
     onYes?:(data:any)=>void;
+    deleteRelated?:DeleteRelated[];
     onNo?:()=>void;
     relatedUpdates?:RelatedUpdates[]
 }
-const DeleteById: React.FC<ArgsType> = ({style='default', icon='bin', data, onYes, onNo, title="Are you sure?", content="Delete Data", popupData, relatedUpdates=[]}) => {
+const DeleteById: React.FC<ArgsType> = ({
+  style='default', 
+  icon='bin', data, 
+  onYes, onNo, title="Are you sure?", content="Delete Data", popupData, 
+  deleteRelated=[],
+  relatedUpdates=[]
+}) => {
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -24,7 +31,12 @@ const DeleteById: React.FC<ArgsType> = ({style='default', icon='bin', data, onYe
         setIsPopupOpen(!isPopupOpen)
         if(data.id && data.page && data.type){
             try{
-                const response = await deleteRecordById({type:data.type, body:data});
+                const response = await deleteRecordById({
+                  type:data.type, 
+                  body:data,
+                  deleteRelated: deleteRelated ,
+                  relatedUpdates: relatedUpdates ,
+                });
                 if(response.status === "success"){
                     onYes && onYes(response);
                 }else{
