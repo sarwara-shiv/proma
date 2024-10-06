@@ -348,7 +348,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                 </h1>
             </div>
             }
-            <div className='relative overflow-x-auto '>
+            <div className='relative overflow-x-auto py-4'>
             <table className='w-full table-fixed'>
               <thead>
                 <tr key={'task-level-1'}className='text-sm font-normal'>

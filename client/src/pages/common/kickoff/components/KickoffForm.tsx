@@ -65,6 +65,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
         if (data) {
             const user: User = data.createdBy as unknown as User;
             setCreatedBy(user);
+            console.log(data);
 
             // if (data.kickoff) {
             //     setKickoffData(data.kickoff);
@@ -88,18 +89,16 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 {path: 'kickoff.responsibilities.persons'},
             ]
             if(cid){
-                const res = await getRecordWithID({id:cid, type:'projects'});
+                const res = await getRecordWithID({id:cid, populateFields, type:'projects'});
                 console.log(res);
 
                 if(res.status === 'success' && res.data){
                     if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
-                    if (res.data.kickoff) {
+                    if (res.data) {
                         setFormData(res.data);
-                        setKickoffData(res.data.kickoff);
+                        if(res.data.kickOff) setKickoffData(res.data.kickoff);
                     }
                     data = {...res.data}
-
-                    console.log(res.data.kickoff.responsibilities);
                 }
 
             }
@@ -208,6 +207,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
           <form onSubmit={submitForm}>
             {formData &&
                 <>
+                <div>formdata</div>
                 <div className='w-full my-4 rounded-md px-3 pb-4 bg-slate-100'>
                     <div className='grid grid-cols-1 lg:grid-cols-2'>
                         <div className='text-primary text-2xl md:text-3xl font-bold'>
