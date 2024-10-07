@@ -78,6 +78,9 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
   useEffect(() => {
     onChange(name, milestoneValue);
   }, [milestoneValue]);
+  useEffect(() => {
+    console.log(milestoneStatuses);
+  }, []);
 
   return (
     <div>

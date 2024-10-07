@@ -78,6 +78,8 @@ const CustomDropdown: React.FC<ArgsType> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+
+    
   }, []);
 
   const toggleDropdown = () => {
@@ -159,6 +161,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
             maxHeight: '200px',
           }}
         >
+          
           {data.map((item) => (
             <div
               key={item._id}

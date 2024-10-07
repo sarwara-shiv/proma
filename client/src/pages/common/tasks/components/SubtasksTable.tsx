@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { FaAngleRight } from 'react-icons/fa';
 import { IoMdAdd } from 'react-icons/io';
 import { CustomDropdown } from '../../../../components/forms';
+import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
+import ClickToEdit from '../../../../components/forms/ClickToEdit';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
@@ -23,13 +25,14 @@ interface ArgsType{
       value: any,
       cfdata: DynamicField[])=>void;
     getData:()=>void;
+    handleTaskInput:(taskId:string|ObjectId, field:string, value:string)=>void;
     DeleteRelatedUpdates:RelatedUpdates[];
     addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null})=>void
 }
 const SubtasksTable:React.FC<ArgsType> = ({
     mainTask, subtasks, type='task', taskId=null,
     addCustomField, deleteCustomField, openCustomFieldsPopup,addTask,getData,DeleteRelatedUpdates,
-    handleTaskCustomField
+    handleTaskCustomField, handleTaskInput
 }) => {
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
@@ -118,7 +121,10 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       </td>
                       <td className='w-[5px] bg-green-200 border border-green-200 sticky left-[40px] z-10'></td>
                       <td className={`${tdStyles} w-[200px] left-[43px] sticky bg-white z-10 group-hover:bg-slate-100`}>
-                            {st.name}
+                            {/* {st.name} */}
+                            <ClickToEdit value={st.name}  name='name'
+                                onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
+                              />
                       </td>
                       <td className={`${tdStyles} w-[160px]`}>{rUser ? rUser.name : ''}</td>
                       <td className={`${tdStyles} w-[120px] ${getColorClasses(st.priority)} text-center`}>{st.priority}</td>
@@ -147,6 +153,12 @@ const SubtasksTable:React.FC<ArgsType> = ({
                               style='table' selectedValue={cfvalue}
                               onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
                             </div>
+                            }
+                            {(cf.type === 'date') && 
+                              <div className={`${cfcolor} `}>
+                                {/* <CustomDateTimePicker selectedDate={cfvalue} style='table'/> */}
+                                <CustomDateTimePicker2 selectedDate={cfvalue} style='table'/>
+                              </div>
                             }
                           </td>
                         );

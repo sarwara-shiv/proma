@@ -21,6 +21,10 @@ import { extractAllIds } from '../../../../utils/tasksUtils';
 import ColorPicker from '../../../../components/common/ColorPicker';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { CustomDropdown } from '../../../../components/forms';
+import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
+import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
+import ClickToEdit from '../../../../components/forms/ClickToEdit';
+
 interface ArgsType {
     cid?:string | null;
     pid?:ObjectId | string; // project id
@@ -183,7 +187,12 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
           if (!prevVal) return prevVal; 
           let cfields = prevVal?.customFields;
           if(cfields && Array.isArray(cfields)){
-            cfields = [...cfields, value];
+            const fieldexits = cfields.find(d=>d.key === value.key);
+            if(!fieldexits){
+              cfields = [...cfields, value];
+            }else{
+              setAlertData({...alertData, isOpen:true, content:'Field with name exists'});
+            }
           }else{
             cfields = [value];
           }
@@ -283,8 +292,9 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     taskId: string | ObjectId,
     customField: DynamicField,
     value: any,
-    cfdata: DynamicField[]
+    cfdata: DynamicField[],
   ) => {
+    console.log(value);
     if (taskId && customField && value) {
       const tcf: DynamicField = {
         key: customField.key,
@@ -314,6 +324,13 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     }
   };
 
+  const handleTaskInput = (taskId:string|ObjectId, field:string, value:string)=>{
+    if(taskId && field && value){
+      const nData = {[field]:value};
+      updateTask(taskId, nData);
+    }
+  }
+
   // update task
   const updateTask = async(taskId:string|ObjectId, cfdata:any)=>{
 
@@ -336,6 +353,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   // delete task
   return (
     <div>
+      
       {loader ? <Loader type='full'/> :
         <div>
             {projectData && 
@@ -480,9 +498,12 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           </div>
                           <div className='
                             group-hover:translate group-hover:translate-x-3 transition-all
+                            flex justify-between items-start
                           '>
-
-                            {st.name} 
+                            <ClickToEdit value={st.name}  name='name'
+                                onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
+                              />
+                            {/* {st.name}  */}
                             {st.subtasks && st.subtasks.length > 0 && 
                               <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
                             }
@@ -506,17 +527,33 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                         const cftype = cfdata ? cfdata.type : '';
 
                         const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.value._id : cfdata : '';
-
+                        cfdata.value._id : cfdata.value : null;
+                        console.log('------------------');
+                        console.log(cfvalue);
                         return (
                           <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
-                            {(cf.type === 'dropdown' || cf.type === 'status') && 
-                            <div className={`${cfcolor} `}>
-                              <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
-                              name={`tcf-${index}`} data={cf.value} 
-                              style='table' selectedValue={cfvalue}
-                              onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
-                            </div>
+                            {(cf.type === 'dropdown' || cf.type === 'status') ? 
+                              <div className={`${cfcolor} `}>
+                                <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
+                                name={`tcf-${index}`} data={cf.value} 
+                                style='table' selectedValue={cfvalue}
+                                onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
+                              </div>
+                            :
+                            
+                            (cf.type === 'date') ?
+                              <div className={`${cfcolor} `}>
+                                {/* <CustomDateTimePicker selectedDate={cfvalue} style='table'/> */}
+                                <CustomDateTimePicker2 selectedDate={cfvalue ? cfvalue : null} style='table'
+                                  onDateChange={(rid, value, name)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                                />
+                              </div>
+
+                              :
+
+                              <ClickToEdit value={cfvalue}  name={`tcf-${index}`}
+                                onBlur={(value)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                              />
                             }
                           </td>
                         );
@@ -546,6 +583,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                                 openCustomFieldsPopup={openCustomFieldsPopup}
                                 getData={getData}
                                 addTask={addTask}
+                                handleTaskInput={handleTaskInput}
                               />
                             </td>
                         </tr>

@@ -111,6 +111,16 @@ module.exports = {
     },
   },
   plugins: [
-    customButtonPlugin  
+    customButtonPlugin,
+    function ({ addBase, theme }) {
+      addBase({
+        ':root': {
+          '--primary': theme('colors.primary'),
+          '--primary-dark': theme('colors.primary-dark'),
+          '--primary-light': theme('colors.primary-light'),
+          // Add all other colors you need...
+        },
+      });
+    },  
   ], 
 }
