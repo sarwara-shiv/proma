@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 
 interface CustomContextMenuProps {
@@ -82,21 +83,26 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children }) => {
       </button>
 
       {/* Custom Context Menu */}
-      {isOpen && (
-        <div
-          ref={menuRef}
-          className="fixed bg-white border shadow-lg rounded-md z-50"
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-            width: '150px', // Adjust the width as needed
-            maxHeight: `${position.maxHeight}px`, // Set dynamic max height
-            overflowY: menuRef.current && position.maxHeight < (menuRef.current.scrollHeight || 0) ? 'auto' : 'visible', // Safely handle scroll
-          }}
-        >
-          {children}
-        </div>
-      )}
+      {isOpen &&
+        ReactDOM.createPortal(
+          <div
+            ref={menuRef}
+            className="fixed bg-white border shadow-lg rounded-md z-50"
+            style={{
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              width: '150px', // Adjust the width as needed
+              maxHeight: `${position.maxHeight}px`, // Set dynamic max height
+              overflowY:
+                menuRef.current && position.maxHeight < (menuRef.current.scrollHeight || 0)
+                  ? 'auto'
+                  : 'visible', // Safely handle scroll
+            }}
+          >
+            {children}
+          </div>,
+          document.body // Render into the body using a portal
+        )}
     </div>
   );
 };

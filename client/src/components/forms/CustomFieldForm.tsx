@@ -87,7 +87,7 @@ const CustomFieldForm:React.FC<ArgsType> = ({onChange, selectedData, index=null}
       <div>
         <CustomInput name="key" label={t('FORMS.fieldName')}  value={newDynamicField.key} onChange={(e)=>handleInputs('key', e.target.value, null)}/>
       </div>
-      <div>
+      <div className={`${index !== null && index >=0 ? 'hidden': ''}`}>
         <CustomDropdown name="key" label={t('FORMS.type')}  selectedValue={newDynamicField.type} data={DynamicFieldsTypes} onChange={(recordId, name, value, data)=>handleInputs('type', value, null)}/>
       </div>
       {newDynamicField.type && (newDynamicField.type === 'dropdown' || newDynamicField.type === 'status' ) && 

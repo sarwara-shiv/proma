@@ -24,6 +24,8 @@ import { CustomDropdown } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
+import { sanitizeString } from '../../../../utils/commonUtils';
+import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 
 interface ArgsType {
     cid?:string | null;
@@ -281,11 +283,11 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
 
   // edit custom field options
   const editCustomFieldOptions= (index:number, cf:DynamicField)=>{
-    if(cf.type === 'dropdown' || cf.type === 'status'){
-      setAlertData({...alertData, isOpen:true, 
-        content: <CustomFieldForm selectedData={cf} index={index} onChange={(value, index) => addCustomFieldsMainTasks(value ,index)} />
-      })
-    }
+    setAlertData({...alertData, isOpen:true, title:`${t('editCustomField')}`,
+      content: <CustomFieldForm selectedData={cf} index={index} onChange={(value, index) => addCustomFieldsMainTasks(value ,index)} />
+    })
+    // if(cf.type === 'dropdown' || cf.type === 'status'){
+    // }
   }
 
   const handleTaskCustomField = (
@@ -369,54 +371,55 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
             <div className='relative overflow-x-auto py-4'>
             <table className='w-full table-fixed'>
               <thead>
-                <tr key={'task-level-1'}className='text-sm font-normal'>
-                  <th className='w-[20px] sticky left-0 bg-white z-10'></th>
-                  <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></th>
-                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-10`}>{t('task')}</th>
+                <tr key={'task-level-1'} className='text-sm font-normal'>
+                  <th className='w-[20px] sticky left-0 bg-white z-2'></th>
+                  <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
+                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}>{t('task')}</th>
                   <th className={`${thStyles}  w-[160px] `}>{t('responsiblePerson')}</th>
                   <th className={`${thStyles} w-[120px] text-center`}>{t('priority')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('dueDate')}</th>
+                  <th className={`${thStyles} w-[100px] text-center`} >{t('startDate')}</th>
+                  <th className={`${thStyles} w-[100px] text-center`} >{t('dueDate')}</th>
                   {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
+                    const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                     return (
-                      <th key={`th-${index}-${cf.key}`} className={`${thStyles} w-[120px] relative`} >
+                      <th key={`th-${index}-${sanitizeString(cf.key)}`} className={`${thStyles} ${width} relative`} >
                         <div
                           className='relative flex w-full h-full items-center justify-start group'
                         >
-                          {(cf.type === 'status' || cf.type === 'dropdown' )&&   
-                            <div 
-                            onClick={()=>editCustomFieldOptions(index, cf)}
-                            className='relative left-[-8px] py-0.8 px-0.8
-                              opacity-0 cursor-pointer
-                              group-hover:opacity-100
-                              hover:bg-slate-200
-                              rounded-sm
+                          {/* {(cf.type === 'status' || cf.type === 'dropdown' )&&   
+                           
+                          } */}
+                          <div
+                            className='
+                              relative left-[-8px] py-0.8 px-0.8
+                                opacity-0 cursor-pointer
+                                group-hover:opacity-100
+                                hover:bg-slate-200
+                                rounded-sm
                             '
-                            >
-                              <IoEllipsisVerticalSharp />
-                            </div>
-                          }
+                          >
+                            <CustomContextMenu >
+                              <ul>
+                                <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
+                                  <div onClick={()=>editCustomFieldOptions(index, cf)} className='cursor-pointer text-xs'>
+                                   {t('update')}
+                                  </div>
+                                </li>
+                                <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                  <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} text={`${t('delete')}`} />
+                                </li>
+                              </ul>
+                            </CustomContextMenu>
+                          </div>
                           <div>
                             {cf.key}
-                          </div>
-                          <div 
-                          className='
-                             absolute right-0 opacity-0
-                              transition-opacity duration-300
-                              group-hover:opacity-100 text-center
-                              
-                          '
-                          >
-                            <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} 
-                              
-                              />
                           </div>
                         </div>
                       </th>
                     );
                   })}
-                 <th className='border-b border-t border-l min-w-[50px]'>
+                 <th className='border-b border-t border-l w-[50px]'>
                   <div 
                   onClick={openCustomFieldsPopup}
                   className='
@@ -428,6 +431,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                     <IoMdAdd />
                   </div>
                  </th>
+                 <th className='border-b border-t'></th>
                 </tr>
               </thead>
               <tbody>
@@ -441,31 +445,43 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   return (
                     <>
                     <tr key={`task-data-${index}-${st._id}`} className='group hover:bg-slate-100'>
-                      <td className='w-[20px] sticky left-0 bg-white z-10 '>
+                      <td className='w-[20px] sticky left-0 bg-white z-2 '>
+                        <div
+                         className='
+                         relative
+                         w-full
+                         h-full
+                         flex
+                         items-center
+                         justify-center
+                         left-[-3px]
+                         opacity-0
+                         group-hover:opacity-100
+                       '
+                        >
+                          <CustomContextMenu >
+                                <ul>
+                                  <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                    <div></div>
+                                    {tskID && 
+                                      <DeleteById style='fill' deleteRelated={
+                                        ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
+                                      } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
+                                        onYes={getData} text={`${t('delete')}`}
+                                      />
+                                    }
+                                  </li>
+                                </ul>
+                            </CustomContextMenu>
+                        </div>
                         <div 
-                          className='
-                            relative
-                            w-full
-                            h-full
-                            flex
-                            items-center
-                            justify-center
-                            left-[-3px]
-                            opacity-0
-                            group-hover:opacity-100
-                          '
+                         
                           >
-                            {tskID && 
-                              <DeleteById style='fill' deleteRelated={
-                                ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
-                              } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
-                                onYes={getData}
-                              />
-                            }
+                            
                           </div>
                       </td>
-                      <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></td>
-                      <td className={`${tdStyles} w-[200px] sticky left-[23px] bg-white z-10 group-hover:bg-slate-100`}>
+                      <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
+                      <td className={`${tdStyles} w-[200px] sticky left-[23px] bg-white z-2 group-hover:bg-slate-100`}>
                         <div 
                           className='relative flex w-full h-full items-center justify-start group
                           
@@ -559,17 +575,18 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                         );
                       })}
                       <td className='border-b border-t border-l min-w-[50px]'></td>
+                      <td className='border-b border-t'></td>
                     </tr>
                         
                       {/* SUBTASKS */}
                       {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
                         <tr>
-                          <td className='w-[20px] sticky left-0 z-10 bg-white'></td>
-                          <td className='w-[3px] text-center sticky left-[20px] z-10 bg-white'>
+                          <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
+                          <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
                             <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
                           </td>
                           <td className='py-4'
-                          colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 7 : 7}
+                          colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 8 : 8}
                           >
                               <SubtasksTable 
                                 mainTask={mainTaskData || null}
@@ -594,11 +611,11 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   )
                 })}
                 <tr>
-                  <td className='w-[20px] sticky left-0 bg-white z-10'></td>
-                  <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-10'></td>
+                  <td className='w-[20px] sticky left-0 bg-white z-2'></td>
+                  <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
                   <td 
                   className='border-t border-b border-l p-1
-                     w-[200px] sticky left-[23px] bg-white z-10
+                     w-[200px] sticky left-[23px] bg-white z-2
                   '
                   >
                       <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null})} showButton={false} 
@@ -617,9 +634,10 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           w-full
                       '/>
                   </td>
-                  <td className='border-b'
+                  <td className='border-b border-t'
                   colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
                   ></td>
+                  <td className='border-b border-t'></td>
                 </tr>
               </tbody>
             </table>

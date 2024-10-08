@@ -1,0 +1,7 @@
+table tr{
+    position: relative;
+}
+table th,
+table td{
+    z-index: 1;
+}

@@ -63,11 +63,13 @@ const SubtasksTable:React.FC<ArgsType> = ({
                   <th className={`${thStyles}  w-[160px]`}>{t('responsiblePerson')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('priority')}</th>
                   <th className={`${thStyles} w-[120px] text-center`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[80px] text-center`} >{t('dueDate')}</th>
+                  <th className={`${thStyles} w-[100px] text-center`} >{t('startDate')}</th>
+                  <th className={`${thStyles} w-[100px] text-center`} >{t('dueDate')}</th>
+                  
                   {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
+                    const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                     return (
-                      <th key={`th-${index}`} className={`${thStyles} w-[120px]`} >
+                      <th key={`th-${index}`} className={`${thStyles} ${width}`} >
                         <div
                           className='relative flex w-full h-full items-center justify-start group'
                         >
@@ -87,7 +89,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       </th>
                     );
                   })}
-                  <th className='border-t'></th>
+                  <th className=' w-[50px]'></th>
+                  <th className=''></th>
                 </tr>
               </thead>
               <tbody>
@@ -163,7 +166,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                           </td>
                         );
                       })}
-                      <td className='border-b border-t border-l'></td>
+                      <td className=' w-[50px]'></td>
+                      <th className=''></th>
                     </tr>
                   )
                 })}
@@ -176,7 +180,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                   '
                   >
                       <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId})} showButton={false} 
-                      placeholder={`+ ${t('addTasks')}`}
+                      placeholder={`+ ${t('addSubTasks')}`}
                       customClasses='
                       text-xs
                           border
@@ -194,6 +198,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                   <td className='border-b border-r'
                   colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 5 : 5}
                   ></td>
+                  <td className=''></td>
                   <td></td>
                 </tr>
                 </tbody>

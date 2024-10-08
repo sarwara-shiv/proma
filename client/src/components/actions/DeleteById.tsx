@@ -15,14 +15,16 @@ interface ArgsType{
     onYes?:(data:any)=>void;
     deleteRelated?:DeleteRelated[];
     onNo?:()=>void;
-    relatedUpdates?:RelatedUpdates[]
+    relatedUpdates?:RelatedUpdates[];
+    text?:string | React.ReactNode;
 }
 const DeleteById: React.FC<ArgsType> = ({
   style='default', 
   icon='bin', data, 
   onYes, onNo, title="Are you sure?", content="Delete Data", popupData, 
   deleteRelated=[],
-  relatedUpdates=[]
+  relatedUpdates=[],
+  text=''
 }) => {
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -57,7 +59,24 @@ const DeleteById: React.FC<ArgsType> = ({
 
   return (
     <>
-         <div onClick={() => confirmDelete()}
+        {text ? 
+         <div className={`
+          cursor-pointer 
+          relative
+          flex
+          justify-between
+          align-center
+          p-0.5 
+          text-red-500 
+          text-xs`
+      }
+          onClick={confirmDelete}
+      >
+              {text} 
+      </div>
+        
+        :
+         <div onClick={confirmDelete}
             title='delete'
             className={`p-0.5 ml-1 inline-block text-red-500 hover:text-red-500/50 cursor-pointer whitespace-normal break-words
                 ${style === 'fill' ? 'rounded-full bg-red-100 ' : ''}
@@ -69,6 +88,7 @@ const DeleteById: React.FC<ArgsType> = ({
               icon === 'minus' ? <IoRemove /> :<IoTrash />
               }
         </div>
+        }
         <ConfirmPopup
             isOpen={isPopupOpen}
             onClose={() => setIsPopupOpen(!isPopupOpen)}

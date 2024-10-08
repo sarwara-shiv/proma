@@ -6,6 +6,7 @@ import AdminRoutes from "./routes/AdminRoutes";
 import UserRoutes from "./routes/UserRoutes";
 import Unauthorised from "./pages/Unauthorised";
 import ResetPassword from "./pages/auth/ResetPassword";
+import './assets/styles/layout.css';
 function App() {
   const {t} = useTranslation("common");
   const {isAuthenticated, role, roles} = useAuth();

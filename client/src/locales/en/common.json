@@ -150,11 +150,13 @@
         "record_added": "Data Added Successfully",
         "password_not_same": "Password and Repeat Password are not same"
     },
+    "editCustomField":"Edit Customfield",
     "timeline":"Timeline",
     "work":"Work",
     "subtask":"Subtask",
     "details":"Details",
     "addTasks":"Add Task",
+    "addSubTasks":"Add Subtask",
     "responsiblePerson":"Responsible",
     "task":"Task",
     "dueDate":"Due date",

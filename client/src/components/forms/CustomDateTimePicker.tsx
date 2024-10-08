@@ -2,6 +2,7 @@ import { format, parse } from 'date-fns';
 import { ObjectId } from 'mongodb';
 import React, { useState, useRef, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
+import ReactDOM from 'react-dom';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 
@@ -182,6 +183,7 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
       </div>
 
       {/* Custom Context Menu */}
+      {ReactDOM.createPortal(
         <div
           ref={menuRef}
           className={`fixed ${isOpen ? 'display-block z-50' : 'display-none'} `}
@@ -203,7 +205,9 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
             ref={datePickerRef} // Ref to control the DatePicker
             className=" hidden absolute z-50 top-[-20px]" 
           />
-        </div>
+        </div>,
+        document.body // Render into the body using a portal
+      )}
     
     </div>
   );
