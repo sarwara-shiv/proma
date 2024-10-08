@@ -48,9 +48,9 @@ const ClickToEdit: React.FC<ArgsType> = ({name, data="", value, onChange, onBlur
     <div>
       {/* This div will show the text */}
       <div ref={textRef} onClick={handleDivClick} className={`
-            border border-transparent px-1 py-0.2
+            border border-transparent px-1 py-0.2 min-h-[20px] hover:border-slate-300
         `}>
-        {nValue}
+        {value && nValue.replace(/\s+/g, '') ? <>{nValue}</> : <>-</>}
       </div>
       
       {/* This input will replace the div when clicked */}

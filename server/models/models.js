@@ -125,6 +125,7 @@ const BaseTaskSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   description: { type: String },
+  level:{ type: Number },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   sortOrder: { type: Number },
   priority: { type: String, enum: predefinedPriorities, default: 'low' },

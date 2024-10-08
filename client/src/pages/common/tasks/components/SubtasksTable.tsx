@@ -15,6 +15,7 @@ import ClickToEdit from '../../../../components/forms/ClickToEdit';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
+    parentTask:Task | null,
     type?:'task' | 'subtask';
     taskId?:string|ObjectId|null;
     addCustomField:(value:DynamicField, index:number|null)=>void;
@@ -27,12 +28,12 @@ interface ArgsType{
     getData:()=>void;
     handleTaskInput:(taskId:string|ObjectId, field:string, value:string)=>void;
     DeleteRelatedUpdates:RelatedUpdates[];
-    addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null})=>void
+    addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task|null})=>void
 }
 const SubtasksTable:React.FC<ArgsType> = ({
     mainTask, subtasks, type='task', taskId=null,
     addCustomField, deleteCustomField, openCustomFieldsPopup,addTask,getData,DeleteRelatedUpdates,
-    handleTaskCustomField, handleTaskInput
+    handleTaskCustomField, handleTaskInput, parentTask=null
 }) => {
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
@@ -146,22 +147,31 @@ const SubtasksTable:React.FC<ArgsType> = ({
                         const cftype = cfdata ? cfdata.type : '';
 
                         const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.value._id : cfdata : '';                        
+                        cfdata.value._id : cfdata.value : '';                        
                         return (
                           <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
-                            {(cf.type === 'dropdown' || cf.type === 'status') && 
-                            <div className={`${cfcolor} `}>
-                              <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
-                              name={`tcf-${index}`} data={cf.value} 
-                              style='table' selectedValue={cfvalue}
-                              onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
-                            </div>
-                            }
-                            {(cf.type === 'date') && 
+                            {(cf.type === 'dropdown' || cf.type === 'status') ? 
+                              <div className={`${cfcolor} `}>
+                                <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
+                                name={`tcf-${index}`} data={cf.value} 
+                                style='table' selectedValue={cfvalue}
+                                onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
+                              </div>
+                            :
+                            
+                            (cf.type === 'date') ?
                               <div className={`${cfcolor} `}>
                                 {/* <CustomDateTimePicker selectedDate={cfvalue} style='table'/> */}
-                                <CustomDateTimePicker2 selectedDate={cfvalue} style='table'/>
+                                <CustomDateTimePicker2 selectedDate={cfvalue ? cfvalue : null} style='table'
+                                  onDateChange={(rid, value, name)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                                />
                               </div>
+
+                              :
+
+                              <ClickToEdit value={cfvalue}  name={`tcf-${index}`}
+                                onBlur={(value)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                              />
                             }
                           </td>
                         );
@@ -179,7 +189,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                    w-[200px] sticky left-[43px] bg-white z-10
                   '
                   >
-                      <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId})} showButton={false} 
+                      <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId, parentTask})} showButton={false} 
                       placeholder={`+ ${t('addSubTasks')}`}
                       customClasses='
                       text-xs

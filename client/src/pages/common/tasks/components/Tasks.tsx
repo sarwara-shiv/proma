@@ -131,8 +131,12 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           path: 'subtasks',
                           populate: { path: 'subtasks' },
                         },
+                        { path: 'createdBy' }, 
+                        { path: 'responsiblePerson' }, 
                       ],
                     },
+                    { path: 'createdBy' }, 
+                    { path: 'responsiblePerson' }, 
                   ],
                 },
                 { path: 'createdBy' }, 
@@ -203,35 +207,83 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
       }
   }
 
-  // delte custom fields from main tasks
-  const  deleteCustomField = (index:number, key:string)=>{
-    setMainTaskData((prevVal)=>{
-      if (!prevVal) return prevVal; 
-      let cfields = prevVal?.customFields;
-      if(cfields && Array.isArray(cfields)){
-        cfields = cfields.filter((d,i)=>{
-          if(d.key !== key && i !== index){
-            return d;
-          }
-        })
-      }else{
-        cfields = cfields;
+
+
+  const deleteCustomField = (index: number, key: string) => {
+    setMainTaskData((prevVal) => {
+      if (!prevVal) return prevVal;
+  
+      // Create a deep copy of the previous value to avoid direct mutations
+      const updatedMainTaskData = JSON.parse(JSON.stringify(prevVal));
+      
+      // Remove the custom field from the main task
+      if (Array.isArray(updatedMainTaskData.customFields)) {
+        updatedMainTaskData.customFields = updatedMainTaskData.customFields.filter(
+          (field: { key: string; }) => field.key !== key
+        );
       }
-      if(cfields)
-      return {...prevVal, customFields:[...cfields]}
-      return {...prevVal}
-    })
-  }
+      let level = 0;
+      // Recursively remove the custom field from subtasks
+      const removeCustomFieldFromSubtasks = (subtasks: any[]) => {
+        subtasks.forEach((subtask: any, index:number) => {
+          let customFieldsUpdated = false; // Flag to track if customFields were updated
+  
+          // Remove custom fields from the subtask
+          if (Array.isArray(subtask.customFields)) {
+            const originalLength = subtask.customFields.length;
+            subtask.customFields = subtask.customFields.filter(
+              (field: any) => field.key !== key
+            );
+            // Set the flag if there was a change
+            customFieldsUpdated = subtask.customFields.length < originalLength;
+          }
+  
+          // Update the subtask if customFields were changed
+          if (customFieldsUpdated) {
+            updateTask(subtask._id, { customFields: subtask.customFields }, false);
+          }
+          
+          let refresh=false;
+          // Check if the subtask has its own subtasks
+          if (Array.isArray(subtask.subtasks) && subtask.subtasks.length > 0) {
+            
+            removeCustomFieldFromSubtasks(subtask.subtasks); // Recursive call
+          }
+          if (index === subtasks.length - 1) {
+            console.log("Last subtask processed:", subtask._id);
+            level++;
+            if(level === 2) refresh = true
+            console.log(level);
+          }
+
+          updateTask(subtask._id, {customFields:subtask.customFields}, refresh);
+
+        });
+      };
+  
+      // Call the recursive function on the main task's subtasks
+      if (Array.isArray(updatedMainTaskData.subtasks)) {
+        removeCustomFieldFromSubtasks(updatedMainTaskData.subtasks);
+      }
+  
+      return updatedMainTaskData; // Return the updated state
+    });
+  };
+  
 
   // add Tasks
-  const addTask = async ({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null})=>{
+  const addTask = async ({name, value, taskId, parentTask}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task | null})=>{
     const mid = mainTaskId as unknown as string;
     const createdBy = user?._id;
-    const responsiblePerson = user?._id;
+    let responsiblePerson:ObjectId | string | null | undefined = user?._id;
     if(mid && createdBy){
       try{
+        let level = 1;
         let relatedUpdates:RelatedUpdates[]= [];
         if(taskId){
+          const ruser = parentTask ? parentTask.responsiblePerson as unknown as User : null;
+          responsiblePerson = ruser ? ruser._id : null;
+          level=2;
           relatedUpdates= [{
             collection:'tasks',
             field:'subtasks',
@@ -246,7 +298,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
            ids:[mid]
          }]
         }
-        const res = await addUpdateRecords({action:'add', type:'tasks', relatedUpdates, body:{name:value, _mid:mid, createdBy, responsiblePerson}})
+        const res = await addUpdateRecords({action:'add', type:'tasks', relatedUpdates, body:{name:value, _mid:mid, createdBy, responsiblePerson, level}})
       
         if(res.status === 'success'){
           const content = `${t(`RESPONSE.${res.code}`)}`;
@@ -286,8 +338,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     setAlertData({...alertData, isOpen:true, title:`${t('editCustomField')}`,
       content: <CustomFieldForm selectedData={cf} index={index} onChange={(value, index) => addCustomFieldsMainTasks(value ,index)} />
     })
-    // if(cf.type === 'dropdown' || cf.type === 'status'){
-    // }
   }
 
   const handleTaskCustomField = (
@@ -334,7 +384,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   }
 
   // update task
-  const updateTask = async(taskId:string|ObjectId, cfdata:any)=>{
+  const updateTask = async(taskId:string|ObjectId, cfdata:any, refresh:boolean = true)=>{
 
     if(taskId && cfdata){
       try{
@@ -342,7 +392,9 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
         if(res.status === 'success'){
           const content = `${t(`RESPONSE.${res.code}`)}`;
           setFlashPopupData({...flashPopupData, isOpen:true, message:content})
-           getData();
+          if(refresh){
+            getData();
+          }
         }
       }catch(error){
         console.log(error);
@@ -600,6 +652,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                                 openCustomFieldsPopup={openCustomFieldsPopup}
                                 getData={getData}
                                 addTask={addTask}
+                                parentTask={st}
                                 handleTaskInput={handleTaskInput}
                               />
                             </td>
@@ -618,7 +671,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                      w-[200px] sticky left-[23px] bg-white z-2
                   '
                   >
-                      <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null})} showButton={false} 
+                      <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null, parentTask:null})} showButton={false} 
                       placeholder={`+ ${t('addTasks')}`}
                       customClasses='
                       text-xs

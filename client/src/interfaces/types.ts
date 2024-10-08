@@ -74,6 +74,7 @@ export interface BaseTask {
   endDate?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  level?:number;
   description?: string;
   createdBy: ObjectId;  // User reference
   sortOrder?: number;

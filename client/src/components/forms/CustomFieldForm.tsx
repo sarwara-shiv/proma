@@ -62,6 +62,14 @@ const CustomFieldForm:React.FC<ArgsType> = ({onChange, selectedData, index=null}
     }
   }
 
+  const isValid = ()=>{
+
+    return newDynamicField.key ? 
+      newDynamicField.type === 'dropdown' || newDynamicField.type === 'status' ? 
+      newDynamicField.value && Array.isArray(newDynamicField.value) && newDynamicField.value.length > 0 ? true : false : true
+    : false;
+  }
+
   const removeArrayValues = (index:number, value:string)=>{
     setNewDynamicField(prevVal=>{
       let nvals = prevVal.value;
@@ -127,7 +135,7 @@ const CustomFieldForm:React.FC<ArgsType> = ({onChange, selectedData, index=null}
         </div>
       }
       <div className='mt-4 flex justify-end'>
-          <CustomSmallButton type={index !== null && index >=0 ? 'update': 'add'} onClick={handleSubmit} text={index !== null && index >=0 ? `${t('updae')}`: `${t('add')}`}/>
+          <CustomSmallButton disable={!isValid()} type={index !== null && index >=0 ? 'update': 'add'} onClick={handleSubmit} text={index !== null && index >=0 ? `${t('updae')}`: `${t('add')}`}/>
       </div>
 
       
