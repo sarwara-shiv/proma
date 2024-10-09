@@ -88,8 +88,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       if(_cid) data = {...data, _cid};
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
-      console.log('-----------relatedUpdates--------------')
-      console.log(relatedUpdates)
+
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
         for (const update of relatedUpdates) {
           console.log(update);
@@ -102,13 +101,13 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
               console.log(savedRecord._id, update.ids)
               await relatedModel.updateMany(
                 { _id: { $in: update.ids } },  // IDs to match in the related collection
-                { $addToSet: { [update.field]: savedRecord._id } }  // Add the ID to the array field
+                { $addToSet: { [update.field]: update.value ? update.value : savedRecord._id } }  // Add the ID to the array field
               );
             } else if (update.type === 'string') {
               // Replace the existing ID in the field with the new record ID
               await relatedModel.updateMany(
                 { _id: { $in: update.ids } },  // IDs to match in the related collection
-                { $set: { [update.field]: savedRecord._id } }  // Replace the ID in the field
+                { $set: { [update.field]: update.value ? update.value : savedRecord._id } }  // Replace the ID in the field
               );
             }
           }
@@ -143,7 +142,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
 router.post('/:resource/update', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const { ...data } = req.body.data;
-  const { id, checkDataBy } = req.body; 
+  const { id, checkDataBy, relatedUpdates=[] } = req.body; 
 
   const model = getModel(resource);
 
@@ -182,6 +181,31 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
         // return res.status(404).json({ error: 'Record not found' });
         return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
       }
+      if (relatedUpdates && Array.isArray(relatedUpdates)) {
+        for (const update of relatedUpdates) {
+
+          const relatedModel = getModel(update.collection); // Get the model for the related collection
+          if (relatedModel) {
+            if (update.type === 'array') {
+              // Add the new record ID to an array field
+
+              await relatedModel.updateMany(
+                { _id: { $in: update.ids } },  // IDs to match in the related collection
+                { $addToSet: { [update.field]: update.value ? update.value : updatedRecord._id } }  // Add the ID to the array field
+              );
+            } else if (update.type === 'string') {
+
+             const res= await relatedModel.updateMany(
+                { _id: { $in: update.ids } },  // IDs to match in the related collection
+                { $set: { [update.field]: update.value ? update.value : updatedRecord._id  } }  // Replace the ID in the field
+              );
+              console.log('---------------------');
+              console.log(res);
+            }
+          }
+        }
+      }
+
       return res.status(200).json({ status: "success", message:'Record updated', code:"record_updated", data:updatedRecord });
     }
   } catch (error) {

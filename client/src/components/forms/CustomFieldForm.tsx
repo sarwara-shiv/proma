@@ -19,7 +19,8 @@ interface ArgsType{
 const emptyFields:DynamicField={
   key:'',
   type:'string',
-  value:''
+  value:'',
+  selectedValue:''
 }
 
 

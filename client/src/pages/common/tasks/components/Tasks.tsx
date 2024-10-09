@@ -20,12 +20,13 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
 import ColorPicker from '../../../../components/common/ColorPicker';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { CustomDropdown } from '../../../../components/forms';
+import { CustomDropdown, MensionUserInput } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
 import { sanitizeString } from '../../../../utils/commonUtils';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
+import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 
 interface ArgsType {
     cid?:string | null;
@@ -73,8 +74,8 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const [loader, setLoader] = useState(true);
 
 
-  const thStyles = 'text-xs font-normal text-slate-600 p-2 text-left border border-slate-200';
-  const tdStyles = 'text-xs font-normal text-slate-400 p-2 text-left  border border-slate-200';
+  const thStyles = 'text-xs font-normal font-medium p-1 text-left border border-slate-200';
+  const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
 
   const tdClasses = 'p-2 text-xs';
 
@@ -275,7 +276,9 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const addTask = async ({name, value, taskId, parentTask}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task | null})=>{
     const mid = mainTaskId as unknown as string;
     const createdBy = user?._id;
-    let responsiblePerson:ObjectId | string | null | undefined = user?._id;
+    let responsiblePerson:ObjectId | string | null | undefined = 
+    mainTaskData?.responsiblePerson ? (mainTaskData?.responsiblePerson as unknown as User )._id : user?._id;
+    ;
     if(mid && createdBy){
       try{
         let level = 1;
@@ -351,7 +354,8 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
       const tcf: DynamicField = {
         key: customField.key,
         type: customField.type,
-        value: value,
+        value: customField.value,
+        selectedValue:value
       };
   
       let nData: DynamicField[] = cfdata || []; // Ensure cfdata is an array or initialize it as an empty array
@@ -362,7 +366,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
         // If key exists, update the value
         nData = nData.map((d) => {
           if (d.key === customField.key) {
-            return { ...d, value: value }; // Create a new object to avoid direct mutation
+            return { ...d, selectedValue: value }; // Create a new object to avoid direct mutation
           }
           return d;
         });
@@ -376,7 +380,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     }
   };
 
-  const handleTaskInput = (taskId:string|ObjectId, field:string, value:string)=>{
+  const handleTaskInput = (taskId:string|ObjectId, field:string, value:string | Date | null)=>{
     if(taskId && field && value){
       const nData = {[field]:value};
       updateTask(taskId, nData);
@@ -395,6 +399,43 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
           if(refresh){
             getData();
           }
+        }
+      }catch(error){
+        console.log(error);
+      }
+    }
+  }
+
+  // handle responsible person
+  const handleResponsiblePerson = async(taskId:string|ObjectId, user:User)=>{
+    if(taskId && user){
+      const cTask = subtasks?.filter(st=>st._id === taskId);
+      let ids = [];
+      let relatedUpdates:RelatedUpdates[]= []
+      if(cTask){
+        console.log(cTask[0]);
+        ids = extractAllIds(cTask[0]);
+        console.log(ids);
+        if(ids && Array.isArray(ids) && ids.length > 0)
+        relatedUpdates= [{
+          collection:'tasks',
+          field:'responsiblePerson',
+          type:'string',
+          value:user._id,
+          ids:[...ids]
+       }]
+       console.log(relatedUpdates);
+      }
+
+      const tndata = {responsiblePerson : user._id}
+      try{
+        const res = await addUpdateRecords({type:'tasks', action:'update', relatedUpdates, id:taskId as unknown as string, body:{...tndata}});
+        if(res.status === 'success'){
+          const content = `${t(`RESPONSE.${res.code}`)}`;
+          setFlashPopupData({...flashPopupData, isOpen:true, message:content})
+          getData();
+        }else{
+          console.log(res);
         }
       }catch(error){
         console.log(error);
@@ -421,7 +462,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
             </div>
             }
             <div className='relative overflow-x-auto py-4'>
-            <table className='w-full table-fixed'>
+            <table className='w-full table-fixed text-slate-600'>
               <thead>
                 <tr key={'task-level-1'} className='text-sm font-normal'>
                   <th className='w-[20px] sticky left-0 bg-white z-2'></th>
@@ -430,8 +471,8 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   <th className={`${thStyles}  w-[160px] `}>{t('responsiblePerson')}</th>
                   <th className={`${thStyles} w-[120px] text-center`}>{t('priority')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[100px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[100px] text-center`} >{t('dueDate')}</th>
+                  <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
+                  <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
                   {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                     const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                     return (
@@ -471,7 +512,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                       </th>
                     );
                   })}
-                 <th className='border-b border-t border-l w-[50px]'>
+                 <th className='border-b border-t border-l w-[30px]'>
                   <div 
                   onClick={openCustomFieldsPopup}
                   className='
@@ -578,11 +619,48 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           </div>
                         </div>
                       </td>
-                      <td className={`${tdStyles}`}>{rUser ? rUser.name : ''}</td>
-                      <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>{st.priority}</td>
-                      <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>{t(`${st.status}`)}</td>
-                      <td className={`${tdStyles}`}>{st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''}</td>
-                      <td className={`${tdStyles}`}>{st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''}</td>
+                      <td className={`${tdStyles} group`}
+                      >
+                        <div className='relative flex justify-start align-center'>
+                          <div
+                            className=' group-hover:translate group-hover:translate-x-3 transition-all
+                            flex justify-between items-center'
+                          >{rUser ? rUser.name : ''}</div>
+                          <div 
+                          className='absolute left-[-5px] opacity-0 group-hover:opacity-100'
+                          >
+                            <CustomContextMenu >
+                                  <ul>
+                                    <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
+                                      <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/>
+                                    </li>
+                                  </ul>
+                              </CustomContextMenu>
+                          </div>
+                        </div>
+                      </td>
+                      <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
+                        <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'
+                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'priority', value)}
+                        />
+                        </td>
+                      <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>
+                        <CustomDropdown selectedValue={st.status} data={TaskStatuses} style='table'
+                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'status', value)}
+                        />
+                        </td>
+                      <td className={`${tdStyles} text-xs`}>
+                        {/* {st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''} */}
+                          <CustomDateTimePicker2 selectedDate={st.startDate ? st.startDate : null} style='table'
+                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
+                          />
+                        </td>
+                      <td className={`${tdStyles} text-xs`}>
+                        {/* {st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''} */}
+                          <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
+                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
+                          />
+                      </td>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
                         const tid = st._id ? st._id : '';
@@ -590,14 +668,14 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                         const cfdata = fV;
 
                         const cfcolor = cfdata && (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        `bg-${cfdata.value.color} text-${cfdata.value.color}-dark` : '';
+                        `bg-${cfdata.selectedValue.color} text-${cfdata.selectedValue.color}-dark` : '';
 
                         const cftype = cfdata ? cfdata.type : '';
 
                         const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.value._id : cfdata.value : null;
+                        cfdata.selectedValue._id : cfdata.selectedValue : null;
                         console.log('------------------');
-                        console.log(cfvalue);
+                        console.log(cfdata);
                         return (
                           <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
                             {(cf.type === 'dropdown' || cf.type === 'status') ? 

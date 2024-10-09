@@ -5,6 +5,7 @@ export interface RelatedUpdates{
   collection:string;
   field:string;
   type:'array' | 'string',
+  value?:string | ObjectId
   ids?:(string | ObjectId)[]
 }
 export interface DeleteRelated{
@@ -22,7 +23,8 @@ export interface NavItem {
 export interface DynamicField {
     key: string;
     type?:'dropdown' |'string'|'number'|'date' | 'status';
-    value?: any; // Since `Schema.Types.Mixed` can accept any type
+    value?:any;
+    selectedValue?: any; // Since `Schema.Types.Mixed` can accept any type
   }
   
   export interface PermissionsMap {

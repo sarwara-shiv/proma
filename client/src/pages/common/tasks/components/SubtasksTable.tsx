@@ -2,7 +2,7 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { DeleteById } from '../../../../components/actions';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import EnterInput from '../../../../components/forms/EnterInput';
-import { DynamicField, MainTask, QaTask, RelatedUpdates, Task, User } from '@/interfaces'
+import { DeleteRelated, DynamicField, MainTask, QaTask, RelatedUpdates, Task, User } from '@/interfaces'
 import { format } from 'date-fns';
 import { ObjectId } from 'mongodb'
 import React, { useEffect, useState } from 'react'
@@ -12,6 +12,9 @@ import { IoMdAdd } from 'react-icons/io';
 import { CustomDropdown } from '../../../../components/forms';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
+import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
+import CustomContextMenu from '../../../../components/common/CustomContextMenu';
+import { extractAllIds } from '../../../../utils/tasksUtils';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
@@ -26,7 +29,7 @@ interface ArgsType{
       value: any,
       cfdata: DynamicField[])=>void;
     getData:()=>void;
-    handleTaskInput:(taskId:string|ObjectId, field:string, value:string)=>void;
+    handleTaskInput:(taskId:string|ObjectId, field:string, value:string | Date | null)=>void;
     DeleteRelatedUpdates:RelatedUpdates[];
     addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task|null})=>void
 }
@@ -37,8 +40,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
 }) => {
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
-    const thStyles = 'text-xs font-normal text-slate-600 p-2 text-left border border-slate-200';
-    const tdStyles = 'text-xs font-normal text-slate-400 p-2 text-left  border border-slate-200';
+    const thStyles = 'text-xs font-normal font-medium p-1 text-left border border-slate-200';
+    const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
   
     const tdClasses = 'p-2 text-xs';
   useEffect(()=>{
@@ -64,8 +67,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                   <th className={`${thStyles}  w-[160px]`}>{t('responsiblePerson')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('priority')}</th>
                   <th className={`${thStyles} w-[120px] text-center`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[100px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[100px] text-center`} >{t('dueDate')}</th>
+                  <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
+                  <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
                   
                   {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                     const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
@@ -99,7 +102,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                   const cUser = st.createdBy as unknown as User;
                   const rUser = st.responsiblePerson as unknown as User;
                   const tskID = st._id;
-                  console.log(DeleteRelatedUpdates)
+                  const ids = extractAllIds(st);
+                  let deleteRelated:DeleteRelated[];
                   return (
                     <tr key={`task-${index}`} className='group hover:bg-slate-100'>
                       <td className='w-[20px] sticky left-[26px] bg-white z-10'>
@@ -116,11 +120,20 @@ const SubtasksTable:React.FC<ArgsType> = ({
                             group-hover:opacity-100
                           '
                           >
-                            {tskID && 
-                              <DeleteById style='fill' icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
-                                onYes={getData}
-                              />
-                            }
+                            <CustomContextMenu >
+                                <ul>
+                                  <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                    <div></div>
+                                    {tskID && 
+                                      <DeleteById style='fill' deleteRelated={
+                                        ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
+                                      } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
+                                        onYes={getData} text={`${t('delete')}`}
+                                      />
+                                    }
+                                  </li>
+                                </ul>
+                            </CustomContextMenu>
                           </div>
                       </td>
                       <td className='w-[5px] bg-green-200 border border-green-200 sticky left-[40px] z-10'></td>
@@ -131,10 +144,26 @@ const SubtasksTable:React.FC<ArgsType> = ({
                               />
                       </td>
                       <td className={`${tdStyles} w-[160px]`}>{rUser ? rUser.name : ''}</td>
-                      <td className={`${tdStyles} w-[120px] ${getColorClasses(st.priority)} text-center`}>{st.priority}</td>
-                      <td className={`${tdStyles}  w-[120px] ${getColorClasses(st.status)} text-center text-[10px]`}>{t(`${st.status}`)}</td>
-                      <td className={`${tdStyles} w-[80px] text-center`}>{st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''}</td>
-                      <td className={`${tdStyles} w-[80px] text-center`}>{st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''}</td>
+                      <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
+                        <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'
+                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'priority', value)}
+                        />
+                        </td>
+                      <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>
+                        <CustomDropdown selectedValue={st.status} data={TaskStatuses} style='table'
+                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'status', value)}
+                        />
+                        </td>                      
+                        <td className={`${tdStyles} w-[120px] text-center`}>
+                        <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
+                                    onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
+                            />
+                      </td>
+                      <td className={`${tdStyles} w-[120px] text-center`}>
+                      <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
+                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
+                          />
+                      </td>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
                         const tid = st._id ? st._id : '';
@@ -142,12 +171,12 @@ const SubtasksTable:React.FC<ArgsType> = ({
                         const cfdata = fV;
 
                         const cfcolor = cfdata && (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        `bg-${cfdata.value.color} text-${cfdata.value.color}-dark` : '';
+                        `bg-${cfdata.selectedValue.color} text-${cfdata.selectedValue.color}-dark` : '';
 
                         const cftype = cfdata ? cfdata.type : '';
 
                         const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.value._id : cfdata.value : '';                        
+                        cfdata.selectedValue._id : cfdata.selectedValue : '';                        
                         return (
                           <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
                             {(cf.type === 'dropdown' || cf.type === 'status') ? 

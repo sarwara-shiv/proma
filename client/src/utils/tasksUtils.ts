@@ -6,7 +6,7 @@
  * @param subtask - The task or subtask object that may contain nested subtasks
  * @returns An array of all `_id` values found in the task/subtasks structure
  */
-export const extractAllIds = (subtask: any): string[] => {
+export const extractAllIds = (subtask: any, field='subtasks'): string[] => {
     let ids: string[] = [];
   
     // Check if the current object has an _id and add it to the ids array
@@ -15,11 +15,12 @@ export const extractAllIds = (subtask: any): string[] => {
     }
   
     // If the current object has subtasks, recursively extract IDs from each subtask
-    if (subtask.subtasks && Array.isArray(subtask.subtasks)) {
-      subtask.subtasks.forEach((nestedSubtask: any) => {
+    if (subtask[field] && Array.isArray(subtask[field])) {
+      subtask[field].forEach((nestedSubtask: any) => {
         ids = [...ids, ...extractAllIds(nestedSubtask)];
       });
     }
+
   
     return ids;
 };
