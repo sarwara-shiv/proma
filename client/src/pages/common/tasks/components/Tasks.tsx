@@ -1,6 +1,6 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { AlertPopupType, BaseTask, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, Task, User } from '@/interfaces';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
 import { ObjectId } from 'mongodb';
@@ -72,6 +72,37 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
+
+
+  const [columnWidths, setColumnWidths] = useState<number[]>([100, 200, 300]); // Initial column widths
+
+  const startPosRef = useRef(0); // To store initial mouse position
+  const colIndexRef = useRef<number | null>(null); // To store the index of the resizing column
+  const startWidthRef = useRef<number | null>(null); // To store the initial column width
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (colIndexRef.current !== null && startWidthRef.current !== null) {
+      const delta = e.clientX - startPosRef.current; // Calculate change in mouse position
+      const newWidth = startWidthRef.current + delta; // Calculate new width
+      const updatedWidths = [...columnWidths];
+      updatedWidths[colIndexRef.current] = Math.max(newWidth, 50); // Minimum width set to 50px
+      setColumnWidths(updatedWidths);
+    }
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    colIndexRef.current = null;
+  };
+  const handleMouseDown = (e: React.MouseEvent, index: number) => {
+    startPosRef.current = e.clientX;
+    colIndexRef.current = index;
+    startWidthRef.current = columnWidths[index];
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
 
   const thStyles = 'text-xs font-normal font-medium p-1 text-left border border-slate-200';
@@ -467,8 +498,25 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                 <tr key={'task-level-1'} className='text-sm font-normal'>
                   <th className='w-[20px] sticky left-0 bg-white z-2'></th>
                   <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
-                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}>{t('task')}</th>
-                  <th className={`${thStyles}  w-[160px] `}>{t('responsiblePerson')}</th>
+                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
+                  style={{ width: `${columnWidths[0]}px`,
+                  }}
+                  >{t('task')}
+                  <div
+                    onMouseDown={(e) => handleMouseDown(e, 0)} // Add resize handle to column
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '5px',
+                      cursor: 'col-resize',
+                      backgroundColor: 'transparent',
+                    }}
+                  />
+                  </th>
+                  <th className={`${thStyles}  w-[160px] `}
+                  >{t('responsiblePerson')}</th>
                   <th className={`${thStyles} w-[120px] text-center`}>{t('priority')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
                   <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>

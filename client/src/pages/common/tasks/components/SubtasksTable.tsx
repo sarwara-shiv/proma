@@ -155,13 +155,13 @@ const SubtasksTable:React.FC<ArgsType> = ({
                         />
                         </td>                      
                         <td className={`${tdStyles} w-[120px] text-center`}>
-                        <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
+                        <CustomDateTimePicker2 selectedDate={st.startDate ? st.startDate : null} style='table'
                                     onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
                             />
                       </td>
                       <td className={`${tdStyles} w-[120px] text-center`}>
                       <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
-                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
+                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
                           />
                       </td>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
