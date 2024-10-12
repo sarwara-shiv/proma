@@ -43,7 +43,7 @@ const kickoffDataInitial: Kickoff = {
 
 
 
-const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNavItems }) => {
+const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', setSubNavItems }) => {
     const { t } = useTranslation();
     const {id} = useParams();
     const [formData, setFormData] = useState<Project>();
@@ -63,7 +63,15 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
     // Load data when the component mounts
     useEffect(() => {
- 
+        setSubNavItems && setSubNavItems(subNavItems);
+        if(!cid){
+            cid = id;
+            setProjectId(cid ? cid : id ? id : '');
+        }
+        if (data) {
+            const user: User = data.createdBy as unknown as User;
+            setCreatedBy(user);
+        }
     }, [kickoffData]);
 
     useEffect(()=>{
@@ -82,6 +90,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
             if(projectId){
                 const res = await getRecordWithID({id:projectId, populateFields, type:'projects'});
+                console.log(res);
 
                 if(res.status === 'success' && res.data){
                     if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
@@ -119,6 +128,26 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
         }
     };
 
+    // Handle removing a goal
+    const removeFromArray = ({ name, index }: { name: string, index: number }) => {
+        if ((index || index === 0) && name) {
+            // setKickoffData((prevData) => ({
+            //     ...prevData,
+            //     [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Remove goal at index
+            // }));
+            setKickoffData((prevData) => {
+                // Make sure the name corresponds to an array in kickoffData
+                if (name === 'goals' || name === 'inScope' || name === 'outOfScope' || name==='keyDeliverables') {
+                    return {
+                        ...prevData,
+                        [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Add the new value to the array
+                    };
+                }
+                return prevData;
+            });
+        }
+    };
+
     // Handle final update after drag-and-drop reordering
     const handleFinalUpdateGoals = (name:string, updatedItems: string[]) => {
         setKickoffData((prevData) => ({
@@ -137,6 +166,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     }
     // responsibilities
     const handleMilestone = (name:string, value:Milestone[])=>{
+        console.log(value);
         setKickoffData((prevData) => ({
             ...prevData,
             milestones: value 
@@ -146,11 +176,14 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      console.log(kickoffData);
     const pid = cid ? cid : id;
       if(verifyData() && pid){
         try{
+            console.log(pid);
           const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:kickoffData}});
           if(res.status === 'success'){
+            console.log(res);
           }
 
         }catch(error){
@@ -169,7 +202,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     }
 
     return (
-        <div className='data-wrap relative'>
+        <div className='data-wrap'>12345
           <form onSubmit={submitForm}>
             {formData &&
                 <>
@@ -334,7 +367,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                     </div>
 
                      {/* Project milestones */}
-                     <div className='relative bg-slate-100 rounded-md px-3 pb-4  mt-4 w-full'>
+                     <div className='bg-slate-100 rounded-md px-3 pb-4  mt-4 w-full'>
                          <div className='block'>
                              <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
                         </div>
@@ -387,4 +420,4 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     );
 };
 
-export default KickoffForm;
+export default KickoffForm_backup;

@@ -169,11 +169,18 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
         });
     }else{
 
+      //  encode password
       const hasPassword = Object.prototype.hasOwnProperty.call(data, 'password');
       if(hasPassword){
         const password = data.password;
         const hashedPassword = await bcrypt.hash(password, 10);
         data.password = hashedPassword;
+      }
+
+      // add end date
+      const hasStatus = Object.prototype.hasOwnProperty.call(data, 'status');
+      if(hasStatus && data.status === 'completed'){
+        data['endDate'] =  Date.now(); 
       }
 
       const updatedRecord = await model.findByIdAndUpdate(id, data, { new: true });

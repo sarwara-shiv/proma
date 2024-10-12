@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { CustomAlert, FlashPopup, Loader } from '../../../../components/common'
 import Pagination from '../../../../components/common/Pagination';
 import { ColumnDef } from '@tanstack/react-table';
-import { getRecordsWithFilters } from '../../../../hooks/dbHooks';
+import { addUpdateRecords, getRecordsWithFilters } from '../../../../hooks/dbHooks';
 import { AlertPopupType, FlashPopupType, MainTask, OrderByFilter, PaginationProps, Project, QueryFilters, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
 import { CustomDropdown } from '../../../../components/forms';
@@ -13,7 +13,13 @@ import { IoCreateOutline } from 'react-icons/io5';
 import DataTable from '../../../..//components/table/DataTable';
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { FaTasks } from 'react-icons/fa';
+import { ObjectId } from 'mongodb';
+import { TaskStatuses } from '../../../../config/predefinedDataConfig';
+import { getColorClasses } from '../../../../mapping/ColorClasses';
+import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 
+const pinnedColumns=['name', '_pid'];
+const fixedWidthColumns=['actions', 'startDate', 'dueDate', 'endDate', 'createdAt', 'tasks'];
 const MainTasksAll = () => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
@@ -87,7 +93,7 @@ const MainTasksAll = () => {
         {
           header: `${t('project')}`,
           accessorKey: '_pid',
-          id:"project",
+          id:"_pid",
             meta:{
                 style :{
                 textAlign:'left',
@@ -98,62 +104,111 @@ const MainTasksAll = () => {
                 return <span>{project.name}</span>;
             },
         },
-        
-      
         {
-          header: `${t('startDate')}`, 
-          accessorKey: 'startDate',
-          cell: ({ getValue }: { getValue: () => string }) => {
-            const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
-            return <span>{date}</span>;
+            header: `${t('status')}`,
+            accessorKey: 'status',
+            id:"status",
+            cell: ({ getValue, row }) => {
+              const status = getValue() && getValue();
+              const _id = row.original._id
+              return (
+                  <div className={`flex justify-center items-center ${getColorClasses(status)} text-center text-[10px]`}>  
+                      <div className='w-full rounded-sm'>
+                          <CustomDropdown 
+                                  data={TaskStatuses} 
+                              label={''} 
+                              style='table'
+                                  name='status'
+                              onChange={handleDataChange} selectedValue={status} recordId={_id} 
+                              />
+                      </div>
+                  </div>
+              ); 
+            },
+              meta:{
+                  style :{
+                  textAlign:'center',
+                  }
+              }
           },
+        {
+            header: `${t('startDate')}`,
+            accessorKey: 'startDate',
+            id:"startDate",
+            cell: ({ getValue, row }) => {
+              const startDate = getValue() && getValue();
+              const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+              const _id = row.original._id
+              return (
+                  <div className={`flex relative w-full border-b bg-transparent`}>  
+                    <CustomDateTimePicker2 
+                        selectedDate={startDate}
+                        onChange={handleDateChange}
+                        showTimeSelect={false}
+                        recordId={_id}
+                        name="startDate"
+                        label=''
+                        style='table'
+                    />
+                  </div>
+              ); 
+            },
             meta:{
                 style :{
                 textAlign:'center',
+                width:'120px'
                 }
             }
         },
         {
-          header: `${t('dueDate')}`, 
-          accessorKey: 'dueDate',
-          cell: ({ getValue }: { getValue: () => string }) => {
-            const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
-            return <span>{date}</span>;
-          },
+            header: `${t('dueDate')}`,
+            accessorKey: 'dueDate',
+            id:"dueDate",
+            cell: ({ getValue, row }) => {
+              const dueDate = getValue() && getValue();
+              const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+              const _id = row.original._id
+              return (
+                  <div className={`flex relative w-full border-b bg-transparent`}>  
+                    <CustomDateTimePicker2 
+                        selectedDate={dueDate}
+                        onChange={handleDateChange}
+                        showTimeSelect={false}
+                        recordId={_id}
+                        name="dueDate"
+                        label=''
+                        style='table'
+                    />
+                  </div>
+              ); 
+            },
             meta:{
                 style :{
                 textAlign:'center',
+                width:'120px'
                 }
             }
         },
-        {
-          header: `${t('endDate')}`, 
-          accessorKey: 'endDate',
-          cell: ({ getValue }: { getValue: () => string }) => {
-            const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
-            return <span>{date}</span>;
-          },
-            meta:{
-                style :{
-                textAlign:'center',
-                }
-            }
-        },
-        {
-          header: `${t('status')}`, 
-          accessorKey: 'status',
-          cell: ({ getValue }: { getValue: () => string }) => {
-            return <span>{getValue()}</span>;
-          },
-            meta:{
-                style :{
-                textAlign:'center',
-                }
-            }
-        },
+        // {
+        //   header: `${t('endDate')}`, 
+        //   accessorKey: 'endDate',
+        //   id: 'endDate',
+        //   cell: ({ getValue }: { getValue: () => string }) => {
+        //     const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+        //     return <span>{date}</span>;
+        //   },
+        //     meta:{
+        //         style :{
+        //         textAlign:'center',
+        //         width:'130px'
+        //         }
+        //     }
+        // },
+       
         {
           header: `${t('createdBy')}`, 
           accessorKey: 'createdBy',
+          id: 'createdBy',
           cell: ({ getValue }: { getValue: () => string }) => {
             const cUser = getValue() as unknown as User
             return <span>{cUser.name}</span>;
@@ -187,12 +242,13 @@ const MainTasksAll = () => {
             meta:{
                 style :{
                 textAlign:'center',
+                width:'130px'
                 }
             }
         },
         {
             header:`${t('tasks')}`,
-            id:'links',
+            id:'tasks',
             cell: ({ row }: { row: any }) => (
                 <div style={{ textAlign: 'center' }} className='hover:bg-white rounded-sm hover:shadow-sm'>
                     {/* {row.original.isEditable && <></>
@@ -215,12 +271,13 @@ const MainTasksAll = () => {
             meta:{
                 style :{
                 textAlign:'center',
-                width:"130px"
+                width:"80px"
                 }
             }
         },
         {
             header:`${t('actions')}`,
+            id:'actions',
             cell: ({ row }: { row: any }) => (
                 <div style={{ textAlign: 'center' }} className='text-md'>
                     {/* {row.original.isEditable && <></>
@@ -254,6 +311,40 @@ const MainTasksAll = () => {
         }
     }
 
+    const handleDataChange = async (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
+        console.log(recordId, name, value, selectedData);
+        if(recordId && name && value){
+          const nData = {[name]:value};
+          updateData(recordId, nData);
+        }
+      };
+      const handleDateChange = (recordId:string|ObjectId, value: Date | null, name:string)=>{
+        console.log(recordId, value, name);
+        if(recordId && name && value){
+          const nData = {[name]:value};
+          updateData(recordId, nData);
+        }
+      }
+
+      const updateData = async(id:string|ObjectId, newData:any)=>{
+        if(id && newData){
+          try{
+            const res = await addUpdateRecords({id:id as unknown as string, action:'update', type:'maintasks', body:{...newData}});
+            if(res){
+              const message = `${t(`RESPONSE.${res.code}`)}`;
+              if(res.status === 'success'){
+                setFlashPopupData({...flashPopupData, isOpen:true, message, type:'success'});
+                getRecords();
+              }else{
+                setFlashPopupData({...flashPopupData, isOpen:true, message, type:'fail'});
+              }
+            }
+          }catch(err){
+            console.log(err);
+          }
+        }
+      }
+
   return (
     <div>
         {loader ? (
@@ -262,7 +353,9 @@ const MainTasksAll = () => {
                 <div className='data-wrap'>
                     {data && data.length > 0 ? (
                         <div className='relative bg-white p-4 rounded-md overflow-y-auto w-full'>
-                            <DataTable columns={columns} data={data}/>
+                            <DataTable columns={columns} data={data} pinnedColumns={pinnedColumns}
+                                fixWidthColumns={fixedWidthColumns}
+                            />
                             <Pagination
                                 currentPage={paginationData.currentPage} 
                                 totalPages={paginationData.totalPages} 

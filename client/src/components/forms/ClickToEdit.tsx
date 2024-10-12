@@ -6,10 +6,11 @@ interface ArgsType{
     value:string;
     onChange?: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, data:any) => void;
     onBlur:(value:string, data:any)=>void;
+    children?: React.ReactNode;
 }
 
 
-const ClickToEdit: React.FC<ArgsType> = ({name, data="", value, onChange, onBlur}) => {
+const ClickToEdit: React.FC<ArgsType> = ({name, data="", value, onChange, onBlur, children}) => {
   const textRef = useRef<HTMLDivElement>(null); // Reference for the div
   const inputRef = useRef<HTMLInputElement>(null); // Reference for the input
   const [nValue, setnValue] = useState<string>(value);
@@ -50,23 +51,25 @@ const ClickToEdit: React.FC<ArgsType> = ({name, data="", value, onChange, onBlur
       <div ref={textRef} onClick={handleDivClick} className={`
             border border-transparent px-1 py-0.2 min-h-[20px] hover:border-slate-300
         `}>
-        {value && nValue.replace(/\s+/g, '') ? <>{nValue}</> : <>-</>}
+        {nValue && nValue.replace(/\s+/g, '') ? <>{nValue}</> : <>-</>}
       </div>
       
       {/* This input will replace the div when clicked */}
-      <input
-        ref={inputRef}
-        type="text"
-        defaultValue={nValue}
-        style={{ display: 'none' }}
-        onChange={(e)=>setnValue(e.target.value)}
-        onBlur={handleInputBlur}
-        onKeyDown={handleKeyPress}
-        className={`w-full
-               border-none, outline-none, border border-transparent px-1 py-0.2
-               focus:border focus:border-slate-400  focus:outline-none 
-            `}
-      />
+      {children ? children : 
+        <input
+          ref={inputRef}
+          type="text"
+          defaultValue={nValue}
+          style={{ display: 'none' }}
+          onChange={(e)=>setnValue(e.target.value)}
+          onBlur={handleInputBlur}
+          onKeyDown={handleKeyPress}
+          className={`w-full
+                border-none, outline-none, border border-transparent px-1 py-0.2
+                focus:border focus:border-slate-400  focus:outline-none 
+              `}
+        />
+      }
     </div>
   );
 };

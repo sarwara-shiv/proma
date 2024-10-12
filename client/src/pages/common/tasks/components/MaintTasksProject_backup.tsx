@@ -1,15 +1,15 @@
-import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
+import { getRecordWithID } from '../../../../hooks/dbHooks';
 import { AlertPopupType, FlashPopupType, MainTask, NavItem, Project, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
-import { NavLink, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
 import { ObjectId } from 'mongodb';
 import { endOfDay, format } from 'date-fns';
 import path from 'path';
 import { useTranslation } from 'react-i18next';
-import { FaAd, FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { FaAd, FaPencilAlt } from 'react-icons/fa';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
-import { CustomAlert, FlashPopup } from '../../../../components/common';
+import { CustomAlert } from '../../../../components/common';
 import { ColumnDef } from '@tanstack/react-table';
 import { CustomDropdown } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
@@ -27,7 +27,7 @@ interface ArgsType {
 const pinnedColumns = ['name'];
 const fixedWidthColumns = ['startDate', 'dueDate', 'endDate', 'action'];
 
-const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
+const MainTasksProject_backup:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
   const [projectData, setProjectData] = useState<Project>();
@@ -111,7 +111,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         meta:{
             style :{
             textAlign:'center',
-            width:'120px'
+            width:'130px'
             }
         }
     },
@@ -140,7 +140,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         meta:{
             style :{
             textAlign:'center',
-            width:'120px'
+            width:'130px'
             }
         }
     },
@@ -169,7 +169,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         meta:{
             style :{
             textAlign:'center',
-            width:'120px'
+            width:'130px'
             }
         }
     },
@@ -201,39 +201,6 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
             }
         }
     },
-    {
-      header:`${t('tasks')}`,
-      id:'tasks',
-      cell: ({ row }: { row: any }) => (
-          <div style={{ textAlign: 'center' }} className='hover:bg-white rounded-sm hover:shadow-sm'>
-              {/* {row.original.isEditable && <></>
-              } */}
-              <div className='flex align-center justify-center flex-row py-[1px]'>
-              <NavLink
-                to={`${window.location.pathname.replace(/\/[^/]+\/maintasks\/[^/]+$/, '/maintasks/tasks/' + row.original._id)}`}// Dynamically build the URL using the _id
-                state={{ objectId: row.original._id, data: row.original }} // Passing the _id and data in state
-                title={`${t('maintasks')}`}
-                className="p-1 ml-1 flex justify-center items-center inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
-              >
-                <FaTasks /> 
-                <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
-                  {row.original.subtasks && row.original.subtasks.length > 0 ? (
-                    <>{row.original.subtasks.length}</>
-                  ) : (
-                    0
-                  )}
-                </span>
-              </NavLink>
-              </div>
-          </div>
-      ),
-      meta:{
-          style :{
-          textAlign:'center',
-          width:"80px"
-          }
-      }
-  },
     {
       header: `${t('action')}`,
       id:"action",
@@ -274,36 +241,10 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
 
   const handleDataChange = async (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
     console.log(recordId, name, value, selectedData);
-    if(recordId && name && value){
-      const nData = {[name]:value};
-      updateData(recordId, nData);
-    }
-  };
-  const handleDateChange = (recordId:string|ObjectId, value: Date | null, name:string)=>{
-    console.log(recordId, value, name);
-    if(recordId && name && value){
-      const nData = {[name]:value};
-      updateData(recordId, nData);
-    }
-  }
-
-const updateData = async(id:string|ObjectId, newData:any)=>{
-  if(id && newData){
-    try{
-      const res = await addUpdateRecords({id:id as unknown as string, action:'update', type:'maintasks', body:{...newData}});
-      if(res){
-        const message = `${t(`RESPONSE.${res.code}`)}`;
-        if(res.status === 'success'){
-          setFlashPopupData({...flashPopupData, isOpen:true, message, type:'success'});
-          getData();
-        }else{
-          setFlashPopupData({...flashPopupData, isOpen:true, message, type:'fail'});
-        }
-      }
-    }catch(err){
-      console.log(err);
-    }
-  }
+    
+};
+const handleDateChange = (recordId:string|ObjectId, value: Date | null, name:string)=>{
+  console.log(recordId, value, name);
 }
 
   const getData = async ()=>{
@@ -383,6 +324,54 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
                 fixWidthColumns={fixedWidthColumns}
               />
             }
+            {projectData?.mainTasks && 
+              <table className='w-full'>
+                <thead>
+                  <tr className='text-left text-xs border-b border-slate-400 font-semibold'>
+                    <th className={`${tdClasses}`}>Name</th>
+                    <th className={`${tdClasses}`}>startDate</th>
+                    <th className={`${tdClasses}`}>dueDate</th>
+                    <th className={`${tdClasses}`}>endDate</th>
+                    <th className={`${tdClasses}`}>createdBy</th>
+                    <th className={`${tdClasses}`}>responsible Person</th>
+                    <th className={`${tdClasses}`}>status</th>
+                    <th className={`${tdClasses} text-center`}>action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(projectData.mainTasks as unknown as MainTask[]).map((mTask, index)=>{
+                    const createdBy = mTask.createdBy as unknown as User;
+                    const rUser = mTask.responsiblePerson as unknown as User;
+                    return (
+                      <tr key={`mt-${mTask._id}-${index}`} 
+                      className='text-sm 
+                      text-gray-400
+                      border-b
+                       odd:bg-slate-100
+                      '
+                      >
+                        <td className={`${tdClasses}`}>{mTask.name}</td>
+                        <td className={`${tdClasses}`}>{mTask.startDate && format(mTask.startDate, 'dd.MM.yyyy')}</td>
+                        <td className={`${tdClasses}`}>{mTask.dueDate && format(mTask.dueDate, 'dd.MM.yyyy')}</td>
+                        <td className={`${tdClasses}`}>{mTask.endDate && format(mTask.endDate, 'dd.MM.yyyy')}</td>
+                        <td className={`${tdClasses}`}>{createdBy && createdBy.name}</td> 
+                        <td className={`${tdClasses}`}>{rUser && rUser.name}</td> 
+                        <td className={`${tdClasses}`}>{t(`${mTask.status}`)}</td>
+                        <td className={`${tdClasses} text-center`}>
+                            <div className='cursor-pointer flex justify-center hover:text-green-500' 
+                                onClick={()=>addUpdateMainTask(mTask._pid, action='update', mTask)}
+                            >
+                                { editTask && editTask._id === mTask._id ? 
+                                    <IoMdClose size={20} className='text-red-500'/> : <FaPencilAlt /> 
+                                }
+                            </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                 </tbody>
+              </table>
+            }
           </div>
           {/* <div>
             <MainTaskForm pid={projectId} onChange={updateMainTasks} action={editTask ? 'update' : 'add'} mainTask={editTask} mainTasks={data && data.mainTasks as unknown as MainTask[] || []}/>
@@ -398,11 +387,8 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
           title={alertData.title}
           type={alertData.type || 'info'}  
         />
-        <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
-
-    
     </div>
   )
 }
 
-export default MainTasksProject
+export default MainTasksProject_backup

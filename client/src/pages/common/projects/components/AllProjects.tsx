@@ -4,7 +4,7 @@ import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { IoCreateOutline, IoEllipsisVertical, IoLockClosed } from "react-icons/io5";
-import { FaEye, FaTasks } from 'react-icons/fa';
+import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
 
 import { MdRocketLaunch } from "react-icons/md";
 
@@ -27,11 +27,16 @@ import { CustomDropdown } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import Pagination from '../../../../components/common/Pagination';
+import CustomContextMenu from '../../../../components/common/CustomContextMenu';
+import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
     navItems:NavItem[];
 }
+
+const pinnedColumns = ['_cid', 'name'];
+const fixedWidthColumns = ['startDate', 'endDate', 'createdAt', 'links'];
 
 const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const {t} = useTranslation();
@@ -95,22 +100,17 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             const status = getValue() && getValue();
             const _id = row.original._id
             return (
-                <>  
-                    <span onClick={()=>handleCellClick(
-                        {
-                            name:'status', 
-                            value:status, 
-                            content:<CustomDropdown 
-                                        data={ProjectStatuses} 
-                                        label={''} 
-                                        name='status'
-                                        onChange={handleDataChange} selectedValue={status} recordId={_id} 
-                                    />, 
-                            title:`${t('status')}`
-                        }
-                    )} 
-                    className={`cursor-pointer underline italic px-1 rounded-sm ${getColorClasses(status)}`}>  {`${t(`${status}`)}`}</span>
-                </>
+                <div className={`flex justify-center items-center ${getColorClasses(status)} text-center text-[10px]`}>  
+                    <div className='w-full rounded-sm'>
+                        <CustomDropdown 
+                                data={ProjectStatuses} 
+                            label={''} 
+                            style='table'
+                                name='status'
+                            onChange={handleDataChange} selectedValue={status} recordId={_id} 
+                            />
+                    </div>
+                </div>
             ); 
           },
             meta:{
@@ -127,23 +127,18 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             const priority = getValue() && getValue();
             const _id = row.original._id
             return (
-                <>  
-                    <span
-                    onClick={()=>handleCellClick(
-                        {
-                            name:'priority', 
-                            value:priority, 
-                            content:<CustomDropdown 
-                                        data={Priorities} 
-                                        label={''} 
-                                        name='priority'
-                                        onChange={handleDataChange} selectedValue={priority} recordId={_id} 
-                                    />, 
-                            title:`${t('priority')}`
-                        }
-                    )} 
-                    className={`cursor-pointer underline italic px-1 rounded-sm ${getColorClasses(priority)}`}>  {`${t(`${priority}`)}`}</span>
-                </>
+            <div className={`flex justify-center items-center ${getColorClasses(priority)} text-center text-[10px]`}>  
+                    <div className='w-full rounded-sm'>
+                        <CustomDropdown 
+                                data={Priorities} 
+                            label={''} 
+                            style='table'
+                                name='priority'
+                            onChange={handleDataChange} selectedValue={priority} recordId={_id} 
+                            />
+                    </div>
+                </div>
+
             ); 
           },
             meta:{
@@ -176,30 +171,23 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
               const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
               const _id = row.original._id
               return (
-                  <>  
-                      <span
-                      onClick={()=>handleCellClick(
-                          {
-                              name:'startDate', 
-                              value:startDate, 
-                              content:<CustomDateTimePicker
-                                  selectedDate={startDate}
-                                  onChange={handleDateChange}
-                                  showTimeSelect={false}
-                                  recordId={_id}
-                                  name="startDate"
-                                  label=''
-                              />, 
-                              title:`${t('startDate')}`
-                          }
-                      )} 
-                      className={`cursor-pointer underline italic px-1 rounded-s `}>  {date}</span>
-                  </>
+                  <div className={`flex relative w-full border-b bg-transparent`}>  
+                    <CustomDateTimePicker2 
+                        selectedDate={startDate}
+                        onChange={handleDateChange}
+                        showTimeSelect={false}
+                        recordId={_id}
+                        name="startDate"
+                        label=''
+                        style='table'
+                    />
+                  </div>
               ); 
             },
               meta:{
                   style :{
                   textAlign:'center',
+                  width:'130px'
                   }
               }
         },
@@ -212,30 +200,24 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
               const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
               const _id = row.original._id
               return (
-                  <>  
-                      <span
-                      onClick={()=>handleCellClick(
-                          {
-                              name:'endDate', 
-                              value:endDate, 
-                              content:<CustomDateTimePicker
-                                  selectedDate={endDate}
-                                  onChange={handleDateChange}
-                                  showTimeSelect={false}
-                                  recordId={_id}
-                                  name="endDate"
-                                  label=''
-                              />, 
-                              title:`${t('endDate')}`
-                          }
-                      )} 
-                      className={`cursor-pointer underline italic px-1 rounded-s `}>  {date || '-'}</span>
-                  </>
+                <div className={`flex relative w-full border-b bg-transparent`}>  
+                    <CustomDateTimePicker2 
+                        selectedDate={endDate}
+                        onChange={handleDateChange}
+                        showTimeSelect={false}
+                        recordId={_id}
+                        name="endDate"
+                        label=''
+                        style='table'
+                    />
+                  </div>
+
               ); 
             },
               meta:{
                   style :{
                   textAlign:'center',
+                  width:'130px'
                   }
               }
         },
@@ -249,6 +231,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             meta:{
                 style :{
                 textAlign:'center',
+                width:'130px'
                 }
             }
         },
@@ -278,9 +261,45 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                             >
                               <FaEye /> 
                         </NavLink>
-                        <div className='inline-block p-1 ml-1 cursor-pointer hover:bg-primary-light hover:text-primary'>
-                            <SubNavigationCell id='' navItems={[]} rowData={{}} onClose={()=>{console.log('closed')}}/>
-                        </div>
+                        <CustomContextMenu >
+                            <ul>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <NavLink
+                                        to={`kickoff/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
+                                        className="flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                        >
+                                         {t('kickoff')}<MdRocketLaunch /> 
+                                    </NavLink>
+                                </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <NavLink
+                                        to={`maintasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
+                                        className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                        >
+                                        {t('tasks')}<FaTasks /> 
+                                    </NavLink>
+                                </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <NavLink
+                                        to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
+                                        className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                        >
+                                        {t('view')}<FaEye /> 
+                                    </NavLink>
+                                </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <NavLink
+                                        to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                                        className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                                        >
+                                        {t('update')} <FaPencilAlt />
+                                    </NavLink>
+                                </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <DeleteById text={t('delete')} data={{id:row.original._id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                                </li>
+                            </ul>
+                        </CustomContextMenu>
                     </div>
                 </div>
             ),
@@ -288,31 +307,6 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 style :{
                 textAlign:'center',
                 width:"130px"
-                }
-            }
-        },
-        {
-            header:`${t('actions')}`,
-            cell: ({ row }: { row: any }) => (
-                <div style={{ textAlign: 'center' }} className='text-md'>
-                    {/* {row.original.isEditable && <></>
-                    } */}
-                    <div>
-                        <DeleteById data={{id:row.original._id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
-                        <NavLink
-                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
-                            className="p-1 ml-1  inline-block text-green-700 hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
-                            >
-                              <IoCreateOutline /> 
-                        </NavLink>
-                    </div>
-                    
-                </div>
-            ),
-            meta:{
-                style :{
-                textAlign:'center',
-                width:"60px"
                 }
             }
         },
@@ -382,6 +376,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 const content = `${t(`RESPONSE.${response.code}`)}`;
                 // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content});
                 setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
+                getRecords();
 
             }else{
                 const content = `${t(`RESPONSE.${response.code}`)}`;
@@ -471,7 +466,10 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 <div className='data-wrap'>
                     {data.length > 0 ? (
                         <div className='relative bg-white p-4 rounded-md overflow-y-auto w-full'>
-                            <DataTable columns={columns} data={data}/>
+                            <DataTable columns={columns} data={data}
+                                pinnedColumns={pinnedColumns}
+                                fixWidthColumns={fixedWidthColumns}
+                            />
                             <Pagination
                                 currentPage={paginationData.currentPage} 
                                 totalPages={paginationData.totalPages} 

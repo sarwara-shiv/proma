@@ -12,6 +12,7 @@
 .react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle{
     fill:var(--primary);
     color:var(--primary);
+    display: none;
 }
 .react-datepicker-popper .react-datepicker__triangle{
     stroke: var(--primary);
@@ -41,4 +42,7 @@
 }
 .react-datepicker__navigation:hover *::before {
     border-color: var(--primary);
+}
+.react-datepicker-popper{
+    z-index: 999;
 }

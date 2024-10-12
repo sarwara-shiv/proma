@@ -35,7 +35,7 @@ const CustomAlert: React.FC<AlertPopupType> = ({ isOpen, onClose, title, content
 
   return (
     <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4`}>
-      <div className={`bg-white p-2 rounded shadow-lg max-w-${type === 'form' ? 'md' : 'sm'} w-full`} ref={popupRef}>
+      <div className={`bg-white p-2 rounded shadow-lg max-w-${type === 'form' ? '[700px]' : 'sm'} `} ref={popupRef}>
         <div className="relative flex justify-between items-center border-b mb-2">
           <h2 className={`font-semibold ${typeClasses[type]}`}>
             {title ? title : type === 'error' ? 'Error' : type === 'success' ? 'Success' : type === 'warning' ? 'Warning' : 'Info'}

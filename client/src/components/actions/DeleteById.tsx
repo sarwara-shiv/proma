@@ -66,13 +66,16 @@ const DeleteById: React.FC<ArgsType> = ({
           flex
           justify-between
           align-center
-          p-0.5 
           text-red-500 
           text-xs`
       }
           onClick={confirmDelete}
       >
-              {text} 
+              {text}  {
+              icon === 'bin' ? <IoTrash /> :
+              icon === 'close' ? <IoMdClose /> :
+              icon === 'minus' ? <IoRemove /> :<IoTrash />
+              }
       </div>
         
         :

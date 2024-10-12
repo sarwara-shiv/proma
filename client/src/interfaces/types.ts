@@ -5,7 +5,7 @@ export interface RelatedUpdates{
   collection:string;
   field:string;
   type:'array' | 'string',
-  value?:string | ObjectId
+  value?:string | ObjectId 
   ids?:(string | ObjectId)[]
 }
 export interface DeleteRelated{

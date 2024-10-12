@@ -14,7 +14,7 @@ import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import { useAuth } from '../../../../hooks/useAuth';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { DeleteById } from '../../../../components/actions';
-import { FaAngleRight } from 'react-icons/fa';
+import { FaAngleRight, FaUserCircle } from 'react-icons/fa';
 import SubtasksTable from './SubtasksTable';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
@@ -73,8 +73,10 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
 
-
+  const columnKeys = subtasks && subtasks.length > 0 ? Object.keys(subtasks[0]) : [];
+  const initialWidths = columnKeys.map(() => 150);
   const [columnWidths, setColumnWidths] = useState<number[]>([100, 200, 300]); // Initial column widths
+  
 
   const startPosRef = useRef(0); // To store initial mouse position
   const colIndexRef = useRef<number | null>(null); // To store the index of the resizing column
@@ -499,25 +501,12 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   <th className='w-[20px] sticky left-0 bg-white z-2'></th>
                   <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
                   <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
-                  style={{ width: `${columnWidths[0]}px`,
-                  }}
                   >{t('task')}
-                  <div
-                    onMouseDown={(e) => handleMouseDown(e, 0)} // Add resize handle to column
-                    style={{
-                      position: 'absolute',
-                      right: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: '5px',
-                      cursor: 'col-resize',
-                      backgroundColor: 'transparent',
-                    }}
-                  />
                   </th>
                   <th className={`${thStyles}  w-[160px] `}
                   >{t('responsiblePerson')}</th>
-                  <th className={`${thStyles} w-[120px] text-center`}>{t('priority')}</th>
+                  <th className={`${thStyles} w-[120px] text-center`}>
+                    {t('priority')}</th>
                   <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
                   <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
                   <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
@@ -673,13 +662,18 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                           <div
                             className=' group-hover:translate group-hover:translate-x-3 transition-all
                             flex justify-between items-center'
-                          >{rUser ? rUser.name : ''}</div>
+                          >{rUser ? rUser.name : 
+                          <div className='text-slate-400 flex items-center justify-start'>
+                            <FaUserCircle size={16} className='text-slate-200'/> 
+                            </div>
+                          }</div>
                           <div 
                           className='absolute left-[-5px] opacity-0 group-hover:opacity-100'
                           >
                             <CustomContextMenu >
                                   <ul>
                                     <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
+                                      <p className='text-xs text-slate-400'>Responsible Person</p>
                                       <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/>
                                     </li>
                                   </ul>

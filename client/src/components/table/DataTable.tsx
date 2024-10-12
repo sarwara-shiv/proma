@@ -1,70 +1,181 @@
-// Table.tsx
-import React, { useMemo } from 'react';
-import { useReactTable, ColumnDef, ColumnMeta, flexRender, getCoreRowModel } from '@tanstack/react-table';
-
-
+import React, { useState } from 'react';
+import {
+  useReactTable,
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  SortingState,
+} from '@tanstack/react-table';
+import { FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
+import { BsArrowsExpandVertical } from 'react-icons/bs';
+import { useTranslation } from 'react-i18next';
 
 interface TableProps {
-    data:any[];
-    columns:ColumnDef<any>[]
+  data: any[];
+  columns: ColumnDef<any>[];
+  pinnedColumns?:string[];
+  fixWidthColumns?:string[];
 }
 
+const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidthColumns }) => {
+  const {t} = useTranslation();
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState<string>('');
+  const [columnSizing, setColumnSizing] = useState({});
 
-const DataTable: React.FC<TableProps> = ({data, columns}) => {
-  // Define columns
- 
-
-  const { getHeaderGroups, getRowModel } = useReactTable({
+  // Initialize the table with filtering and sorting
+  const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+      globalFilter,
+      columnSizing,
+    },
+    onColumnSizingChange: setColumnSizing,
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter, // Pass filter change handler
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(), // Add the filtered row model
+    globalFilterFn: 'includesString', // Use default string includes filtering
   });
 
+  const getStickyStyle = (index: number, isPinned: boolean) => {
+    if (!isPinned) return {}; // If not pinned, no sticky styles
+
+    return {
+      position: 'sticky' as 'sticky',
+      left: `${index * 150}px`,
+      zIndex: 1, 
+      // backgroundColor: 'white', 
+    };
+  };
+
   return (
-    <table className="min-w-full bg-white-  border-none border-gray-200">
-      <thead>
-        {getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id} className="border-b text-sm bg-primary-light- text-gray-0 font-normal">
-            {headerGroup.headers.map((header) => (
-              <th key={header.id} className={`p-2 font-normal`} 
-                style={{
-                    width:header.column.columnDef.meta?.style?.width || 'auto',
-                    textAlign: header.column.columnDef.meta?.style?.textAlign || 'left',
-                    maxWidth:header.column.columnDef.meta?.style?.maxWidth || '',
-                    minWidth:header.column.columnDef.meta?.style?.minWidth || '',
-                }}
-                >
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </th>
+    <div>
+      {/* Search Field */}
+      <div className="sticky top-0 bg-white z-10 px-4 py-2 shadow-sm">
+        <input
+          type="text"
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)} // Update global filter
+          placeholder={`${t('search')}...`}
+          className="p-2 border rounded w-full text-sm max-w-[200px] focus:outline-none"
+        />
+      </div>
+
+      <div className="table-container relative overflow-x-auto py-4 relative">
+        <table className="table-auto border-collapse w-full table-fixed">
+          <thead className="sticky top-0 bg-white z-10">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id} 
+              className="border-b trgroup">
+                {headerGroup.headers.map((header, index) => {
+                  const isPinned = pinnedColumns && pinnedColumns.includes(header.id) || false;
+                  const fixWidth = fixWidthColumns && fixWidthColumns.includes(header.id) || false;
+                  return (
+                  <th
+                    key={header.id}
+                    className={`p-2  text-xs font-normal group 
+                      bg-white
+                      ${header.column.getCanSort() ? 'cursor-pointer' : ''} 
+                      `}
+                    style={{
+                      textAlign:header.column.columnDef.meta?.style?.textAlign || 'left',
+                      width: !fixWidth ?
+                      header.getSize() ? header.getSize() : header.column.columnDef.meta?.style?.width || 'auto' :
+                      header.column.columnDef.meta?.style?.width || 'auto',
+
+                      ...getStickyStyle(index, isPinned),
+                    }}
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    <div className={`flex justify-${header.column.columnDef.meta?.style?.textAlign ?  
+                      header.column.columnDef.meta?.style?.textAlign === 'left' ? 'start' : 
+                      header.column.columnDef.meta?.style?.textAlign === 'right' ? 'end' :  'center'
+                      : 'start'} 
+                    items-center relative`}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      
+                      {header.column.getIsSorted() && (
+                        <span className="absolute right-[10px] text-primary-dark">
+                          {header.column.getIsSorted() === 'desc' ? (
+                            <FaSortAlphaDown />
+                          ) : (
+                            <FaSortAlphaUp />
+                          )}
+                        </span>
+                      )}
+                      {!fixWidth && 
+                        <div
+                          onMouseDown={(e) => {
+                            const startX = e.clientX;
+                            const startWidth = header.getSize();
+                            const onMouseMove = (e: MouseEvent) => {
+                              const newWidth = startWidth + e.clientX - startX;
+                              setColumnSizing((prev: any) => ({
+                                ...prev,
+                                [header.column.id]: Math.max(newWidth, 30),
+                              }));
+                            };
+
+                            const onMouseUp = () => {
+                              document.removeEventListener('mousemove', onMouseMove);
+                              document.removeEventListener('mouseup', onMouseUp);
+                            };
+
+                            document.addEventListener('mousemove', onMouseMove);
+                            document.addEventListener('mouseup', onMouseUp);
+                          }}
+                          className="resizer absolute right-[-1.2em] bg-primary-light opacity-0 group-hover:opacity-100"
+                        >
+                          <BsArrowsExpandVertical />
+                        </div>
+                      }
+                    </div>
+                  </th>
+                )}
+                )}
+              </tr>
             ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {getRowModel().rows.map((row) => (
-          <tr key={row.id} className="hover:bg-green-100 border-b border-gray-100 even:bg-gray-300/30 text-xs">
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className={
-                `px-2 py-1 ${cell.column.columnDef.meta?.style?.tFontSize || 'text-xs '}
-                ${cell.column.columnDef.meta?.style?.tColor || 'text-slate-500' } 
-                ` 
-              }
-              style={{
-                width:cell.column.columnDef.meta?.style?.width || 'auto',
-                textAlign: cell.column.columnDef.meta?.style?.textAlign || 'left',
-                color:cell.column.columnDef.meta?.style?.color || '',
-                maxWidth:cell.column.columnDef.meta?.style?.maxWidth || '',
-                minWidth:cell.column.columnDef.meta?.style?.minWidth || '',
-                fontSize:cell.column.columnDef.meta?.style?.fontSize || '',
-            }}
-              >
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </td>
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="hover:bg-green-100 border-b even:bg-slate-100 group">
+                {row.getVisibleCells().map((cell, index) => {
+                  const isPinned = pinnedColumns && pinnedColumns.includes(cell.column.id) || false;
+                  return (
+                  <td
+                    key={cell.id}
+                    className={`px-2 py-1 ${isPinned ? 'group-even:bg-slate-100 bg-white ' : ''}
+                    group-hover:bg-green-100
+                     ${
+                      cell.column.columnDef.meta?.style?.tFontSize || 'text-xs '
+                    } ${
+                      cell.column.columnDef.meta?.style?.tColor || 'text-slate-500'
+                    } `}
+                    style={{
+                      textAlign:
+                        cell.column.columnDef.meta?.style?.textAlign || 'left',
+                      color: cell.column.columnDef.meta?.style?.color || '',
+                      fontSize: cell.column.columnDef.meta?.style?.fontSize || '',
+                      width: cell.column.getSize() ? cell.column.getSize() : cell.column.columnDef.meta?.style?.width || 'auto',
+                      ...getStickyStyle(index, isPinned),
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                )}
+                )}
+              </tr>
             ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 

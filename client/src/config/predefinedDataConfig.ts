@@ -8,7 +8,7 @@ const ProjectStatuses = [
 const TaskCategory = [
     {_id: 'dev', name:'Development'},
     {_id: 'qa', name:'QA'},
-    {_id: 'content', name:'Content'},
+    {_id: 'content', name:'Content'}, 
     {_id: 'uiux', name:'UI/UX'},
 ]
 const DynamicFieldsTypes = [

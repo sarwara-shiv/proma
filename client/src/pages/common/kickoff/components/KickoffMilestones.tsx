@@ -139,7 +139,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
             />
           </div>
 
-          <div className='grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2'>
+          <div className='relative grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2'>
             {/* Milestone Due Date */}
             <div>
               <CustomDateTimePicker
@@ -151,7 +151,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
             </div>
 
             {/* Milestone Status */}
-            <div>
+            <div className='relative'>
               <CustomDropdown
                 data={milestoneStatuses}
                 label={t('status')}
