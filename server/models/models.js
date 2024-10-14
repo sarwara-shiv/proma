@@ -45,7 +45,7 @@ const PermissionSchema = new Schema({
 });
 
 // Predefined Enums
-const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'blocked', 'pendingReview'];
+const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview'];
 const predefinedPriorities = ['high', 'medium', 'low'];
 const predefinedProjectStatuses = ['notStarted', 'inProgress', 'completed', 'onHold', 'cancelled'];
 
@@ -294,6 +294,7 @@ const ProjectSchema = new Schema({
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
   customFields: [DynamicFieldSchema],
   permissions: [PermissionSchema],
+  userGroup:[{ type: Schema.Types.ObjectId, ref: 'User' }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },

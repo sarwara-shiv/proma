@@ -1,75 +1,69 @@
 import React, { useState } from 'react';
-import {
-  useReactTable,
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-} from '@tanstack/react-table';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-interface TableProps {
-  data: any[];
-  columns: ColumnDef<any>[];
-}
+// Sample data
+const ddata = [
+  { id: 1, name: 'John Doe', age: 28, country: 'USA' },
+  { id: 2, name: 'Jane Doe', age: 32, country: 'Canada' },
+  { id: 3, name: 'Alice Smith', age: 24, country: 'UK' },
+  { id: 4, name: 'Bob Johnson', age: 45, country: 'Australia' },
+];
 
-const DraggableTable: React.FC<TableProps> = ({ data, columns }) => {
-  const [tableData, setTableData] = useState(data);
-
-  const table = useReactTable({
-    data: tableData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+const DraggableTable: React.FC = () => {
+  const [items, setItems] = useState(ddata);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const updatedData = Array.from(tableData);
-    const [movedRow] = updatedData.splice(result.source.index, 1);
-    updatedData.splice(result.destination.index, 0, movedRow);
+    const reorderedItems = Array.from(items);
+    const [movedItem] = reorderedItems.splice(result.source.index, 1);
+    reorderedItems.splice(result.destination.index, 0, movedItem);
 
-    setTableData(updatedData);
+    setItems(reorderedItems); // Update state with the new order
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="droppable" type="ROW">
+      <Droppable droppableId="droppable">
         {(provided) => (
           <table
-            className="table-auto border-collapse w-full"
             {...provided.droppableProps}
             ref={provided.innerRef}
+            className="min-w-full border-collapse border border-gray-300"
           >
             <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="border-b bg-gray-200">
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="p-2 border-r text-left">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
+              <tr className="bg-gray-200">
+                <th className="p-4 border border-gray-300">Drag</th>
+                <th className="p-4 border border-gray-300">Name</th>
+                <th className="p-4 border border-gray-300">Age</th>
+                <th className="p-4 border border-gray-300">Country</th>
+              </tr>
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row, index) => (
-                <Draggable key={row.id} draggableId={row.id} index={index}>
-                  {(provided) => (
+              {items.map((item, index) => (
+                <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                  {(provided, snapshot) => (
                     <tr
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="hover:bg-gray-100"
+                      className={`hover:bg-gray-100 ${snapshot.isDragging ? "bg-blue-100" : ""}`}
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="p-2 border-b">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
+                      <td className="p-4 border border-gray-300 w-[30px]">
+                        <span
+                          {...provided.dragHandleProps} // Apply drag handle props here
+                          className="cursor-pointer text-gray-600"
+                        >
+                          &#x21D5; {/* Drag handle icon (up and down arrow) */}
+                        </span>
+                      </td>
+                      <td className="p-4 border border-gray-300">{item.name}</td>
+                      <td className="p-4 border border-gray-300">{item.age}</td>
+                      <td className="p-4 border border-gray-300">{item.country}</td>
                     </tr>
                   )}
                 </Draggable>
               ))}
+              {provided.placeholder} {/* Placeholder for spacing */}
             </tbody>
           </table>
         )}

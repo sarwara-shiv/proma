@@ -25,6 +25,7 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
   useEffect(()=>{
     getGroups();
     getUsersData();
+    console.log(pInvolved);
   },[])
   useEffect(()=>{
     onChange(pInvolved);
@@ -203,14 +204,15 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
                 <div className='w-full'>
                     <div className='flex flex-col'>
                     {pInvolved && pInvolved.length > 0 && pInvolved.map((p,pk)=>{
+                        const prole = typeof p.role === 'string' || p.role instanceof String ? p.role : (p.role as unknown as UserRole)._id;
                         return (
-                        <div key={`prk-${index}-${pk}-${p.role}`} className='w-full'>                     
-                            {p.role as unknown as string === _id as unknown as string && 
+                        <div key={`prk-${index}-${pk}-${prole}`} className='w-full'>                     
+                            {prole as unknown as string === _id as unknown as string && 
                             <div className='w-full block'>
                                 <div className='flex flex-row gap-2 mt-2'>
                                     {p.persons && p.persons.map((pers, persk)=>{
-                                        const pId = pers as unknown as string;
-                                        const user = usersData.find((ud) => ud._id as unknown as string === pId);
+                                        const pId = typeof pers === 'string' || pers instanceof String ? pers as unknown as string : pers as unknown as User;
+                                        const user = typeof pId === 'string' || pId instanceof String ? usersData.find((ud) => ud._id as unknown as string === pId) : pId;
                                         return (
                                             <div key={`pk-${pk}-${persk}`} className='bg-white p-1 flex flex-row items-center rounded-sm'>
                                                 <span>{user && user.name}</span>

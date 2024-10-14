@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { AlertPopupType, Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
-import { CustomAlert, PageTitel } from '../../../../components/common';
+import { AlertPopupType, FlashPopupType, Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
+import { CustomAlert, FlashPopup, PageTitel } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { CustomDropdown, CustomInput } from '../../../../components/forms';
@@ -40,6 +40,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
+    const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
     useEffect(()=>{
         if(!cid){
@@ -183,9 +184,16 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
         if(value && pid){
             try{
                 const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:value}});
-                if(res.status === 'success'){
-                  console.log(res);
-                }
+                if(res){
+                    const msg = `${t(`RESPONSE.${res.code}`)}`
+                      if(res.status === 'success'){
+                        setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'success'});
+                      }else{
+                        setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'fail'});
+                      }
+                  }else{
+                    console.log(res);
+                  }
     
             }catch(error){
                 console.log(error);
@@ -412,6 +420,8 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             title = {alertData.title}
                             type={alertData.type || 'info'}
                     />
+                    <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
+
                 </>
             }
         </div>

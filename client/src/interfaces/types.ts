@@ -82,7 +82,7 @@ export interface BaseTask {
   sortOrder?: number;
   priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities
   customPriority?:ObjectId;  // Custom priority reference
-  status: 'toDo' | 'inProgress' | 'done';  // Assuming these are your predefined statuses
+  status: 'toDo' | 'inProgress' | 'done' | 'onHold' | 'inReview' | 'blocked';  // Assuming these are your predefined statuses
   customStatus?: ObjectId;  // Custom status reference
   responsiblePerson: ObjectId;  // User reference
   customFields: DynamicField[];  // Array of custom fields
@@ -181,7 +181,7 @@ export interface QaTask extends BaseTask {
     sortOrder?:number;
     customFields?: DynamicField[];
     subtasks?:Task[];
-    status: 'toDo' | 'inProgress' | 'completed' | 'blocked' | 'pendingReview';
+    status: 'toDo' | 'inProgress' | 'completed' | 'onHold' | 'blocked' | 'pendingReview';
     createdBy?:ObjectId,
     createdAt?:Date,
     updatedAt?: Date,
@@ -250,6 +250,7 @@ export interface QaTask extends BaseTask {
     mainTasks?:ObjectId[];
     customFields?: DynamicField[];
     permissions?: Permission[];
+    userGroup?:(string | ObjectId)[];
     createdAt?: Date;
     updatedAt?: Date;
     createdBy: ObjectId | null 

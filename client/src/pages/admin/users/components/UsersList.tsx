@@ -18,7 +18,8 @@ import { AlertPopupType, FlashPopupType, OrderByFilter, PaginationProps, QueryFi
 import ChangePassword from './ChangePassword';
 import Pagination from '../../../../components/common/Pagination';
 
-
+const pinnedColumns= ['id', 'username'];
+const fixedWidthColumns= ['id', 'status', 'createdAt', 'actions', 'role'];
 const AllUsers = () => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
@@ -33,10 +34,11 @@ const AllUsers = () => {
         {
           header: `${t('id')}`,
           accessorKey: '_cid',
-          id:"_cid",
+          id:"id",
             meta:{
                 style :{
                 textAlign:'left',
+                width:'120px'
                 }
             }
         },
@@ -56,7 +58,7 @@ const AllUsers = () => {
           id:"email",
             meta:{
                 style :{
-                textAlign:'center',
+                textAlign:'left',
                 }
             }
         },
@@ -66,7 +68,8 @@ const AllUsers = () => {
             id:"role",
             meta:{
                 style :{
-                textAlign:'center',
+                textAlign:'left',
+                width:'120px'
                 }
             },
             cell:info=>{
@@ -81,10 +84,11 @@ const AllUsers = () => {
         {
              header: `${t('status')}`,
             accessorKey: 'isActive',
-            id:"isActive",
+            id:"status",
             meta:{
                 style :{
                 textAlign:'center',
+                width:'60px'
                 }
             },
             cell: (info) => {
@@ -104,6 +108,7 @@ const AllUsers = () => {
         {
           header: `${t('createdAt')}`, 
           accessorKey: 'createdAt',
+          id: 'createdAt',
           cell: ({ getValue }: { getValue: () => string }) => {
             const date = new Date(getValue());
             return <span>{format(date, 'dd.MM.yyyy')}</span>;
@@ -111,13 +116,15 @@ const AllUsers = () => {
             meta:{
                 style :{
                 textAlign:'center',
+                width:'80px'
                 }
             }
         },
         {
             header:`${t('actions')}`,
+            id:'actions',
             cell: ({ row }: { row: any }) => (
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'center' }}>
                     {/* {row.original.isEditable && <></>
                     } */}
                     <div>
@@ -139,7 +146,7 @@ const AllUsers = () => {
             ),
             meta:{
                 style :{
-                textAlign:'right',
+                textAlign:'center',
                 width:"100px"
                 }
             }
@@ -277,7 +284,10 @@ const AllUsers = () => {
                 <div className='data-wrap'>
                     {data.length > 0 ? (
                         <div>
-                            <DataTable columns={columns} data={data}/>
+                            <DataTable columns={columns} data={data}
+                                pinnedColumns={pinnedColumns}
+                                fixWidthColumns={fixedWidthColumns} 
+                            />
                              <Pagination
                                 currentPage={paginationData.currentPage} 
                                 totalPages={paginationData.totalPages} 

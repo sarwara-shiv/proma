@@ -43,14 +43,39 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
     globalFilterFn: 'includesString', // Use default string includes filtering
   });
 
+  // const getStickyStyle = (index: number, isPinned: boolean) => {
+  //   if (!isPinned) return {}; // If not pinned, no sticky styles
+
+  //   return {
+  //     position: 'sticky' as 'sticky',
+  //     left: `${index * 150}px`,
+  //     zIndex: 1, 
+  //     // backgroundColor: 'white', 
+  //   };
+  // };
+
   const getStickyStyle = (index: number, isPinned: boolean) => {
     if (!isPinned) return {}; // If not pinned, no sticky styles
 
+    // Calculate the left position based on the widths of previous columns
+    const leftPosition = table.getHeaderGroups().reduce((sum, headerGroup) => {
+      return (
+        sum +
+        headerGroup.headers.slice(0, index).reduce((headerSum, header) => {
+          return (
+            headerSum +
+            (header.column.columnDef.meta?.style?.width
+              ? parseInt(header.column.columnDef.meta?.style?.width, 10)
+              : 150) // Default width if not specified
+          );
+        }, 0)
+      );
+    }, 0);
+
     return {
       position: 'sticky' as 'sticky',
-      left: `${index * 150}px`,
-      zIndex: 1, 
-      // backgroundColor: 'white', 
+      left: `${leftPosition}px`, // Use the calculated left position
+      zIndex: 1,
     };
   };
 
@@ -85,9 +110,11 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
                       `}
                     style={{
                       textAlign:header.column.columnDef.meta?.style?.textAlign || 'left',
-                      width: !fixWidth ?
-                      header.getSize() ? header.getSize() : header.column.columnDef.meta?.style?.width || 'auto' :
-                      header.column.columnDef.meta?.style?.width || 'auto',
+                      width: header.column.columnDef.meta?.style?.width ? header.column.columnDef.meta?.style?.width : 
+                      header.getSize() ? header.getSize() : 'auto',
+                      // width: !fixWidth ?
+                      // header.getSize() ? header.getSize() : header.column.columnDef.meta?.style?.width || 'auto' :
+                      // header.column.columnDef.meta?.style?.width || 'auto',
 
                       ...getStickyStyle(index, isPinned),
                     }}
@@ -152,6 +179,7 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
                     key={cell.id}
                     className={`px-2 py-1 ${isPinned ? 'group-even:bg-slate-100 bg-white ' : ''}
                     group-hover:bg-green-100
+                    ${cell.column.columnDef.meta?.noStyles ? 'bg-white border-none' : ''}
                      ${
                       cell.column.columnDef.meta?.style?.tFontSize || 'text-xs '
                     } ${

@@ -147,6 +147,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
                 label={t('FORMS.dueDate')}
                 selectedDate={currentMilestone.dueDate}
                 onChange={(recordId, value, name) => handleCurrentMilestoneChange('dueDate', value)}
+              
               />
             </div>
 
@@ -154,6 +155,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
             <div className='relative'>
               <CustomDropdown
                 data={milestoneStatuses}
+                style='default'
                 label={t('status')}
                 selectedValue={currentMilestone.status}
                 onChange={(recordId, name, value, data) => handleCurrentMilestoneChange('status', value as Milestone['status'])}

@@ -1,48 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { IoRemove } from 'react-icons/io5';
-import { FaGripLines } from 'react-icons/fa'; // Import an icon for the drag handle
 import { MdDragIndicator } from 'react-icons/md';
 import DeleteSmallButton from '../common/DeleteSmallButton';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface DragAndDropListProps {
   items: string[]; // The list of items (goals)
-  name:string;
-  onFinalUpdate: (name:string, updatedItems: string[]) => void; // Callback function to return final data
+  name: string;
+  onFinalUpdate: (name: string, updatedItems: string[]) => void; // Callback function to return final data
 }
 
 const DragAndDropList: React.FC<DragAndDropListProps> = ({ items, onFinalUpdate, name }) => {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [localItems, setLocalItems] = useState<string[]>(items); // Local state to manage items within the component
 
-useEffect(()=>{
+  useEffect(() => {
     setLocalItems(items);
-},[items])
+  }, [items]);
 
+  // Handle the drag end event
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return; // If there's no destination, do nothing
 
-  // Handle the start of dragging
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
+    const newItems = Array.from(localItems);
+    const [movedItem] = newItems.splice(result.source.index, 1); // Remove the dragged item
+    newItems.splice(result.destination.index, 0, movedItem); // Add it to the new position
 
-  // Allow the dragged item to be dropped
-  const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
-    e.preventDefault();
-  };
-
-  // Handle dropping the item into a new position
-  const handleDrop = (index: number) => {
-    if (draggedIndex === null) return;
-    const newItems = [...localItems];
-
-    // Reorder the array
-    const draggedItem = newItems.splice(draggedIndex, 1)[0];
-    newItems.splice(index, 0, draggedItem);
-
-    // Update the local state and return the final updated data
-    setLocalItems(newItems);
+    setLocalItems(newItems); // Update local state
     onFinalUpdate(name, newItems); // Return the final updated data to the parent
-
-    setDraggedIndex(null); // Reset draggedIndex after the drop
   };
 
   // Remove an item and update the parent with the final data
@@ -53,39 +36,45 @@ useEffect(()=>{
   };
 
   return (
-    <ul>
-      {localItems.map((item, index) => (
-        <li
-          key={index}
-          className='relative pb-1 border-b border-gray-100 pr-5 flex items-top' // Added flex for layout control
-          draggable={true}
-          onDragStart={() => handleDragStart(index)}
-          onDragOver={handleDragOver}
-          onDrop={() => handleDrop(index)}
-        >
-          {/* Drag handle on the left */}
-          <span
-            className='cursor-move mr-4 text-gray-500' // Adjusted for styling
-            style={{ display: 'inline-flex', alignItems: 'top' }} // Flexbox for vertical centering
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="droppable">
+        {(provided) => (
+          <ul
+            {...provided.droppableProps}
+            ref={provided.innerRef} // Reference to provide the droppable context
           >
-            <MdDragIndicator size={16} className='text-slate-300'/>
-          </span>
+            {localItems.map((item, index) => (
+              <Draggable key={index} draggableId={String(index)} index={index}>
+                {(provided) => (
+                  <li
+                    ref={provided.innerRef} // Reference for draggable context
+                    {...provided.draggableProps} // Props for draggable
+                    {...provided.dragHandleProps} // Props for drag handle
+                    className='relative pb-1 border-b text-sm border-gray-100 pr-5 flex items-center' // Added flex for layout control
+                  >
+                    {/* Drag handle on the left */}
+                    <span
+                      className='cursor-move mr-2 text-gray-500' // Adjusted for styling
+                      style={{ display: 'inline-flex', alignItems: 'top' }} // Flexbox for vertical centering
+                    >
+                      <MdDragIndicator size={16} className='text-slate-300' />
+                    </span>
 
-          {/* Item content */}
-          <span className='pr-2'><b>{index+1}. </b></span>
-          <span className='flex-1'>{item}</span>
+                    {/* Item content */}
+                    <span className='pr-2'><b>{index + 1}. </b></span>
+                    <span className='flex-1'>{item}</span>
 
-          {/* Remove button on the right */}
-          <DeleteSmallButton onClick={()=>handleRemove(index)} />          
-          {/* <span
-            className='cursor-pointer absolute top-1/2 transform -translate-y-1/2  right-0 p-0.5 bg-red-100 rounded-full text-red-500 text-xs'
-            onClick={() => handleRemove(index)}
-          >
-            <IoRemove />
-          </span> */}
-        </li>
-      ))}
-    </ul>
+                    {/* Remove button on the right */}
+                    <DeleteSmallButton onClick={() => handleRemove(index)} />
+                  </li>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder} {/* Placeholder for spacing */}
+          </ul>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 

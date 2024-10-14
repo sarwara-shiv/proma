@@ -10,7 +10,8 @@ import { UserRole } from '../../../../interfaces';
 import DeleteById from '../../../../components/actions/DeleteById';
 import { NavLink } from 'react-router-dom';
 
-
+const pinnedColumns= ['id', 'name'];
+const fixedWidthColumns= ['id', 'type', 'createdAt', 'actions'];
 const AllRoles = () => {
     const {t} = useTranslation();
     const [data, setData] = useState<UserRole[]>([]);
@@ -22,11 +23,12 @@ const AllRoles = () => {
         {
           header: `${t('id')}`,
           accessorKey: '_cid',
-          id:'_cid',
+          id:'id',
           meta:{
             style :{
                 textAlign:'left',
                 tColor:'text-slate-900',
+                width:'100px'
             }
          }
         },
@@ -56,7 +58,8 @@ const AllRoles = () => {
           accessorKey: 'type',
           meta:{
                 style :{
-                    textAlign:'center',
+                    textAlign:'left',
+                    width:'70px'
                 }
             }
         },
@@ -79,13 +82,15 @@ const AllRoles = () => {
           meta:{
             style :{
             textAlign:'center',
+            width:'90px'
             }
         }
         },
         {
             header:`${t('actions')}`,
+            id:'actions',
             cell: ({ row }: { row: any }) => (
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: 'center' }}>
                     {row.original.isEditable && 
                     <div>
                         <DeleteById data={{id:row.original._id, type:"roles", page:"roles"}} content={`Delte Role: ${row.original.displayName}`} onYes={onDelete}/>
@@ -102,7 +107,7 @@ const AllRoles = () => {
             ),
             meta:{
                 style :{
-                textAlign:'right',
+                textAlign:'center',
                 width:"50px"
                 }
             }
@@ -171,7 +176,9 @@ const AllRoles = () => {
                 <div className='data-wrap'>
                     {data.length > 0 ? (
                         <div>
-                            <DataTable columns={columns} data={data}/>
+                            <DataTable columns={columns} data={data}
+                                pinnedColumns={pinnedColumns} fixWidthColumns={fixedWidthColumns}
+                            />
                         </div>
                         
                     ) : (

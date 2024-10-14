@@ -36,6 +36,7 @@ const MilestoneStatus = [
 const TaskStatuses = [
     {_id: 'toDo', name:'TODO'},
     {_id: 'inProgress', name:'In Progress'},
+    {_id: 'onHold', name:'On Hold'},
     {_id: 'blocked', name:'Blocked'},
     {_id: 'pendingReview', name:'In Review'},
     {_id: 'completed', name:'Completed'},

@@ -153,13 +153,23 @@ const CustomDropdown: React.FC<ArgsType> = ({
       {isOpen && (
         <div
           ref={dropdownListRef}
-          className="fixed bg-white border-2 border-white border rounded-md shadow-lg overflow-y-auto z-50"
-          style={{
+          className={`${style === 'default' ? 'absolute' : 'fixed'} bg-white border-2 border-white border rounded-md shadow-lg overflow-y-auto z-50`}
+          style={
+            style === 'table' ?
+            {
+            
             top: dropdownPosition.top,
             left: dropdownPosition.left,
             width: dropdownPosition.width,
             maxHeight: '200px',
-          }}
+          }:
+          {
+            top: '100%',
+            width: '100%',
+            maxWidth:'250px',
+            maxHeight: '200px',
+          }
+        }
         >
           
           {data.map((item) => (

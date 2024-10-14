@@ -35,8 +35,8 @@ interface ArgsType {
     navItems:NavItem[];
 }
 
-const pinnedColumns = ['_cid', 'name'];
-const fixedWidthColumns = ['startDate', 'endDate', 'createdAt', 'links'];
+const pinnedColumns = ['_cid', 'name', 'actions_cell'];
+const fixedWidthColumns = ['actions_cell', 'startDate', 'endDate', 'createdAt', 'links', 'actions'];
 
 const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const {t} = useTranslation();
@@ -63,9 +63,78 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
 
     const columns: ColumnDef<Project, any>[] = useMemo(() => [
         {
+          header: '',
+          id:"actions_cell",
+          cell: ({ getValue, row }) => {
+            const cid = getValue() && getValue();
+            const _id = row.original._id ? row.original._id as unknown as string : '';
+            return (
+                <div>
+                     <div>
+                        <CustomContextMenu >
+                                <ul>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`kickoff/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
+                                            className="flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            >
+                                                {t('kickoff')}<MdRocketLaunch /> 
+                                        </NavLink>
+                                    </li>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`maintasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
+                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('tasks')}<FaTasks /> 
+                                        </NavLink>
+                                    </li>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
+                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('view')}<FaEye /> 
+                                        </NavLink>
+                                    </li>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                                            className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('update')} <FaPencilAlt />
+                                        </NavLink>
+                                    </li>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <DeleteById text={t('delete')} data={{id:_id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                                    </li>
+                                </ul>
+                            </CustomContextMenu>
+                    </div>
+                </div>
+            )
+          },
+            meta:{
+                style :{
+                textAlign:'left',
+                width:'30px'
+                },
+                noStyle:true,
+            },
+        },
+        {
           header: `${t('id')}`,
           accessorKey: '_cid',
           id:"_cid",
+          cell: ({ getValue, row }) => {
+            const cid = getValue() && getValue();
+            const _id = row.original._id ? row.original._id as unknown as string : '';
+            return (
+                <div>
+                    {cid}
+                </div>
+            )
+          },
             meta:{
                 style :{
                 textAlign:'left',

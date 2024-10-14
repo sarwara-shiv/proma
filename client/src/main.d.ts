@@ -13,6 +13,8 @@ declare module '@tanstack/table-core' {
       minWidth?:string,
       lineHeight?:number,
       fontSize?:string
-    }
+    },
+    isPinned?:boolean;
+    noStyles?:boolean;
   }
 }

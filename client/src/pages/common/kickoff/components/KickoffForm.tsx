@@ -13,7 +13,7 @@ import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker'
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import DraggableTable from '@/components/table/DraggableTable';
+import DraggableTable from '../../../../components/table/DraggableTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { ObjectId } from 'mongodb';
 
@@ -74,7 +74,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     const getData = async ()=>{
         try{
             const populateFields = [
-                {path: 'kickoff.responsibilities.role'},
+                // {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
             ]
 
@@ -87,7 +87,8 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                     if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
                     if (res.data) {
                         setFormData(res.data);
-                        if(res.data.kickOff) setKickoffData(res.data.kickoff);
+                        console.log(res.data);
+                        if(res.data.kickoff) setKickoffData(res.data.kickoff);
                     }
                 }
 
@@ -149,8 +150,17 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     const pid = cid ? cid : id;
       if(verifyData() && pid){
         try{
+            console.log(kickoffData);
           const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:kickoffData}});
-          if(res.status === 'success'){
+          if(res){
+            const msg = `${t(`RESPONSE.${res.code}`)}`
+              if(res.status === 'success'){
+                setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'success'});
+              }else{
+                setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'fail'});
+              }
+          }else{
+            console.log(res);
           }
 
         }catch(error){
@@ -167,9 +177,9 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
       }
       return false;
     }
-
     return (
         <div className='data-wrap relative'>
+            <DraggableTable />
           <form onSubmit={submitForm}>
             {formData &&
                 <>
