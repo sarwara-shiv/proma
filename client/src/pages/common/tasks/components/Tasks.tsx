@@ -28,6 +28,7 @@ import { sanitizeString } from '../../../../utils/commonUtils';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 
 interface ArgsType {
     cid?:string | null;
@@ -73,39 +74,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
-
-  const columnKeys = subtasks && subtasks.length > 0 ? Object.keys(subtasks[0]) : [];
-  const initialWidths = columnKeys.map(() => 150);
-  const [columnWidths, setColumnWidths] = useState<number[]>([100, 200, 300]); // Initial column widths
-  
-
-  const startPosRef = useRef(0); // To store initial mouse position
-  const colIndexRef = useRef<number | null>(null); // To store the index of the resizing column
-  const startWidthRef = useRef<number | null>(null); // To store the initial column width
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (colIndexRef.current !== null && startWidthRef.current !== null) {
-      const delta = e.clientX - startPosRef.current; // Calculate change in mouse position
-      const newWidth = startWidthRef.current + delta; // Calculate new width
-      const updatedWidths = [...columnWidths];
-      updatedWidths[colIndexRef.current] = Math.max(newWidth, 50); // Minimum width set to 50px
-      setColumnWidths(updatedWidths);
-    }
-  };
-
-  const handleMouseUp = () => {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-    colIndexRef.current = null;
-  };
-  const handleMouseDown = (e: React.MouseEvent, index: number) => {
-    startPosRef.current = e.clientX;
-    colIndexRef.current = index;
-    startWidthRef.current = columnWidths[index];
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
 
 
   const thStyles = 'text-xs font-normal font-medium p-1 text-left border border-slate-200';
@@ -499,6 +467,8 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   };
   
 
+  
+
 
   // delete task
   return (
@@ -525,9 +495,12 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                   <tr key={'task-level-1'} className='text-sm font-normal'>
                     <th className='w-[20px] sticky left-0 bg-white z-2'></th>
                     <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
-                    <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
+                    {/* <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
                     >{t('task')}
-                    </th>
+                    </th> */}
+                    <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}>
+                         {t('task')}
+                    </ResizableTableHeader>
                     <th className={`${thStyles}  w-[160px] `}
                     >{t('responsiblePerson')}</th>
                     <th className={`${thStyles} w-[120px] text-center`}>
@@ -538,8 +511,8 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                     {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                       const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                       return (
-                        <th key={`th-${index}-${sanitizeString(cf.key)}`} className={`${thStyles} ${width} relative`} >
-                          <div
+                        <ResizableTableHeader initialWidth={223} classes={`${thStyles} ${width} relative`} key={`th-${index}-${sanitizeString(cf.key)}`} >
+                         <div
                             className='relative flex w-full h-full items-center justify-start group'
                           >
                             {/* {(cf.type === 'status' || cf.type === 'dropdown' )&&   
@@ -571,7 +544,11 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                               {cf.key}
                             </div>
                           </div>
-                        </th>
+                        </ResizableTableHeader>
+
+                        // <th key={`th-${index}-${sanitizeString(cf.key)}`} className={`${thStyles} ${width} relative`} >
+                          
+                        // </th>
                       );
                     })}
                   <th className='border-b border-t border-l w-[30px]'>
@@ -881,5 +858,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
     </div>
   )
 }
+
 
 export default Tasks

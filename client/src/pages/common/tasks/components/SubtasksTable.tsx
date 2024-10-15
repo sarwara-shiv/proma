@@ -67,7 +67,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
     console.log(idsArray);
     if(idsArray && items){
       const taskId = parentTask?._id || '';
-      const ndata = {subtasksData:idsArray};
+      const ndata = {subtasks:idsArray};
       updateTask && updateTask(taskId, ndata, false);
     }
 
