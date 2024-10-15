@@ -34,7 +34,7 @@ const ResizableTableHeader = ({
     const newWidth = startWidthRef.current + (e.clientX - startXRef.current);
 
     // Ensure the new width is not less than a minimum width
-    if (newWidth > 50) {
+    if (newWidth > 150) {
       setWidth(newWidth); // Only update state when necessary
     }
   };
