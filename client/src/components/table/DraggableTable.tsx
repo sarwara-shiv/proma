@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { MdDragIndicator } from 'react-icons/md';
 
 // Sample data
 const ddata = [
@@ -53,7 +54,7 @@ const DraggableTable: React.FC = () => {
                           {...provided.dragHandleProps} // Apply drag handle props here
                           className="cursor-pointer text-gray-600"
                         >
-                          &#x21D5; {/* Drag handle icon (up and down arrow) */}
+                          <MdDragIndicator size={16} className='text-slate-300' />
                         </span>
                       </td>
                       <td className="p-4 border border-gray-300">{item.name}</td>

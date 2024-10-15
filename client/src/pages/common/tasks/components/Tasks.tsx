@@ -27,6 +27,7 @@ import ClickToEdit from '../../../../components/forms/ClickToEdit';
 import { sanitizeString } from '../../../../utils/commonUtils';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface ArgsType {
     cid?:string | null;
@@ -131,10 +132,11 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   }, [mainTaskData?.customFields]);
 
   // updateMainTask
-  const updateMainTask= async()=>{
+  const updateMainTask= async(data:any = null)=>{
     try{
       const mid = mainTaskId as unknown as string;
-      const res =  await addUpdateRecords({id:mid,  type:'maintasks', action:'update', body:{...mainTaskData}});
+      const nData = data ? data : mainTaskData;
+      const res =  await addUpdateRecords({id:mid,  type:'maintasks', action:'update', body:{...nData}});
       if(res.status === 'success'){
         const content = `${t(`RESPONSE.${res.code}`)}`;
         setFlashPopupData({...flashPopupData, isOpen:true, message:content});
@@ -475,6 +477,26 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
       }
     }
   }
+
+  const handleDrag = (result: any) => {
+    if (!result.destination) return;
+    const stasks = subtasks ? subtasks as unknown as Task[] : [];
+    const items = Array.from(stasks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    const getTaskIds = (tasks: Task[]): string[] => {
+      return tasks.map(task => task._id).filter((id): id is string => !!id);
+    };
+
+    const idsArray = getTaskIds(items);
+    console.log(idsArray);
+    if(idsArray && items){
+      updateMainTask({subtasks:idsArray});
+    }
+
+    setSubtasks(items); 
+  };
   
 
 
@@ -495,325 +517,342 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
             </div>
             }
             <div className='relative overflow-x-auto py-4'>
-            <table className='w-full table-fixed text-slate-600'>
-              <thead>
-                <tr key={'task-level-1'} className='text-sm font-normal'>
-                  <th className='w-[20px] sticky left-0 bg-white z-2'></th>
-                  <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
-                  <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
-                  >{t('task')}
-                  </th>
-                  <th className={`${thStyles}  w-[160px] `}
-                  >{t('responsiblePerson')}</th>
-                  <th className={`${thStyles} w-[120px] text-center`}>
-                    {t('priority')}</th>
-                  <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
-                  <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
-                  <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
-                  {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
-                    const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
-                    return (
-                      <th key={`th-${index}-${sanitizeString(cf.key)}`} className={`${thStyles} ${width} relative`} >
-                        <div
-                          className='relative flex w-full h-full items-center justify-start group'
-                        >
-                          {/* {(cf.type === 'status' || cf.type === 'dropdown' )&&   
-                           
-                          } */}
+            <DragDropContext onDragEnd={handleDrag}>
+            <Droppable droppableId="droppable-rows">
+              {(provided)=>(
+              <table className='w-full table-fixed text-slate-600' {...provided.droppableProps} ref={provided.innerRef}>
+                <thead>
+                  <tr key={'task-level-1'} className='text-sm font-normal'>
+                    <th className='w-[20px] sticky left-0 bg-white z-2'></th>
+                    <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
+                    <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
+                    >{t('task')}
+                    </th>
+                    <th className={`${thStyles}  w-[160px] `}
+                    >{t('responsiblePerson')}</th>
+                    <th className={`${thStyles} w-[120px] text-center`}>
+                      {t('priority')}</th>
+                    <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
+                    <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
+                    <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
+                    {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
+                      const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
+                      return (
+                        <th key={`th-${index}-${sanitizeString(cf.key)}`} className={`${thStyles} ${width} relative`} >
                           <div
-                            className='
-                              relative left-[-8px] py-0.8 px-0.8
-                                opacity-0 cursor-pointer
-                                group-hover:opacity-100
-                                hover:bg-slate-200
-                                rounded-sm
-                            '
+                            className='relative flex w-full h-full items-center justify-start group'
                           >
-                            <CustomContextMenu >
-                              <ul>
-                                <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
-                                  <div onClick={()=>editCustomFieldOptions(index, cf)} className='cursor-pointer text-xs'>
-                                   {t('update')}
-                                  </div>
-                                </li>
-                                <li className='px-2 py-1 my-1 hover:bg-slate-100'>
-                                  <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} text={`${t('delete')}`} />
-                                </li>
-                              </ul>
-                            </CustomContextMenu>
-                          </div>
-                          <div>
-                            {cf.key}
-                          </div>
-                        </div>
-                      </th>
-                    );
-                  })}
-                 <th className='border-b border-t border-l w-[30px]'>
-                  <div 
-                  onClick={openCustomFieldsPopup}
-                  className='
-                  cursor-pointer
-                    w-[20px] h-[20px] flex justify-center items-center bg-green-100 rounded-full
-                    ml-2 text-green-600
-                    hover:bg-green-600 hover:text-green-100 transition-colors ease
-                  '>
-                    <IoMdAdd />
-                  </div>
-                 </th>
-                 <th className='border-b border-t'></th>
-                </tr>
-              </thead>
-              <tbody>
-                {subtasks && subtasks.map((st, index)=>{
-                  const cUser = st.createdBy as unknown as User;
-                  const rUser = st.responsiblePerson as unknown as User;
-                  const tskID = st._id;
-                  const ids = extractAllIds(st);
-                  let deleteRelated:DeleteRelated[];
- 
-                  return (
-                    <>
-                    <tr key={`task-data-${index}-${st._id}`} className='group hover:bg-slate-100'>
-                      <td className='w-[20px] sticky left-0 bg-white z-2 '>
-                        <div
-                         className='
-                         relative
-                         w-full
-                         h-full
-                         flex
-                         items-center
-                         justify-center
-                         left-[-3px]
-                         opacity-0
-                         group-hover:opacity-100
-                       '
-                        >
-                          <CustomContextMenu >
+                            {/* {(cf.type === 'status' || cf.type === 'dropdown' )&&   
+                            
+                            } */}
+                            <div
+                              className='
+                                relative left-[-8px] py-0.8 px-0.8
+                                  opacity-0 cursor-pointer
+                                  group-hover:opacity-100
+                                  hover:bg-slate-200
+                                  rounded-sm
+                              '
+                            >
+                              <CustomContextMenu >
                                 <ul>
+                                  <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
+                                    <div onClick={()=>editCustomFieldOptions(index, cf)} className='cursor-pointer text-xs'>
+                                    {t('update')}
+                                    </div>
+                                  </li>
                                   <li className='px-2 py-1 my-1 hover:bg-slate-100'>
-                                    <div></div>
-                                    {tskID && 
-                                      <DeleteById style='fill' deleteRelated={
-                                        ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
-                                      } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
-                                        onYes={getData} text={`${t('delete')}`}
-                                      />
-                                    }
+                                    <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} text={`${t('delete')}`} />
                                   </li>
                                 </ul>
-                            </CustomContextMenu>
-                        </div>
-                        <div 
-                         
-                          >
-                            
-                          </div>
-                      </td>
-                      <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
-                      <td className={`${tdStyles} w-[200px] sticky left-[23px] bg-white z-2 group-hover:bg-slate-100`}>
-                        <div 
-                          className='relative flex w-full h-full items-center justify-start group
-                          
-                          '
-                        >
-                          <div 
-                          className='
-                            absolute
-                            left-[-10px]
-                            opacity-0
-                            group-hover:opacity-100
-                          '
-                          >
-                            {tskID && 
-                              <div 
-                              onClick={() => toggleSubTasksCount(tskID)}
-                              className="ml-1 cursor-pointer"
-                            >
-                              <FaAngleRight 
-                                className="text-slate-400"
-                                style={{
-                                  transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
-                                    ? 'rotate(90deg)' 
-                                    : 'rotate(0deg)',
-                                  transition: 'transform 0.3s ease', // For smooth rotation
-                                }} 
-                              />
-                            </div>
-                            }
-                          </div>
-                          <div className='
-                            group-hover:translate group-hover:translate-x-3 transition-all
-                            flex justify-between items-start
-                          '>
-                            <ClickToEdit value={st.name}  name='name'
-                                onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
-                              />
-                            {/* {st.name}  */}
-                            {st.subtasks && st.subtasks.length > 0 && 
-                              <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
-                            }
-                          </div>
-                        </div>
-                      </td>
-                      <td className={`${tdStyles} group`}
-                      >
-                        <div className='relative flex justify-start align-center'>
-                          <div
-                            className=' group-hover:translate group-hover:translate-x-3 transition-all
-                            flex justify-between items-center'
-                          >{rUser ? rUser.name : 
-                          <div className='text-slate-400 flex items-center justify-start'>
-                            <FaUserCircle size={16} className='text-slate-200'/> 
-                            </div>
-                          }</div>
-                          <div 
-                          className='absolute left-[-5px] opacity-0 group-hover:opacity-100'
-                          >
-                            <CustomContextMenu >
-                                  <ul>
-                                    <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
-                                      <p className='text-xs text-slate-400'>Responsible Person</p>
-                                      <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/>
-                                    </li>
-                                  </ul>
                               </CustomContextMenu>
+                            </div>
+                            <div>
+                              {cf.key}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
-                        <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'
-                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'priority', value)}
-                        />
-                        </td>
-                      <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>
-                        <CustomDropdown selectedValue={st.status} data={TaskStatuses} style='table'
-                          onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'status', value)}
-                        />
-                        </td>
-                      <td className={`${tdStyles} text-xs`}>
-                        {/* {st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''} */}
-                          <CustomDateTimePicker2 selectedDate={st.startDate ? st.startDate : null} style='table'
-                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
-                          />
-                        </td>
-                      <td className={`${tdStyles} text-xs`}>
-                        {/* {st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''} */}
-                          <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
-                                  onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
-                          />
-                      </td>
-                      {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
-                        const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
-                        const tid = st._id ? st._id : '';
+                        </th>
+                      );
+                    })}
+                  <th className='border-b border-t border-l w-[30px]'>
+                    <div 
+                    onClick={openCustomFieldsPopup}
+                    className='
+                    cursor-pointer
+                      w-[20px] h-[20px] flex justify-center items-center bg-green-100 rounded-full
+                      ml-2 text-green-600
+                      hover:bg-green-600 hover:text-green-100 transition-colors ease
+                    '>
+                      <IoMdAdd />
+                    </div>
+                  </th>
+                  <th className='border-b border-t'></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subtasks && subtasks.map((st, index)=>{
+                    const cUser = st.createdBy as unknown as User;
+                    const rUser = st.responsiblePerson as unknown as User;
+                    const tskID = st._id;
+                    const ids = extractAllIds(st);
+                    let deleteRelated:DeleteRelated[];
+  
+                    return (
+                      <Draggable key={`task-data-${index}-${st._id}`} draggableId={`task-data-${index}-${st._id}`} index={index}>
+                        {(provided)=> (
 
-                        const cfdata = fV;
-
-                        const cfcolor = cfdata && (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        `bg-${cfdata.selectedValue.color} text-${cfdata.selectedValue.color}-dark` : '';
-
-                        const cftype = cfdata ? cfdata.type : '';
-
-                        const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
-                        cfdata.selectedValue._id : cfdata.selectedValue : null;
-                        console.log('------------------');
-                        console.log(cfdata);
-                        return (
-                          <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
-                            {(cf.type === 'dropdown' || cf.type === 'status') ? 
-                              <div className={`${cfcolor} `}>
-                                <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
-                                name={`tcf-${index}`} data={cf.value} 
-                                style='table' selectedValue={cfvalue}
-                                onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
-                              </div>
-                            :
-                            
-                            (cf.type === 'date') ?
-                              <div className={`${cfcolor} `}>
-                                {/* <CustomDateTimePicker selectedDate={cfvalue} style='table'/> */}
-                                <CustomDateTimePicker2 selectedDate={cfvalue ? cfvalue : null} style='table'
-                                  onDateChange={(rid, value, name)=>handleTaskCustomField(tid, cf, value, st.customFields)}
-                                />
-                              </div>
-
-                              :
-
-                              <ClickToEdit value={cfvalue}  name={`tcf-${index}`}
-                                onBlur={(value)=>handleTaskCustomField(tid, cf, value, st.customFields)}
-                              />
-                            }
-                          </td>
-                        );
-                      })}
-                      <td className='border-b border-t border-l min-w-[50px]'></td>
-                      <td className='border-b border-t'></td>
-                    </tr>
+                        <>
                         
-                      {/* SUBTASKS */}
-                      {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
-                        <tr>
-                          <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
-                          <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
-                            <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
-                          </td>
-                          <td className='py-4'
-                          colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 8 : 8}
+                          <tr key={`task-data-${index}-${st._id}`} className='group hover:bg-slate-100' 
+                          ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
                           >
-                              <SubtasksTable 
-                                mainTask={mainTaskData || null}
-                                subtasks={st.subtasks ? st.subtasks as unknown as Task[]: []}
-                                type='subtask'
-                                taskId={tskID}
-                                handleTaskCustomField={handleTaskCustomField}
-                                DeleteRelatedUpdates={DeleteRelatedUpdates}
-                                addCustomField={addCustomFieldsMainTasks}
-                                deleteCustomField={deleteCustomField}
-                                openCustomFieldsPopup={openCustomFieldsPopup}
-                                getData={getData}
-                                addTask={addTask}
-                                parentTask={st}
-                                handleTaskInput={handleTaskInput}
-                              />
+                            <td className='w-[20px] sticky left-0 bg-white z-2 '>
+                              <div
+                              className='
+                              relative
+                              w-full
+                              h-full
+                              flex
+                              items-center
+                              justify-center
+                              left-[-3px]
+                              opacity-0
+                              group-hover:opacity-100
+                            '
+                              >
+                                <CustomContextMenu >
+                                      <ul>
+                                        <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                          <div></div>
+                                          {tskID && 
+                                            <DeleteById style='fill' deleteRelated={
+                                              ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
+                                            } icon='close' data={{id:tskID, type:'tasks', page:'tasks'}} relatedUpdates={DeleteRelatedUpdates} 
+                                              onYes={getData} text={`${t('delete')}`}
+                                            />
+                                          }
+                                        </li>
+                                      </ul>
+                                  </CustomContextMenu>
+                              </div>
+                              <div 
+                              
+                                >
+                                  
+                                </div>
                             </td>
-                        </tr>
-                      
-                      }
-                    </>
-                    
-                  )
-                })}
-                <tr>
-                  <td className='w-[20px] sticky left-0 bg-white z-2'></td>
-                  <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
-                  <td 
-                  className='border-t border-b border-l p-1
-                     w-[200px] sticky left-[23px] bg-white z-2
-                  '
-                  >
-                      <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null, parentTask:null})} showButton={false} 
-                      placeholder={`+ ${t('addTasks')}`}
-                      customClasses='
-                      text-xs
-                          border
-                          p-1
-                          text-slate-400
-                          border-transparent
-                          hover:border-slate-300
-                          hover:outline-none
+                            <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
+                            <td className={`${tdStyles} w-[200px] sticky left-[23px] bg-white z-2 group-hover:bg-slate-100`}>
+                              <div 
+                                className='relative flex w-full h-full items-center justify-start group
+                                
+                                '
+                              >
+                                <div 
+                                className='
+                                  absolute
+                                  left-[-10px]
+                                  opacity-0
+                                  group-hover:opacity-100
+                                '
+                                >
+                                  {tskID && 
+                                    <div 
+                                    onClick={() => toggleSubTasksCount(tskID)}
+                                    className="ml-1 cursor-pointer"
+                                  >
+                                    <FaAngleRight 
+                                      className="text-slate-400"
+                                      style={{
+                                        transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
+                                          ? 'rotate(90deg)' 
+                                          : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease', // For smooth rotation
+                                      }} 
+                                    />
+                                  </div>
+                                  }
+                                </div>
+                                <div className='
+                                  group-hover:translate group-hover:translate-x-3 transition-all
+                                  flex justify-between items-start
+                                '>
+                                  <ClickToEdit value={st.name}  name='name'
+                                      onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
+                                    />
+                                  {/* {st.name}  */}
+                                  {st.subtasks && st.subtasks.length > 0 && 
+                                    <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
+                                  }
+                                </div>
+                              </div>
+                            </td>
+                            <td className={`${tdStyles} group`}
+                            >
+                              <div className='relative flex justify-start align-center'>
+                                <div
+                                  className=' group-hover:translate group-hover:translate-x-3 transition-all
+                                  flex justify-between items-center'
+                                >{rUser ? rUser.name : 
+                                <div className='text-slate-400 flex items-center justify-start'>
+                                  <FaUserCircle size={16} className='text-slate-200'/> 
+                                  </div>
+                                }</div>
+                                <div 
+                                className='absolute left-[-5px] opacity-0 group-hover:opacity-100'
+                                >
+                                  <CustomContextMenu >
+                                        <ul>
+                                          <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
+                                            <p className='text-xs text-slate-400'>Responsible Person</p>
+                                            <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/>
+                                          </li>
+                                        </ul>
+                                    </CustomContextMenu>
+                                </div>
+                              </div>
+                            </td>
+                            <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
+                              <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'
+                                onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'priority', value)}
+                              />
+                              </td>
+                            <td className={`${tdStyles} ${getColorClasses(st.status)} text-center text-[10px]`}>
+                              <CustomDropdown selectedValue={st.status} data={TaskStatuses} style='table'
+                                onChange={(rid, name, value, data)=>handleTaskInput(st._id ? st._id : '', 'status', value)}
+                              />
+                              </td>
+                            <td className={`${tdStyles} text-xs`}>
+                              {/* {st.startDate ? format(st.startDate, 'dd.MM.yyyy') : ''} */}
+                                <CustomDateTimePicker2 selectedDate={st.startDate ? st.startDate : null} style='table'
+                                        onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
+                                />
+                              </td>
+                            <td className={`${tdStyles} text-xs`}>
+                              {/* {st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''} */}
+                                <CustomDateTimePicker2 selectedDate={st.dueDate ? st.dueDate : null} style='table'
+                                        onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
+                                />
+                            </td>
+                            {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
+                              const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
+                              const tid = st._id ? st._id : '';
 
-                          focus:border-slate-400
-                          focus:outline-none
-                          w-full
-                      '/>
-                  </td>
-                  <td className='border-b border-t'
-                  colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
-                  ></td>
-                  <td className='border-b border-t'></td>
-                </tr>
-              </tbody>
-            </table>
+                              const cfdata = fV;
+
+                              const cfcolor = cfdata && (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
+                              `bg-${cfdata.selectedValue.color} text-${cfdata.selectedValue.color}-dark` : '';
+
+                              const cftype = cfdata ? cfdata.type : '';
+
+                              const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
+                              cfdata.selectedValue._id : cfdata.selectedValue : null;
+                              console.log('------------------');
+                              console.log(cfdata);
+                              return (
+                                <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
+                                  {(cf.type === 'dropdown' || cf.type === 'status') ? 
+                                    <div className={`${cfcolor} `}>
+                                      <CustomDropdown emptyLabel={<div className='text-xs'>--select--</div>}
+                                      name={`tcf-${index}`} data={cf.value} 
+                                      style='table' selectedValue={cfvalue}
+                                      onChange={(rid,name,value,cfdata)=>handleTaskCustomField(tid, cf, cfdata, st.customFields)}/>
+                                    </div>
+                                  :
+                                  
+                                  (cf.type === 'date') ?
+                                    <div className={`${cfcolor} `}>
+                                      {/* <CustomDateTimePicker selectedDate={cfvalue} style='table'/> */}
+                                      <CustomDateTimePicker2 selectedDate={cfvalue ? cfvalue : null} style='table'
+                                        onDateChange={(rid, value, name)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                                      />
+                                    </div>
+
+                                    :
+
+                                    <ClickToEdit value={cfvalue}  name={`tcf-${index}`}
+                                      onBlur={(value)=>handleTaskCustomField(tid, cf, value, st.customFields)}
+                                    />
+                                  }
+                                </td>
+                              );
+                            })}
+                            <td className='border-b border-t border-l min-w-[50px]'></td>
+                            <td className='border-b border-t'></td>
+                          </tr>
+                              
+                            {/* SUBTASKS */}
+                            {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
+                              <tr>
+                                <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
+                                <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
+                                  <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
+                                </td>
+                                <td className='py-4'
+                                colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 8 : 8}
+                                >
+                                    <SubtasksTable 
+                                      mainTask={mainTaskData || null}
+                                      subtasks={st.subtasks ? st.subtasks as unknown as Task[]: []}
+                                      type='subtask'
+                                      taskId={tskID}
+                                      handleTaskCustomField={handleTaskCustomField}
+                                      DeleteRelatedUpdates={DeleteRelatedUpdates}
+                                      addCustomField={addCustomFieldsMainTasks}
+                                      deleteCustomField={deleteCustomField}
+                                      openCustomFieldsPopup={openCustomFieldsPopup}
+                                      getData={getData}
+                                      addTask={addTask}
+                                      parentTask={st}
+                                      updateTask={updateTask}
+                                      handleTaskInput={handleTaskInput}
+                                    />
+                                  </td>
+                              </tr>
+                            
+                            }
+                        </>
+                        )}
+                      </Draggable>
+                      
+                    )
+                  })}
+                  <tr>
+                    <td className='w-[20px] sticky left-0 bg-white z-2'></td>
+                    <td className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></td>
+                    <td 
+                    className='border-t border-b border-l p-1
+                      w-[200px] sticky left-[23px] bg-white z-2
+                    '
+                    >
+                        <EnterInput name='addTask' onEnter={({name, value})=>addTask({name, value, taskId:null, parentTask:null})} showButton={false} 
+                        placeholder={`+ ${t('addTasks')}`}
+                        customClasses='
+                        text-xs
+                            border
+                            p-1
+                            text-slate-400
+                            border-transparent
+                            hover:border-slate-300
+                            hover:outline-none
+
+                            focus:border-slate-400
+                            focus:outline-none
+                            w-full
+                        '/>
+                    </td>
+                    <td className='border-b border-t'
+                    colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
+                    ></td>
+                    <td className='border-b border-t'></td>
+                  </tr>
+                </tbody>
+              </table>
+             )}
+            </Droppable>
+            </DragDropContext>
           </div>
         </div>
       
