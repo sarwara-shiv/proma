@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const ResizableTableHeader = ({
+interface ArgsType{
+  children: React.ReactNode;
+  initialWidth: number;
+  colId?:string,
+  classes?: string;
+  key?:string;
+  onMouseUp?:(width:number, colId:string)=>void
+}
+
+const ResizableTableHeader:React.FC<ArgsType> = ({
   children,
   initialWidth,
   classes="",
-  key=''
-}: {
-  children: React.ReactNode;
-  initialWidth: number;
-  classes?: string;
-  key?:string
+  key='',
+  colId,
+  onMouseUp
 }) => {
   const [width, setWidth] = useState(initialWidth);
   const resizerRef = useRef<HTMLDivElement>(null);
@@ -36,6 +42,7 @@ const ResizableTableHeader = ({
     // Ensure the new width is not less than a minimum width
     if (newWidth > 150) {
       setWidth(newWidth); // Only update state when necessary
+      
     }
   };
 
@@ -44,6 +51,7 @@ const ResizableTableHeader = ({
     resizingRef.current = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    onMouseUp && onMouseUp(width, colId||'');
   };
 
   // Clean up event listeners on component unmount

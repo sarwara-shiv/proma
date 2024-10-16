@@ -467,6 +467,9 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   };
   
 
+  const getColWidth = (width:number, colId:string)=>{
+    console.log(width, ' : ' ,colId)
+  }
   
 
 
@@ -493,12 +496,30 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
               <table className='w-full table-fixed text-slate-600' {...provided.droppableProps} ref={provided.innerRef}>
                 <thead>
                   <tr key={'task-level-1'} className='text-sm font-normal'>
-                    <th className='w-[20px] sticky left-0 bg-white z-2'></th>
+                    <th className='w-[20px] sticky left-0 bg-white z-2'>
+                      <CustomContextMenu >
+                          <ul>
+                            <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                              <div 
+                                onClick={openCustomFieldsPopup}
+                                className='
+                                  cursor-pointer
+                                  flex justify-center items-center rounded-full
+                                  text-slate-600
+                                  flex justify-between align-center
+                                  text-xs
+                                  '>
+                                  {t('addNewCell')} <IoMdAdd />
+                                </div>
+                            </li>
+                          </ul>
+                      </CustomContextMenu>
+                    </th>
                     <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
                     {/* <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
                     >{t('task')}
                     </th> */}
-                    <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}>
+                    <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`} colId={``} onMouseUp={getColWidth}>
                          {t('task')}
                     </ResizableTableHeader>
                     <th className={`${thStyles}  w-[160px] `}
@@ -511,7 +532,7 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
                     {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                       const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                       return (
-                        <ResizableTableHeader initialWidth={223} classes={`${thStyles} ${width} relative`} key={`th-${index}-${sanitizeString(cf.key)}`} >
+                        <ResizableTableHeader initialWidth={223} classes={`${thStyles} ${width} relative`} key={`th-${index}-${sanitizeString(cf.key)}`} colId={`index+9`}>
                          <div
                             className='relative flex w-full h-full items-center justify-start group'
                           >

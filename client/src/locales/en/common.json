@@ -150,6 +150,7 @@
         "record_added": "Data Added Successfully",
         "password_not_same": "Password and Repeat Password are not same"
     },
+    "addNewCell":"Add New Cell",
     "editCustomField":"Edit Customfield",
     "timeline":"Timeline",
     "work":"Work",

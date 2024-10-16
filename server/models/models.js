@@ -86,6 +86,17 @@ const bugSchema = new Schema({
   customFields: { type: Map, of: Schema.Types.Mixed }  // Custom fields for bugs as key-value pairs
 });
 
+const TasksColWidth = new Schema({
+  _tid:{type: Schema.Types.ObjectId},  
+  width:[
+    {
+      index: { type: Number, required:true},
+      width: { type: Number, required:true},
+    },
+  ]
+})
+
+
 
 // Update Task Schema to reference Ticket
 // const TaskSchema = new Schema({

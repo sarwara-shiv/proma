@@ -12,14 +12,15 @@ import { NavLink } from 'react-router-dom';
 import { IoCreateOutline } from 'react-icons/io5';
 import DataTable from '../../../..//components/table/DataTable';
 import ConfirmPopup from '../../../../components/common/CustomPopup';
-import { FaTasks } from 'react-icons/fa';
+import { FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { ObjectId } from 'mongodb';
 import { TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
+import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 
-const pinnedColumns=['name', '_pid'];
-const fixedWidthColumns=['actions', 'startDate', 'dueDate', 'endDate', 'createdAt', 'tasks'];
+const pinnedColumns=['name', '_pid', 'actions_cell'];
+const fixedWidthColumns=['actions_cell', 'actions', 'startDate', 'dueDate', 'endDate', 'createdAt', 'tasks'];
 const MainTasksAll = () => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
@@ -80,6 +81,59 @@ const MainTasksAll = () => {
     };
 
     const columns: ColumnDef<MainTask, any>[] = useMemo(() => [
+      {
+        header: '',
+        id:"actions_cell",
+        cell: ({ getValue, row }) => {
+          const cid = getValue() && getValue();
+          const _id = row.original._id ? row.original._id as unknown as string : '';
+          return (
+              <div>
+                   <div>
+                      <CustomContextMenu >
+                              <ul>
+                                  <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <NavLink
+                                        to={`tasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
+                                        className="flex justify-between items-center text-xs gap-1 hover:text-primary cursor-pointer whitespace-normal break-words"
+                                        >
+                                          <div>
+                                            {t('tasks')}
+                                          <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
+                                          {row.original.subtasks && row.original.subtasks.length > 0 ? <>{row.original.subtasks.length}</>:
+                                          0
+                                          }
+                                          </span>
+                                          </div>
+
+                                          <FaTasks /> 
+                                    </NavLink>
+                                  </li>
+                                  <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                      <NavLink
+                                          to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                                          className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                                          >
+                                            {t('update')} <FaPencilAlt />
+                                      </NavLink>
+                                    </li>
+                                  <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <DeleteById text={t('delete')} data={{id:_id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                                  </li>
+                              </ul>
+                          </CustomContextMenu>
+                  </div>
+              </div>
+          )
+        },
+          meta:{
+              style :{
+              textAlign:'left',
+              width:'30px'
+              },
+              noStyle:true,
+          },
+      },
         {
           header: `${t('name')}`,
           accessorKey: 'name',
@@ -91,7 +145,7 @@ const MainTasksAll = () => {
             }
         },
         {
-          header: `${t('project')}`,
+          header: `${t('project')}`, 
           accessorKey: '_pid',
           id:"_pid",
             meta:{

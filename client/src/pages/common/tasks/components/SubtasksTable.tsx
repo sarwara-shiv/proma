@@ -16,6 +16,8 @@ import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfi
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { extractAllIds } from '../../../../utils/tasksUtils';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ResizableTableHeader from '../../../../components/table/ResizableTableHeader';
+import { sanitizeString } from '../../../../utils/commonUtils';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
@@ -74,6 +76,11 @@ const SubtasksTable:React.FC<ArgsType> = ({
     setSubtasksdata(items);
   };
 
+
+  const getColWidth = (width:number, index:number)=>{
+    console.log(width, ' : ' ,index)
+  }
+
   return (
     <div>
         {mainTaskData && 
@@ -93,7 +100,10 @@ const SubtasksTable:React.FC<ArgsType> = ({
 
                       </th>
                       <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[40px] z-10'></th>
-                      <th className={`${thStyles} w-[200px]  sticky left-[43px] bg-white z-10`} >{t('subtask')}</th>
+                      {/* <th className={`${thStyles} w-[200px]  sticky left-[43px] bg-white z-10`} >{t('subtask')}</th> */}
+                        <ResizableTableHeader initialWidth={200} classes={`${thStyles} w-[200px]  sticky left-[43px] bg-white z-10`} colId={``} >
+                          {t('subtask')}
+                        </ResizableTableHeader>
                       <th className={`${thStyles}  w-[160px]`}>{t('responsiblePerson')}</th>
                       <th className={`${thStyles} text-center w-[120px]`}>{t('priority')}</th>
                       <th className={`${thStyles} w-[120px] text-center`}>{t('status')}</th>
@@ -103,12 +113,13 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                         return (
-                          <th key={`th-${index}`} className={`${thStyles} ${width}`} >
+                          <ResizableTableHeader initialWidth={200} classes={`${thStyles} ${width} relative`} key={`th-${index}-${sanitizeString(cf.key)}`} colId={``} >
+                          {/* <th key={`th-${index}`} className={`${thStyles} ${width}`} > */}
                             <div
                               className='relative flex w-full h-full items-center justify-start group'
                             >
                               {cf.key}
-                              <div 
+                              {/* <div 
                               className='
                                 absolute right-0 opacity-0
                                   transition-opacity duration-300
@@ -118,9 +129,10 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                 <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} 
                                   
                                   />
-                              </div>
+                              </div> */}
                             </div>
-                          </th>
+                          {/* </th> */}
+                          </ResizableTableHeader>
                         );
                       })}
                       <th className=' w-[50px]'></th>
