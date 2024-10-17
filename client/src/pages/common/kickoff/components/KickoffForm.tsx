@@ -179,11 +179,9 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     }
     return (
         <div className='data-wrap relative'>
-            <DraggableTable />
           <form onSubmit={submitForm}>
             {formData &&
                 <>
-                <div>formdata</div>
                 <div className='w-full my-4 rounded-md px-3 pb-4 bg-slate-100'>
                     <div className='grid grid-cols-1 lg:grid-cols-2'>
                         <div className='text-primary text-2xl md:text-3xl font-bold'>
@@ -203,7 +201,10 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
                     <div className='mt-3 grid grid-cols-1'>
                         <i className='text-slate-400'>{t(`description`)}</i>
-                        {formData.description}
+                        <div
+                            dangerouslySetInnerHTML={{ __html: formData.description || '' }}
+                            className="p-2 border border-gray-300 rounded"
+                            />
                     </div>
                 </div>
 

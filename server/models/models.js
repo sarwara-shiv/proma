@@ -15,6 +15,12 @@ const DynamicFieldSchema = new Schema({
   selectedValue: { type: Schema.Types.Mixed},
 }, { _id: false });
 
+// custom data
+const DynamicCustomField = new Schema({
+  name: {type:String, required:true},
+  value:{type:String}
+})
+
 // Ticket Schema
 const TicketSchema = new Schema({
   title: { type: String, required: true },
@@ -303,7 +309,7 @@ const ProjectSchema = new Schema({
   ],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
-  customFields: [DynamicFieldSchema],
+  customFields: [DynamicCustomField],
   permissions: [PermissionSchema],
   userGroup:[{ type: Schema.Types.ObjectId, ref: 'User' }],
   createdAt: { type: Date, default: Date.now },

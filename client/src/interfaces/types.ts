@@ -26,6 +26,11 @@ export interface DynamicField {
     value?:any;
     selectedValue?: any; // Since `Schema.Types.Mixed` can accept any type
   }
+
+  export interface DynamicCustomField{
+    name:string,
+    value:string
+  }
   
   export interface PermissionsMap {
     [page: string]: PagePermission;
@@ -248,7 +253,7 @@ export interface QaTask extends BaseTask {
     personsInvolved: PersonsInvolved[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
     mainTasks?:ObjectId[];
-    customFields?: DynamicField[];
+    customFields?: DynamicCustomField[];
     permissions?: Permission[];
     userGroup?:(string | ObjectId)[];
     createdAt?: Date;

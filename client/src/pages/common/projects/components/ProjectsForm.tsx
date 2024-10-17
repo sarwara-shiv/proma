@@ -1,6 +1,6 @@
 import FormsTitle from '../../../../components/common/FormsTitle';
 import { CustomInput, CustomSelectList } from '../../../../components/forms';
-import { AlertPopupType, FlashPopupType, NavItem, PersonsInvolved, Project } from '@/interfaces';
+import { AlertPopupType, DynamicCustomField, FlashPopupType, NavItem, PersonsInvolved, Project } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities, ProjectType } from '../../../../config/predefinedDataConfig';
@@ -14,6 +14,8 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { ObjectId } from 'mongodb';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { formatDate, compareDates, isPastDate } from '../../../../utils/dateUtils';
+import RichTextArea from '../../../../components/forms/RichTextArea';
+import DynamicCustomFieldForm from '../../../../components/forms/DynamicCustomFieldForm';
 
 interface ArgsType {
   cid?:string | null;
@@ -102,6 +104,11 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
     setFormData({...formData, [name]:value});
   };
 
+  const handleRichText = (name:string, value:string) => {
+    if(name && value)
+    setFormData({...formData, [name]:value});
+  };
+
   const handleStatusChange = (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
     setFormData({...formData, [name]:value}); 
   };
@@ -140,6 +147,32 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
     console.log(value);
     if (typeof value === 'string' || value instanceof String)
     setFormData({...formData, projectType:value === 'inhouse' ? 'inhouse' : 'client'});
+  }
+
+  const handleProjCustomField = (name:string, data:DynamicCustomField, index:number=-1)=>{
+    if(data && data.name && data.value){
+      setFormData(prevVal => {
+        if(!prevVal) return prevVal;
+        let cfd = prevVal.customFields ?  prevVal.customFields : [];
+        if(cfd?.length == 0 ){
+          cfd.push(data);
+        }else{
+          const fexists = cfd?.filter((d)=>d.name === data.name);
+          if(fexists){
+            cfd.push(data);
+          }else{
+            cfd.push(data);
+          }
+        }
+
+        return prevVal = {...prevVal, customFields:cfd}
+
+      })
+    }
+  }
+
+  const removeCustomField = (index:number)=>{
+    
   }
 
 
@@ -204,7 +237,9 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
             </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
-                <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} />
+                {/* <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} /> */}
+                <RichTextArea onChange={handleRichText} name='description' label={`${t('description')}`} defaultValue={formData.description}/>
+                  {/* <ContentEditable /> */}
             </div>
             
           </div>
@@ -213,6 +248,28 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
                 <PersonsInvolvedForm selectedValues={formData.personsInvolved ? formData.personsInvolved : data?.personsInvolved ? data.personsInvolved : []} onChange={handlePersonsInvolved}/>
             </div>
           </div>
+          
+          <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+            <div className="mb-4">
+               <div>
+                  {data?.customFields && data.customFields.length > 0 && data.customFields.map((d, index)=>{
+                    const cf = d as unknown as DynamicCustomField;
+                    return (
+                      <div key={`cf-${index}`} className='p-2 bg-slate-100  rounded-md mb-2'>
+                         <div className='text-sm font-bold border-b'>{cf.name}</div> 
+                         <div
+                            dangerouslySetInnerHTML={{ __html: cf.value || '' }}
+                            className="text-sm"
+                            />
+                      </div>
+                    )
+                  })}
+                </div>   
+                <DynamicCustomFieldForm onSubmit={handleProjCustomField}/>
+            </div>
+          </div>
+
+
           <div className="mt-6 text-right">
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} />
           </div>
