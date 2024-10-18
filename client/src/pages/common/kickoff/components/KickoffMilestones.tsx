@@ -8,6 +8,7 @@ import { IoRemove } from 'react-icons/io5';
 import { milestoneStatuses } from '../../../../config/predefinedDataConfig';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
+import RichTextArea from '../../../../components/forms/RichTextArea';
 
 interface ArgsType {
   milestones: Milestone[] | [];
@@ -18,6 +19,7 @@ interface ArgsType {
 
 const mileStoneEmpty:Milestone={
   name: '',
+  description:'',
     dueDate: null,
     status: 'notStarted',
 }
@@ -45,7 +47,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
       }
 
       // Clear the input fields and reset the editing state
-      setCurrentMilestone({ name: '', dueDate: null, status: 'notStarted' });
+      setCurrentMilestone({ name: '', dueDate: null, status: 'notStarted', description:'' });
       setEditingIndex(null);
     }
   };
@@ -97,7 +99,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
             onClick={() => handleEdit(index)}
           >
             <div className="flex flex-cols items-center">
-              <b>- </b>{milestone.name}
+              <span className='px-2 px-1 text-md font-semibold text-slate-600'>{milestone.name}</span>
               <div className="text-gray-600 text-sm pl-2">
                 <span className='text-sm text-slate-300'>
                   {t('FORMS.dueDate')}:
@@ -119,6 +121,8 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
                 }
               </div>
             </div>
+              <div className='text-xs px-2 mb-2 text-slate-500' dangerouslySetInnerHTML={{__html: milestone.description || ''}}>
+              </div>
 
             
           </div>
@@ -162,6 +166,14 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
               />
             </div>
           </div>
+        </div>
+        <div>
+          <RichTextArea 
+            defaultValue={currentMilestone.description}
+            name='description'
+            label={t('FORMS.description')}
+            onChange={(name, value) => handleCurrentMilestoneChange('description', value)}
+          />
         </div>
 
         {/* Add/Update Milestone Button */}

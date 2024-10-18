@@ -36,7 +36,7 @@ const Project = () => {
             {
               action && 
               action === "add" ? <ProjectsForm setSubNavItems={setSubNavItems} navItems={navItems}/> : 
-              action ==="update" ? <ProjectsForm  data={data} cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
+              action ==="update" ? <ProjectsForm cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="maintasks" ? <MainTasksProject  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 

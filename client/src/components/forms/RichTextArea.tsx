@@ -67,9 +67,9 @@ const RichTextArea: React.FC<ArgsType> = ({ name = "", label = "", defaultValue 
       }
 
       // Make non-image URLs clickable
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`; 
     });
-  };
+  };   
 
   // Effect to update innerHTML and restore cursor position
   useEffect(() => {
@@ -82,7 +82,22 @@ const RichTextArea: React.FC<ArgsType> = ({ name = "", label = "", defaultValue 
         restoreSelection(); // Restore cursor position after updating
       }
     }
-  }, [value]);
+  }, [value]); 
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]); 
+
+  useEffect(() => {
+    if (contentEditableRef.current) {
+      const currentContent = contentEditableRef.current.innerHTML;
+
+      // Update the innerHTML only if the content is different
+      if (currentContent !== value) {
+        contentEditableRef.current.innerHTML = autoLinkURLs(value);
+        restoreSelection(); // Restore cursor position after updating
+      }
+    }
+  }, []);
 
   return (
     <div>

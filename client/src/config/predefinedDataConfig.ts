@@ -11,6 +11,18 @@ const TaskCategory = [
     {_id: 'content', name:'Content'}, 
     {_id: 'uiux', name:'UI/UX'},
 ]
+const KickoffStatus = [
+    {_id: 'inReview', name:'In Review'},
+    {_id: 'rejected', name:'Rejected'},
+    {_id: 'approved', name:'Approved'}, 
+    {_id: 'needWork', name:'NeedWork'},
+]
+const ApprovalStatus = [
+    {_id: 'inReview', name:'In Review'},
+    {_id: 'rejected', name:'Rejected'},
+    {_id: 'approved', name:'Approved'}, 
+    {_id: 'needWork', name:'NeedWork'},
+]
 const DynamicFieldsTypes = [
     {_id: 'dropdown', name:'Dropdown'},
     {_id: 'string', name:'String'},
@@ -58,4 +70,4 @@ const QuestionsStatuses = [
     {_id: 'notAnswered', name:'Not Answered'},
 ]
 
-export {DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

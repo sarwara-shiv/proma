@@ -99,7 +99,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                                     </li>
                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                         <NavLink
-                                            to={`update`} state={{objectId:row.original._id, data:row.original}} title="update"
+                                            to={`update/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title="update"
                                             className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('update')} <FaPencilAlt />

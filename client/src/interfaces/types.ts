@@ -195,6 +195,13 @@ export interface QaTask extends BaseTask {
   export interface Milestone{
     name:string,
     dueDate:Date | null,
+    description?:string,
+    status: 'completed' | 'inProgress' |'onHold' | 'notStarted';
+  }
+  export interface approval{
+    name:string,
+    dueDate:Date | null,
+    description?:string,
     status: 'completed' | 'inProgress' |'onHold' | 'notStarted';
   }
   
@@ -219,8 +226,10 @@ export interface QaTask extends BaseTask {
       assignedTo: string; // Refers to User objectId
       dueDate?: Date;
     }[];
+    status?: 'inReview' | 'rejected' |'approved' | 'needWork';
     responsibilities?: KickoffResponsibility[];
     mainTasks?:MainTask[];
+    approval?:{user:(string|ObjectId), status:'inReview' | 'rejected' |'approved' | 'needWork'}[]
   }
   
   // Project Status Interface
@@ -250,7 +259,7 @@ export interface QaTask extends BaseTask {
     projectType?:'inhouse' | 'client';
     kickoff?: Kickoff;
     documentation?: string[]; // Array of Documentation objectIds
-    personsInvolved: PersonsInvolved[]; // Array of User objectIds
+    personsInvolved: (string | ObjectId)[]; // Array of User objectIds
     tasks: string[]; // Array of Task objectIds
     mainTasks?:ObjectId[];
     customFields?: DynamicCustomField[];

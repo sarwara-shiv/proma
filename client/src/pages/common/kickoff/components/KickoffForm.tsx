@@ -37,6 +37,8 @@ const kickoffDataInitial: Kickoff = {
     questions: [],
     notes: [],
     actionItems: [],
+    status:'inReview',
+    approval:[],
     mainTasks: [],
     context: ''
 };
@@ -354,7 +356,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                         }
                         <div className='rounded-md'>
                             <KickoffMilestones
-                                milestones={kickoffData.milestones || []}
+                                milestones={kickoffData.milestones || []} 
                                 name="keyMilestones"
                                 onChange={handleMilestone}
                                 />

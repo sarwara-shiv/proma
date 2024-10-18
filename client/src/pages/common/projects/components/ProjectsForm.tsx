@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities, ProjectType } from '../../../../config/predefinedDataConfig';
 import CustomDropdown from '../../../../components/forms/CustomDropdown';
 import PersonsInvolvedForm from './PersonsInvolvedForm';
-import { addUpdateRecords } from '../../../../hooks/dbHooks';
+import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import FormButton from '../../../../components/common/FormButton';
@@ -16,11 +16,13 @@ import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker'
 import { formatDate, compareDates, isPastDate } from '../../../../utils/dateUtils';
 import RichTextArea from '../../../../components/forms/RichTextArea';
 import DynamicCustomFieldForm from '../../../../components/forms/DynamicCustomFieldForm';
+import { sanitizeString } from '../../../../utils/commonUtils';
+import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
+import { useParams } from 'react-router-dom';
 
 interface ArgsType {
   cid?:string | null;
   action?:"add" | "update";
-  data?: Project; 
   navItems:NavItem[];
   setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
   checkDataBy?:string[];
@@ -51,16 +53,19 @@ const priorityColors=[
 ]
 
 const checkDataBy: string[] = ['name'];
-const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavItems, navItems }) => {
+const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
+  const {id} = useParams();
   const {user} = useAuth();
-  const [formData, setFormData] = useState<Project>(data? data : initialValues);
+  const [projectId, setProjectId] = useState<string|ObjectId>(id ? id : '');
+  const [formData, setFormData] = useState<Project>(initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
 
   useEffect(()=>{
-    setSubNavItems(navItems)
+    setSubNavItems(navItems);
+    getData();
 
     ProjectStatuses.map((d)=>{
       d.name = t(`${d.name}`)
@@ -73,17 +78,46 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
 
   },[])
 
+
+  const getData = async()=>{
+    try{
+      const populateFields = [
+          {path: 'personsInvolved'},
+      ]
+
+        if(projectId){
+            const res = await getRecordWithID({id:projectId, populateFields, type:'projects'});
+
+            if(res.status === 'success' && res.data){
+               setFormData({...formData, ...res.data});
+               console.log(res.data); 
+            }
+
+        }
+    }catch(error){
+        console.log(error);
+    }
+  }
+
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let data = formData;
+    let nData = formData;
     try{
+      let body = {...nData};
+      action = projectId ? 'update' : 'add';
       const createdBy = user && user._id ? user._id : null;
-      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id:cid, body:{ ...data, createdBy}}); 
+      if(action === 'add'){
+        body = {...body, createdBy}; 
+      }
+
+      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id:cid, body:{ ...body}}); 
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
             // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content})
             setFlashPopupData({...flashPopupData, isOpen:true, message:content, type:"success"});
+            console.log(response.data);
+            setFormData({...formData, ...response.data});
         } else {
           let content = `${t(`RESPONSE.${response.code}`)}`
           if(response.data){
@@ -113,7 +147,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
     setFormData({...formData, [name]:value}); 
   };
 
-  const handlePersonsInvolved = (value:PersonsInvolved[])=>{
+  const handlePersonsInvolved = (value:(string|ObjectId)[])=>{
     setFormData({...formData, personsInvolved:value});
   }
 
@@ -149,31 +183,51 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
     setFormData({...formData, projectType:value === 'inhouse' ? 'inhouse' : 'client'});
   }
 
-  const handleProjCustomField = (name:string, data:DynamicCustomField, index:number=-1)=>{
-    if(data && data.name && data.value){
-      setFormData(prevVal => {
-        if(!prevVal) return prevVal;
-        let cfd = prevVal.customFields ?  prevVal.customFields : [];
-        if(cfd?.length == 0 ){
-          cfd.push(data);
-        }else{
-          const fexists = cfd?.filter((d)=>d.name === data.name);
-          if(fexists){
-            cfd.push(data);
-          }else{
-            cfd.push(data);
-          }
+  const handleProjCustomField = (name: string, fieldsData: DynamicCustomField, index: number = -1) => {
+    if (fieldsData && fieldsData.name && fieldsData.value) {
+      setFormData((prevVal) => {
+        if (!prevVal) return prevVal;
+  
+        let cfd = prevVal.customFields ? prevVal.customFields : [];
+  
+        // Format the name to lowercase and remove spaces
+        const formattedName = sanitizeString(fieldsData.name);
+  
+        // Check if the custom field already exists
+        const fieldIndex = cfd.findIndex(
+          (d) => sanitizeString(d.name) === formattedName
+        );
+  
+        if (fieldIndex !== -1) {
+          // Field exists, update its value
+          cfd[fieldIndex].value = fieldsData.value;
+        } else {
+          // Field doesn't exist, add new field
+          cfd.push(fieldsData);
         }
-
-        return prevVal = {...prevVal, customFields:cfd}
-
-      })
+  
+        // Return the updated formData
+        return { ...prevVal, customFields: cfd };
+      });
     }
-  }
+  };
+  
 
-  const removeCustomField = (index:number)=>{
-    
-  }
+  const removeCustomField = (index: number) => {
+    console.log(index);
+    setFormData((prevVal) => {
+      if (!prevVal || !prevVal.customFields) return prevVal;
+  
+      // Create a copy of the current customFields array
+      const updatedCustomFields = [...prevVal.customFields];
+      // Remove the field at the given index
+      console.log(updatedCustomFields);
+      updatedCustomFields.splice(index, 1);
+  
+      // Return the updated formData with the custom field removed
+      return { ...prevVal, customFields: updatedCustomFields };
+    });
+  };
 
 
   return (
@@ -231,7 +285,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
                 </div>
                 <div className=''>
                   <CustomDropdown data={Priorities} label={t('FORMS.priority')} name='priority'
-                    onChange={handleStatusChange} colorClasses={priorityColors} selectedValue={formData.priority}
+                    onChange={handleStatusChange} colorClasses={priorityColors} selectedValue={formData.priority} 
                   />
                 </div>
             </div>
@@ -245,21 +299,24 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", data, cid, setSubNavI
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
-                <PersonsInvolvedForm selectedValues={formData.personsInvolved ? formData.personsInvolved : data?.personsInvolved ? data.personsInvolved : []} onChange={handlePersonsInvolved}/>
+                
             </div>
           </div>
           
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
                <div>
-                  {data?.customFields && data.customFields.length > 0 && data.customFields.map((d, index)=>{
+                  {formData?.customFields && formData.customFields.length > 0 && formData.customFields.map((d, index)=>{
                     const cf = d as unknown as DynamicCustomField;
                     return (
                       <div key={`cf-${index}`} className='p-2 bg-slate-100  rounded-md mb-2'>
-                         <div className='text-sm font-bold border-b'>{cf.name}</div> 
+                        <div className='relative flex justify-between items-center pr-5'>
+                         <div className='text-md font-bold py-2'>{cf.name}</div> 
+                         <DeleteSmallButton onClick={() => removeCustomField(index)} />
+                        </div>
                          <div
                             dangerouslySetInnerHTML={{ __html: cf.value || '' }}
-                            className="text-sm"
+                            className="text-sm p-2 bg-white"
                             />
                       </div>
                     )

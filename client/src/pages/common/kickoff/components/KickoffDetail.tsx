@@ -240,13 +240,21 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
                             </tr>
                             <tr>
-                                <td colSpan = {2} className='border border-slate-300 p-2'>{projectData.description}</td>
+                                <td colSpan = {2} className='border border-slate-300 p-2'>
+                                <div className='text-sm px-2 mb-2 text-slate-500' 
+                                    dangerouslySetInnerHTML={{__html: projectData.description || ''}}>
+                                </div>
+                                </td>
                             </tr>
                             <tr>
                                 <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
                             </tr>
                             <tr>
-                                <td colSpan = {2} className='border border-slate-300 p-2'>{kickoffData?.context || ''}</td>
+                                <td colSpan = {2} className='border border-slate-300 p-2'>
+                                <div className='text-sm px-2 mb-2 text-slate-500' 
+                                    dangerouslySetInnerHTML={{__html:kickoffData?.context || ''}}>
+                                </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -264,7 +272,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 {kickoffData.goals ? kickoffData.goals.map((goal,index)=>{
 
                                     return (
-                                        <li key={`pgoals-${index}`}>
+                                        <li key={`pgoals-${index}`} className='text-sm text-slate-500'>
                                             <span className='font-bold pr-2'>{index + 1}</span>{goal}
                                         </li>
                                     )
@@ -279,7 +287,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 {kickoffData.keyDeliverables ? kickoffData.keyDeliverables.map((item,index)=>{
 
                                     return (
-                                        <li key={`pdel-${index}`}>
+                                        <li key={`pdel-${index}`} className='text-slate-500 text-sm'>
                                             <span className='font-bold pr-2'>{index + 1}</span>{item}
                                         </li>
                                     )
@@ -303,7 +311,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 {kickoffData.inScope ? kickoffData.inScope.map((item,index)=>{
 
                                     return (
-                                        <li key={`pinscope-${index}`}>
+                                        <li key={`pinscope-${index}`} className='text-slate-500 text-sm'>
                                             <span className='font-bold pr-2'>{index + 1}</span>{item}
                                         </li>
                                     )
@@ -318,7 +326,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 {kickoffData.outOfScope ? kickoffData.outOfScope.map((item,index)=>{
 
                                     return (
-                                        <li key={`pdel-${index}`}>
+                                        <li key={`pdel-${index}`} className='text-slate-500 text-sm'>
                                             <span className='font-bold pr-2'>{index + 1}</span>{item}
                                         </li>
                                     )
@@ -342,17 +350,17 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 className='
                                 grid
                                 grid-cols-1 md:grid-cols-2
-                                py-1
+                                p-2
+                                bg-slate-100
+                                mb-3
+                                rounded-md
                                 '
                                 >
                                   
-                                <div>
-                                <b>- </b>
-                                    <span 
-                                        className=''
-                                    >{item.name}</span>
+                                <div className='border-b mb-1 pb-1'>
+                                    <span className='px-2 px-1 text-md font-semibold text-slate-600'>{item.name}</span>
                                     <span className='ml-2'>
-                                    <i className='text-slate-400'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
+                                        <i className='text-slate-400'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
                                     </span>
                                 </div>
                                 <div className='flex justify-end'>
@@ -361,6 +369,9 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                     >
                                         {/* <i className='text-slate-400'>{t('status')}: </i>  */}
                                         {t(`${item.status}`)}</span>
+                                </div>
+                                <div className='text-xs px-2 mb-2 text-slate-500' 
+                                    dangerouslySetInnerHTML={{__html: item.description || ''}}>
                                 </div>
                                 </li>
                             )

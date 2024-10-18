@@ -254,6 +254,7 @@ const KickoffSchema = new Schema({
   endDate: { type: Date },
   milestones: [{
     name: { type: String, required: true },
+    description: { type: String},
     dueDate: { type: Date, required: true }, 
     status: { type: String, 
       enum: ['completed', 'inProgress', 'onHold', 'notStarted'],
@@ -273,6 +274,18 @@ const KickoffSchema = new Schema({
   }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
   responsibilities: [KickoffResponsibilitySchema],
+  status: {
+    type: String,
+    enum: ['inReview', 'rejected', 'approved', 'needWork'],
+    default: 'inReview'
+  },
+  approval:[{
+    user:{ type: Schema.Types.ObjectId, ref: 'User' },
+    status:{ type: String,
+      enum: ['inReview', 'rejected', 'approved', 'needWork'],
+      default: 'inReview'}
+  }]
+
 });
 
 // Project Status Schema
@@ -302,10 +315,7 @@ const ProjectSchema = new Schema({
   kickoff: KickoffSchema,
   documentation: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
   personsInvolved: [
-    {
-      role: { type: Schema.Types.ObjectId, ref: 'UserGroups', required: true },
-      persons: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
-    },
+    { type: Schema.Types.ObjectId, ref: 'User', required: true },
   ],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
