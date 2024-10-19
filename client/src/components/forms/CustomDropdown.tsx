@@ -124,7 +124,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
   }
 
   return (
-    <div className="relative flex flex-col" ref={dropdownRef}>
+    <div className={`relative flex flex-col ${style === 'table' ? 'rounded-md ' : ''}`} ref={dropdownRef}>
       {label && (
         <label htmlFor={name} className="text-gray-400 text-sm">
           {label}
@@ -135,7 +135,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
       <div
         className={`cursor-pointer flex justify-between items-center 
         w-full   
-         rounded-sm 
+         rounded-md
         focus:outline-none block w-full 
         ${style === 'table' ? 'p-0.5 bg-transparent text-xs' : 'p-2.5 bg-gray-50 border text-sm text-gray-900'}
         dark:bg-gray-700

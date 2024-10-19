@@ -84,6 +84,7 @@ export interface BaseTask {
   updatedAt?: Date;
   level?:number;
   description?: string;
+  note?: string;
   createdBy: ObjectId;  // User reference
   sortOrder?: number;
   priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities

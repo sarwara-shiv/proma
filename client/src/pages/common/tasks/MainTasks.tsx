@@ -24,7 +24,7 @@ const MainTasks = () => {
 
 
     return (
-        <div className='page-wrap relative mt-8 bg-white'>
+        <div className='page-wrap relative mt-8'>
         <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
         <div className='content py-14  mb-7'>
             <div className='content-wrap p-4 '>

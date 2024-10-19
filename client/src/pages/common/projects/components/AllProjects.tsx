@@ -138,6 +138,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             meta:{
                 style :{
                 textAlign:'left',
+                width:'80px'
                 }
             }
         },
@@ -169,8 +170,8 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             const status = getValue() && getValue();
             const _id = row.original._id
             return (
-                <div className={`flex justify-center items-center ${getColorClasses(status)} text-center text-[10px]`}>  
-                    <div className='w-full rounded-sm'>
+                <div className={`flex justify-center items-center px-1 rounded-md ${getColorClasses(status)} text-center text-[10px]`}>  
+                    <div className='w-full rounded-md'>
                         <CustomDropdown 
                                 data={ProjectStatuses} 
                             label={''} 
@@ -196,7 +197,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             const priority = getValue() && getValue();
             const _id = row.original._id
             return (
-            <div className={`flex justify-center items-center ${getColorClasses(priority)} text-center text-[10px]`}>  
+            <div className={`flex justify-center items-center rounded-md px-1 ${getColorClasses(priority)} text-center text-[10px]`}>  
                     <div className='w-full rounded-sm'>
                         <CustomDropdown 
                                 data={Priorities} 
@@ -532,9 +533,9 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             {loader ? (
                 <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
             ) : (
-                <div className='data-wrap'>
+                <div className='data-wrap card bg-white'>
                     {data.length > 0 ? (
-                        <div className='relative bg-white p-4 rounded-md overflow-y-auto w-full'>
+                        <div className='relative rounded-md overflow-y-auto w-full'>
                             <DataTable columns={columns} data={data}
                                 pinnedColumns={pinnedColumns}
                                 fixWidthColumns={fixedWidthColumns}

@@ -56,7 +56,7 @@ const MainTasksAll = () => {
                 type: "maintasks", 
                 limit:paginationData.limit as unknown as number, 
                 pageNr:paginationData.currentPage as unknown as number, 
-                populateFields:['createdBy', '_pid', 'responsiblePerson'],
+                populateFields:['createdBy', '_pid', 'responsiblePerson'], 
                 filters,
                 orderBy
             });  
@@ -84,7 +84,7 @@ const MainTasksAll = () => {
       {
         header: '',
         id:"actions_cell",
-        cell: ({ getValue, row }) => {
+        cell: ({ getValue, row }) => { 
           const cid = getValue() && getValue();
           const _id = row.original._id ? row.original._id as unknown as string : '';
           return (
@@ -155,7 +155,9 @@ const MainTasksAll = () => {
             },
             cell: ({ getValue }: { getValue: () => string }) => {
                 const project = getValue() as unknown as Project;
-                return <span>{project.name}</span>;
+                console.log(project)
+                return <span>{project && project.name || ''}</span>; 
+                // return <span>{'pna,me'}</span>;
             },
         },
         {
@@ -357,11 +359,11 @@ const MainTasksAll = () => {
         },
       ], []);
 
-      const onDelete = (data:any)=>{
-        if(data.status === "success"){ 
+      const onDelete = (delData:any)=>{
+        if(delData.status === "success"){ 
           getRecords();
         }else{
-          console.error({error:data.message, code:data.code}); 
+          console.error({error:delData.message, code:delData.code}); 
         }
     }
 

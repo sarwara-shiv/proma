@@ -248,7 +248,9 @@
     "notAnswered":"Not Answered",
     "high":"High",
     "low":"Low",
+    "dueDays":"Due Days",
     "medium":"Medium",
-    "notStarted":"Not Started"
-
+    "notStarted":"Not Started",
+    "needApprovalFrom":"Approval From",
+    "projectDetails":"Project Details"
 }

@@ -9,7 +9,7 @@ export interface PaginationProps {
 }
 
 
-// Filters
+// Filters 
 interface RangeFilter {
     from?: string | number; 
     till?: string | number;

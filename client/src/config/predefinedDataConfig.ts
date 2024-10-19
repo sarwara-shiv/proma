@@ -33,43 +33,43 @@ const DynamicFieldsTypes = [
     {_id: 'status', name:'Status'},
 ]
 const milestoneStatuses = [
-    {_id: 'notStarted', name:'Not Started'},
-    {_id: 'inProgress', name:'In Progress'},
-    {_id: 'completed', name:'Completed'},
+    {_id: 'notStarted', name:'Not Started', color:'notStarted'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'completed', name:'Completed', color:'completed'},
 ]
 const ProjectType = [
-    {_id: 'inhouse', name:'inhouse', label:'In House'},
-    {_id: 'client', name:'client', label:"Client"},
+    {_id: 'inhouse', name:'In House', label:'In House'},
+    {_id: 'client', name:'Client', label:"Client"},
 ]
 const MilestoneStatus = [
-    {_id: 'completed', name:'inhouse'},
-    {_id: 'inProgress', name:'inProgress'},
-    {_id: 'onHold', name:'onHold'},
-    {_id: 'notStared', name:'notStared'},
+    {_id: 'completed', name:'inhouse', color:'completed'},
+    {_id: 'inProgress', name:'inProgress', color:'inProgress'},
+    {_id: 'onHold', name:'onHold', color:'onHold'},
+    {_id: 'notStared', name:'notStared', color:'notStared'},
 ]
 const TaskStatuses = [
-    {_id: 'toDo', name:'TODO'},
-    {_id: 'inProgress', name:'In Progress'},
-    {_id: 'onHold', name:'On Hold'},
-    {_id: 'blocked', name:'Blocked'},
-    {_id: 'pendingReview', name:'In Review'},
-    {_id: 'completed', name:'Completed'},
+    {_id: 'toDo', name:'TODO', color:'toDo'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'onHold', name:'On Hold', color:'onHold'},
+    {_id: 'blocked', name:'Blocked', color:'blocked'},
+    {_id: 'pendingReview', name:'In Review', color:'pendingReview'},
+    {_id: 'completed', name:'Completed', color:'completed'},
 ]
 const Priorities = [
-    {_id: 'high', name:'High'},
-    {_id: 'medium', name:'Medium'},
-    {_id: 'low', name:'Low'},
+    {_id: 'high', name:'High', color:'high'},
+    {_id: 'medium', name:'Medium', color:'medium'},
+    {_id: 'low', name:'Low', color:'low'},
 ]
 const TicketStatuses = [
-    {_id: 'open', name:'Open'},
-    {_id: 'closed', name:'Closed'},
-    {_id: 'inProgress', name:'In Progress'},
+    {_id: 'open', name:'Open', color:'open'},
+    {_id: 'closed', name:'Closed', color:'closed'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
 ]
 const QuestionsStatuses = [
-    {_id: 'answered', name:'Answered'},
-    {_id: 'pending', name:'Pending'},
-    {_id: 'waiting', name:'Waiting'},
-    {_id: 'notAnswered', name:'Not Answered'},
+    {_id: 'answered', name:'Answered', color:'answered'},
+    {_id: 'pending', name:'Pending', color:'pending'},
+    {_id: 'waiting', name:'Waiting', color:'waiting'},
+    {_id: 'notAnswered', name:'Not Answered', color:'notAnswered'},
 ]
 
 export {KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

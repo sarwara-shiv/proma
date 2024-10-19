@@ -45,7 +45,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
     const [subtasksData, setSubtasksdata] = useState<Task[] | null>(subtasks || null)
-    const thStyles = 'text-xs font-normal font-medium p-1 text-left border border-slate-200';
+    const thStyles = 'text-xs font-semibold p-1 text-primary text-left border border-slate-200';
     const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
   
     const tdClasses = 'p-2 text-xs';
@@ -109,7 +109,9 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       <th className={`${thStyles} w-[120px] text-center`}>{t('status')}</th>
                       <th className={`${thStyles} w-[120px] text-center`} >{t('startDate')}</th>
                       <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
-                      
+                      <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px]`} colId={``}>
+                         {t('note')}
+                    </ResizableTableHeader>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                         return (
@@ -213,6 +215,11 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                       onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
                               />
                           </td>
+                          <td className={`${tdStyles} text-xs`}>
+                              <ClickToEdit value={st.note || ''}  name='note'
+                                      onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'note', value)}
+                                    />
+                            </td>
                           {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                             const fV = st.customFields ? st.customFields.find((tcf)=>tcf.key === cf.key) : null;
                             const tid = st._id ? st._id : '';
@@ -287,7 +294,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                           '/>
                       </td>
                       <td className='border-b border-r'
-                      colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 5 : 5}
+                      colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
                       ></td>
                       <td className=''></td>
                       <td></td>

@@ -1,4 +1,6 @@
+import shadows from '@mui/material/styles/shadows';
 import customButtonPlugin from './src/assets/styles/tailwind-custom-button';
+import customStyles from './src/assets/styles/tailwind-custom-styles';
 module.exports = {
   content: [
     "./index.html",
@@ -107,11 +109,14 @@ module.exports = {
 
         "color15": "#fce4ec",          // Not Answered (Pink)
         "color15-dark": "#ad1457"
+      },
+      boxShadow:{
+        card:'0px 2px 12px -2px rgba(0,0,0,0.1)'
       }
     },
   },
   plugins: [
-    customButtonPlugin,
+    customButtonPlugin,customStyles, 
     function ({ addBase, theme }) {
       addBase({
         ':root': {

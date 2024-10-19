@@ -240,7 +240,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
           <form onSubmit={submitForm}>
             {formData &&
                 <>
-                <div className='w-full my-4 rounded-md px-3 pb-4 bg-slate-100'>
+                <div className='w-full mt-4 mb-8 rounded-md px-3 pb-4 shadow-card bg-white'>
                     <div className='text-slate-600 text-sm flex items-center justify-start py-2'>
                         <div>
                             <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
@@ -274,219 +274,217 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                     </div>
                 </div>
 
-                    <div className='mt-5 w-full '>
-                        <div className='bg-slate-100 rounded-md'>
-                            <div className='text-left px-3 '>
-                                <PageTitel text={`${t('FORMS.timeline')}`} color='slate-300'  size='2xl'/>
-                            </div>
-
-                            <div className='grid grid-cols-2 gap-2 p-3 rounded-md '>
-                                <div>
-                                    <CustomDateTimePicker 
-                                        name= 'starDate'
-                                        label={`${t('FORMS.startDate')}`}
-                                        onDateChange={(args)=>console.log(args)}
-                                        selectedDate={kickoffData.startDate || null}
-                                        onChange={(recordId, value, name) => handleOnEnter({name:'startDate', value:value})}
-                                    />
-                                </div>
-                                <div>
-                                    <CustomDateTimePicker 
-                                        name= 'endDate'
-                                        disable= {kickoffData.startDate ? false : true}
-                                        label={`${t('FORMS.endDate')}`}
-                                        onDateChange={(args)=>console.log(args)}
-                                        selectedDate={kickoffData.endDate || null}
-                                        onChange={(recordId, value, name) => handleOnEnter({name:'endDate', value:value})}
-                                    />
-                                </div>
-                            </div>
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className=' rounded-md'>
+                        <div className='text-left mb-3'>
+                            <PageTitel text={`${t('FORMS.timeline')}`} color='slate-300'  size='2xl'/>
                         </div>
 
-                        <div className='bg-slate-100 rounded-md mt-5 px-3 pb-4'>
-                            <div className='text-left'>
-                                <PageTitel text={`${t('FORMS.context')}`} color='slate-300' size='2xl' />
+                        <div className='grid grid-cols-2 gap-2 rounded-md '>
+                            <div>
+                                <CustomDateTimePicker 
+                                    name= 'starDate'
+                                    label={`${t('FORMS.startDate')}`}
+                                    onDateChange={(args)=>console.log(args)}
+                                    selectedDate={kickoffData.startDate || null}
+                                    onChange={(recordId, value, name) => handleOnEnter({name:'startDate', value:value})}
+                                />
                             </div>
-                            <div className='rounded-md'>
-                                <CustomInput type='textarea' name='contenxt' value={kickoffData.context}
-                                    onChange={(e)=>handleOnEnter({name:'context', value:e.target.value})}
-
+                            <div>
+                                <CustomDateTimePicker 
+                                    name= 'endDate'
+                                    disable= {kickoffData.startDate ? false : true}
+                                    label={`${t('FORMS.endDate')}`}
+                                    onDateChange={(args)=>console.log(args)}
+                                    selectedDate={kickoffData.endDate || null}
+                                    onChange={(recordId, value, name) => handleOnEnter({name:'endDate', value:value})}
                                 />
                             </div>
                         </div>
                     </div>
-                    {/* Project goals */}
-                    <div className='border-collapse w-full'>
-                        <div className='mt-4 pb-4 px-3 bg-slate-100  rounded-md'>
-                            <div className='text-left'>
-                                <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' size='2xl' />
-                            </div>
-                            <div className='grid grid-cols-1 md:grid-cols-2'>
-                                <div className='p-2 text-left rounded-md'>
-                                    <div className='block pt-2 pb-2'>
-                                        <PageTitel text={`${t('FORMS.projectGoals')}`} color='slate-700' size='md' />
-                                    </div>
-                                    {kickoffData.goals && kickoffData.goals.length > 0 ? (
-                                        <>
-                                            {/* Use DragAndDropList to render project goals */}
-                                            <DragAndDropList
-                                                name='goals'
-                                                items={kickoffData.goals}
-                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                            />
-                                        </>
-                                    ) : (
-                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                    )}
-                                    {/* Input for adding new goals */}
-                                    <EnterInput name="goals" onEnter={handleOnEnter} />
-                                </div>
-                                
-                                <div className='p-2 text-left rounded-md'>
-                                    <div className='block pt-2 pb-2'>
-                                        <PageTitel text={`${t('FORMS.keyDeliverables')}`} color='slate-700' size='md' />
-                                    </div>
-                                    {kickoffData.keyDeliverables && kickoffData.keyDeliverables.length > 0 ? (
-                                        <>
-                                            {/* Use DragAndDropList to render project goals */}
-                                            <DragAndDropList
-                                                name='keyDeliverables'
-                                                items={kickoffData.keyDeliverables}
-                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                            />
-                                        </>
-                                    ) : (
-                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                    )}
-                                    {/* Input for adding new goals */}
-                                    <EnterInput name="keyDeliverables" onEnter={handleOnEnter} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className='bg-slate-100 px-3 pb-4 mt-5 rounded-md'>       
-                            <div className='text-left'>
-                                <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' size='2xl'   />
-                            </div>
-                            <div className='grid grid-cols-1 md:grid-cols-2'>
-                                <div className='p-2 text-left md:border-r'>
-                                    <div className='block pt-2 pb-2'>
-                                        <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
-                                    </div>
-                                    {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
-                                        <>
-                                            {/* Use DragAndDropList to render project goals */}
-                                            <DragAndDropList
-                                                name='inScope'
-                                                items={kickoffData.inScope}
-                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                            />
-                                        </>
-                                    ) : (
-                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                    )}
-                                    {/* Input for adding new goals */}
-                                    <EnterInput name="inScope" onEnter={handleOnEnter} />
-                                </div>
-                                <div className='p-2 text-leftrounded-md'>
-                                    <div className='block pt-2 pb-2'>
-                                        <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
-                                    </div>
-                                    {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
-                                        <>
-                                            {/* Use DragAndDropList to render project goals */}
-                                            <DragAndDropList
-                                                name='outOfScope'
-                                                items={kickoffData.outOfScope}
-                                                onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
-                                            />
-                                        </>
-                                    ) : (
-                                        <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                                    )}
-                                    {/* Input for adding new goals */}
-                                    <EnterInput name="outOfScope" onEnter={handleOnEnter} />
-                                </div>
-                            </div>
-                        </div>  
-                    </div>
+                </div>
 
-                     {/* Project milestones */}
-                     <div className='relative bg-slate-100 rounded-md px-3 pb-4  mt-4 w-full'>
-                         <div className='block'>
-                             <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
-                        </div>
-                        {kickoffData.milestones && kickoffData.milestones.length > 0 ? 
-                            <></> : <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
-                        }
-                        <div className='rounded-md'>
-                            <KickoffMilestones
-                                milestones={kickoffData.milestones || []} 
-                                name="keyMilestones"
-                                onChange={handleMilestone}
-                                />
-                        </div>
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className='text-left mb-3'>
+                        <PageTitel text={`${t('FORMS.context')}`} color='slate-300' size='2xl' />
                     </div>
+                    <div className='rounded-md'>
+                        <CustomInput type='textarea' name='contenxt' value={kickoffData.context}
+                            onChange={(e)=>handleOnEnter({name:'context', value:e.target.value})}
 
-                     {/* Project responsibilities */}
-                     <div className='border-b mt-5 pb-4 px-3 w-full'>
-                        <div className='block '>
-                             <PageTitel text={`${t('FORMS.kickoffResponsibilities')}`} color='slate-300' size='2xl'  />
+                        />
+                    </div>
+                </div>
+                {/* Project OBJECTIVES */}
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className='text-left mb-3'>
+                        <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' size='2xl' />
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2'>
+                        <div className='p-2 text-left rounded-md md:border-r'> 
+                            <div className='block mb-3'>
+                                <PageTitel text={`${t('FORMS.projectGoals')}`} color='slate-700' size='md' />
+                            </div>
+                            {kickoffData.goals && kickoffData.goals.length > 0 ? (
+                                <>
+                                    {/* Use DragAndDropList to render project goals */}
+                                    <DragAndDropList
+                                        name='goals'
+                                        items={kickoffData.goals}
+                                        onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                    />
+                                </>
+                            ) : (
+                                <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                            )}
+                            {/* Input for adding new goals */}
+                            <EnterInput name="goals" onEnter={handleOnEnter} />
                         </div>
-                        <div className=''>
-                            <KickoffResponsibilities selectedValues={kickoffData.responsibilities || []} onChange={handleResponsibilites}/>
+                        
+                        <div className='p-2 text-left rounded-md'>
+                            <div className='block mb-3'>
+                                <PageTitel text={`${t('FORMS.keyDeliverables')}`} color='slate-700' size='md' />
+                            </div>
+                            {kickoffData.keyDeliverables && kickoffData.keyDeliverables.length > 0 ? (
+                                <>
+                                    {/* Use DragAndDropList to render project goals */}
+                                    <DragAndDropList
+                                        name='keyDeliverables'
+                                        items={kickoffData.keyDeliverables}
+                                        onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                    />
+                                </>
+                            ) : (
+                                <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                            )}
+                            {/* Input for adding new goals */}
+                            <EnterInput name="keyDeliverables" onEnter={handleOnEnter} />
                         </div>
                     </div>
+                </div>
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>       
+                    <div className='text-left'>
+                        <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' size='2xl'   />
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2'>
+                        <div className='p-2 text-left md:border-r'>
+                            <div className='block mb-3'>
+                                <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
+                            </div>
+                            {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
+                                <>
+                                    {/* Use DragAndDropList to render project goals */}
+                                    <DragAndDropList
+                                        name='inScope'
+                                        items={kickoffData.inScope}
+                                        onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                    />
+                                </>
+                            ) : (
+                                <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                            )}
+                            {/* Input for adding new goals */}
+                            <EnterInput name="inScope" onEnter={handleOnEnter} />
+                        </div>
+                        <div className='p-2 text-leftrounded-md'>
+                            <div className='block mb-3'>
+                                <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
+                            </div>
+                            {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
+                                <>
+                                    {/* Use DragAndDropList to render project goals */}
+                                    <DragAndDropList
+                                        name='outOfScope'
+                                        items={kickoffData.outOfScope}
+                                        onFinalUpdate={handleFinalUpdateGoals} // Handle final update after changes
+                                    />
+                                </>
+                            ) : (
+                                <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                            )}
+                            {/* Input for adding new goals */}
+                            <EnterInput name="outOfScope" onEnter={handleOnEnter} />
+                        </div>
+                    </div>
+                </div>  
+
+                {/* Project milestones */}
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className='block mb-3'>
+                        <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
+                    </div>
+                    {kickoffData.milestones && kickoffData.milestones.length > 0 ? 
+                        <></> : <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
+                    }
+                    <div className='rounded-md'>
+                        <KickoffMilestones
+                            milestones={kickoffData.milestones || []} 
+                            name="keyMilestones"
+                            onChange={handleMilestone}
+                            />
+                    </div>
+                </div>
+
+                    {/* Project responsibilities */}
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className='block mb-3'>
+                        <PageTitel text={`${t('FORMS.kickoffResponsibilities')}`} color='slate-300' size='2xl'  />
+                    </div>
+                    <div className=''>
+                        <KickoffResponsibilities selectedValues={kickoffData.responsibilities || []} onChange={handleResponsibilites}/>
+                    </div>
+                </div>
                      
                      
                     {/* Project approval by */}
-                     <div className='border-b mt-5 pb-4 px-3 w-full'>
-                        <div className='block '>
-                             <PageTitel text={`${t('FORMS.approvalFrom')}`} color='slate-300' size='2xl'  />
-                        </div>
-                        <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
-                            {kickoffData.approval && kickoffData.approval.length > 0 && kickoffData.approval.map((ad, ai)=>{
-                                const auser = ad.user as unknown as User;
-                                const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
-                                const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
-                                const showDelteBtn = !ad.note && ad.status ? true : false;
-                                return (
-
-                                    <div key={`kodap-${ai}`} className=' my-1 p-2 bg-primary-light border rounded-md'>
-                                    <div  className={`relative flex justify-between ${showDelteBtn ? 'pr-5' : ''}`}
-                                        
-                                    >  
-                                        <div>
-                                            <div className='text-slate-600'>{auser.name}</div>
-                                           
-                                        </div>
-                                        <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
-                                                        text-xs flex justify-center items-center rounded-sm 
-                                                    `}
-                                        >{astatus ? astatus.name : ''}</div>
-                                        {showDelteBtn && 
-                                            <DeleteSmallButton onClick={()=>removeApprovalData(ai)} />
-                                        }
-                                    </div>
-                                    {ad.note && 
-                                        <div className='flex justify-start'>
-                                            *
-                                            <div
-                                            dangerouslySetInnerHTML={{ __html: ad.note || '' }}
-                                            className="p-1  rounded text-xs text-red-600"
-                                            />
-                                        </div>
-                                            }
-                                    </div>
-                                )
-                            })}
-                        </div>
-                        <div className='my-2'>
-                            <label className='text-slate-400 text-sm'>{t('FORMS.selectUser')}</label>
-                            <MentionUserInput type='users' inputType='text' 
-                                    onClick={(user, data)=>setApprovalUser(user)}
-                                />
-                        </div>
+                <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
+                    <div className='block mb-3'>
+                        <PageTitel text={`${t('FORMS.approvalFrom')}`} color='slate-300' size='2xl'  />
                     </div>
+                    <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
+                        {kickoffData.approval && kickoffData.approval.length > 0 && kickoffData.approval.map((ad, ai)=>{
+                            const auser = ad.user as unknown as User;
+                            const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
+                            const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
+                            const showDelteBtn = !ad.note && ad.status ? true : false;
+                            return (
+
+                                <div key={`kodap-${ai}`} className=' my-1 p-2 bg-yellow-50 border rounded-md'>
+                                <div  className={`relative flex justify-between ${showDelteBtn ? 'pr-5' : ''}`}
+                                    
+                                >  
+                                    <div>
+                                        <div className='text-slate-600'>{auser.name}</div>
+                                        
+                                    </div>
+                                    <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                    text-xs flex justify-center items-center rounded-sm 
+                                                `}
+                                    >{astatus ? astatus.name : ''}</div>
+                                    {showDelteBtn && 
+                                        <DeleteSmallButton onClick={()=>removeApprovalData(ai)} />
+                                    }
+                                </div>
+                                {ad.note && 
+                                    <div className='flex justify-start '> 
+                                        *
+                                        <div
+                                        dangerouslySetInnerHTML={{ __html: ad.note || '' }}
+                                        className="p-1  rounded text-xs text-red-600"
+                                        />
+                                    </div>
+                                        }
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className='my-2 bg-slate-100 p-2 rounded-md'>
+                        <label className='text-slate-400 text-sm'>{t('FORMS.selectUser')}</label>
+                        <MentionUserInput type='users' inputType='text' 
+                                onClick={(user, data)=>setApprovalUser(user)}
+                            />
+                    </div>
+                </div>
 
                 </>
             }

@@ -297,13 +297,17 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                 <>  
                     {/* APPROVAL FIELDS */}
                     {kickoffData && kickoffData.approval && kickoffData.approval.length > 0 &&  
+                    <div className='card bg-white'>
+                        <div className='mb-3'>
+                        <PageTitel text={`${t('needApprovalFrom')}`} color='slate-300' size='2xl'/>
+                        </div>
                         <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
                             {kickoffData.approval.map((ad, ai)=>{
                                 const auser = ad.user as unknown as User;
                                 const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
                                 const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
                                 return (
-                                    <div key={`kodap-${ai}`} className='my-1 p-2 border rounded-md bg-primary-light'>
+                                    <div key={`kodap-${ai}`} className='my-1 p-2 border rounded-md bg-yellow-100'>
                                         <div  className='
                                             flex justify-between 
                                         '>
@@ -356,21 +360,22 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 )
                             })}
                         </div>
+                        </div>
                     }
                     {/* Project Details */}
-                    <table className='border-collapse my-4 w-full'>
+                    <table className='card bg-white w-full text-sm'>
                         <tbody>
                             <tr className='border-1 border-slate-100 text-left'>
                                 <th colSpan={2} className='p-2'>
                                     <div className='flex justify-between items-start'>
-                                        <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
+                                        <PageTitel text={`${t('projectDetails')} (${projectData._cid})`} color='slate-300' size='2xl'/>
 
                                         {getStatusData(kickoffData) && 
                                         ((astatus) => {
                                             return (
                                                 <div className={`text-xs rounded-sm  border-white border-1 
                                                     px-1 py-1
-                                                     ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                     ${astatus && astatus.color ? getColorClasses(astatus.color) : ''} 
                                                         text-xs flex justify-center items-center rounded-sm 
                                                     `}>
                                                       {astatus && astatus.name}  
@@ -384,7 +389,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 </th>
                             </tr>
                             <tr className='border-1 border-slate-100'>
-                                <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('projectName')}</th>
+                                <th className='max-w-[200px] text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('project')}</th>
                                 <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{projectData.name}</td>
                             </tr>
 
@@ -430,14 +435,15 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                     </table>
 
                     {/* Objectives */}
-                    <div className='mt-4 text-left'>
+                    <div className='card bg-white'>
+                    <div className='text-left'>
                         <PageTitel text={`${t('projectObjectives')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
-                        className='grid grid-cols-1 lg:grid-cols-2 border-b pb-4'
+                        className='grid grid-cols-1 lg:grid-cols-2 pb-4'
                     >
                         <div className='mt-3 bg-white p-2 rounded-md lg:border-r'>
-                            <PageTitel text={t('projectGoals')} />
+                            <PageTitel text={t('projectGoals')} color='text-slate-400'/>
                             <ul >
                                 {kickoffData.goals ? kickoffData.goals.map((goal,index)=>{
 
@@ -452,7 +458,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             </ul>
                         </div>
                         <div className='mt-3 bg-white p-2 rounded-md'>
-                            <PageTitel text={t('projectDeliverables')} />
+                            <PageTitel text={t('projectDeliverables')} color='text-slate-400'/>
                             <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.keyDeliverables ? kickoffData.keyDeliverables.map((item,index)=>{
 
@@ -467,16 +473,18 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             </ul>
                         </div>
                     </div>
+                    </div>
 
                     {/* Project Scope */}
-                    <div className='mt-4 text-left'>
+                    <div className='card bg-white'>
+                    <div className='text-left'>
                         <PageTitel text={`${t('projectScope')}`} color='slate-300' size='2xl'/>
                     </div>
                     <div 
                         className='grid grid-cols-1 lg:grid-cols-2 border-b pb-4'
                     >
                         <div className='mt-3 bg-white p-2 rounded-md lg:border-r '>
-                            <PageTitel text={t('inScope')} />
+                            <PageTitel text={t('inScope')} color='text-slate-400'/>
                             <ul className=''>
                                 {kickoffData.inScope ? kickoffData.inScope.map((item,index)=>{
 
@@ -491,7 +499,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             </ul>
                         </div>
                         <div className='mt-3 bg-white p-2 rounded-md'>
-                            <PageTitel text={t('outOfScope')} />
+                            <PageTitel text={t('outOfScope')} color='text-slate-400'/>
                             <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.outOfScope ? kickoffData.outOfScope.map((item,index)=>{
 
@@ -506,10 +514,11 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             </ul>
                         </div>
                     </div>
+                    </div>
 
                     {/* Milestones */}
-                    <div className='mt-4 border-b pb-4'>
-                        <div className='mt-4 text-left mb-2'>
+                    <div className='card bg-white'>
+                        <div className='text-left mb-2'>
                             <PageTitel text={`${t('projectMilestones')}`} color='slate-300' size='2xl'/>
                         </div>
                         <ul className='bg-white p-2 rounded-md'>
@@ -521,13 +530,13 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 grid
                                 grid-cols-1 md:grid-cols-2
                                 p-2
-                                bg-slate-100
+                                border
                                 mb-3
                                 rounded-md
                                 '
                                 >
                                   
-                                <div className='border-b mb-1 pb-1'>
+                                <div className='mb-1 pb-1'>
                                     <span className='px-2 px-1 text-md font-semibold text-slate-600'>{item.name}</span>
                                     <span className='ml-2'>
                                         <i className='text-slate-400'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
@@ -535,7 +544,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 </div>
                                 <div className='flex justify-end'>
                                     <span onClick={()=>toggleMilestoneStatus(index, item )}
-                                        className={`cursor-pointer inline-flex ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
+                                        className={`cursor-pointer flex items-center justify-center ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
                                     >
                                         {/* <i className='text-slate-400'>{t('status')}: </i>  */}
                                         {t(`${item.status}`)}</span>
@@ -553,11 +562,11 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
 
                     {/* Responsibilities */}
 
-                    <div className='mt-4'>
-                        <div className='mt-4 text-left mb-2'>
+                    <div className='card bg-white'>
+                        <div className='mb-3 text-left '>
                             <PageTitel text={`${t('projectResponsibilities')}`} color='slate-300' size='2xl'/>
                         </div>
-                        <ul className='bg-white p-3 rounded-md'>
+                        <ul className='rounded-md'>
                             {responsibilities && responsibilities.map((item,index)=>{
                                 const role:UserGroup = item.role as unknown as UserGroup; 
                                 const persons:User[] = item.persons as unknown as User[]; 
@@ -565,7 +574,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 const details = item.details;
                                 return (
                                     <li key={`prespo-${index}`} className='
-                                        py-1 my-1 border-b
+                                        p-2 my-3  border rounded-md 
                                     '>
                                         <div>
                                             <span 
@@ -582,10 +591,10 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                             })}
                                         </div>
                                         <div className='grid grid-cols-1'>
-                                           {work &&  <span> {work}</span>}
+                                           {work &&  <span className='text-sm'> {work}</span>}
                                             {details && 
                                                 <span className='
-                                                italic text-sm text-slate-400
+                                                italic text-xs text-slate-400
                                                 '> {details}</span>
                                             }
                                         </div>

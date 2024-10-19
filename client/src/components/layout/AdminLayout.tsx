@@ -8,7 +8,7 @@ const AdminLayout = () => {
     const { t } = useTranslation();
     const { user } = useAuth();
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col bg-gray-100">
             {/* Topbar */}
             <header className="bg-primary-light text-gray-900 w-full px-5 py-5 fixed top-0 left-0 right-0 z-30">
                 <div className="container  min-w-full flex items-center justify-between px-2">

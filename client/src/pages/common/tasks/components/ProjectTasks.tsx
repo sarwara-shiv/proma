@@ -29,8 +29,6 @@ import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
-import ProjectTasks from './ProjectTasks';
-import AllTasks from './AllTasks';
 
 interface ArgsType {
     cid?:string | null;
@@ -63,7 +61,7 @@ interface SubTasksCount{
 }
 
 
-const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
+const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
   const {id} = useParams();
   const {user} = useAuth();
   const {t} = useTranslation();
@@ -495,11 +493,6 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
   // delete task
   return (
     <div>
-      {id ? 
-      <ProjectTasks cid={id} mtid={mtid}/>
-        : <> all tasks <AllTasks /></>
-    }
-
       {loader ? <Loader type='full'/> :
         <div className='card bg-white'>
             {projectData && 
@@ -912,4 +905,4 @@ const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItem
 }
 
 
-export default Tasks
+export default ProjectTasks

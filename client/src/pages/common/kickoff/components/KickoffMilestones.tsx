@@ -90,7 +90,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
 
       {milestoneValue.map((milestone, index) => (
         <div key={index} className="milestone-field mb-2 relative pr-[50px] flex justify-between
-          bg-white rounded-sm
+          bg-white  border rounded-md mb-3
         ">
           {/* Display Milestone Info */}
           <div
@@ -131,7 +131,7 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
       ))}
 
       {/* Current Milestone Input Form (used for both adding and editing) */}
-      <div className="milestone-field border p-2 mb-4 relative">
+      <div className="milestone-field border p-2 mb-4 relative rounded-md bg-slate-100">
         <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-2">
           {/* Milestone Name */}
           <div>

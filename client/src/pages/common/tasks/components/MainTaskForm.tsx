@@ -181,7 +181,7 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
 
   return (
     <div className='
-        bg-slate-100 p-2 rounded-md
+        card bg-white
     '>
         <div className={`fields grid gap-2 
             grid-cols-1  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4`

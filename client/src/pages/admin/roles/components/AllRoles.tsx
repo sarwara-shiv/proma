@@ -169,7 +169,7 @@ const AllRoles = () => {
 
 
     return (
-        <div className='p-4'>
+        <div className='card bg-white'>
             {loader ? (
                 <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
             ) : (

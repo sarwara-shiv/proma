@@ -13,7 +13,7 @@ const headers = {
 
 // GET ALL DATA
 interface GetRecordsArgs {
-  type: string;
+  type: string; 
   body?:any
   limit?: number;
   action?:'add' | 'update';
