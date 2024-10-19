@@ -1,3 +1,4 @@
+import { getColorClasses } from '../../mapping/ColorClasses';
 import { ObjectId } from 'mongodb';
 import React, { useEffect, useState, useRef } from 'react';
 import { IoChevronDownSharp } from 'react-icons/io5';
@@ -100,7 +101,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
     onChange(recordId as unknown as string, name, _id, selectedData);
   };
 
-  const getColorClasses = (value: string) => {
+  const getColorCls = (value: string) => {
     if (colorClasses && colorClasses.length > 0) {
       const cls = colorClasses
         .filter((d) => d.value === value)
@@ -112,6 +113,16 @@ const CustomDropdown: React.FC<ArgsType> = ({
     }
   };
 
+  const getDataColorClasses = (value:string)=>{
+    const dValue = data.filter((d)=>d.value === value || d._id === value);
+    if(dValue){
+      console.log(dValue);
+      if(dValue[0].color)
+      return getColorClasses(dValue[0].color);
+    }
+    return '';
+  }
+
   return (
     <div className="relative flex flex-col" ref={dropdownRef}>
       {label && (
@@ -120,7 +131,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
         </label>
       )}
 
-      {/* Custom dropdown trigger */}
+      {/* Custom dropdown trigger */} 
       <div
         className={`cursor-pointer flex justify-between items-center 
         w-full   
@@ -128,11 +139,11 @@ const CustomDropdown: React.FC<ArgsType> = ({
         focus:outline-none block w-full 
         ${style === 'table' ? 'p-0.5 bg-transparent text-xs' : 'p-2.5 bg-gray-50 border text-sm text-gray-900'}
         dark:bg-gray-700
-        ${getColorClasses(value) ? getColorClasses(value) : ''}
+        ${getDataColorClasses(value) ? getDataColorClasses(value) : getColorCls(value) ? getColorCls(value) : ''}
         `}
         onClick={toggleDropdown}
       >
-        <span className={`${getColorClasses(value) && getColorClasses(value)}`}>
+        <span className={`${getColorCls(value) && getColorCls(value)}`}>
           {value
             ? data.find((item) => item._id === value)?.displayName ||
               data.find((item) => item._id === value)?.name

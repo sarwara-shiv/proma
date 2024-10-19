@@ -48,6 +48,7 @@
 
     "FORMS":{
         "type":"Type",
+        "note":"Note",
         "fieldName":"Field Name",
         "roleName":"Name",
         "work":"Work",
@@ -58,6 +59,8 @@
         "fillOutRequiredFields":"Fill out all required fields",
         "kickoffResponsibilities":"Roles & Responsibilities",
         "projectResponsibilities":"Roles & Responsibilities",
+        "approvalFrom":"Required Approval",
+        "selectUser":"Select User",
         "projectGoals":"Goals",
         "keyDeliverables":"Deliverables",
         "projectScope":"Scope",
@@ -194,6 +197,7 @@
     "kickOff":"Kick-Off",
     "add":"Add",
     "update":"Update",
+    "remove":"Remove",
     "type":"Type",
     "delete":"Delete",
     "create":"Create",

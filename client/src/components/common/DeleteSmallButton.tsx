@@ -3,7 +3,7 @@ import { IoRemove } from 'react-icons/io5'
 interface ArgsType{
     btnType?: 'delete' | 'update' | 'view'; 
     onClick?:()=>void
-    position?:string
+    position?:'absolute' | 'relative'
     text?:string | React.ReactNode
 }
 const DeleteSmallButton:React.FC<ArgsType> = ({onClick, position='absolute', text=''}) => {
@@ -33,7 +33,12 @@ const DeleteSmallButton:React.FC<ArgsType> = ({onClick, position='absolute', tex
           p-0.5 
           bg-red-100 
           rounded-full 
-          text-red-500 
+          text-red-500
+          w-[20px] 
+          h-[20px]
+          flex 
+          justify-center
+          items-center 
           text-xs`
       }
           onClick={onClick}

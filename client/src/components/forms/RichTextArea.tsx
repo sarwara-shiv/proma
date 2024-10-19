@@ -4,6 +4,8 @@ interface ArgsType {
   name?: string;
   label?: string;
   defaultValue?: string;
+  height?:string;
+  textSize?:'xs' | 'sm' 
   onChange: (name: string, value: string) => void;
 }
 
@@ -11,7 +13,7 @@ const isImageUrl = (url: string) => {
   return /\.(jpeg|jpg|gif|png|svg|webp)$/.test(url);
 };
 
-const RichTextArea: React.FC<ArgsType> = ({ name = "", label = "", defaultValue = '', onChange }) => {
+const RichTextArea: React.FC<ArgsType> = ({ textSize='sm', name = "", label = "", defaultValue = '', onChange, height='150' }) => {
   const [value, setValue] = useState<string>(defaultValue);
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<Range | null>(null);
@@ -108,7 +110,9 @@ const RichTextArea: React.FC<ArgsType> = ({ name = "", label = "", defaultValue 
         onInput={handleInput}
         onFocus={storeSelection} // Store the selection when focused
         onKeyUp={storeSelection} // Store the selection on keyup
-        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:shadow-lg min-h-[150px] relative text-sm text-slate-800"
+        className={`w-full p-2 border border-gray-300 rounded focus:outline-none focus:shadow-lg  bg-white
+          min-h-[${height}px] 
+          relative text-${textSize} text-slate-800`}
         style={{ whiteSpace: 'pre-wrap', overflowY: 'auto' }} // Keep formatting
         suppressContentEditableWarning // Prevent React warning
       />

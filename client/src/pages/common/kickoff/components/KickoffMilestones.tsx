@@ -89,43 +89,44 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
       {title && <h3>{title}</h3>}
 
       {milestoneValue.map((milestone, index) => (
-        <div key={index} className="milestone-field mb-2 relative">
-          {/* Milestone Remove Button */}
-        
-
+        <div key={index} className="milestone-field mb-2 relative pr-[50px] flex justify-between
+          bg-white rounded-sm
+        ">
           {/* Display Milestone Info */}
           <div
-            className='grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-2 py-1 rounded-md pr-[40px] bg-white align-middle cursor-pointer'
+            className=' gap-2 py-1 rounded-md w-full
+            align-middle cursor-pointer'
             onClick={() => handleEdit(index)}
           >
-            <div className="flex flex-cols items-center">
-              <span className='px-2 px-1 text-md font-semibold text-slate-600'>{milestone.name}</span>
-              <div className="text-gray-600 text-sm pl-2">
-                <span className='text-sm text-slate-300'>
-                  {t('FORMS.dueDate')}:
-                </span>
-                {milestone.dueDate ? format(new Date(milestone.dueDate), 'dd.MM.yyyy') : '-'}
+            <div className="flex flex-cols items-center gap-4 w-full">
+              <div className='flex justify-between gap-4 mb-2 items-center px-2'>
+                <span className='text-md font-semibold text-slate-600'>{milestone.name}</span>
+                <div className="text-gray-600 text-sm pl-2">
+                  <span className='text-sm text-slate-300'>
+                    {t('FORMS.dueDate')}:
+                  </span>
+                  {milestone.dueDate ? format(new Date(milestone.dueDate), 'dd.MM.yyyy') : '-'}
+                </div>
+                <div className='flex justify-end'>
+                  <div className="text-gray-600">
+                    <span className={`text-xs py-1 px-1 rounded-sm bg-${milestone.status} text-${milestone.status}-dark`}>
+                      {t(`${milestone.status}`)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className='flex justify-end'>
-              <div className="text-gray-600">
-                <span className={`text-xs py-1 px-1 rounded-sm bg-${milestone.status} text-${milestone.status}-dark`}>
-                  {t(`${milestone.status}`)}
-                </span>
-              </div>
-
-              <div className='w-[5px] ml-4' >
-                <DeleteSmallButton onClick={() => handleRemove(index)} />
-                {!(editingIndex !== null && editingIndex === index) && 
-                <CustomSmallButton onClick={() => handleEdit(index)} type='update' position='absolute' right={1}/> 
-                }
-              </div>
-            </div>
+            
               <div className='text-xs px-2 mb-2 text-slate-500' dangerouslySetInnerHTML={{__html: milestone.description || ''}}>
               </div>
-
-            
           </div>
+    
+          <div className='absolute ml-4 flex flex-cols gap-2 top-4 right-1 bg-white' >
+                <DeleteSmallButton onClick={() => handleRemove(index)} position='relative'/>
+                {!(editingIndex !== null && editingIndex === index) && 
+                <CustomSmallButton onClick={() => handleEdit(index)} type='update' position='relative' right={1}/> 
+                }
+              </div>
         </div>
       ))}
 
@@ -181,11 +182,13 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
         {editingIndex !== null && 
            <CustomSmallButton
            type={'delete'}
+           text={t('remove')}
            onClick={resetMilestoneForm}
          />
           }
 
           <CustomSmallButton
+          text={editingIndex !== null ? `${t('update')}` : `${t('add')}`}
             type={editingIndex !== null ? 'update' : 'add'}
             onClick={handleAddOrUpdateMilestone}
           />

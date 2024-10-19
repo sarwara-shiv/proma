@@ -13,7 +13,7 @@ import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker'
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import DraggableTable from '@/components/table/DraggableTable';
+import DraggableTable from '../../../../components/table/DraggableTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { ObjectId } from 'mongodb';
 
@@ -37,13 +37,15 @@ const kickoffDataInitial: Kickoff = {
     questions: [],
     notes: [],
     actionItems: [],
+    status:'inReview',
+    approval:[],
     mainTasks: [],
     context: ''
 };
 
 
 
-const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', setSubNavItems }) => {
+const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNavItems }) => {
     const { t } = useTranslation();
     const {id} = useParams();
     const [formData, setFormData] = useState<Project>();
@@ -63,15 +65,7 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
 
     // Load data when the component mounts
     useEffect(() => {
-        setSubNavItems && setSubNavItems(subNavItems);
-        if(!cid){
-            cid = id;
-            setProjectId(cid ? cid : id ? id : '');
-        }
-        if (data) {
-            const user: User = data.createdBy as unknown as User;
-            setCreatedBy(user);
-        }
+ 
     }, [kickoffData]);
 
     useEffect(()=>{
@@ -82,7 +76,7 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
     const getData = async ()=>{
         try{
             const populateFields = [
-                {path: 'kickoff.responsibilities.role'},
+                // {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
             ]
 
@@ -90,13 +84,13 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
 
             if(projectId){
                 const res = await getRecordWithID({id:projectId, populateFields, type:'projects'});
-                console.log(res);
 
                 if(res.status === 'success' && res.data){
                     if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
                     if (res.data) {
                         setFormData(res.data);
-                        if(res.data.kickOff) setKickoffData(res.data.kickoff);
+                        console.log(res.data);
+                        if(res.data.kickoff) setKickoffData(res.data.kickoff);
                     }
                 }
 
@@ -128,26 +122,6 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
         }
     };
 
-    // Handle removing a goal
-    const removeFromArray = ({ name, index }: { name: string, index: number }) => {
-        if ((index || index === 0) && name) {
-            // setKickoffData((prevData) => ({
-            //     ...prevData,
-            //     [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Remove goal at index
-            // }));
-            setKickoffData((prevData) => {
-                // Make sure the name corresponds to an array in kickoffData
-                if (name === 'goals' || name === 'inScope' || name === 'outOfScope' || name==='keyDeliverables') {
-                    return {
-                        ...prevData,
-                        [name]: prevData[name]?.filter((_, i) => i !== index) || [] // Add the new value to the array
-                    };
-                }
-                return prevData;
-            });
-        }
-    };
-
     // Handle final update after drag-and-drop reordering
     const handleFinalUpdateGoals = (name:string, updatedItems: string[]) => {
         setKickoffData((prevData) => ({
@@ -166,7 +140,6 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
     }
     // responsibilities
     const handleMilestone = (name:string, value:Milestone[])=>{
-        console.log(value);
         setKickoffData((prevData) => ({
             ...prevData,
             milestones: value 
@@ -176,13 +149,19 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
 
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      console.log(kickoffData);
     const pid = cid ? cid : id;
       if(verifyData() && pid){
         try{
-            console.log(pid);
+            console.log(kickoffData);
           const res = await addUpdateRecords({type:'projects', action:'update', id:pid, body:{kickoff:kickoffData}});
-          if(res.status === 'success'){
+          if(res){
+            const msg = `${t(`RESPONSE.${res.code}`)}`
+              if(res.status === 'success'){
+                setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'success'});
+              }else{
+                setFlashPopupData({...flashPopupData, isOpen:true, message:msg, type:'fail'});
+              }
+          }else{
             console.log(res);
           }
 
@@ -200,13 +179,11 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
       }
       return false;
     }
-
     return (
-        <div className='data-wrap'>12345
+        <div className='data-wrap relative'>
           <form onSubmit={submitForm}>
             {formData &&
                 <>
-                <div>formdata</div>
                 <div className='w-full my-4 rounded-md px-3 pb-4 bg-slate-100'>
                     <div className='grid grid-cols-1 lg:grid-cols-2'>
                         <div className='text-primary text-2xl md:text-3xl font-bold'>
@@ -226,7 +203,10 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
 
                     <div className='mt-3 grid grid-cols-1'>
                         <i className='text-slate-400'>{t(`description`)}</i>
-                        {formData.description}
+                        <div
+                            dangerouslySetInnerHTML={{ __html: formData.description || '' }}
+                            className="p-2 border border-gray-300 rounded"
+                            />
                     </div>
                 </div>
 
@@ -367,7 +347,7 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
                     </div>
 
                      {/* Project milestones */}
-                     <div className='bg-slate-100 rounded-md px-3 pb-4  mt-4 w-full'>
+                     <div className='relative bg-slate-100 rounded-md px-3 pb-4  mt-4 w-full'>
                          <div className='block'>
                              <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
                         </div>
@@ -376,7 +356,7 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
                         }
                         <div className='rounded-md'>
                             <KickoffMilestones
-                                milestones={kickoffData.milestones || []}
+                                milestones={kickoffData.milestones || []} 
                                 name="keyMilestones"
                                 onChange={handleMilestone}
                                 />
@@ -420,4 +400,4 @@ const KickoffForm_backup: React.FC<ArgsType> = ({ cid, data, action='update', se
     );
 };
 
-export default KickoffForm_backup;
+export default KickoffForm;

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { ObjectId } from 'mongodb';
+import Kickoff from "@/pages/common/kickoff/Kickoff";
 
 export interface RelatedUpdates{
   collection:string;
@@ -204,6 +205,12 @@ export interface QaTask extends BaseTask {
     description?:string,
     status: 'completed' | 'inProgress' |'onHold' | 'notStarted';
   }
+
+  export interface KickoffApproval{
+    user:string|ObjectId | null, 
+    status:'notRequired'|'inReview' | 'rejected' |'approved' | 'needWork', 
+    note?:string
+  }
   
   // Kickoff Interface
   export interface Kickoff {
@@ -226,10 +233,10 @@ export interface QaTask extends BaseTask {
       assignedTo: string; // Refers to User objectId
       dueDate?: Date;
     }[];
-    status?: 'inReview' | 'rejected' |'approved' | 'needWork';
+    status?: 'notRequired' | 'inReview' | 'rejected' |'approved' | 'needWork';
     responsibilities?: KickoffResponsibility[];
     mainTasks?:MainTask[];
-    approval?:{user:(string|ObjectId), status:'inReview' | 'rejected' |'approved' | 'needWork'}[]
+    approval?:KickoffApproval[]
   }
   
   // Project Status Interface

@@ -6,7 +6,7 @@ interface ArgsType{
     icon?:React.ReactNode;
     text?:string;
     size?:'sm' | 'md' | 'lg';
-    position?:'absolute' | 'default';
+    position?:'absolute' | 'default' | 'relative'; 
     right?:number;
     color?:string;
     disable?:boolean;
@@ -26,7 +26,7 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
   
   return (
     <>
-    {position === 'default' && 
+    {text || position === 'default' ?
       <div className={`
         rounded-md
         cursor-pointer
@@ -50,29 +50,34 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
         </span>
         {text && <span className='text ml-2'>{text}</span>}
       </div>
-    }
 
-    {position === 'absolute' && 
+      :
       <div className={`
-          cursor-pointer 
-          ${position} 
-          top-1/2 transform -translate-y-1/2  
-          right-${right} 
-          p-0.5 
-          ${colorClass}
-          rounded-full 
-          ${disable ? 'pointer-events-none opacity-50' : ''}
-          text-xs`
-      }
-          onClick={onClick}
-      >
-              {type === 'add' ? <IoAdd /> :
-          type === 'delete' ? <IoRemove /> : 
-          type === 'update' ? <FaPencilAlt /> : ''
-        }
-      </div>
+        cursor-pointer 
+        ${position} 
+        top-1/2 transform -translate-y-1/2  
+        right-${right} 
+        p-0.5 
+        ${colorClass}
+        rounded-full 
+        ${disable ? 'pointer-events-none opacity-50' : ''}
+        text-xs
+         w-[20px] 
+          h-[20px]
+          flex 
+          justify-center
+          items-center 
+        `
+        
     }
-
+        onClick={onClick}
+    >
+            {type === 'add' ? <IoAdd /> :
+        type === 'delete' ? <IoRemove /> : 
+        type === 'update' ? <FaPencilAlt /> : ''
+      }
+    </div>
+    }
     </>
   )
 }

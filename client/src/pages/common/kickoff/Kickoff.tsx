@@ -31,7 +31,7 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
     { link: "projects", title: "projects_all" },
     { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
     { link: `projects/kickoff-update/${cid || id}`, title: "kickoff_update" },
-    { link: `projects/tasks/${cid}`, title: "tasks" },
+    { link: `projects/maintasks/${cid || id}`, title: "tasks" },
   ];
 
   console.log(useLocation)
@@ -73,7 +73,7 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
 
           {/* Text with hover effect */}
           <span
-            className={`
+            className={` 
               whitespace-nowrap
               opacity-0 transition-opacity duration-50
               ml-2
@@ -87,9 +87,9 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
 
       {
           pageType && 
-          pageType === "add" ? <KickoffForm data={data} cid={cid}/> : 
-          pageType === "update" ? <KickoffForm data={data} cid={cid} /> :
-          data && data.kickoff ? <KickoffDetail data={data} cid={cid}/>: 
+          pageType === "add" ? <KickoffForm data={data} cid={cid} setSubNavItems={setSubNavItems}/> : 
+          pageType === "update" ? <KickoffForm data={data} cid={cid} setSubNavItems={setSubNavItems}/> :
+          data && data.kickoff ? <KickoffDetail data={data} cid={cid} setSubNavItems={setSubNavItems}/>: 
           <>
           <KickoffDetail data={data} cid={cid}/>
           </>

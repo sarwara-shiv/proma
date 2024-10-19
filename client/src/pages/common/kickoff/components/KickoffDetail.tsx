@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertPopupType, FlashPopupType, Kickoff, KickoffResponsibility, Milestone, Project, User, UserGroup } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, Milestone, NavItem, Project, User, UserGroup } from '@/interfaces';
 import { CustomAlert, FlashPopup, PageTitel } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,9 @@ import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
-import { milestoneStatuses } from '../../../../config/predefinedDataConfig';
+import { ApprovalStatus, milestoneStatuses } from '../../../../config/predefinedDataConfig';
+import { useAuth } from '../../../../hooks/useAuth';
+import RichTextArea from '../../../../components/forms/RichTextArea';
 
 interface ArgsType {
     cid?: string | null;
@@ -34,20 +36,31 @@ const kickoffDataInitial: Kickoff = {
 
 const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const { t } = useTranslation();
+    const {user} = useAuth();
     const {id} = useParams();
     const [createdBy, setCreatedBy] = useState<User>();
+    const [projectStatus, setProjectStatus] = useState<any>();
     const [projectData, setProjectData] = useState<Project>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
+    const subNavItems: NavItem[] = [
+        { link: "projects", title: "projects_all" },
+        { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
+        { link: `projects/kickoff-update/${cid || id}`, title: "kickoffUpdate" },
+        { link: `projects/maintasks/${cid || id}`, title: "maintasks" }, 
+      ];
+    
     useEffect(()=>{
         if(!cid){
             cid = id;
         }
+        setSubNavItems && setSubNavItems(subNavItems); 
 
         getData();
+
     }, [])
 
     // Load data when the component mounts
@@ -64,6 +77,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
             const populateFields = [
                 {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
+                {path: 'kickoff.approval.user'},
             ]
             if(cid){
                 const res = await getRecordWithID({id:cid, populateFields, type:'projects'});
@@ -201,16 +215,172 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
         }
     }
 
+    const saveApproval = async(index:number, dvalue:string, name:string = 'status')=>{
+        let saveKickoff = false;
+        const value = name === 'status' ? dvalue as unknown as KickoffApproval['status'] : dvalue
+        if(index >= 0){
+            setKickoffData(prevVal => {
+                if (index >= 0 && prevVal.approval && prevVal.approval.length > 0) {
+                   
+                    const updatedApproval= prevVal.approval.map((approval, i) => {
+                        
+                        if (i === index) {
+                            saveKickoff = true;
+                            return {
+                                ...approval,
+                                [name]: value
+                            };
+                        }
+                        return approval;
+                    });
+                    let approvedCount = 0;
+                    let statusA:string[] = [];
+                    updatedApproval.map((approval, i) => {
+                        if(approval.status === 'approved' || approval.status === 'notRequired' ) approvedCount++; 
+                        if(statusA.length > 0){
+                            if(!statusA.includes(approval.status)){
+                                if(approval.status === 'notRequired' && !statusA.includes('approved') || approval.status === 'approved' && !statusA.includes('notRequired')){
+                                    statusA.push(approval.status);
+                                }
+                            }   
+                        }else{
+                            statusA.push(approval.status);
+                        }
+                        return approval;
+                    });
+
+                    
+                    
+                    let cValue =  {
+                        ...prevVal,
+                        approval: updatedApproval
+                    };
+                    
+                    if(saveKickoff){
+                        if(updatedApproval.length > 0){
+                            if(approvedCount === updatedApproval.length && approvedCount > 0){
+                                cValue = {...cValue, status:'approved'}
+                            }else{
+                                if(statusA.length === 1){
+                                    cValue = {...cValue, status:statusA[0] as unknown as Kickoff["status"]}
+                                }else{
+                                    cValue = {...cValue, status:'inReview'}
+                                }
+                            }
+                        }
+                        saveKickoffData(cValue);
+                    }
+
+                    return cValue;
+                }
+                return prevVal;
+            })
+        }
+    }
+
+    const getStatusData = (kickoff:Kickoff)=>{
+        let sdata:{_id:string, name:string, color?:string} =  {_id:'', name:'', color:''};
+        const ad = kickoff.status || 'inReview';
+        const statusexists = ApprovalStatus.filter((d)=>d._id === ad)
+        const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null;
+        if(astatus){
+            sdata = astatus
+        }
+
+        return sdata;
+
+    }
+
     return (
         <div className='data-wrap'>
             {projectData &&
-                <>
+                <>  
+                    {/* APPROVAL FIELDS */}
+                    {kickoffData && kickoffData.approval && kickoffData.approval.length > 0 &&  
+                        <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
+                            {kickoffData.approval.map((ad, ai)=>{
+                                const auser = ad.user as unknown as User;
+                                const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
+                                const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
+                                return (
+                                    <div key={`kodap-${ai}`} className='my-1 p-2 border rounded-md bg-primary-light'>
+                                        <div  className='
+                                            flex justify-between 
+                                        '>
+                                            <div className='flex-1'>
+                                                <div>{auser.name}</div>
+                                            </div>
+                                                <div >
+                                                {user && user._id as unknown as string === auser._id ? 
+                                                <div className={`w-[100px] text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}` }>
+                                                    <CustomDropdown 
+                                                        style='table'
+                                                        data={ApprovalStatus}
+                                                        selectedValue={ad.status}
+                                                        onChange={(rid, name, value, data)=>saveApproval(ai, value)}
+                                                    />
+                                                    </div>
+                                                : 
+                                                <>
+                                                    <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                        text-xs flex justify-center items-center rounded-sm 
+                                                    `}
+                                                    >
+                                                        {astatus ? astatus.name : ''}
+                                                    </div>
+                                                </>}
+                                                
+                                            </div>
+                                            
+                                        </div>
+                                        {user && user._id as unknown as string === auser._id ?
+                                            <div>
+                                                <RichTextArea 
+                                                height='70'
+                                                textSize='xs'
+                                                label={t('FORMS.note')}
+                                                    defaultValue={ad.note || ''}
+                                                    onChange={(name, value)=>saveApproval(ai, value, 'note')}
+                                                />
+                                            </div>
+                                            :
+                                            <div className='pt-1.5'>
+                                                <label className="text-gray-400 flex items-center text-sm">{t('FORMS.note')}</label>
+                                                <div
+                                                dangerouslySetInnerHTML={{ __html: ad.note || '' }}
+                                                className="p-2 border border-gray-300 rounded text-xs text-red-600  min-h-[70px]"
+                                                />
+                                            </div>
+                                        }
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
                     {/* Project Details */}
                     <table className='border-collapse my-4 w-full'>
                         <tbody>
                             <tr className='border-1 border-slate-100 text-left'>
                                 <th colSpan={2} className='p-2'>
-                                    <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
+                                    <div className='flex justify-between items-start'>
+                                        <PageTitel text={`Project Details (${projectData._cid})`} color='slate-300' size='2xl'/>
+
+                                        {getStatusData(kickoffData) && 
+                                        ((astatus) => {
+                                            return (
+                                                <div className={`text-xs rounded-sm  border-white border-1 
+                                                    px-1 py-1
+                                                     ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                        text-xs flex justify-center items-center rounded-sm 
+                                                    `}>
+                                                      {astatus && astatus.name}  
+                                                </div>
+                                            );
+                                        })(getStatusData(kickoffData))
+                                    }
+
+
+                                    </div>
                                 </th>
                             </tr>
                             <tr className='border-1 border-slate-100'>
@@ -346,7 +516,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                         {kickoffData.milestones && kickoffData.milestones.map((item, index)=>{
                             console.log(item);
                             return (
-                                <li 
+                                <li key={`kdm-${index}`}
                                 className='
                                 grid
                                 grid-cols-1 md:grid-cols-2

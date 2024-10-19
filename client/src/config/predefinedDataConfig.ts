@@ -12,16 +12,18 @@ const TaskCategory = [
     {_id: 'uiux', name:'UI/UX'},
 ]
 const KickoffStatus = [
-    {_id: 'inReview', name:'In Review'},
-    {_id: 'rejected', name:'Rejected'},
-    {_id: 'approved', name:'Approved'}, 
-    {_id: 'needWork', name:'NeedWork'},
+    {_id: 'inReview', name:'In Review', color:'toDo'},
+    {_id: 'rejected', name:'Rejected', color:'fail'},
+    {_id: 'approved', name:'Approved', color:'success'}, 
+    {_id: 'needWork', name:'Need Work', color:'medium'},
+    {_id: 'notRequired', name:'Not Required', color:'medium'},
 ]
 const ApprovalStatus = [
-    {_id: 'inReview', name:'In Review'},
-    {_id: 'rejected', name:'Rejected'},
-    {_id: 'approved', name:'Approved'}, 
-    {_id: 'needWork', name:'NeedWork'},
+    {_id: 'inReview', name:'In Review', color:'toDo'},
+    {_id: 'rejected', name:'Rejected', color:'fail'},
+    {_id: 'approved', name:'Approved', color:'success'}, 
+    {_id: 'needWork', name:'Need Work', color:'medium'},
+    {_id: 'notRequired', name:'Not Required', color:'medium'},
 ]
 const DynamicFieldsTypes = [
     {_id: 'dropdown', name:'Dropdown'},

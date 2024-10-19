@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertPopupType, FlashPopupType, Kickoff, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
 import { CustomAlert, FlashPopup, FormButton, PageTitel } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
@@ -8,7 +8,7 @@ import { IoRemove } from 'react-icons/io5';
 import DragAndDropList from '../../../../components/forms/DragAndDropList';
 import KickoffResponsibilities from './KickoffResponsibilities';
 import KickoffMilestones from './KickoffMilestones';
-import { CustomInput } from '../../../../components/forms';
+import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
@@ -16,6 +16,12 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DraggableTable from '../../../../components/table/DraggableTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { ObjectId } from 'mongodb';
+import CustomSmallButton from '../../../../components/common/CustomSmallButton';
+import ApprovalForm from './ApprovalForm';
+import MentionUserInput from '../../../../components/forms/MensionUserInput';
+import { ApprovalStatus } from '../../../../config/predefinedDataConfig';
+import { getColorClasses } from '../../../../mapping/ColorClasses';
+import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 
 interface ArgsType {
     cid?: string | null;
@@ -65,12 +71,12 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
     // Load data when the component mounts
     useEffect(() => {
- 
     }, [kickoffData]);
-
+    
     useEffect(()=>{
         setProjectId(cid ? cid : id ? id : '');
         getData();
+        setSubNavItems && setSubNavItems(subNavItems);
     }, [])
 
     const getData = async ()=>{
@@ -78,6 +84,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
             const populateFields = [
                 // {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
+                {path: 'kickoff.approval.user'},
             ]
 
             console.log(projectId);
@@ -179,26 +186,83 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
       }
       return false;
     }
+
+    // open kickoff approval
+    const openKickoffApproval = (index:number = -1)=>{
+        let adata = null;
+        if(index >= 0){
+            const aDataV = kickoffData.approval && kickoffData.approval.length > 0 ? kickoffData.approval.filter((d, i)=> i === index) : null
+            if(aDataV){
+                adata = aDataV[0];
+            }
+        }
+        setAlertData({...alertData, isOpen:true, type:'form', title:'Approval', content:
+            <ApprovalForm defaultValue={adata} />
+
+        })
+    }
+
+    const setApprovalUser = (user:User)=>{
+        setKickoffData(prevVal=>{
+            if(!prevVal) return prevVal;
+            let apdata = prevVal.approval && prevVal.approval.length > 0 ? prevVal.approval : [];
+            const nap = {user:user, status:'inReview'};
+            if(apdata.length <= 0){
+                apdata.push(nap as unknown as KickoffApproval)
+            }else{
+
+                const userexists = apdata.filter((d)=>(d.user as unknown as User)._id === user._id);
+                console.log(userexists);
+                if(userexists.length <= 0){
+                    apdata.push(nap as unknown as KickoffApproval)
+                }
+            }
+
+            return {...prevVal, approval:[...apdata]}
+        })
+    }
+
+    const removeApprovalData = (index:number)=>{
+        if(index >= 0){
+            setKickoffData(prevVal=>{
+                if(!prevVal) return prevVal;
+                let apdata = prevVal.approval && prevVal.approval.length > 0 ? prevVal.approval : [];
+                if(apdata.length > 0){
+                    apdata = apdata.filter((d,i)=> i !==index );
+                }
+                return {...prevVal, approval:[...apdata]}
+            })
+        }
+    }
+
     return (
         <div className='data-wrap relative'>
           <form onSubmit={submitForm}>
             {formData &&
                 <>
                 <div className='w-full my-4 rounded-md px-3 pb-4 bg-slate-100'>
-                    <div className='grid grid-cols-1 lg:grid-cols-2'>
+                    <div className='text-slate-600 text-sm flex items-center justify-start py-2'>
+                        <div>
+                            <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
+                        </div>
+                        <div className=''> 
+                            <span className='mx-2'> | </span>
+                            <i className='text-slate-400'>{t(`createdAt`)}: </i> 
+                            {formData.createdAt && format(new Date(formData.createdAt), 'dd.MM.yyyy')}
+                        </div>
+                    </div>
+                    <div className='flex justify-between gap-2'>
                         <div className='text-primary text-2xl md:text-3xl font-bold'>
                             {formData.name}
                         </div>
-                        <div className='text-slate-600 text-sm flex items-center justify-end'>
-                            <div>
-                                <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
-                            </div>
-                            <div className=''> 
-                                <span className='mx-2'> | </span>
-                                <i className='text-slate-400'>{t(`createdAt`)}: </i> 
-                                {formData.createdAt && format(new Date(formData.createdAt), 'dd.MM.yyyy')}
-                            </div>
+                        <div className='w-[150px]'>
+                        <CustomDropdown 
+                            data={ApprovalStatus}
+                            selectedValue={kickoffData.status}
+                            onChange={(rid, name, value, data)=>handleOnEnter({name:'status', value:value})}
+                        />
                         </div>
+                        
                     </div>
 
                     <div className='mt-3 grid grid-cols-1'>
@@ -372,10 +436,62 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                             <KickoffResponsibilities selectedValues={kickoffData.responsibilities || []} onChange={handleResponsibilites}/>
                         </div>
                     </div>
+                     
+                     
+                    {/* Project approval by */}
+                     <div className='border-b mt-5 pb-4 px-3 w-full'>
+                        <div className='block '>
+                             <PageTitel text={`${t('FORMS.approvalFrom')}`} color='slate-300' size='2xl'  />
+                        </div>
+                        <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
+                            {kickoffData.approval && kickoffData.approval.length > 0 && kickoffData.approval.map((ad, ai)=>{
+                                const auser = ad.user as unknown as User;
+                                const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
+                                const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
+                                const showDelteBtn = !ad.note && ad.status ? true : false;
+                                return (
+
+                                    <div key={`kodap-${ai}`} className=' my-1 p-2 bg-primary-light border rounded-md'>
+                                    <div  className={`relative flex justify-between ${showDelteBtn ? 'pr-5' : ''}`}
+                                        
+                                    >  
+                                        <div>
+                                            <div className='text-slate-600'>{auser.name}</div>
+                                           
+                                        </div>
+                                        <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                        text-xs flex justify-center items-center rounded-sm 
+                                                    `}
+                                        >{astatus ? astatus.name : ''}</div>
+                                        {showDelteBtn && 
+                                            <DeleteSmallButton onClick={()=>removeApprovalData(ai)} />
+                                        }
+                                    </div>
+                                    {ad.note && 
+                                        <div className='flex justify-start'>
+                                            *
+                                            <div
+                                            dangerouslySetInnerHTML={{ __html: ad.note || '' }}
+                                            className="p-1  rounded text-xs text-red-600"
+                                            />
+                                        </div>
+                                            }
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div className='my-2'>
+                            <label className='text-slate-400 text-sm'>{t('FORMS.selectUser')}</label>
+                            <MentionUserInput type='users' inputType='text' 
+                                    onClick={(user, data)=>setApprovalUser(user)}
+                                />
+                        </div>
+                    </div>
+
                 </>
             }
 
-          <div className="mt-6 text-right">
+          <div className="mt-6 text-right fixed bottom-2 flex right-2">
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} 
               disable = {!verifyData()}
             />

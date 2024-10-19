@@ -276,13 +276,14 @@ const KickoffSchema = new Schema({
   responsibilities: [KickoffResponsibilitySchema],
   status: {
     type: String,
-    enum: ['inReview', 'rejected', 'approved', 'needWork'],
+    enum: ['notRequired', 'inReview', 'rejected', 'approved', 'needWork'],
     default: 'inReview'
   },
   approval:[{
     user:{ type: Schema.Types.ObjectId, ref: 'User' },
+    note:{ type: String },
     status:{ type: String,
-      enum: ['inReview', 'rejected', 'approved', 'needWork'],
+      enum: ['notRequired', 'inReview', 'rejected', 'approved', 'needWork'],
       default: 'inReview'}
   }]
 
@@ -343,6 +344,7 @@ const DocumentationSchema = new Schema({
 
 
 // PASSWORD RESET SCHEMA
+
 const PasswordReset = new Schema({
   email:{type:String, required:true, unique:true},
   email:{type:String, required:true, unique:true},
