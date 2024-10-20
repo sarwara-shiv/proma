@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
+import PieChartWithPaddingAngle from '../../../../components/charts/PieChartWithPaddingAngle';
 interface ArgsType {
     cid?:string | null;
     data?: Project; 
@@ -194,6 +195,9 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             </div>
             <div className='card bg-green-100 border-2 border-white p-1'>
               <h2 className='text-green-400 font-bold text-sm mb-2'>{t('kickOff')}</h2>
+              <div className='relative w-[100px]'>
+                <PieChartWithPaddingAngle data={mainTasks}/>
+              </div>
             </div>
 
           </div>
