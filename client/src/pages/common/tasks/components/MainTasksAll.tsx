@@ -3,7 +3,7 @@ import { CustomAlert, FlashPopup, Loader } from '../../../../components/common'
 import Pagination from '../../../../components/common/Pagination';
 import { ColumnDef } from '@tanstack/react-table';
 import { addUpdateRecords, getRecordsWithFilters } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, OrderByFilter, PaginationProps, Project, QueryFilters, User } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, MainTask, NavItem, OrderByFilter, PaginationProps, Project, QueryFilters, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
 import { CustomDropdown } from '../../../../components/forms';
 import { format } from 'date-fns';
@@ -21,7 +21,17 @@ import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 
 const pinnedColumns=['name', '_pid', 'actions_cell'];
 const fixedWidthColumns=['actions_cell', 'actions', 'startDate', 'dueDate', 'endDate', 'createdAt', 'tasks'];
-const MainTasksAll = () => {
+
+interface ArgsType{
+  setSubNavItems?: React.Dispatch<React.SetStateAction<any>>
+}
+
+const navItems: NavItem[] = [
+  { link: "projects", title: "projects_all" },
+  { link: "maintasks", title: "maintasks_all" },
+];
+
+const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
@@ -34,6 +44,7 @@ const MainTasksAll = () => {
 
 
     useEffect(()=>{
+      setSubNavItems && setSubNavItems(navItems);
         getRecords();
     },[])
     useEffect(()=>{
@@ -52,17 +63,27 @@ const MainTasksAll = () => {
             const orderBy:OrderByFilter={
                 _pid:'asc',
             }
+            const populateFields=[
+              {path:'createdBy'}, 
+              {path:'_pid'}, 
+              {path:'responsiblePerson'}, 
+              {path:'subtasks',
+                populate:[{path:'subtasks'}]
+              }, 
+              {path:'subtasks.subtasks'}, 
+            ]
             const res = await getRecordsWithFilters({
                 type: "maintasks", 
                 limit:paginationData.limit as unknown as number, 
                 pageNr:paginationData.currentPage as unknown as number, 
-                populateFields:['createdBy', '_pid', 'responsiblePerson'], 
+                populateFields, 
                 filters,
                 orderBy
             });  
             console.log(res);
             if (res.status === "success") {
                 setData(res.data || []);
+                console.log(res.data);
                 console.log(res);
                 setPaginationData({...paginationData, totalRecords:res.totalRecords, totalPages:res.totalPages, currentPage:res.currentPage})
             }else{

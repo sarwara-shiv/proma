@@ -55,7 +55,7 @@ interface GetRecorsWithLimit{
   type:string;
   limit:number;
   pageNr:number;
-  populateFields?:string[]
+  populateFields?:string[] | pathInterface[]
 }
 
 const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
@@ -86,7 +86,7 @@ interface GetRecorsWithFilters{
   limit:number;
   filters?: QueryFilters;
   pageNr:number;
-  populateFields?:string[]
+  populateFields?:string[]| pathInterface[]
   orderBy?:OrderByFilter
 }
 

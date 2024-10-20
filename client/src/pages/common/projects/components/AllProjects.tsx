@@ -75,6 +75,22 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                                 <ul>
                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                         <NavLink
+                                            to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
+                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('view')}<FaEye /> 
+                                        </NavLink>
+                                    </li> 
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`update/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title="update"
+                                            className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('update')} <FaPencilAlt />
+                                        </NavLink>
+                                    </li> 
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
                                             to={`kickoff/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
                                             className="flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                                             >
@@ -89,22 +105,8 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                                             {t('tasks')}<FaTasks /> 
                                         </NavLink>
                                     </li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                        <NavLink
-                                            to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
-                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
-                                            >
-                                            {t('view')}<FaEye /> 
-                                        </NavLink>
-                                    </li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                        <NavLink
-                                            to={`update/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title="update"
-                                            className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
-                                            >
-                                            {t('update')} <FaPencilAlt />
-                                        </NavLink>
-                                    </li>
+                                   
+                                    <li><div className='border-b pt-1 mb-1 px-1 '></div></li>
                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                         <DeleteById text={t('delete')} data={{id:_id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
                                     </li>

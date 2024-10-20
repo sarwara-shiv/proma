@@ -115,8 +115,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
 
   const getDataColorClasses = (value:string)=>{
     const dValue = data.filter((d)=>d.value === value || d._id === value);
-    if(dValue){
-      console.log(dValue);
+    if(Array.isArray(dValue) && dValue.length > 0){
       if(dValue[0].color)
       return getColorClasses(dValue[0].color);
     }

@@ -103,7 +103,7 @@ const AllGroups = () => {
             meta:{
                 style :{
                 textAlign:'right',
-                width:"50px"
+                width:"60px"
                 }
             }
         }

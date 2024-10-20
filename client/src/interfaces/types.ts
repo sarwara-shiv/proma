@@ -29,8 +29,8 @@ export interface DynamicField {
   }
 
   export interface DynamicCustomField{
-    name:string,
-    value:string
+    name?:string,
+    value?:string
   }
   
   export interface PermissionsMap {
@@ -267,7 +267,8 @@ export interface QaTask extends BaseTask {
     projectType?:'inhouse' | 'client';
     kickoff?: Kickoff;
     documentation?: string[]; // Array of Documentation objectIds
-    personsInvolved: (string | ObjectId)[]; // Array of User objectIds
+    personsInvolved: (string | ObjectId)[];
+    teamMembers?: (string | ObjectId)[];
     tasks: string[]; // Array of Task objectIds
     mainTasks?:ObjectId[];
     customFields?: DynamicCustomField[];

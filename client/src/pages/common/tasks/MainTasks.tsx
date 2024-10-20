@@ -29,10 +29,10 @@ const MainTasks = () => {
         <div className='content py-14  mb-7'>
             <div className='content-wrap p-4 '>
                 {action && 
-                    action === 'update' ? <MainTaskForm  mainTask={data} action='update' pid={pid}/>:
-                    action === 'add' ? <MainTaskForm  action='add' pid={pid}/>:
-                    action === 'tasks' ? <Tasks  action='add' pid={pid} mtid={id}/>: 
-                    <MainTasksAll />
+                    action === 'update' ? <MainTaskForm  mainTask={data} action='update' pid={pid} setSubNavItems={setSubNavItems}/>:
+                    action === 'add' ? <MainTaskForm  action='add' pid={pid} setSubNavItems={setSubNavItems}/>:
+                    action === 'tasks' ? <Tasks  action='add' pid={pid} mtid={id}  setSubNavItems={setSubNavItems}/>:  
+                    <MainTasksAll  setSubNavItems={setSubNavItems}/>
                 }
             </div>
         </div>

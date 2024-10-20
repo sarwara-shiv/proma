@@ -1,7 +1,7 @@
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import { addUpdateRecords, getRecords } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, RelatedUpdates, User, UserGroup } from '@/interfaces'
+import { AlertPopupType, FlashPopupType, MainTask, NavItem, RelatedUpdates, User, UserGroup } from '@/interfaces'
 import { ObjectId } from 'mongodb';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
@@ -17,12 +17,17 @@ interface ArgsType{
     mainTasks?:MainTask[];
     mainTask?:MainTask | null;
     action?: 'add' | 'update';
+    setSubNavItems?: React.Dispatch<React.SetStateAction<any>>
     onChange?:(value:MainTask[])=>void
 }
-
 const checkDataBy: string[] = ['name'];
+const navItems: NavItem[] = [
+    { link: "projects", title: "projects_all" },
+    { link: "maintasks", title: "maintasks_all" },
+  ];
+  
 
-const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add'}) => {
+const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems}) => {
     const {t} = useTranslation();
     const {user} = useAuth();
     const [mainTasksData, setMainTasksData] = useState<MainTask[]>();
@@ -47,6 +52,7 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
 
 
     useEffect(()=>{
+        setSubNavItems && setSubNavItems(navItems);
         if(mainTasks) setMainTasksData(mainTasks)
         if(mainTask){
             action = 'update';

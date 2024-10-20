@@ -19,6 +19,7 @@ import DynamicCustomFieldForm from '../../../../components/forms/DynamicCustomFi
 import { sanitizeString } from '../../../../utils/commonUtils';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import { useParams } from 'react-router-dom';
+import { PageTitel } from '../../../../components/common';
 
 interface ArgsType {
   cid?:string | null;
@@ -53,7 +54,7 @@ const priorityColors=[
 ]
 
 const checkDataBy: string[] = ['name'];
-const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, navItems }) => {
+const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
   const {id} = useParams();
   const {user} = useAuth();
@@ -61,6 +62,7 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
   const [formData, setFormData] = useState<Project>(initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
+  const [editCField, setEditCField] = useState<DynamicCustomField>({}) 
 
 
   useEffect(()=>{
@@ -188,22 +190,24 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
       setFormData((prevVal) => {
         if (!prevVal) return prevVal;
   
-        let cfd = prevVal.customFields ? prevVal.customFields : [];
-  
-        // Format the name to lowercase and remove spaces
-        const formattedName = sanitizeString(fieldsData.name);
-  
-        // Check if the custom field already exists
-        const fieldIndex = cfd.findIndex(
-          (d) => sanitizeString(d.name) === formattedName
-        );
-  
-        if (fieldIndex !== -1) {
-          // Field exists, update its value
-          cfd[fieldIndex].value = fieldsData.value;
-        } else {
-          // Field doesn't exist, add new field
-          cfd.push(fieldsData);
+        let cfd = prevVal.customFields ? prevVal.customFields : []; 
+        
+        if(fieldsData.name){
+          // Format the name to lowercase and remove spaces
+          const formattedName = sanitizeString(fieldsData.name ? fieldsData.name : '');
+    
+          // Check if the custom field already exists
+          const fieldIndex = cfd.findIndex(
+            (d) => d.name && sanitizeString(d.name) === formattedName
+          );
+    
+          if (fieldIndex !== -1) {
+            // Field exists, update its value
+            cfd[fieldIndex].value = fieldsData.value;
+          } else {
+            // Field doesn't exist, add new field
+            cfd.push(fieldsData);
+          }
         }
   
         // Return the updated formData
@@ -232,34 +236,37 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
 
   return (
     <div className='content flex justify-center flex-col '>
-      <div className="p-4 bg-white shadow-none rounded max-w-screen flex-1">
-        <div className='flex flex-row justify-between align-center'>
+      <div className="shadow-none rounded max-w-screen flex-1">
+        {/* <div className='flex flex-row justify-between align-center'>
           <FormsTitle text=  { action==='update' ? t('updateProject') : t('newProject')} classes='mb-3'/> 
-        </div>
+        </div> */}
         <form onSubmit={(e) => submitForm(e)} className=''>
-          <div className='fields-wrap grid grid-cols-[1fr_auto] gap-4 mb-6'>
-            <div className='w-full'>
-              <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
-                onChange={handleInputs}
-                className={`placeholder-slate-300 
-                  w-full
-                  text-lg 
-                  text-primary
-                  font-semibold 
-                  border-b
-                  p-2.5
-                  border-slate-200
-                  focus:outline-none 
-                  focus:border-b
-                  `}
-                  />
-              </div>
+          <div className='card bg-white'>
 
-              <div className="">
-                 <CustomSelectList name="projectType" label={t('projectType')} inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
-              </div>
+            <div className='fields-wrap grid grid-cols-[1fr_auto] gap-4 mb-6'>
+              <div className='w-full'>
+                <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
+                  onChange={handleInputs}
+                  className={`placeholder-slate-300 
+                    w-full
+                    text-lg 
+                    text-primary
+                    font-semibold 
+                    border-b
+                    p-2.5
+                    border-slate-200
+                    focus:outline-none 
+                    focus:border-b
+                    `}
+                    />
+                </div>
+
+                <div className="">
+                  <CustomSelectList name="projectType" label={t('projectType')} inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
+                </div>
+            </div>
           </div>
-          <div className='grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
+          <div className='card bg-white grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
                   <div className="w-full">
                     <CustomDateTimePicker
                         selectedDate={formData.startDate}
@@ -289,13 +296,12 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
                   />
                 </div>
             </div>
-          <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+          <div className='card bg-white fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
                 {/* <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} /> */}
                 <RichTextArea onChange={handleRichText} name='description' label={`${t('description')}`} defaultValue={formData.description}/>
                   {/* <ContentEditable /> */}
             </div>
-            
           </div>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
             <div className="mb-4">
@@ -303,7 +309,10 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
             </div>
           </div>
           
-          <div className='fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+          <div className='card bg-white fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+            <div className='text-left mb-3'>
+                <PageTitel text={`${t('FORMS.customFields')}`} color='slate-300'  size='2xl'/>
+              </div>
             <div className="mb-4">
                <div>
                   {formData?.customFields && formData.customFields.length > 0 && formData.customFields.map((d, index)=>{
@@ -321,13 +330,15 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
                       </div>
                     )
                   })}
-                </div>   
-                <DynamicCustomFieldForm onSubmit={handleProjCustomField}/>
+                </div> 
+                <div className='my-2 bg-slate-100 p-2 rounded-md'>
+                  <DynamicCustomFieldForm onSubmit={handleProjCustomField} data={editCField && editCField}/>
+                </div>  
             </div>
           </div>
 
 
-          <div className="mt-6 text-right">
+          <div className="mt-6 text-right"> 
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} />
           </div>
         </form>
@@ -346,7 +357,7 @@ const ProjectsForm_backup:React.FC<ArgsType> = ({ action = "add", cid, setSubNav
   )
 }
 
-export default ProjectsForm_backup
+export default ProjectsForm
 
 
 

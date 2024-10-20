@@ -32,7 +32,7 @@ const AllTasks = () => {
                 status:'asc'
             }
             const filters:QueryFilters = {
-                level:1,
+                // level:1,
             }
             const res = await getRecordsWithFilters({type:'tasks', limit:1000, orderBy, filters, pageNr:1, populateFields});
             if(res){

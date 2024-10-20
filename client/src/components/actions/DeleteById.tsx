@@ -23,7 +23,7 @@ const DeleteById: React.FC<ArgsType> = ({
   icon='bin', data, 
   onYes, onNo, title="Are you sure?", content="Delete Data", popupData, 
   deleteRelated=[],
-  relatedUpdates=[],
+  relatedUpdates=[], 
   text=''
 }) => {
 

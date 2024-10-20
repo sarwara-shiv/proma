@@ -8,6 +8,7 @@ import UserGroupModel from '../models/userGroupModel.js';
 import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
 import { generateUniqueId } from '../utils/idGenerator.js';
 import moment from 'moment/moment.js';
+import { deleteMaintaskTasks, deleteProjectTasks } from './controllers/deleteProjectTasks.js';
 
 const router = express.Router();
 
@@ -238,13 +239,29 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
   }
 
   try {
-    const deletedRecord = await model.findByIdAndDelete(id);
+
+    let runDeleteRelated = true;
+    let  deletedRecord = null;
+    // delete project related maintasks, tasks, subtasks
+    if(resource === 'projects'){
+      runDeleteRelated = false;
+       await deleteProjectTasks(id);
+    }
+    // delete  maintasks related tasks, subtasks
+    if(resource === 'maintasks'){
+      runDeleteRelated = false;
+      await deleteMaintaskTasks(id);
+    }
+    
+    deletedRecord = await model.findByIdAndDelete(id);
+
     if (!deletedRecord) {
       // return res.status(404).json({ error: 'Record not found' });
       return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
     }
      // Handle related updates
-     if (relatedUpdates && Array.isArray(relatedUpdates)) {
+
+     if (relatedUpdates && Array.isArray(relatedUpdates) ) {
       await Promise.all(
         relatedUpdates.map(async (update) => {
           const { collection, field, type, ids } = update;
@@ -271,8 +288,9 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
       );
     }
 
-    // handle delete records
-    if (deleteRelated && Array.isArray(deleteRelated)) {
+    // handle delete records 
+    // run if runDeleteRelated true 
+    if (deleteRelated && Array.isArray(deleteRelated) && runDeleteRelated) {
       for (const related of deleteRelated) {
         const { collection, ids } = related;
 
@@ -289,6 +307,7 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
         }
       }
     }
+
 
     // res.status(200).json({ message: 'Record deleted successfully' });
     return res.json({ status: "success", message:'Record deleted', code:"record_deleted" });

@@ -319,6 +319,9 @@ const ProjectSchema = new Schema({
   personsInvolved: [
     { type: Schema.Types.ObjectId, ref: 'User', required: true },
   ],
+  teamMembers: [
+    { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  ],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   mainTasks:[{ type: Schema.Types.ObjectId, ref: 'MainTask' }],
   customFields: [DynamicCustomField],

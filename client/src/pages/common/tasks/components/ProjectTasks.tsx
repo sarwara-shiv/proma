@@ -152,6 +152,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           if(pid){
               const res = await getRecordWithID({id:mainTaskId, populateFields, type:'maintasks'});
               if(res.status === 'success' && res.data){
+                console.log(res.data); 
                   setProjectData(res.data._pid);
                   setMainTaskData(res.data);
                   DeleteRelatedUpdates[0].ids = [res.data._id];

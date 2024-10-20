@@ -11,6 +11,7 @@ import KickoffDetail from './components/KickoffDetail';
 import { IoPencil } from 'react-icons/io5';
 import { FaEye, FaRegEdit } from 'react-icons/fa';
 import CustomIconButton from '../../../components/common/CustomIconButton';
+import { MdOutlineInstallDesktop, MdRocketLaunch } from 'react-icons/md';
 interface ArgsType {
     cid?:string | null;
     data?: Project; 
@@ -28,8 +29,8 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
 
   const subNavItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
+    { link: "projects", title: "projects_all", icon:<MdOutlineInstallDesktop/> },
+    { link: `projects/kickoff/${cid || id}`, title: "kickoff", icon:<MdRocketLaunch /> },
     { link: `projects/kickoff-update/${cid || id}`, title: "kickoff_update" },
     { link: `projects/maintasks/${cid || id}`, title: "tasks" },
   ];

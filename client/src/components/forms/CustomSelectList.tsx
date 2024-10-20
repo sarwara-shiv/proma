@@ -12,14 +12,13 @@ interface CustomSelectListProps {
 
 // CustomSelectList component
 const CustomSelectList: React.FC<CustomSelectListProps> = ({
-  label,
+  label, 
   data,
   inputType,
   name,
-  selectedValue,
+  selectedValue, 
   onChange,
 }) => {
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (inputType === 'checkbox') {
       const checkedBoxes = Array.from(
@@ -27,20 +26,19 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
       ).map((input) => (input as HTMLInputElement).value);
       onChange(checkedBoxes); 
     } else {
-      console.log(event.target.value);
-      onChange(event.target.value); // Return single selected value for radio or dropdown
+      onChange(event.target.value);
     }
   };
 
   return (
     <div className="flex flex-col">
-      <label>{label}</label>
+      <label className='text-gray-400 flex items-center text-sm'>{label}</label>
       <div
         className={`fields-${inputType}-wrapper ${(inputType === 'checkbox' || inputType === 'radio') && 'items-center space-x-2'}`}
       >
         {inputType === 'radio' &&
           data.map((item, index) => {
-            const checked = Array.isArray(selectedValue) ? selectedValue.includes(item._id) : selectedValue === item._id;
+            const isChecked = selectedValue === item._id;
 
             return (
             <div key={item._id} className="inline-flex items-center mb-2">
@@ -51,7 +49,7 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                 className="peer sr-only"
                 id={`${name}-${index}`}
                 onChange={handleChange}
-                {...checked ? {checked:true} : {}}
+                checked={isChecked} // Ensure checked is set based on selectedValue
               />
               <label
                 htmlFor={`${name}-${index}`}
@@ -91,8 +89,8 @@ const CustomSelectList: React.FC<CustomSelectListProps> = ({
                 value={item._id}
                 className="peer sr-only"
                 id={`${name}-${index}`}
-                // checked={Array.isArray(selectedValue) && selectedValue.includes(item._id)} 
                 onChange={handleChange}
+                checked={Array.isArray(selectedValue) && selectedValue.includes(item._id)} // Ensure checked works for checkboxes
               />
               <label
                 htmlFor={`${name}-${index}`}
