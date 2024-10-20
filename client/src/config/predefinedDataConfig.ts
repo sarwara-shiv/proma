@@ -1,9 +1,9 @@
 const ProjectStatuses = [
-    {_id: 'notStarted', name:'Not Started'},
-    {_id: 'inProgress', name:'In Progress'},
-    {_id: 'completed', name:'Completed'},
-    {_id: 'onHold', name:'On Hold'},
-    {_id: 'cancelled', name:'Cancelled'},
+    {_id: 'notStarted', name:'Not Started', color:'notStarted'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'completed', name:'Completed', color:'completed'},
+    {_id: 'onHold', name:'On Hold', color:'onHold'},
+    {_id: 'cancelled', name:'Cancelled', color:'cancelled'},
 ]
 const TaskCategory = [
     {_id: 'dev', name:'Development'},

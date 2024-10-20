@@ -357,7 +357,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
           </div>
 
 
-          <div className="mt-6 text-right"> 
+          <div className="fixed right-2 bottom-2 mt-6 text-right"> 
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} />
           </div>
         </form>
