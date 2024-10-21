@@ -7,6 +7,20 @@ export interface PaginationProps {
     limit?:number;
     totalPages: number;
 }
+// functions not included
+export interface RichTextEditorProps { 
+    value: string; 
+    data?:any,
+    onChange?: (content: string, data:any) => void; 
+}
+// functions not included
+export interface SidePanelProps { 
+    isOpen: boolean;
+    title?:React.ReactNode;
+    subtitle?:React.ReactNode;
+    children: React.ReactNode;
+    onClose?: () => void;
+}
 
 
 // Filters 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import bcrypt from 'bcrypt';
-import { TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask } from '../models/models.js';
+import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
@@ -9,6 +9,7 @@ import { checkIfRecordExists } from '../middleware/checkIfRecordExists.js';
 import { generateUniqueId } from '../utils/idGenerator.js';
 import moment from 'moment/moment.js';
 import { deleteMaintaskTasks, deleteProjectTasks } from './controllers/deleteProjectTasks.js';
+import { logChanges } from '../utils/ChangeLog.js';   
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ const getModel = (resource) => {
 // "relatedUpdates": [
 //   {
 //     "collection": "projects", // collection name
-//     "field": "mainTasks", // field to be updated
+//     "field": "mainTasks", // field to be updated 
 //     "type": "array",  // Add to the array
 //     "ids": ["projectId1", "projectId2"]
 //   },
@@ -155,6 +156,10 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
     return res.json({ status: "error", message:'ID not found', code:"id_required" });
   }
   try {
+    const originalRecord = await model.findById(id); 
+    if (!originalRecord) {
+      return res.json({ status: "error", message: 'Record not found', code: "record_not_found" });
+    }
 
     const exists = checkDataBy && checkDataBy.length > 0 
       ? await checkIfRecordExists(model, checkDataBy, data, id) 
@@ -189,6 +194,11 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
         // return res.status(404).json({ error: 'Record not found' });
         return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
       }
+
+       // Log changes
+       await logChanges(resource, id, originalRecord, updatedRecord, req.user._id); 
+
+
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
         for (const update of relatedUpdates) {
 

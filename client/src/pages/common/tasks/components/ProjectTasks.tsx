@@ -1,5 +1,5 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, BaseTask, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, Task, User } from '@/interfaces';
+import { AlertPopupType, BaseTask, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, RichTextEditorProps, SidePanelProps, Task, User } from '@/interfaces';
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
@@ -14,7 +14,7 @@ import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import { useAuth } from '../../../../hooks/useAuth';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { DeleteById } from '../../../../components/actions';
-import { FaAngleRight, FaUserCircle } from 'react-icons/fa';
+import { FaAngleRight, FaPlusSquare, FaUserCircle } from 'react-icons/fa';
 import SubtasksTable from './SubtasksTable';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
@@ -29,6 +29,8 @@ import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
+import SidePanel from '../../../../components/common/SidePanel';
+import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
 
 interface ArgsType {
     cid?:string | null;
@@ -74,7 +76,11 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
-
+  const [sidePanelData, setSidePanelData] = useState<SidePanelProps>({isOpen:false, title:'', subtitle:'',children:''});
+  const [editorData, setEditorData] = useState({
+    value: '',
+    data: {}
+  });
 
   const thStyles = 'text-xs font-semibold p-1 text-left text-primary border border-slate-200';
   const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
@@ -98,6 +104,14 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   useEffect(()=>{
       updateMainTask();
   }, [mainTaskData?.customFields]);
+
+  // Rich text editor change
+  const RichtTextEditorChange = (content: string, data:any)=>{
+    if(content && data._id && data.field){
+      updateTask(data._id, {[data.field]:content}, true);
+      // setEditorData({...editorData, value:'', data:{}})
+    }
+  }
 
   // updateMainTask
   const updateMainTask= async(data:any = null)=>{
@@ -643,6 +657,17 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                 <CustomContextMenu >
                                       <ul>
                                         <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                          <div className='text-xs flex justify-between items-center cursor-pointer' onClick={()=>{
+                                              setEditorData({...editorData, value:'', data:{}})
+                                              setEditorData({...editorData, value:st.description || '', data: {_id:st._id, field:'description'}})
+                                              setSidePanelData({...sidePanelData, isOpen:true, title:st._cid || '', subtitle:st.name})
+
+                                          }}>
+                                            <span>{t('details')}</span>
+                                            <span><FaPlusSquare /></span>  
+                                          </div>
+                                        </li>
+                                        <li className='px-2 py-1 my-1 hover:bg-slate-100'>
                                           <div></div>
                                           {tskID && 
                                             <DeleteById style='fill' deleteRelated={
@@ -901,6 +926,21 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
         <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
 
+
+        <SidePanel isOpen={sidePanelData.isOpen} title={sidePanelData.title} subtitle={sidePanelData.subtitle} 
+        onClose={()=>{
+          setSidePanelData({...sidePanelData, isOpen:false});
+          setEditorData({...editorData, value:'', data:{}})
+        
+        }}
+        >
+          <RichtTextEditor
+            value={editorData.value}
+            data={editorData.data}
+            onChange={(newContent, data)=>RichtTextEditorChange(newContent, data)}
+          />
+          
+        </SidePanel>  
     </div>
   )
 }

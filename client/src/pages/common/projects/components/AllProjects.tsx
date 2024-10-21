@@ -444,6 +444,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             
         try{
             const response = await addUpdateRecords({type: recordType, checkDataBy:[], action:"update", id, body:{ ...newData}}); 
+            console.log(response);
             if(response.status === 'success'){
                 const content = `${t(`RESPONSE.${response.code}`)}`;
                 // setAlertData({...alertData, isOpen:true, title:"Success", type:"success", content});

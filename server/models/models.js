@@ -7,6 +7,21 @@ const CounterSchema = new Schema({
   sequence_value: { type: Number, required: true },
 });
 
+const ChangeLogSchema = new Schema({
+  collectionName: { type: String, required: true },  // Name of the collection (e.g., 'tasks', 'users')
+  documentId: { type: Schema.Types.ObjectId, required: true },  // The ID of the document that was changed
+  changedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },  // Who made the change
+  changedAt: { type: Date, default: Date.now },  // Timestamp of the change
+  changes: [
+    {
+      field: { type: String, required: true },  // Field that was changed
+      oldValue: { type: Schema.Types.Mixed },  // Old value
+      newValue: { type: Schema.Types.Mixed },  // New value
+    }
+  ]
+}, { collection: 'change_logs' });
+
+
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
@@ -369,7 +384,8 @@ const Project = mongoose.model('Project', ProjectSchema);
 const Documentation = mongoose.model('Documentation', DocumentationSchema);
 const Ticket = mongoose.model('Ticket', TicketSchema);
 const Counter = mongoose.model('Counter', CounterSchema);
+const ChangeLog = mongoose.model('ChangeLog', ChangeLogSchema);
 
 
 
-export { QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };
+export { ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

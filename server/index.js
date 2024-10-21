@@ -10,6 +10,7 @@ import {userRouter} from "./routes/users/users.js";
 import { rolesRouter } from './routes/roles/userRoles.js';
 import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js'; 
+import { ChangeLog } from './models/models.js';
 
 
 const app = express();
@@ -54,3 +55,21 @@ db.on('error', (err) => {
 }); 
 
 app.listen(PORT, ()=> console.log("SERVER STARTED"));
+
+app.get('/changelog/:documentId', async (req, res) => {
+    const { documentId } = req.params;
+  
+    try {
+      // Fetch change logs for the specified document ID
+      const changeLogs = await ChangeLog.find({ documentId });
+  
+      if (changeLogs.length === 0) {
+        return res.status(404).json({ message: 'No change logs found for this document ID.' });
+      }
+  
+      return res.json(changeLogs);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'An error occurred while fetching change logs.' });
+    }
+  });

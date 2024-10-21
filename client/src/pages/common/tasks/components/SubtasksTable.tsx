@@ -2,12 +2,12 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { DeleteById } from '../../../../components/actions';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import EnterInput from '../../../../components/forms/EnterInput';
-import { DeleteRelated, DynamicField, MainTask, QaTask, RelatedUpdates, Task, User } from '@/interfaces'
+import { DeleteRelated, DynamicField, MainTask, QaTask, RelatedUpdates, SidePanelProps, Task, User } from '@/interfaces'
 import { format } from 'date-fns';
 import { ObjectId } from 'mongodb'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { FaAngleRight } from 'react-icons/fa';
+import { FaAngleRight, FaPlusSquare } from 'react-icons/fa';
 import { IoMdAdd } from 'react-icons/io';
 import { CustomDropdown } from '../../../../components/forms';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
@@ -18,6 +18,8 @@ import { extractAllIds } from '../../../../utils/tasksUtils';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader';
 import { sanitizeString } from '../../../../utils/commonUtils';
+import SidePanel from '../../../../components/common/SidePanel';
+import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
@@ -45,10 +47,23 @@ const SubtasksTable:React.FC<ArgsType> = ({
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
     const [subtasksData, setSubtasksdata] = useState<Task[] | null>(subtasks || null)
+    const [sidePanelData, setSidePanelData] = useState<SidePanelProps>({isOpen:false, title:'', subtitle:'',children:''});
+    const [editorData, setEditorData] = useState({
+      value: '',
+      data: {}
+    });
     const thStyles = 'text-xs font-semibold p-1 text-primary text-left border border-slate-200';
     const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
   
     const tdClasses = 'p-2 text-xs';
+
+     // Rich text editor change
+  const RichtTextEditorChange = (content: string, data:any)=>{
+    if(content && data._id && data.field){
+      updateTask && updateTask(data._id, {[data.field]:content}, true);
+      // setEditorData({...editorData, value:'', data:{}})
+    }
+  }
   useEffect(()=>{
     setMainTaskData(mainTask);
   },[mainTask?.customFields])
@@ -173,6 +188,17 @@ const SubtasksTable:React.FC<ArgsType> = ({
                               >
                                 <CustomContextMenu >
                                     <ul>
+                                    <li className='px-2 py-1 my-1 hover:bg-slate-100'>
+                                          <div className='text-xs flex justify-between items-center cursor-pointer' onClick={()=>{
+                                              setEditorData({...editorData, value:'', data:{}})
+                                              setEditorData({...editorData, value:st.description || '', data: {_id:st._id, field:'description'}})
+                                              setSidePanelData({...sidePanelData, isOpen:true, title:st._cid || '', subtitle:st.name})
+
+                                          }}>
+                                            <span>{t('details')}</span>
+                                            <span><FaPlusSquare /></span>  
+                                          </div>
+                                        </li>
                                       <li className='px-2 py-1 my-1 hover:bg-slate-100'>
                                         <div></div>
                                         {tskID && 
@@ -306,6 +332,20 @@ const SubtasksTable:React.FC<ArgsType> = ({
           </DragDropContext>   
             </>
         }
+        <SidePanel isOpen={sidePanelData.isOpen} title={sidePanelData.title} subtitle={sidePanelData.subtitle} 
+        onClose={()=>{
+          setSidePanelData({...sidePanelData, isOpen:false});
+          setEditorData({...editorData, value:'', data:{}})
+        
+        }}
+        >
+          <RichtTextEditor
+            value={editorData.value}
+            data={editorData.data}
+            onChange={(newContent, data)=>RichtTextEditorChange(newContent, data)}
+          />
+          
+        </SidePanel>  
     </div>
   )
 }
