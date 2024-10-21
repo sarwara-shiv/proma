@@ -196,7 +196,7 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
       }
 
        // Log changes
-       await logChanges(resource, id, originalRecord, updatedRecord, req.user._id); 
+      //  await logChanges(resource, id, originalRecord, updatedRecord, req.user._id);  
 
 
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
