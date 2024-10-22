@@ -281,14 +281,16 @@ export interface QaTask extends BaseTask {
   
   // Documentation Interface
   export interface Documentation {
-    title: string;
+    _id?:string;
     _cid?:string;
+    _pid?:string;
+    title: string;
+    level?:number;
     description?: string;
-    link: string;
-    customFields: DynamicField[];
-    subDocuments: string[]; // Array of Documentation objectIds
-    permissions: Permission[];
+    customFields?: DynamicField[];
+    subDocuments?: string[]; // Array of Documentation objectIds
     createdAt?: Date;
     updatedAt?: Date;
+    createdBy?:(string|ObjectId)
   }
   

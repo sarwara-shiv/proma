@@ -12,6 +12,9 @@ import { IoMdAdd } from 'react-icons/io';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import KickoffForm from '../kickoff/components/KickoffForm';
 import MainTasksProject from '../tasks/components/MaintTasksProject';
+import ProjectDocumentations from '../documentation/components/ProjectDocumentations';
+import DocumentationsForm from '../documentation/components/DocumentationsForm';
+import Documentation from '../documentation/Documentation';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
@@ -27,6 +30,7 @@ const Project = () => {
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
   const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
+  console.log(action);
 
   return (
     <div className='page-wrap relative mt-8'>
@@ -41,6 +45,7 @@ const Project = () => {
               action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} cid={id} data={data}/>  :
+              action=== "documentation" && id ? <ProjectDocumentations setSubNavItems={setSubNavItems} />  :
               <AllProjects setSubNavItems={setSubNavItems} navItems={navItems}/>  
             }
         </div>

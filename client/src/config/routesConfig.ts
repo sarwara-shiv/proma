@@ -51,6 +51,13 @@ const routes: RouteConfig[] = [
     params: ['action', 'id'], 
     access:['all']
   },
+  {
+    path: '/documentation',
+    element: "Documentation",
+    page: "documentation",
+    params: ['action', 'id'], 
+    access:['all']
+  },
   // {
   //   path: '/kickoff',
   //   element: "Kickoff",

@@ -4,14 +4,14 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { IoMdAdd } from 'react-icons/io';
 import { useLocation, useParams } from 'react-router-dom';
-import MainTasksAll from './components/MainTasksAll';
-import MainTaskForm from './components/MainTaskForm';
-import Tasks from './components/Tasks';
+import DocumentationsAll from './components/DocumentationsAll';
+import DocumentationsForm from './components/DocumentationsForm';
+import ProjectDocumentations from './components/ProjectDocumentations';
 const navItems: NavItem[] = [
-    { link: "maintasks", title: "maintasks_all" },
-    { link: "maintasks/add", title: "maintasks_add", icon:<IoMdAdd />},
+    { link: "projects", title: "projects_all" },
+    { link: "documentation", title: "documentation_all", icon:<IoMdAdd />},
 ];
-const MainTasks = () => {
+const Documentation = () => {
     const {action, id} = useParams();
     const { t } = useTranslation();
     const location = useLocation();
@@ -27,10 +27,11 @@ const MainTasks = () => {
         <div className='content py-14  mb-7'>
             <div className='content-wrap p-4 '>
                 {action && 
-                    action === 'update' ? <MainTaskForm  mainTask={data} action='update' pid={pid} setSubNavItems={setSubNavItems}/>:
-                    action === 'add' ? <MainTaskForm  action='add' pid={pid} setSubNavItems={setSubNavItems}/>:
-                    action === 'tasks' ? <Tasks  action='add' pid={pid} mtid={id}  setSubNavItems={setSubNavItems}/>:  
-                    <MainTasksAll  setSubNavItems={setSubNavItems}/>
+                    
+                    action === 'update' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
+                    action === 'add' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
+                    action === 'view' && id ? <ProjectDocumentations setSubNavItems={setSubNavItems}/>:  
+                    <DocumentationsAll  setSubNavItems={setSubNavItems}/>
                 }
             </div>
         </div>
@@ -38,4 +39,4 @@ const MainTasks = () => {
     )
 }
 
-export default MainTasks
+export default Documentation

@@ -10,11 +10,13 @@ import UserGroups from '../pages/admin/groups/UserGroups';
 import Kickoff from '../pages/common/kickoff/Kickoff';
 import Tasks from '../pages/common/tasks/components/Tasks';
 import MainTasks from '../pages/common/tasks/MainTasks';
+import Documentation from '../pages/common/documentation/Documentation';
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
   UserRoles: <UserRoles />,
   Projects: <Projects />,
+  Documentation: <Documentation />,
   Kickoff: <Kickoff />,
   Tasks: <Tasks />,
   MainTasks: <MainTasks />,

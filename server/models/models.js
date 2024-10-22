@@ -350,12 +350,12 @@ const ProjectSchema = new Schema({
 // Documentation Schema
 const DocumentationSchema = new Schema({
   _cid:{type:String},
+  _pid:{type:String},
   title: { type: String, required: true },
+  level:{ type: Number},
   description: { type: String },
-  link: { type: String, required: true },
   customFields: [DynamicFieldSchema],
   subDocuments: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
-  permissions: [PermissionSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
