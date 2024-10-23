@@ -351,7 +351,7 @@ const ProjectSchema = new Schema({
 const DocumentationSchema = new Schema({
   _cid:{type:String},
   _pid:{type:String},
-  title: { type: String, required: true },
+  name: { type: String, required: true },
   level:{ type: Number},
   description: { type: String },
   customFields: [DynamicFieldSchema],

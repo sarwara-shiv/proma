@@ -25,13 +25,13 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
   const currentPath = location.pathname.replace(`${basePath}/`, '');
 
   return (
-    <header className='border-b z-20 border-none border-slate-200 mt-2 pt-4 fixed mx-auto px-4 left-0 ml-64 right-0 bg-gray-50 top-14'>
-        <div className='container flex justify-between flex-col mx-auto'>
-          <div className='nav-wrap'>
+    <header className='border-b z-20 border-none border-slate-200 pt-4 sticky top-0 mx-auto left-0  bg-gray-50 right-0 '>
+        <div className='container flex justify-between flex-col mx-auto '>
+          <div className='nav-wrap px-2'>
             <PageTitel text={title} action={action} /> 
           </div>
           <div>
-          <div className='flex text-xs flex-row justify-end border-b border-slate-200'>
+          <div className='flex text-xs flex-row justify-end  border-slate-200 border-b'>
               {navItems.map((item, index) => (
                 <NavLink
                   key={index}

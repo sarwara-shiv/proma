@@ -16,16 +16,16 @@ const Documentation = () => {
     const { t } = useTranslation();
     const location = useLocation();
     const { data, objectId, pid } = location.state || {}; 
-    const [pageTitle, setPageTitle] = useState("maintasks");
+    const [pageTitle, setPageTitle] = useState("documentation");
     const {pathname} = location;
     const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
     const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
   
     return (
-        <div className='page-wrap relative mt-8'>
+        <div className='page-wrap relative '>
         <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
-        <div className='content py-14  mb-7'>
-            <div className='content-wrap p-4 '>
+        <div className='content mb-7 relative'>
+            <div className='content-wrap relative'>
                 {action && 
                     
                     action === 'update' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:

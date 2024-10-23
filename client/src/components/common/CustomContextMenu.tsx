@@ -4,9 +4,11 @@ import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 
 interface CustomContextMenuProps {
   children: React.ReactNode;
+  iconSize?:'xs' | 'sm' | 'md';
+  text?:React.ReactNode | null
 }
 
-const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children }) => {
+const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSize='sm', text=null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,9 +80,9 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children }) => {
   return (
     <div className="relative">
       {/* Trigger Button */}
-      <button ref={buttonRef} className="p-1 rounded" onClick={toggleMenu}>
-        <IoEllipsisVerticalSharp />
-      </button>
+        <button ref={buttonRef} className={`p-1 rounded text-${iconSize} `} onClick={toggleMenu}>
+          {text ? <p>{text}</p> : <IoEllipsisVerticalSharp />}
+        </button>
 
       {/* Custom Context Menu */}
       {isOpen &&

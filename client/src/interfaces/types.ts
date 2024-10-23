@@ -284,7 +284,7 @@ export interface QaTask extends BaseTask {
     _id?:string;
     _cid?:string;
     _pid?:string;
-    title: string;
+    name: string;
     level?:number;
     description?: string;
     customFields?: DynamicField[];

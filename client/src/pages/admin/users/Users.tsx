@@ -30,9 +30,9 @@ const Users = () => {
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
   return (
-    <div className='page-wrap relative mt-8'>
+    <div className='page-wrap relative'>
       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
-      <div className='content py-14  mb-7'>
+      <div className='content mb-7'>
         <div className='content-wrap p-4 '>
             {
               action && 
