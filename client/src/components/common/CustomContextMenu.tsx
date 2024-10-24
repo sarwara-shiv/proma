@@ -81,7 +81,7 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSiz
     <div className="relative">
       {/* Trigger Button */}
         <button ref={buttonRef} className={`p-1 rounded text-${iconSize} `} onClick={toggleMenu}>
-          {text ? <p>{text}</p> : <IoEllipsisVerticalSharp />}
+          {text ? <p className='flex justify-start items-center'><IoEllipsisVerticalSharp /> {text}</p> : <IoEllipsisVerticalSharp />}
         </button>
 
       {/* Custom Context Menu */}

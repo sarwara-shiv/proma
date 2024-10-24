@@ -354,7 +354,7 @@ const DocumentationSchema = new Schema({
   name: { type: String, required: true },
   level:{ type: Number},
   description: { type: String },
-  customFields: [DynamicFieldSchema],
+  customFields: [DynamicCustomField],
   subDocuments: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
