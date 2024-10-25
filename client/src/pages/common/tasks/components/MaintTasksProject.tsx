@@ -16,6 +16,8 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { TaskStatuses } from '../../../../config/predefinedDataConfig';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import DataTable from '../../../../components/table/DataTable';
+import CustomContextMenu from '../../../../components/common/CustomContextMenu';
+import { DeleteById } from '../../../../components/actions';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -47,8 +49,71 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
     { link: `projects/tasks/${cid || id}`, title: "tasks" },
   ];
 
+  const onDelete = (delData:any)=>{
+    if(delData.status === "success"){ 
+      getData();
+    }else{
+      console.error({error:delData.message, code:delData.code}); 
+    }
+}
+
   //---------- table columns model
   const columns:ColumnDef<MainTask, any>[] = useMemo(()=>[
+    {
+      header: '',
+      id:"actions_cell",
+      cell: ({ getValue, row }) => { 
+        const cid = getValue() && getValue();
+        const _id = row.original._id ? row.original._id as unknown as string : '';
+        const _pid = row.original._pid
+        return (
+            <div>
+                 <div>
+                    <CustomContextMenu >
+                            <ul>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                  <NavLink
+                                     to={`${window.location.pathname.replace(/\/[^/]+\/maintasks\/[^/]+$/, '/maintasks/tasks/' + row.original._id)}`}
+                                      state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
+                                      className="flex justify-between items-center text-xs gap-1 hover:text-primary cursor-pointer whitespace-normal break-words"
+                                      >
+                                        <div>
+                                          {t('tasks')}
+                                        <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
+                                        {row.original.subtasks && row.original.subtasks.length > 0 ? <>{row.original.subtasks.length}</>:
+                                        0
+                                        }
+                                        </span>
+                                        </div>
+
+                                        <FaTasks /> 
+                                  </NavLink>
+                                </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <div className='text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words' 
+                                    data-close-menu='true'
+                                        onClick={()=>addUpdateMainTask(_pid, action='update', row.original)}
+                                    >
+                                        {t('update')} <FaPencilAlt />
+                                    </div>
+                                  </li>
+                                <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                  <DeleteById text={t('delete')} data={{id:_id, type:'maintasks', page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                                </li>
+                            </ul>
+                        </CustomContextMenu>
+                </div>
+            </div>
+        )
+      },
+        meta:{
+            style :{
+            textAlign:'left',
+            width:'30px'
+            },
+            noStyle:true,
+        },
+    },
     {
       header: `${t('name')}`,
       accessorKey: 'name',
@@ -376,7 +441,7 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
           </div>
         </header>
         <div className='main'>
-          <div className='my-4 mb-7'>
+          <div className='my-4 mb-7 card bg-white'>
             {projectData?.mainTasks && 
               <DataTable columns={columns} data={projectData.mainTasks} 
                 pinnedColumns={pinnedColumns}

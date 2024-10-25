@@ -1,6 +1,6 @@
 import { CustomInput } from '../../../../components/forms';
-import { FormButton, PageTitel } from '../../../../components/common';
-import { AlertPopupType, DeleteRelated, Documentation, FlashPopupType, NavItem, OrderByFilter, PaginationProps, QueryFilters, RelatedUpdates } from '@/interfaces';
+import { CustomAlert, FlashPopup, FormButton, PageTitel, ToggleSwitch } from '../../../../components/common';
+import { AlertPopupType, DeleteRelated, Documentation, DynamicCustomField, FlashPopupType, NavItem, OrderByFilter, PaginationProps, QueryFilters, RelatedUpdates } from '@/interfaces';
 import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { MdAdd, MdChevronRight, MdClose, MdEdit, MdMenu } from 'react-icons/md';
@@ -10,13 +10,21 @@ import { addUpdateRecords, getRecordsWithFilters } from '../../../../hooks/dbHoo
 import { useAuth } from '../../../../hooks/useAuth';
 import { DeleteById } from '../../../../components/actions';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
-import { ObjectId } from 'mongodb';
 import { extractRecursiveIds } from '../../../../utils/commonUtils';
+import CustomSmallButton from '../../../../components/common/CustomSmallButton';
+import { FaEye } from 'react-icons/fa';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const checkDataBy: string[] = ['name'];
+
+const EmptyCustomField:DynamicCustomField = {
+    name:'',
+    value:''
+}
+
+
 const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
     const {t} = useTranslation();
     const {user} = useAuth();
@@ -26,31 +34,25 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
     const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
-    const [recordType, setRecordType] = useState<string>('maintasks');
     const [parentData, setParentData] = useState<Documentation | null>(null);
     const [activeTask, setActiveTask] = useState<string[]>([]);
+    const [formAction, setFormAction] = useState<string>('add');
 
     const initialFormData:Documentation={
             _pid:id,
             name:'',
+            privacy:'private',
             description:'',
             customFields:[],
             subDocuments:[]
     }
 
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
-    const [formData, setFormData] = useState<Documentation>({
-        _pid:id,
-        name:'',
-        description:'',
-        customFields:[],
-        subDocuments:[]
-    });
+    const [formData, setFormData] = useState<Documentation>(initialFormData);
     let navItems: NavItem[] = [
         { link: `projects`, title: "projects_all" },
         { link: `projects/view/${id}`, title: "project" },
         { link: `documentation/add/${id}`, title: "documentation_add" },
-        { link: `documentation/update/${id}`, title: "documentation_update" },
     ];
 
     const toggleSidebar = () => {
@@ -136,10 +138,10 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
     // submit data
     const saveData = async()=>{
         try{
-            let level = 1;
+            let level = formData.level ? formData.level : 1;
             let relatedUpdates:RelatedUpdates[] = [];
-            if(parentData){
-                level = (parentData.level || 1) + 1;
+            if(parentData  && formAction === 'add'){
+                level = (parentData.level ? parentData.level +1  : 1);
                 // update parent
                 relatedUpdates= [{
                     collection:'documentation',
@@ -151,20 +153,54 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
             const userid = user?._id;
             if(userid){
                 const createdBy = userid;
+                console.log(formData);
+                console.log(formData._id)
+                console.log(parentData);
                 const res = await addUpdateRecords({
-                    type: 'documentation', action:"add",relatedUpdates, 
+                    type: 'documentation', id:formData._id || '', action:formAction as unknown as 'add'|'update', relatedUpdates, 
                     checkDataBy:checkDataBy, body:{ ...formData, createdBy, level}
                 })
 
                 if(res && res.status === 'success'){
+                    const message = `${t(`RESPONSE.${res.code}`)}`;
+                    setFlashPopupData({...flashPopupData, isOpen:true, message})
                     getRecords();
                 }
                 
-                console.log(res);
+                // console.log(res);
             }
         }catch(err){
             console.log(err)
         }
+    }
+
+    const addRemoveCustomField = async(index:number)=>{
+        setFormData(prevVal => {
+            // Copy customFields to avoid mutation
+            const cfields = [...(prevVal.customFields || [])];
+        
+            if (typeof index === "number" && index >= 0 && index < cfields.length) {
+              // Remove the custom field at the specified index
+              cfields.splice(index, 1);
+            } else {
+              // Add an empty custom field if no index is provided
+              cfields.push(EmptyCustomField);
+            }
+        
+            return { ...prevVal, customFields: cfields };
+          });
+    }
+    const updateCustomField = async(index:number, field:string, value:string)=>{
+        setFormData(prevVal => {
+            // Copy customFields to avoid mutation
+            const cfields = [...(prevVal.customFields || [])];
+        
+            if (typeof index === "number" && index >= 0 && index < cfields.length) {
+               cfields[index] = {...cfields[index], [field]:value} 
+            }
+        
+            return { ...prevVal, customFields: cfields };
+          });
     }
 
     const onDelete = (data:any)=>{
@@ -173,6 +209,10 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
         }else{
           console.error({error:data.message, code:data.code}); 
         }
+    }
+
+    const handlePrivacy = (isChecked:boolean, value?:string)=>{
+        setFormData({...formData, privacy:value as unknown as 'private' | 'public'})
     }
 
     // const add Sub section
@@ -195,7 +235,8 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                             <ul>
                                 <li className='px-1 py-1 my-1 hover:bg-slate-100' >
                                     <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                     onClick={()=>{setParentData(null); setFormData(initialFormData)}}
+                                     data-close-menu='true'
+                                     onClick={()=>{setParentData(null); setFormData(initialFormData); setFormAction('add')}}
                                     >
                                         {t('addMainSection')} <MdAdd />
                                     </div>
@@ -223,20 +264,23 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                 <ul>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        onClick={()=>{setParentData(record); setFormData(initialFormData)}}
+                                                        data-close-menu='true'
+                                                        onClick={()=>{setParentData(record); setFormData(initialFormData); setFormAction('add')}}
                                                         >
                                                             {t('addSubSection')} <MdAdd />
                                                         </div>
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        onClick={()=>{setParentData(record); setFormData(record)}}
+                                                        data-close-menu='true'
+                                                        onClick={()=>{setParentData(record); setFormData(record); setFormAction('update')}}
                                                         >
                                                             {t('update')} <MdEdit />
                                                         </div>
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <DeleteById text={t('delete')} data={{id:record._id || '', type:'documentation', page:"documentation"}} 
+                                                        data-close-menu='true'
                                                         deleteRelated={ids && ids.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids}] : []}
                                                         content={`Delte Project: ${record.name}`} 
                                                         onYes={onDelete}/>
@@ -278,20 +322,23 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                 <ul>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        onClick={()=>{setParentData(subtask1); setFormData(initialFormData)}}
+                                                        data-close-menu='true'
+                                                        onClick={()=>{setParentData(subtask1); setFormData(initialFormData); setFormAction('add')}}
                                                         >
                                                             {t('addSubSection')} <MdAdd />
                                                         </div>
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        onClick={()=>{setParentData(subtask1); setFormData(subtask1)}}
+                                                        data-close-menu='true'
+                                                        onClick={()=>{setParentData(subtask1); setFormData(subtask1); setFormAction('update')}}
                                                         >
                                                             {t('update')} <MdEdit />
                                                         </div>
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <DeleteById text={t('delete')} data={{id:subtask1._id || '', type:'documentation', page:"documentation"}} 
+                                                        data-close-menu='true'
                                                         deleteRelated={ids1 && ids1.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids1}] : []}
                                                         content={`Delte Project: ${subtask1.name}`} 
                                                         onYes={onDelete}/>
@@ -302,7 +349,9 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                             </span>
                                                                                             
                                             {subtask1.subDocuments && subtask1.subDocuments.length > 0&& 
-                                                    <div  onClick={()=> handleTaskClick(subtask1._id || '')}
+                                                    <div  
+                                                    data-close-menu='true'
+                                                    onClick={()=> handleTaskClick(subtask1._id || '')}
                                                         className={`bg-transparent hover:bg-primary-light cursor-pointer`}
                                                     >
                                                         <MdChevronRight className={`${subtask1._id && activeTask.includes(subtask1._id ) ? '-rotate-90' : 'rotate-90'}
@@ -339,13 +388,15 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                             </li> */}
                                                             <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                                 <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                                onClick={()=>{setParentData(subtask2); setFormData(subtask2)}}
+                                                                data-close-menu='true'
+                                                                onClick={()=>{setParentData(subtask2); setFormData(subtask2); setFormAction('update')}}
                                                                 >
                                                                     {t('update')} <MdEdit />
                                                                 </div>
                                                             </li>
                                                             <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                                 <DeleteById text={t('delete')} data={{id:subtask2._id || '', type:'documentation', page:"documentation"}} 
+                                                                data-close-menu='true'
                                                                 deleteRelated={ids2 && ids2.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids2}] : []}
                                                                 content={`Delte Project: ${subtask2.name}`} 
                                                                 onYes={onDelete}/>
@@ -381,32 +432,65 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                     {isSidebarOpen ? <MdClose /> : <MdMenu /> }
                 </button>
 
-                <div className={`mt-10 flex justify-center `}>  
-                    <div className='card bg-white max-w-4xl'> 
-                        <div className='mb-3 flex justfiy-start items-center'>
-                           {parentData && 
-                                <PageTitel text={`${parentData.name} /  `} color='primary' size='2xl'/> 
-                            }
-                            {!formData.name && 
-                                <PageTitel text={parentData ? `${t('newSection')}` : t('newSection')} color='slate-300' 
-                                size={'2xl'}
+                <div className={`mt-10 flex flex-col justify-center pb-8`}>
+                    <div className='mb-3 flex justify-between items-center max-w-4xl'>
+                        {parentData && 
+                            <PageTitel text={`${parentData.name} ${!formData.name ? '/ '  : ''}`} color='primary' size='2xl'/> 
+                        }
+                        {!formData.name && 
+                            <PageTitel text={parentData ? `${t('newSection')}` : t('newSection')} color='slate-300' 
+                            size={'2xl'}
+                            />
+                        }
+                        <ToggleSwitch 
+                            yesText={`${t('public')}`} yesValue='public'
+                            noText={t('private')} size='xs' noValue='private'
+                        onChange={(isChecked, value)=>handlePrivacy(isChecked, value)}  initialState={formData.privacy === 'public' ? true : false}/> 
+                    </div>
+                    <div className='flex flex-col gap-4'>
+                        <div className='card bg-white max-w-4xl'> 
+                            <div>
+                                <CustomInput type='text' name='name' label={t('name')} value={formData.name}
+                                    onChange={(e)=>handleInputChange('name', e.target.value)}
                                 />
-                            }
+                                <RichtTextEditor value={formData.description || ''} onChange={(value)=>handleInputChange('description', value)}/>
+                            </div>
                         </div>
-                        <div>
-                            <CustomInput type='text' name='name' label={t('name')} value={formData.name}
-                                onChange={(e)=>handleInputChange('name', e.target.value)}
-                            />
-                            <RichtTextEditor value={formData.description || ''} onChange={(value)=>handleInputChange('description', value)}/>
-                        </div>
-                        <div className="mt-6 text-right fixed bottom-2 flex right-2">
-                            <FormButton  btnText={formData.name ? t('update') : t('create')}  onClick={()=>saveData()}
-                            />
-                        </div>
+                        {formData.customFields && formData.customFields.length > 0 &&  formData.customFields.map((cf, index)=>{
+                            return (
+                                <div className='relative card bg-white max-w-4xl' key={`cf-${index}`}>
+                                    <CustomSmallButton size='sm' position='absolute' type='delete' onClick={()=>addRemoveCustomField(index)}/>
+
+                                    <CustomInput type='text' name='name' label={t('name')} value={cf.name}
+                                        onChange={(e)=>updateCustomField(index, 'name', e.target.value)}
+                                    />
+                                    <RichtTextEditor value={cf.value || ''} onChange={(value)=>updateCustomField(index, 'description', value)}    
+                                    />
+
+                                </div>
+                            )
+                        })
+                        }
+                    </div>  
+                    <div className="mt-6 text-right fixed bottom-6 flex right-6 flex flex-cols gap-4">
+                        <CustomSmallButton  type='add' size="sm" position='absolute' text={t('addCustomField')} onClick={()=>addRemoveCustomField(-1)} />
+                        <FormButton  btnText={formAction === 'update' ? t('update') : t('create')}  onClick={()=>saveData()}/>
                     </div>
                 </div>
             </div>
         </div>
+
+        <CustomAlert
+          onClose={() => setAlertData({ ...alertData, isOpen: !alertData.isOpen })}
+          isOpen={alertData.isOpen}
+          content={alertData.content}
+          title={alertData.title}
+          type={alertData.type || 'info'} 
+        />
+
+        <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
+
+
     </div>
   )
 }

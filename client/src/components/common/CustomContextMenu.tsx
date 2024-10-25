@@ -29,6 +29,14 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSiz
     }
   };
 
+  const handleClickInside = (event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    // Close the menu when a specific element with data attribute is clicked
+    if (target.dataset.closeMenu === 'true') {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -100,6 +108,7 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSiz
                   ? 'auto'
                   : 'visible', // Safely handle scroll
             }}
+            onClick={handleClickInside}
           >
             {children}
           </div>,

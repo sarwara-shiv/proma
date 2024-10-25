@@ -26,6 +26,7 @@
         "groups_update":"update User Group",
         "groups_delete":"delete User Group",
         "projects":"Projects",
+        "project":"Project",
         "projects_all":"Projects",
         "projects_add":"Add Project",
         "kickoff":"Kick-Off",
@@ -272,5 +273,7 @@
     "medium":"Medium",
     "notStarted":"Not Started",
     "needApprovalFrom":"Approval From",
-    "projectDetails":"Project Details"
+    "projectDetails":"Project Details",
+    "private":"Private",
+    "public":"Public"
 }

@@ -8,11 +8,12 @@ interface ArgsType{
     size?:'sm' | 'md' | 'lg';
     position?:'absolute' | 'default' | 'relative'; 
     right?:number;
+    top?:number;
     color?:string;
     disable?:boolean;
     onClick:()=>void
 }
-const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='md', color, position='default', right=0, disable=false}) => {
+const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='md', color, position='default', right=0,top=1/2, disable=false}) => {
   const colorClass = color ? color : 
                       type === 'add' ? 'bg-green-100 text-green-600 border-green-600' :
                       type === 'delete' || type ==='remove' ? 'bg-red-100 text-red-600 border-red-600' : 'bg-primary-light text-primary border-primary';
@@ -55,8 +56,9 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
       <div className={`
         cursor-pointer 
         ${position} 
-        top-1/2 transform -translate-y-1/2  
-        right-${right} 
+        transform -translate-y-1/2  
+        right-${right}
+        top-${top}
         p-0.5 
         ${colorClass}
         rounded-full 

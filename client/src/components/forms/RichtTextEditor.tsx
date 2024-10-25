@@ -9,7 +9,7 @@ const RichtTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, data=
 
   const config = {
     readonly: false, 
-    height: 400, 
+    height: '100%', 
     placeholder:'......'
   };
 

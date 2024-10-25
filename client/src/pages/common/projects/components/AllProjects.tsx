@@ -29,6 +29,7 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import Pagination from '../../../../components/common/Pagination';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
+import { getValue } from '@testing-library/user-event/dist/utils';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -65,7 +66,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
         {
           header: '',
           id:"actions_cell",
-          cell: ({ getValue, row }) => {
+          cell: ({ getValue, row }) => { 
             const cid = getValue() && getValue();
             const _id = row.original._id ? row.original._id as unknown as string : '';
             return (
@@ -156,6 +157,16 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           header: `${t('name')}`,
           accessorKey: 'name',
           id:"name",
+          cell:({getValue, row})=>{ 
+            return (
+                <NavLink
+                to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
+                className="flex underline justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                >
+                {getValue()}
+            </NavLink>
+            )
+          },
             meta:{
                 style :{
                 textAlign:'left',

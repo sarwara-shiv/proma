@@ -80,6 +80,7 @@ export interface BaseTask {
   startDate?: Date;
   dueDate?: Date;
   endDate?: Date;
+  assignedDate?:Date;
   createdAt?: Date;
   updatedAt?: Date;
   level?:number;
@@ -96,6 +97,7 @@ export interface BaseTask {
   subtasks: ObjectId[];  // Array of references to subtasks (Tasks)
   ticket?: ObjectId;  // Reference to Ticket
   permissions: Permission[];  // Array of permissions
+  defaultFieldColors?:{field:String, color:String}[]
 }
 
 export interface TestCase {
@@ -290,6 +292,7 @@ export interface QaTask extends BaseTask {
     customFields?: DynamicCustomField[];
     subDocuments?: string[]; // Array of Documentation objectIds
     createdAt?: Date;
+    privacy:'private' | 'public';
     updatedAt?: Date;
     createdBy?:(string|ObjectId)
   }

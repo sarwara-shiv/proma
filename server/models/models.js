@@ -30,6 +30,11 @@ const DynamicFieldSchema = new Schema({
   selectedValue: { type: Schema.Types.Mixed},
 }, { _id: false });
 
+const DefaultFieldColors = new Schema({
+  field:{ type: String, required: true },
+  color:{ type: String, required: true }
+}, { _id: false });
+
 // custom data
 const DynamicCustomField = new Schema({
   name: {type:String, required:true},
@@ -153,6 +158,7 @@ const BaseTaskSchema = new Schema({
   _mid: { type: Schema.Types.ObjectId, ref: 'MainTask', required: true },  // Main Task this task belongs to
   name: { type: String, required: true },
   startDate: { type: Date },
+  assignedDate: { type: Date, default: Date.now  },
   dueDate: { type: Date },
   endDate: { type: Date },
   createdAt: { type: Date, default: Date.now },
@@ -168,6 +174,7 @@ const BaseTaskSchema = new Schema({
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   customFields: [DynamicFieldSchema],  // Custom fields array
+  defaultFieldColors: [DefaultFieldColors],
   subtasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks
   ticket: { type: Schema.Types.ObjectId, ref: 'Ticket' },  // Reference to the Ticket
   permissions: [PermissionSchema],  // Permissions for task
@@ -175,6 +182,13 @@ const BaseTaskSchema = new Schema({
   discriminatorKey: 'taskType',  // Discriminator key for different task types
   collection: 'tasks',  // Collection name
   timestamps: true  // Automatically update createdAt and updatedAt fields
+});
+
+BaseTaskSchema.pre('save', function (next) {
+  if (this.isModified('responsiblePerson')) {
+    this.assignedDate = new Date();
+  }
+  next();
 });
 
 // QA Task Schema extending BaseTaskSchema
@@ -356,6 +370,7 @@ const DocumentationSchema = new Schema({
   description: { type: String },
   customFields: [DynamicCustomField],
   subDocuments: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
+  privacy: {type: String, enum:['public', 'private'] , default: 'private'},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },

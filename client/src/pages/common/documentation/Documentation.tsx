@@ -27,8 +27,6 @@ const Documentation = () => {
         <div className='content mb-7 relative'>
             <div className='content-wrap relative'>
                 {action && 
-                    
-                    action === 'update' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
                     action === 'add' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
                     action === 'view' && id ? <ProjectDocumentations setSubNavItems={setSubNavItems}/>:  
                     <DocumentationsAll  setSubNavItems={setSubNavItems}/>

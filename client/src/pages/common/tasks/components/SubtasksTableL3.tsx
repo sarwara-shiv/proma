@@ -20,7 +20,6 @@ import ResizableTableHeader from '../../../../components/table/ResizableTableHea
 import { sanitizeString } from '../../../../utils/commonUtils';
 import SidePanel from '../../../../components/common/SidePanel';
 import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
-import SubtasksTableL3 from './SubtasksTableL3';
 interface ArgsType{
     mainTask:MainTask | null;
     subtasks:Task[];
@@ -38,15 +37,9 @@ interface ArgsType{
     getData:()=>void;
     handleTaskInput:(taskId:string|ObjectId, field:string, value:string | Date | null)=>void;
     DeleteRelatedUpdates:RelatedUpdates[];
-    addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task|null})=>void
+    addTask:({name, value, taskId, parentTask}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task|null})=>void
 }
-
-interface SubTasksCount{
-  taskId:string|ObjectId;
-  isOpen:boolean
-}
-
-const SubtasksTable:React.FC<ArgsType> = ({
+const SubtasksTableL3:React.FC<ArgsType> = ({
     mainTask, subtasks, type='task', taskId=null,
     addCustomField, deleteCustomField, openCustomFieldsPopup,addTask,getData,DeleteRelatedUpdates,
     handleTaskCustomField, handleTaskInput, parentTask=null, updateTask
@@ -54,7 +47,6 @@ const SubtasksTable:React.FC<ArgsType> = ({
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
     const [subtasksData, setSubtasksdata] = useState<Task[] | null>(subtasks || null)
-    const [subTasksCount, setSubTasksCount] = useState<SubTasksCount[]>();
     const [sidePanelData, setSidePanelData] = useState<SidePanelProps>({isOpen:false, title:'', subtitle:'',children:''});
     const [editorData, setEditorData] = useState({
       value: '',
@@ -103,28 +95,6 @@ const SubtasksTable:React.FC<ArgsType> = ({
   const getColWidth = (width:number, index:number)=>{
     console.log(width, ' : ' ,index)
   }
-
-  const toggleSubTasksCount = (taskId: ObjectId | string) => {
-  
-    if (taskId) {
-      setSubTasksCount(prevVal => {
-        if (!prevVal) return [];
-  
-        // Check if the task already exists in the array
-        const taskExists = prevVal.find(d => d.taskId === taskId);
-  
-        if (taskExists) {
-          // If the task exists, toggle the isOpen property
-          return prevVal.map(d =>
-            d.taskId === taskId ? { ...d, isOpen: !d.isOpen } : d
-          );
-        } else {
-          // If the task doesn't exist, add a new entry
-          return [...prevVal, { taskId, isOpen: true }];
-        }
-      });
-    }
-  };
 
   return (
     <div>
@@ -194,7 +164,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       const ids = extractAllIds(st);
                       let deleteRelated:DeleteRelated[];
                       return (
-                        <Draggable key={`task-data-${index}-${st._id}`} draggableId={`task-data-${index}-${st._id}`} index={index}>
+                        <Draggable key={`task-data-${index}-${st._id}`} draggableId={`task-data-${index}-${st._id}`} index={index}> 
                         {(provided)=> (
                           <>
                         <tr key={`task-${index}-${st._id}`} className='group hover:bg-slate-100'
@@ -240,55 +210,16 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                         }
                                       </li>
                                     </ul>
-                                </CustomContextMenu> 
+                                </CustomContextMenu>
                               </div>
                           </td>
                           <td className='w-[5px] bg-green-200 border border-green-200 sticky left-[40px] z-10'></td>
-                          <td className={`${tdStyles} w-[160px] sticky left-[23px] bg-white z-2 group-hover:bg-slate-100`}>
-                              <div 
-                                className='relative flex w-full h-full items-center justify-start group
-                                
-                                '
-                              >
-                                <div 
-                                className='
-                                  absolute
-                                  left-[-10px]
-                                  opacity-0
-                                  group-hover:opacity-100
-                                '
-                                >
-                                  {tskID && 
-                                    <div 
-                                    onClick={() => toggleSubTasksCount(tskID)}
-                                    className="ml-1 cursor-pointer"
-                                  >
-                                    <FaAngleRight 
-                                      className="text-slate-400"
-                                      style={{
-                                        transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
-                                          ? 'rotate(90deg)' 
-                                          : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease', // For smooth rotation
-                                      }} 
-                                    />
-                                  </div>
-                                  }
-                                </div>
-                                <div className='
-                                  group-hover:translate group-hover:translate-x-3 transition-all
-                                  flex justify-between items-start
-                                '>
-                                  <ClickToEdit value={st.name}  name='name'
-                                      onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
-                                    />
-                                  {/* {st.name}  */}
-                                  {st.subtasks && st.subtasks.length > 0 && 
-                                    <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
-                                  }
-                                </div>
-                              </div>
-                            </td>
+                          <td className={`${tdStyles} w-[200px] left-[43px] sticky bg-white z-10 group-hover:bg-slate-100`}>
+                                {/* {st.name} */}
+                                <ClickToEdit value={st.name}  name='name'
+                                    onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
+                                  />
+                          </td>
                           <td className={`${tdStyles} w-[160px]`}>{rUser ? rUser.name : ''}</td>
                           <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
                             <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'
@@ -359,37 +290,6 @@ const SubtasksTable:React.FC<ArgsType> = ({
                           <td className=' w-[50px]'></td>
                           <th className=''></th>
                         </tr>
-                        {/* SUBTAKS L3 */}
-                        {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
-                              <tr>
-                                <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
-                                <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
-                                  <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
-                                </td>
-                                <td className='py-4'
-                                colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 9 : 9}
-                                >
-                                    <SubtasksTable 
-                                      mainTask={mainTaskData || null}
-                                      subtasks={st.subtasks ? st.subtasks as unknown as Task[]: []}
-                                      type='subtask'
-                                      taskId={tskID}
-                                      handleTaskCustomField={handleTaskCustomField}
-                                      DeleteRelatedUpdates={DeleteRelatedUpdates}
-                                      addCustomField={addCustomField}
-                                      deleteCustomField={deleteCustomField}
-                                      openCustomFieldsPopup={openCustomFieldsPopup}
-                                      getData={getData}
-                                      addTask={addTask}
-                                      parentTask={st}
-                                      updateTask={updateTask}
-                                      handleTaskInput={handleTaskInput}
-                                    />
-                                  </td>
-                              </tr>
-                            
-                            }
-
                         </>
                         )}
                         </Draggable>
@@ -419,7 +319,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                               w-full
                           '/>
                       </td>
-                      <td className='border-b border-t border-r'
+                      <td className='border-b border-r'
                       colSpan={mainTaskData && mainTaskData.customFields ? mainTaskData.customFields.length + 6 : 6}
                       ></td>
                       <td className=''></td>
@@ -450,4 +350,4 @@ const SubtasksTable:React.FC<ArgsType> = ({
   )
 }
 
-export default SubtasksTable
+export default SubtasksTableL3

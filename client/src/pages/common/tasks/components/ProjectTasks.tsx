@@ -304,7 +304,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
         if(taskId){
           const ruser = parentTask ? parentTask.responsiblePerson as unknown as User : null;
           responsiblePerson = ruser ? ruser._id : null;
-          level=2;
+          level=parentTask && parentTask.level ? parentTask.level + 1 : 2;
           relatedUpdates= [{
             collection:'tasks',
             field:'subtasks',
@@ -914,15 +914,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           title={alertData.title}
           type={alertData.type || 'info'} 
         />
-        {/* <ConfirmPopup
-            isOpen={popupContent.isOpen}
-            onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}
-            title={popupContent.title ? popupContent.title : ''}
-            data={popupData}
-            content={popupContent.content} 
-            yesFunction={(data)=>handleRowAction(data)} 
-            noFunction={()=>setIsPopupOpen(!isPopupOpen)}                                
-        /> */}
 
         <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
 
