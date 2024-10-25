@@ -1,6 +1,6 @@
 import { CustomInput } from '../../../../components/forms';
 import { FormButton, PageTitel } from '../../../../components/common';
-import { AlertPopupType, Documentation, FlashPopupType, NavItem, OrderByFilter, PaginationProps, QueryFilters, RelatedUpdates } from '@/interfaces';
+import { AlertPopupType, DeleteRelated, Documentation, FlashPopupType, NavItem, OrderByFilter, PaginationProps, QueryFilters, RelatedUpdates } from '@/interfaces';
 import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import { MdAdd, MdChevronRight, MdClose, MdEdit, MdMenu } from 'react-icons/md';
@@ -11,6 +11,7 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { DeleteById } from '../../../../components/actions';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { ObjectId } from 'mongodb';
+import { extractRecursiveIds } from '../../../../utils/commonUtils';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
 }
@@ -206,6 +207,9 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
              
                 <div className="px-0 h-4/5 overflow-x-auto text-sm">
                     {records && records.length > 0 && records.map((record, index)=>{
+                        let deleteRelated:DeleteRelated[];
+                        const ids = extractRecursiveIds(record, 'subDocuments');
+                        console.log(ids);
                         return (
                             <div key={`main-${index}-${record._id}`} className='py-0.5'>
                                 <div className='flex justify-between gap-1 items-center'>
@@ -233,6 +237,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <DeleteById text={t('delete')} data={{id:record._id || '', type:'documentation', page:"documentation"}} 
+                                                        deleteRelated={ids && ids.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids}] : []}
                                                         content={`Delte Project: ${record.name}`} 
                                                         onYes={onDelete}/>
                                                     </li>
@@ -257,6 +262,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                 </div>
                                 {record.subDocuments && record.subDocuments.length > 0 && record.subDocuments.map((subtaskL1,index1)=>{
                                     const subtask1 = subtaskL1 as unknown as Documentation;
+                                    const ids1 = extractRecursiveIds(subtask1, 'subDocuments');
                                     return (
                                     <div key={`main-${index1}-${subtask1._id}`} className={` ml-2 
                                     overflow-hidden transition-all duration-200
@@ -286,6 +292,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                     </li>
                                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                         <DeleteById text={t('delete')} data={{id:subtask1._id || '', type:'documentation', page:"documentation"}} 
+                                                        deleteRelated={ids1 && ids1.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids1}] : []}
                                                         content={`Delte Project: ${subtask1.name}`} 
                                                         onYes={onDelete}/>
                                                     </li>
@@ -309,6 +316,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                         </div> 
                                         {subtask1.subDocuments && subtask1.subDocuments.length > 0 && subtask1.subDocuments.map((subtaskL2,index2)=>{
                                             const subtask2 = subtaskL2 as unknown as Documentation;
+                                            const ids2 = extractRecursiveIds(subtask2, 'subDocuments');
                                             return (
                                             <div key={`main-${index2}-${subtask2._id}`} className={` ml-2
                                                 ${subtask1._id && activeTask.includes(subtask1._id )? 'h-auto border-l-2 border-primary' : 'h-0'}
@@ -338,13 +346,12 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                                                             </li>
                                                             <li className='px-1 py-1 my-1 hover:bg-slate-100'>
                                                                 <DeleteById text={t('delete')} data={{id:subtask2._id || '', type:'documentation', page:"documentation"}} 
+                                                                deleteRelated={ids2 && ids2.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids2}] : []}
                                                                 content={`Delte Project: ${subtask2.name}`} 
                                                                 onYes={onDelete}/>
                                                             </li>
                                                         </ul>
                                                     </CustomContextMenu>
-                        
-                                                    
                                                 </span>
                                                 </div>                       
                                             </div>)

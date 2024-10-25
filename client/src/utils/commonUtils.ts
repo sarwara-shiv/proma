@@ -27,3 +27,29 @@ export const sanitizeString = (input: string): string => {
   
     return sanitized;
   };
+
+/**
+ * Recursively extracts all `_id` values from a task/subtask structure.
+ * 
+ * @param collection - The Collection object that may contain nested subtasks
+ * @returns An array of all `_id` values found in the task/subtasks structure
+ */
+  export const extractRecursiveIds = (collection: any, field:string): string[] => {
+    let ids: string[] = [];
+    console.log(collection)
+    // Check if the current object has an _id and add it to the ids array
+    if (collection._id) {
+      ids.push(collection._id);
+    }
+  
+    // If the current object has subtasks, recursively extract IDs from each subtask
+    if (collection[field] && Array.isArray(collection[field])) {
+      collection[field].forEach((nestedSubtask: any) => {
+        ids = [...ids, ...extractRecursiveIds(nestedSubtask, field)];
+      });
+    }
+
+  
+    return ids;
+};
+  
