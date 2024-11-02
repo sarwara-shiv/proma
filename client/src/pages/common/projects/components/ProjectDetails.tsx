@@ -37,7 +37,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
     
 
     const subNav:{_id:string, label:string, icon?:React.ReactNode, path:string}[] = [
-      {_id:'tasks', label:'tasks', icon:'', path:`tasks`},
+      {_id:'tasks', label:'tasks', icon:'', path:`maintasks`},
       {_id:'kickoff', label:'kickoff', icon:'', path:`kickoff`},
       {_id:'documentation', label:'documentation', icon:'', path:`documentation`},
       {_id:'report', label:'report', icon:'', path:`report`}

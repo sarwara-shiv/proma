@@ -63,6 +63,7 @@ interface SubTasksCount{
 }
 
 
+
 const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
   const {id} = useParams();
   const {user} = useAuth();
@@ -166,7 +167,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           if(pid){
               const res = await getRecordWithID({id:mainTaskId, populateFields, type:'maintasks'});
               if(res.status === 'success' && res.data){
-                console.log(res.data); 
                   setProjectData(res.data._pid);
                   setMainTaskData(res.data);
                   DeleteRelatedUpdates[0].ids = [res.data._id];
@@ -269,10 +269,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
             removeCustomFieldFromSubtasks(subtask.subtasks); // Recursive call
           }
           if (index === subtasks.length - 1) {
-            console.log("Last subtask processed:", subtask._id);
             level++;
             if(level === 2) refresh = true
-            console.log(level);
           }
 
           updateTask(subtask._id, {customFields:subtask.customFields}, refresh);
@@ -367,7 +365,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     value: any,
     cfdata: DynamicField[],
   ) => {
-    console.log(value);
     if (taskId && customField && value) {
       const tcf: DynamicField = {
         key: customField.key,
@@ -448,9 +445,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       let ids = [];
       let relatedUpdates:RelatedUpdates[]= []
       if(cTask){
-        console.log(cTask[0]);
         ids = extractAllIds(cTask[0]);
-        console.log(ids);
         if(ids && Array.isArray(ids) && ids.length > 0)
         relatedUpdates= [{
           collection:'tasks',
@@ -459,7 +454,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           value:user._id,
           ids:[...ids]
        }]
-       console.log(relatedUpdates);
       }
 
       const tndata = {responsiblePerson : user._id}
@@ -470,7 +464,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           setFlashPopupData({...flashPopupData, isOpen:true, message:content})
           getData();
         }else{
-          console.log(res);
         }
       }catch(error){
         console.log(error);
@@ -490,7 +483,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     };
 
     const idsArray = getTaskIds(items);
-    console.log(idsArray);
     if(idsArray && items){
       updateMainTask({subtasks:idsArray});
     }
@@ -500,7 +492,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   
 
   const getColWidth = (width:number, colId:string)=>{
-    console.log(width, ' : ' ,colId)
+    
   }
   
 
@@ -797,8 +789,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
                               const cfvalue = cfdata ? (cfdata.type === 'dropdown' || cfdata.type === 'status') ? 
                               cfdata.selectedValue._id : cfdata.selectedValue : null;
-                              console.log('------------------');
-                              console.log(cfdata);
+
                               return (
                                 <td key={`tcf-${index}-${st._id}`} className={`${tdStyles} ${cfcolor} text-center`}>
                                   {(cf.type === 'dropdown' || cf.type === 'status') ? 
