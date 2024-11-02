@@ -37,6 +37,11 @@ const milestoneStatuses = [
     {_id: 'inProgress', name:'In Progress', color:'inProgress'},
     {_id: 'completed', name:'Completed', color:'completed'},
 ]
+const dailyReportTasksStatus = [
+    {_id: 'pending', name:'Pending', color:'pending'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'completed', name:'Completed', color:'completed'},
+]
 const ProjectType = [
     {_id: 'inhouse', name:'In House', label:'In House'},
     {_id: 'client', name:'Client', label:"Client"},
@@ -72,4 +77,4 @@ const QuestionsStatuses = [
     {_id: 'notAnswered', name:'Not Answered', color:'notAnswered'},
 ]
 
-export {KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

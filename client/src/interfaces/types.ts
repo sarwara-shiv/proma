@@ -296,4 +296,27 @@ export interface QaTask extends BaseTask {
     updatedAt?: Date;
     createdBy?:(string|ObjectId)
   }
+  // Daily Report Interface
+  export interface DailyReport {
+    _id?:string;
+    user:string;
+    project:string;
+    date: Date;
+    hoursWorked?:number;
+    tasks?: string;
+    customFields?: DynamicCustomField[];
+    subDocuments?: string[]; // Array of Documentation objectIds
+    createdAt?: Date;
+    privacy:'private' | 'public';
+    updatedAt?: Date;
+    createdBy?:(string|ObjectId)
+  }
+
+  export interface DailyReportTasks{
+    name?:string,
+    description?:string,
+    status?:'completed'|'pending'|'inProgress',
+    notes?:string
+  }
+
   

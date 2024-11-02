@@ -53,7 +53,20 @@ const TicketSchema = new Schema({
   updatedAt: { type: Date, default: Date.now }, 
 });
 
-
+// DAILY REPORT SCHEMA
+const DailyReportSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
+  date: { type: Date, required: true },
+  hoursWorked: { type: Number, required: true },  // Total hours worked for the day
+  tasks: [{
+      name: { type: String, required: true },
+      description: { type: String },
+      status: { type: String, enum: ['completed', 'pending', 'inProgress'], default: 'completed' }
+  }],
+  notes: { type: String },
+}, {timestamps:true})
+DailyReportSchema.index({ user: 1, project: 1, date: 1 });
 
 // Page-Level Permissions Schema
 const PagePermissionSchema = new Schema({
@@ -400,7 +413,8 @@ const Documentation = mongoose.model('Documentation', DocumentationSchema);
 const Ticket = mongoose.model('Ticket', TicketSchema);
 const Counter = mongoose.model('Counter', CounterSchema);
 const ChangeLog = mongoose.model('ChangeLog', ChangeLogSchema);
+const DailyReport = mongoose.model('DailyReport', DailyReportSchema);
 
 
 
-export { ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };
+export { DailyReport, ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

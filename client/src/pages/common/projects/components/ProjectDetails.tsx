@@ -6,7 +6,7 @@ import { AlertPopupType, DynamicCustomField, FlashPopupType, MainTask, NavItem, 
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import PieChartWithPaddingAngle from '../../../../components/charts/PieChartWithPaddingAngle';
 interface ArgsType {
@@ -34,6 +34,15 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
         setSubNavItems(navItems);
         getRecords();
     },[])
+    
+
+    const subNav:{_id:string, label:string, icon?:React.ReactNode, path:string}[] = [
+      {_id:'tasks', label:'tasks', icon:'', path:`tasks`},
+      {_id:'kickoff', label:'kickoff', icon:'', path:`kickoff`},
+      {_id:'documentation', label:'documentation', icon:'', path:`documentation`},
+      {_id:'report', label:'report', icon:'', path:`report`}
+    ]
+
 
     const getRecords = async()=>{
       setLoading(true);
@@ -99,7 +108,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
     }
 
   return (
-    <div>
+    <div className='relative pb-10'>
       {loading && <Loader type='full'/>}
       {projectData && 
         <div>
@@ -253,6 +262,29 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
         </div>
 
         
+      }
+
+      {subNav && subNav.length > 0 && 
+        <div className='sticky bottom-4 right-4 pr-1 mt-10'>
+          <div className='w-full flex justify-center items-center bg-white shadow-card p-2 rounded-md gap-4'>
+            {subNav.map((item, index)=>{
+              return(
+                <NavLink
+                  to={`${window.location.pathname.replace("view", item.path)}`}
+                    className={({ isActive }) =>
+                        `bg-primary-light px-2 py-1 text-sm rounded-md text-primary shadow-md 
+                      cursor-pointer
+                      hover:shadow-sm hover:bg-primary hover:text-primary-light
+                      transition-all duration-200 ease`
+                    }
+                >
+
+                      {item.label}
+                  </NavLink>
+              )
+            })}
+          </div>
+        </div>
       }
     </div>
   )

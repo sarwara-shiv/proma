@@ -13,6 +13,8 @@ import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { extractRecursiveIds } from '../../../../utils/commonUtils';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import { FaEye } from 'react-icons/fa';
+import DocumentationNav from './DocumentationNav';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
 }
@@ -72,9 +74,11 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
 
     const getRecords = async () => {
         setLoader(true);
+        if(id){
         try {
             const filters:QueryFilters = {
                 level:1,
+                _pid:id
             }
 
             const populateFields = [
@@ -123,6 +127,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
             setRecords([]);
         }finally{
             setLoader(false);
+        }
         }
     };
 
@@ -191,6 +196,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
           });
     }
     const updateCustomField = async(index:number, field:string, value:string)=>{
+        console.log(field, value);
         setFormData(prevVal => {
             // Copy customFields to avoid mutation
             const cfields = [...(prevVal.customFields || [])];
@@ -215,7 +221,12 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
         setFormData({...formData, privacy:value as unknown as 'private' | 'public'})
     }
 
+    const handleDrag = (result: any) => {
+        console.log(result);
+      };
+
     // const add Sub section
+    
 
   return (
     <div className='data-wrap relative'>
@@ -247,176 +258,246 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                 </div>
              
                 <div className="px-0 h-4/5 overflow-x-auto text-sm">
-                    {records && records.length > 0 && records.map((record, index)=>{
-                        let deleteRelated:DeleteRelated[];
-                        const ids = extractRecursiveIds(record, 'subDocuments');
-                        console.log(ids);
-                        return (
-                            <div key={`main-${index}-${record._id}`} className='py-0.5'>
-                                <div className='flex justify-between gap-1 items-center'>
-                                    <div className='w-full bg-gray-200 flex justify-between items-center'>
-                                        <span className={`font-medium text-xs flex justify-start items-center gap-1 cursor-pointer
-                                            ${record._id && activeTask.includes(record._id) && 'text-primary '}
-                                        `}
-                                            
-                                        >
-                                            <CustomContextMenu iconSize='xs' text={record.name}> 
-                                                <ul>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        data-close-menu='true'
-                                                        onClick={()=>{setParentData(record); setFormData(initialFormData); setFormAction('add')}}
-                                                        >
-                                                            {t('addSubSection')} <MdAdd />
-                                                        </div>
-                                                    </li>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        data-close-menu='true'
-                                                        onClick={()=>{setParentData(record); setFormData(record); setFormAction('update')}}
-                                                        >
-                                                            {t('update')} <MdEdit />
-                                                        </div>
-                                                    </li>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <DeleteById text={t('delete')} data={{id:record._id || '', type:'documentation', page:"documentation"}} 
-                                                        data-close-menu='true'
-                                                        deleteRelated={ids && ids.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids}] : []}
-                                                        content={`Delte Project: ${record.name}`} 
-                                                        onYes={onDelete}/>
-                                                    </li>
-                                                </ul>
-                                            </CustomContextMenu>
-                
-                                            {/* {record.name} */}
-                                        </span>
-                                        {record.subDocuments && record.subDocuments.length > 0 && 
-                                            <div onClick={()=> handleTaskClick(record._id || '')}
-                                            className={`bg-transparent hover:bg-primary-light cursor-pointer`}
-                                            >
-                                                <MdChevronRight className={`${record._id && activeTask.includes(record._id) ? '-rotate-90' : 'rotate-90'}
-                                                    transition-transform duration-200 ease
-                                                    `} 
-                                                    
-                                                    /> 
-                                            </div>
-                                        }
-                                    </div>
-                                   
-                                </div>
-                                {record.subDocuments && record.subDocuments.length > 0 && record.subDocuments.map((subtaskL1,index1)=>{
-                                    const subtask1 = subtaskL1 as unknown as Documentation;
-                                    const ids1 = extractRecursiveIds(subtask1, 'subDocuments');
-                                    return (
-                                    <div key={`main-${index1}-${subtask1._id}`} className={` ml-2 
-                                    overflow-hidden transition-all duration-200
-                                        ${record._id && activeTask.includes(record._id) ? 'h-auto border-l-2 border-primary' : 'h-0'}
-                                    `}>
-                                        <div className='flex justify-between gap-1 items-center'>
-                                            <span className={`font-normal text-xs flex justify-start items-center gap-1 cursor-pointer
-                                                ${subtask1._id && activeTask.includes(subtask1._id)  && 'text-primary'}
-                                            `}
-                                               
-                                            >
-                                            <CustomContextMenu iconSize='xs' text={subtask1.name}>  
-                                                <ul>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        data-close-menu='true'
-                                                        onClick={()=>{setParentData(subtask1); setFormData(initialFormData); setFormAction('add')}}
-                                                        >
-                                                            {t('addSubSection')} <MdAdd />
-                                                        </div>
-                                                    </li>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                        data-close-menu='true'
-                                                        onClick={()=>{setParentData(subtask1); setFormData(subtask1); setFormAction('update')}}
-                                                        >
-                                                            {t('update')} <MdEdit />
-                                                        </div>
-                                                    </li>
-                                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                        <DeleteById text={t('delete')} data={{id:subtask1._id || '', type:'documentation', page:"documentation"}} 
-                                                        data-close-menu='true'
-                                                        deleteRelated={ids1 && ids1.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids1}] : []}
-                                                        content={`Delte Project: ${subtask1.name}`} 
-                                                        onYes={onDelete}/>
-                                                    </li>
-                                                </ul>
-                                            </CustomContextMenu>
-                                                
-                                            </span>
-                                                                                            
-                                            {subtask1.subDocuments && subtask1.subDocuments.length > 0&& 
-                                                    <div  
-                                                    data-close-menu='true'
-                                                    onClick={()=> handleTaskClick(subtask1._id || '')}
-                                                        className={`bg-transparent hover:bg-primary-light cursor-pointer`}
-                                                    >
-                                                        <MdChevronRight className={`${subtask1._id && activeTask.includes(subtask1._id ) ? '-rotate-90' : 'rotate-90'}
-                                                            transition-transform duration-200 ease
-                                                        `} 
-                                                        
-                                                        /> 
-                                                    </div>
-                                                }
-                                          
-                                        </div> 
-                                        {subtask1.subDocuments && subtask1.subDocuments.length > 0 && subtask1.subDocuments.map((subtaskL2,index2)=>{
-                                            const subtask2 = subtaskL2 as unknown as Documentation;
-                                            const ids2 = extractRecursiveIds(subtask2, 'subDocuments');
-                                            return (
-                                            <div key={`main-${index2}-${subtask2._id}`} className={` ml-2
-                                                ${subtask1._id && activeTask.includes(subtask1._id )? 'h-auto border-l-2 border-primary' : 'h-0'}
-                                                `}
-                                            > 
-                                                <div className='flex justify-between gap-1 items-center'>
-                                                <span className={`font-normal text-xs flex justify-start items-center gap-1 cursor-pointer
-                                                    ${subtask2.subDocuments && subtask2.subDocuments.length > 0 && ''}
-                                                `}
-                                                    
+                {/* <DocumentationNav records={records} activeTask={activeTask}/> */}
+                    {/* New documentation */}
+                    {records && records.length > 0 && 
+                        <DragDropContext onDragEnd={handleDrag}>
+                        <Droppable droppableId="droppable-rows-1">
+                          {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef}>
+                              {records.map((record, index) => {
+                                let deleteRelated:DeleteRelated[];
+                                const ids = extractRecursiveIds(record, 'subDocuments');
+                                console.log(ids);
+                                  return (
+                                      <Draggable key={`mdoc-${record._id}-${index}`} draggableId={`mdoc-${record._id}-${index}`} index={index}>
+                                          {(provided) => (
+                                            <>
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="py-0.5"
                                                 >
-                                                    <CustomContextMenu iconSize='xs' text ={subtask2.name}> 
-                                                        <ul>
-                                                            {/* <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                                <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                                onClick={()=>{setParentData(subtask2); setFormData(initialFormData)}}
+                                                    <div className='flex justify-between gap-1 items-center'>
+                                                        <div className='w-full bg-gray-200 flex justify-between items-center'>
+                                                            <span className={`font-medium text-xs flex justify-start items-center gap-1 cursor-pointer
+                                                                ${record._id && activeTask.includes(record._id) && 'text-primary '}
+                                                            `}
+                                                                
+                                                            >
+                                                                <CustomContextMenu iconSize='xs' text={record.name}> 
+                                                                    <ul>
+                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                            data-close-menu='true'
+                                                                            onClick={()=>{setParentData(record); setFormData(initialFormData); setFormAction('add')}}
+                                                                            >
+                                                                                {t('addSubSection')} <MdAdd />
+                                                                            </div>
+                                                                        </li>
+                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                            data-close-menu='true'
+                                                                            onClick={()=>{setParentData(record); setFormData(record); setFormAction('update')}}
+                                                                            >
+                                                                                {t('update')} <MdEdit />
+                                                                            </div>
+                                                                        </li>
+                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                            <DeleteById text={t('delete')} data={{id:record._id || '', type:'documentation', page:"documentation"}} 
+                                                                            data-close-menu='true'
+                                                                            deleteRelated={ids && ids.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids}] : []}
+                                                                            content={`Delte Project: ${record.name}`} 
+                                                                            onYes={onDelete}/>
+                                                                        </li>
+                                                                    </ul>
+                                                                </CustomContextMenu>
+                                                            </span>
+                                                            {record.subDocuments && record.subDocuments.length > 0 && 
+                                                                <div onClick={()=> handleTaskClick(record._id || '')}
+                                                                className={`bg-transparent hover:bg-primary-light cursor-pointer`}
                                                                 >
-                                                                    {t('addSubSection')} <MdAdd />
+                                                                    <MdChevronRight className={`${record._id && activeTask.includes(record._id) ? '-rotate-90' : 'rotate-90'}
+                                                                        transition-transform duration-200 ease
+                                                                        `} 
+                                                                        
+                                                                        /> 
                                                                 </div>
-                                                            </li> */}
-                                                            <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                                <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
-                                                                data-close-menu='true'
-                                                                onClick={()=>{setParentData(subtask2); setFormData(subtask2); setFormAction('update')}}
-                                                                >
-                                                                    {t('update')} <MdEdit />
-                                                                </div>
-                                                            </li>
-                                                            <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                                                <DeleteById text={t('delete')} data={{id:subtask2._id || '', type:'documentation', page:"documentation"}} 
-                                                                data-close-menu='true'
-                                                                deleteRelated={ids2 && ids2.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids2}] : []}
-                                                                content={`Delte Project: ${subtask2.name}`} 
-                                                                onYes={onDelete}/>
-                                                            </li>
-                                                        </ul>
-                                                    </CustomContextMenu>
-                                                </span>
-                                                </div>                       
-                                            </div>)
-                                        })
-                                        }  
-
-                                    </div>
-                                    
-                                )
-                                 })
-                                }                         
+                                                            }
+                                                            </div>
+                                                    </div>
+                                                    {record.subDocuments && record.subDocuments.length > 0 && 
+                                                    <DragDropContext onDragEnd={handleDrag}>
+                                                    <Droppable droppableId="droppable-rows-1">
+                                                        {(provided) => (
+                                                        <div {...provided.droppableProps} ref={provided.innerRef}  className={` ml-2 
+                                                            overflow-hidden transition-all duration-200
+                                                                ${record._id && activeTask.includes(record._id) ? 'h-auto border-l-2 border-primary' : 'h-0'}
+                                                            `}>
+                                                            {record.subDocuments && record.subDocuments.length && record.subDocuments.map((subtaskL1,index1) => {
+                                                                const subtask1 = subtaskL1 as unknown as Documentation;
+                                                                const ids1 = extractRecursiveIds(subtask1, 'subDocuments');
+                                                                return (
+                                                                    <Draggable key={`mdoc-${subtask1._id}-${index1}`} draggableId={`mdoc-${subtask1._id}-${index1}`} index={index1}>
+                                                                        {(provided) => (
+                                                                            <>
+                                                                        <div
+                                                                            ref={provided.innerRef}
+                                                                            {...provided.draggableProps}
+                                                                            {...provided.dragHandleProps}
+                                                                            
+                                                                            >
+                                                                            <div  className='flex justify-between gap-1 items-center'>
+                                                                                
+                                                                            <span className={`font-normal text-xs flex justify-start items-center gap-1 cursor-pointer
+                                                                                    ${subtask1._id && activeTask.includes(subtask1._id)  && 'text-primary'}
+                                                                                `}
+                                                                                
+                                                                                >
+                                                                                <CustomContextMenu iconSize='xs' text={subtask1.name}>  
+                                                                                    <ul>
+                                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                                            data-close-menu='true'
+                                                                                            onClick={()=>{setParentData(subtask1); setFormData(initialFormData); setFormAction('add')}}
+                                                                                            >
+                                                                                                {t('addSubSection')} <MdAdd />
+                                                                                            </div>
+                                                                                        </li>
+                                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                                            data-close-menu='true'
+                                                                                            onClick={()=>{setParentData(subtask1); setFormData(subtask1); setFormAction('update')}}
+                                                                                            >
+                                                                                                {t('update')} <MdEdit />
+                                                                                            </div>
+                                                                                        </li>
+                                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                            <DeleteById text={t('delete')} data={{id:subtask1._id || '', type:'documentation', page:"documentation"}} 
+                                                                                            data-close-menu='true'
+                                                                                            deleteRelated={ids1 && ids1.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids1}] : []}
+                                                                                            content={`Delte Project: ${subtask1.name}`} 
+                                                                                            onYes={onDelete}/>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                </CustomContextMenu>
+                                                                                    
+                                                                                </span>
+                                                                                                                                
+                                                                                {subtask1.subDocuments && subtask1.subDocuments.length > 0&& 
+                                                                                        <div  
+                                                                                        data-close-menu='true'
+                                                                                        onClick={()=> handleTaskClick(subtask1._id || '')}
+                                                                                            className={`bg-transparent hover:bg-primary-light cursor-pointer`}
+                                                                                        >
+                                                                                            <MdChevronRight className={`${subtask1._id && activeTask.includes(subtask1._id ) ? '-rotate-90' : 'rotate-90'}
+                                                                                                transition-transform duration-200 ease
+                                                                                            `} 
+                                                                                            
+                                                                                            /> 
+                                                                                        </div>
+                                                                                    }
+                                                                            </div>
+                                                                            {subtask1.subDocuments && subtask1.subDocuments.length > 0 &&
+                                                                            <DragDropContext onDragEnd={handleDrag}>
+                                                                                <Droppable droppableId="droppable-rows-1">
+                                                                                    {(provided) => (
+                                                                                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                                                                                        {subtask1.subDocuments && subtask1.subDocuments.length > 0 && subtask1.subDocuments.map((subtaskL2, index2) => {
+                                                                                            const subtask2 = subtaskL2 as unknown as Documentation;
+                                                                                            const ids2 = extractRecursiveIds(subtask2, 'subDocuments');
+                                                                                            return (
+                                                                                                <Draggable key={`mdoc-${subtask2._id}-${index2}`} draggableId={`mdoc-${subtask2._id}-${index2}`} index={index2}>
+                                                                                                    {(provided) => (
+                                                                                                        <>
+                                                                                                    <div
+                                                                                                        ref={provided.innerRef}
+                                                                                                        {...provided.draggableProps}
+                                                                                                        {...provided.dragHandleProps}
+                                                                                                        className={` ml-2
+                                                                                                            ${subtask1._id && activeTask.includes(subtask1._id )? 'h-auto border-l-2 border-primary' : 'h-0 opacity-0'}
+                                                                                                            `}
+                                                                                                    >
+                                                                                                    <div className='flex justify-between gap-1 items-center'>
+                                                                                                            <span className={`font-normal text-xs flex justify-start items-center gap-1 cursor-pointer
+                                                                                                                ${subtask2.subDocuments && subtask2.subDocuments.length > 0 && ''}
+                                                                                                            `}
+                                                                                                                
+                                                                                                            >
+                                                                                                                <CustomContextMenu iconSize='xs' text ={subtask2.name}> 
+                                                                                                                    <ul>
+                                                                                                                        {/* <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                                                                            onClick={()=>{setParentData(subtask2); setFormData(initialFormData)}}
+                                                                                                                            >
+                                                                                                                                {t('addSubSection')} <MdAdd />
+                                                                                                                            </div>
+                                                                                                                        </li> */}
+                                                                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                                                            <div className='flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words'
+                                                                                                                            data-close-menu='true'
+                                                                                                                            onClick={()=>{setParentData(subtask2); setFormData(subtask2); setFormAction('update')}}
+                                                                                                                            >
+                                                                                                                                {t('update')} <MdEdit />
+                                                                                                                            </div>
+                                                                                                                        </li>
+                                                                                                                        <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                                                                                                            <DeleteById text={t('delete')} data={{id:subtask2._id || '', type:'documentation', page:"documentation"}} 
+                                                                                                                            data-close-menu='true'
+                                                                                                                            deleteRelated={ids2 && ids2.length >0 ?  deleteRelated=[{collection:'documentation', ids:ids2}] : []}
+                                                                                                                            content={`Delte Project: ${subtask2.name}`} 
+                                                                                                                            onYes={onDelete}/>
+                                                                                                                        </li>
+                                                                                                                    </ul>
+                                                                                                                </CustomContextMenu>
+                                                                                                            </span>
+                                                                                                        </div> 
+                                                                                                    </div>
+                                                                                                    </>
+                                                                                                    )
+                                                                                                        
+                                                                                                }
+                                                                                                </Draggable>
+                                                                                                )}
+                                                                                        )}
+                                                                                        {provided.placeholder}
+                                                                                    </div>
+                                                                                    )}
+                                                                                </Droppable>
+                                                                            </DragDropContext>
+                                                                            }
+                                                                        </div>
+                                                                        </>
+                                                                        )
+                                                                        
+                                                                    }
+                                                                    </Draggable>
+                                                                    )}
+                                                            )}
+                                                            {provided.placeholder}
+                                                        </div>
+                                                        )}
+                                                    </Droppable>
+                                                    </DragDropContext>
+                                                    }
+                                                </div>
+                                            </>
+                                          )}
+                                      </Draggable>
+                                      )}
+                              )}
+                              {provided.placeholder}
                             </div>
-                        );
-                    })}
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                    
+                    
+                    }    
+
+
+                    {/* New documentation ends */}
                 </div>
             </div>
 
@@ -426,7 +507,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                     onClick={toggleSidebar}
                     className={`fixed -translate-y-4 border
                         -translate-x-4  text-parimary-dark p-2 flex justify-center items-center text-xl
-                        rounded-sm hover:bg-primary-light transition-colors duration-200
+                        rounded-sm hover:bg-primary-light transition-colors duration-200 bg-white
                         `}
                 >
                     {isSidebarOpen ? <MdClose /> : <MdMenu /> }
@@ -459,12 +540,12 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                         {formData.customFields && formData.customFields.length > 0 &&  formData.customFields.map((cf, index)=>{
                             return (
                                 <div className='relative card bg-white max-w-4xl' key={`cf-${index}`}>
-                                    <CustomSmallButton size='sm' position='absolute' type='delete' onClick={()=>addRemoveCustomField(index)}/>
+                                    <CustomSmallButton size='sm' position='absolute' type='remove' onClick={()=>addRemoveCustomField(index)}/>
 
                                     <CustomInput type='text' name='name' label={t('name')} value={cf.name}
                                         onChange={(e)=>updateCustomField(index, 'name', e.target.value)}
                                     />
-                                    <RichtTextEditor value={cf.value || ''} onChange={(value)=>updateCustomField(index, 'description', value)}    
+                                    <RichtTextEditor value={cf.value || ''} onChange={(value)=>updateCustomField(index, 'value', value)}    
                                     />
 
                                 </div>

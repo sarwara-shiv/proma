@@ -1,6 +1,6 @@
 import React from 'react'
 import { FaPencilAlt } from 'react-icons/fa';
-import { IoAdd, IoPencil, IoRemove } from 'react-icons/io5';
+import { IoAdd, IoClose, IoPencil, IoRemove } from 'react-icons/io5';
 interface ArgsType{
     type: 'add' | 'delete' | 'remove' | 'update';
     icon?:React.ReactNode;
@@ -46,6 +46,7 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
         <span className='icon'>
           {type === 'add' ? <IoAdd /> :
           type === 'delete' ? <IoRemove /> : 
+          type === 'remove' ? <IoClose /> : 
           type === 'update' ? <FaPencilAlt /> : ''
         }
         </span>
@@ -76,6 +77,7 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
     >
             {type === 'add' ? <IoAdd /> :
         type === 'delete' ? <IoRemove /> : 
+        type === 'remove' ? <IoClose /> : 
         type === 'update' ? <FaPencilAlt /> : ''
       }
     </div>

@@ -1,0 +1,18 @@
+.documentation-data li,
+.documentation-data p{
+    font-size: 14px;
+}
+
+.documentation-data table{
+    border-collapse: collapse;
+}
+.documentation-data table td{
+    border:1px solid #afafaf;
+    font-size: 12px;
+    padding:4px;
+}
+
+.documentation-data ul{
+    list-style-type: disc;
+    margin-left:1em; 
+}
