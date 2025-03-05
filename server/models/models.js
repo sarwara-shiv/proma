@@ -55,18 +55,46 @@ const TicketSchema = new Schema({
 
 // DAILY REPORT SCHEMA
 const DailyReportSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
-  date: { type: Date, required: true },
-  hoursWorked: { type: Number, required: true },  // Total hours worked for the day
-  tasks: [{
-      name: { type: String, required: true },
-      description: { type: String },
-      status: { type: String, enum: ['completed', 'pending', 'inProgress'], default: 'completed' }
-  }],
-  notes: { type: String },
-}, {timestamps:true})
-DailyReportSchema.index({ user: 1, project: 1, date: 1 });
+  _cid: { type: String }, 
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // User for whom the report is
+  date: { type: Date, required: true, index: true }, // The date for the report
+  totalDuration: { type: Number, default: 0 }, // Total duration for the day in minutes
+  notes: { type: String, default: '' }, // Notes for the daily report
+  workLogs: [{ type: Schema.Types.ObjectId, ref: 'WorkLog' }], // Work logs connected to this report
+  status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
+  createdDate: { type: Date, default: Date.now },
+}, { timestamps: true });
+
+DailyReportSchema.index({ user: 1, date: 1 });  
+DailyReportSchema.index({ user: 1, status: -1 });  
+DailyReportSchema.index({ user: 1, date: 1, status: 1 });
+
+// WORK LOG SCHEMA
+const WorkLogSchema = new Schema({
+  _cid: { type: String }, 
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Who worked
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true }, // Project association
+  task: { type: Schema.Types.ObjectId, ref: 'Task', required: true }, // Task worked on
+  startTime: { type: Date, required: true }, // Work start time
+  endTime: { type: Date }, // Work end time, null if task still active
+  duration: { type: Number }, // Auto-calculated (in minutes)
+  notes: { type: String }, // Optional notes for the log
+  status: { type: String, enum: ['active', 'completed'], default: 'active' }, // Task status
+}, { timestamps: true });
+
+WorkLogSchema.index({ user: 1, project: 1, task: 1, startTime: 1 }); // Optimized for task & user queries
+WorkLogSchema.index({ project: 1, startTime: 1 }); // Query work logs by project
+WorkLogSchema.index({ task: 1, startTime: 1 }); // Query work logs by task
+WorkLogSchema.index({ user: 1, startTime: 1 }); // Track daily/weekly work by user
+WorkLogSchema.index({ user: 1, status: 1 }); // Track daily/weekly work by user
+
+WorkLogSchema.pre('save', function (next) {
+  if (this.endTime) {
+    this.duration = Math.round((this.endTime - this.startTime) / (1000 * 60)); // Convert ms to minutes
+  }
+  next();
+});
+
 
 // Page-Level Permissions Schema
 const PagePermissionSchema = new Schema({
@@ -413,8 +441,9 @@ const Documentation = mongoose.model('Documentation', DocumentationSchema);
 const Ticket = mongoose.model('Ticket', TicketSchema);
 const Counter = mongoose.model('Counter', CounterSchema);
 const ChangeLog = mongoose.model('ChangeLog', ChangeLogSchema);
-const DailyReport = mongoose.model('DailyReport', DailyReportSchema);
+const DailyReport = mongoose.model('DailyReport', DailyReportSchema); 
+const WorkLog = mongoose.model('WorkLog', WorkLogSchema);
 
 
 
-export { DailyReport, ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };
+export { WorkLog,DailyReport, ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

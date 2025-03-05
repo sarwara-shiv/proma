@@ -1,7 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import bcrypt from 'bcrypt';
-import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask } from '../models/models.js';
+import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
@@ -33,6 +33,8 @@ const getModel = (resource) => {
         return QaTask;
       case 'maintasks':
         return MainTask;
+      case 'dailyreports':
+        return DailyReport;
       default:
         return null;
     }

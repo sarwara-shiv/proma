@@ -17,6 +17,7 @@ const initializeDefaultData = async () => {
       await Counter.insertMany([
         { _id: 'projects', sequence_value: 1000 },
         { _id: 'tasks', sequence_value: 1000 },
+        { _id: 'worklogs', sequence_value: 1000 },
         { _id: 'qatasks', sequence_value: 1000 },
         { _id: 'users', sequence_value: 1000 },
         { _id: 'roles', sequence_value: 1000 },
@@ -24,13 +25,17 @@ const initializeDefaultData = async () => {
         { _id: 'documentations', sequence_value: 1000 },
         { _id: 'questions', sequence_value: 1000 },
         { _id: 'tickets', sequence_value: 1000 },  
+        { _id: 'dailyreports', sequence_value: 1000 },  
       ])
 
       console.log('default counter created');
     }
 
+    //------- unblock to create new counter
+    // await Counter.create({ _id: 'dailyreports', sequence_value: 1000 })
+
     // Step 0: Add Default Roles
-    const groupCount = await UserGroupModel.countDocuments(); 
+    const groupCount = await UserGroupModel.countDocuments();  
     if(groupCount === 0){
       await UserGroupModel.insertMany([
         {
@@ -100,6 +105,8 @@ const initializeDefaultData = async () => {
             { page: 'documentation', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
@@ -116,6 +123,8 @@ const initializeDefaultData = async () => {
             { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
           ]
         },
         {
@@ -132,6 +141,8 @@ const initializeDefaultData = async () => {
             { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
             { page: 'roles', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
             { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
+            { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {

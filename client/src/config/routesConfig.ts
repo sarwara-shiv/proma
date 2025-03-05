@@ -31,9 +31,23 @@ const routes: RouteConfig[] = [
     access:['admin'] 
   },
   {
+    path: '/taskstracker',
+    element: "TasksTracker", 
+    page: "taskstracker",
+    params: ['action', 'id'], 
+    access:['admin'] 
+  },
+  {
     path: '/projects',
     element: "Projects",
     page: "projects",
+    params: ['action', 'id'], 
+    access:['all']
+  },
+  {
+    path: '/worklog',
+    element: "WorkLog",
+    page: "worklog",
     params: ['action', 'id'], 
     access:['all']
   },

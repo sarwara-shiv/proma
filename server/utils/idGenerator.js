@@ -25,6 +25,10 @@ const getPrefix = (resource) => {
         return 'US';
       case 'groups':
         return 'UG'; 
+      case 'worklogs':
+        return 'WL'; 
+      case 'dailyreports':
+        return 'DR'; 
       case 'documentation':
         return 'DO';
       default:
