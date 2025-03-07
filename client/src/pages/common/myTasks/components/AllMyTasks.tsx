@@ -106,7 +106,6 @@ const AllMyTasks = () => {
             if(res){
                 if(res.status === 'success'){
                     setRecords(res.data);
-                   
                 }
             }
             setLoader(false);
@@ -443,11 +442,14 @@ const AllMyTasks = () => {
                 <Headings text={`${t('PAGES.myTasks_active')}`} classes=''/>
                 <div className='card bg-white mt-2'>
                     {activeWorkLog && activeWorkLog.task ? (
-                        <div className='flex justify-left items-left gap-8 text-sm p-2'>
-                            <div className='flex justify-center items-left p-1 '><span className='text-slate-400 pr-1'>{t('project')}</span> : {(((activeWorkLog.task as unknown as Task)._mid as unknown as MainTask)._pid as unknown as Project).name}</div>
-                            <div className='flex justify-center items-left p-1 '><span className='text-slate-400 pr-1'>{t('mainTask')}</span> : {((activeWorkLog.task as unknown as Task)._mid as unknown as Task).name}</div>
-                            <div className='flex justify-center items-left p-1 '><span className='text-slate-400 pr-1'>{t('task')}</span> : {(activeWorkLog.task as unknown as Task).name}</div>
-                            <div className='flex justify-center items-left p-1 '><span className='text-slate-400 pr-1'>{t('assignedBy')}</span> : {(activeWorkLog.user as unknown as User).name}</div>
+                        <div className='flex flex-wrap gap-2 text-sm p-2'>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60'><span className='text-slate-500 '>{t('project')}</span> : {(((activeWorkLog.task as unknown as Task)._mid as unknown as MainTask)._pid as unknown as Project).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('mainTask')}</span> : {((activeWorkLog.task as unknown as Task)._mid as unknown as Task).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('task')}</span> : {(activeWorkLog.task as unknown as Task).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500'>{t('assignedBy')}</span> : {(activeWorkLog.user as unknown as User).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('assignedDate')}</span> : 
+                                {(activeWorkLog.task as unknown as Task).assignedDate ? format(((activeWorkLog.task as unknown as Task).assignedDate) as unknown as Date, 'dd.MM.yyyy') : ''}
+                            </div>
                         </div>
                     ) :(
                         <NoData />
