@@ -1,7 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import bcrypt from 'bcrypt';
-import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport } from '../models/models.js';
+import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport, WorkLog } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
@@ -33,6 +33,8 @@ const getModel = (resource) => {
         return QaTask;
       case 'maintasks':
         return MainTask;
+      case 'worklogs':
+        return WorkLog;
       case 'dailyreports':
         return DailyReport;
       default:
@@ -485,8 +487,8 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
           }
         }
 
-         // exact date
-         if(value.date){
+        // exact date
+        if(value.date){
           const format = value.format ? value.format : 'DD.MM.YYYY';
           const fromDate = moment(value.date, format).startOf('day').toDate();
           const tillDate = moment(value.date, format).endOf('day').toDate();
@@ -494,7 +496,11 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
           queryObj[key] = { $gte: fromDate, $lte: tillDate };
           console.log({ $gte: fromDate, $lte: tillDate })
         }
-        
+
+        // not equal to
+        if(value.type === 'notEqualTo'){
+          queryObj[key] = { $ne: value.value };
+        }
 
         
       } else {

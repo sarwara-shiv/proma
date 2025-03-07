@@ -75,7 +75,7 @@ const WorkLogSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Who worked
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true }, // Project association
   task: { type: Schema.Types.ObjectId, ref: 'Task', required: true }, // Task worked on
-  startTime: { type: Date, required: true }, // Work start time
+  startTime: { type: Date, required: true, default: Date.now  }, // Work start time
   endTime: { type: Date }, // Work end time, null if task still active
   duration: { type: Number }, // Auto-calculated (in minutes)
   notes: { type: String }, // Optional notes for the log
@@ -214,6 +214,9 @@ const BaseTaskSchema = new Schema({
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
+  assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
+  assignedDate: { type: Date },
+  newlyAssigned: { type: Boolean },
   customFields: [DynamicFieldSchema],  // Custom fields array
   defaultFieldColors: [DefaultFieldColors],
   subtasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks

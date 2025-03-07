@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
-import { WorkLog } from '../../models/models.js'; 
+import { WorkLog, DailyReport } from '../../models/models.js'; 
 import { generateUniqueId } from '../../utils/idGenerator.js';
 import { parseDateRange } from '../../utils/DateUtil.js';
 
@@ -10,70 +10,121 @@ const router = express.Router();
 // START Worklog & END CURRENT WORKLOG
 router.post("/start", verifyToken, async (req, res) => {
     try {
-        // Step 1: Find any active work log for the user
+        const { id, task, project, populateFields = [], ...data } = req.body.data; // Extract ID, task, and project from request
+        let resData = null;
+
+        // Find any active work log for the user
         const activeWorkLog = await WorkLog.findOne({ user: req.user._id, status: 'active' });
 
-        // Step 2: If an active work log exists, stop it (set status to completed and endTime)
-        if (activeWorkLog) {
-            activeWorkLog.status = 'completed';
-            activeWorkLog.endTime = new Date(); // Set the current time as the end time
-            activeWorkLog.duration = Math.round((activeWorkLog.endTime - activeWorkLog.startTime) / (1000 * 60)); // Calculate the duration in minutes
+        
+        let createNew = false;
+        let stopOld = false;
 
-            // Save the updated active work log
+        if (!id) {
+            // CASE 1: No id provided → Start a new work log
+            createNew = true;
+            stopOld = true;
+        } else if (activeWorkLog && activeWorkLog._id.toString() === id) {
+            // CASE 2: Provided id matches active work log → Stop it, do not create a new one
+            stopOld = true;
+            createNew = false;
+        } else {
+            // CASE 3: Provided id does not match active work log → Stop current and create new
+            stopOld = true;
+            createNew = true;
+        }
+
+        // Stop active work log if required
+        if (stopOld && activeWorkLog) {
+            activeWorkLog.status = 'completed';
+            activeWorkLog.endTime = new Date();
+            activeWorkLog.duration = Math.round((activeWorkLog.endTime - activeWorkLog.startTime) / (1000 * 60)); // Duration in minutes
             await activeWorkLog.save();
         }
 
-        // Step 3: Create a new work log
-        const newWorkLogData = {
-            ...req.body,  // Data passed in the request body
-            user: req.user._id, // Assign the authenticated user's ID
-            status: 'active',  // Set status as active for the new work log
-            startTime: new Date() // Set the current date-time as the start time
-        };
+        // Create new work log if needed
+        if (createNew) {
+            if (!task || !project) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Task and Project are required to start a new work log",
+                    code: "missing_task_or_project"
+                });
+            }
 
-        const _cid = await generateUniqueId('worklogs');
-        if(_cid) newWorkLogData = {...newWorkLogData, _cid};
+            let newWorkLogData = {
+                ...data,
+                user: req.user._id,
+                task,
+                project,
+                status: 'active',
+                startTime: new Date()
+            };
 
-        const newWorkLog = new WorkLog(newWorkLogData); // Create a new WorkLog instance
-        await newWorkLog.save(); // Save the new work log
+            const _cid = await generateUniqueId('worklogs');
+            if (_cid) newWorkLogData._cid = _cid;
 
-        // Step 4: Check if the daily report exists for the current date
+            const newWorkLog = new WorkLog(newWorkLogData);
+            await newWorkLog.save();
+            resData = newWorkLog;
+        }
+
+        // Handle Daily Report
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Check for existing daily report
         const existingReport = await DailyReport.findOne({
             user: req.user._id,
-            date: {
-                $gte: new Date(today.setHours(0, 0, 0, 0)), // Start of today
-                $lt: new Date(today.setHours(23, 59, 59, 999)) // End of today
-            }
+            date: { $gte: today }
         });
 
-         // If no daily report exists for today, create a new one
-         if (!existingReport) {
+        // Close open reports from previous days
+        await DailyReport.updateMany(
+            { user: req.user._id, date: { $lt: today }, status: 'open' },
+            { $set: { status: 'closed' } }
+        );
+
+        if (!existingReport) {
+            // Create a new daily report
             const newDailyReport = new DailyReport({
                 user: req.user._id,
                 date: new Date(),
                 totalDuration: 0,
                 notes: '',
-                workLogs: [newWorkLog._id], // Add the current work log to the daily report
+                workLogs: resData ? [resData._id] : [],
                 status: 'open'
             });
-            const _ciddr = await generateUniqueId('dailyreports');
-            if(_ciddr) newWorkLogData = {...newWorkLogData, _cid:_ciddr};
 
-            await newDailyReport.save(); // Save the new daily report
-        } else {
-            // If the daily report exists, add the new work log to it
-            existingReport.workLogs.push(newWorkLog._id);
-            await existingReport.save(); // Save the updated daily report
+            const _ciddr = await generateUniqueId('dailyreports');
+            if (_ciddr) newDailyReport._cid = _ciddr;
+            await newDailyReport.save();
+        } else if (resData) {
+            // Add new work log to existing daily report
+            existingReport.workLogs.push(resData._id);
+            await existingReport.save();
         }
 
-        // Return success response with the newly created work log
+        // Populate dynamic fields if necessary
+        if (resData && populateFields && Array.isArray(populateFields)) {
+            // Apply population for each field provided
+            const query = WorkLog.findOne({ _id: resData._id }); // Query for the created or updated work log
+
+            populateFields.forEach((field) => {
+                query.populate(field); // Dynamically populate the specified fields
+            });
+
+            // Execute the query with population
+            resData = await query.exec();
+        }
+
         return res.status(201).json({
             status: "success",
-            message: "Old work log stopped and new work log created",
-            code: "data_added",
-            data: newWorkLog
+            message: createNew ? "New work log started" : "Work log stopped",
+            code: createNew ? "worklog_started" : "worklog_stopped",
+            data: createNew ? resData : null
         });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -84,9 +135,11 @@ router.post("/start", verifyToken, async (req, res) => {
     }
 });
 
+
 // STOP WORKLOG
 router.post("/stop/:id", verifyToken, async (req, res) => {
     try {
+        const {...data} = req.body.data;
         // Find the work log by ID
         const workLog = await WorkLog.findById(req.params.id);
 
@@ -98,7 +151,7 @@ router.post("/stop/:id", verifyToken, async (req, res) => {
         // Update the work log with the completed status, current end time, and notes from the request body
         workLog.status = 'completed';
         workLog.endTime = new Date(); // Set the current date-time as end time
-        workLog.notes = req.body.notes || workLog.notes; // Update notes with data from request body (if provided)
+        workLog.notes = data.notes || workLog.notes; // Update notes with data from request body (if provided)
 
         // Recalculate the duration based on the new endTime
         workLog.duration = Math.round((workLog.endTime - workLog.startTime) / (1000 * 60)); // Convert ms to minutes
@@ -117,6 +170,7 @@ router.post("/stop/:id", verifyToken, async (req, res) => {
 // UPDATE Worklog (for general updates)
 router.post("/update/:id", verifyToken, async (req, res) => {
     try {
+        const {...data} = req.body.data;
         // Find the work log by ID
         const workLog = await WorkLog.findById(req.params.id);
 
@@ -126,17 +180,17 @@ router.post("/update/:id", verifyToken, async (req, res) => {
         }
 
         // Update fields based on the request body
-        if (req.body.status) {
-            workLog.status = req.body.status; // Update status (active/completed)
+        if (data.status) {
+            workLog.status = data.status; // Update status (active/completed)
         }
-        if (req.body.notes) {
-            workLog.notes = req.body.notes; // Update notes
+        if (data.notes) {
+            workLog.notes = data.notes; // Update notes
         }
-        if (req.body.endTime) {
-            workLog.endTime = new Date(req.body.endTime); // Update end time
+        if (data.endTime) {
+            workLog.endTime = new Date(data.endTime); // Update end time
         }
-        if (req.body.startTime) {
-            workLog.startTime = new Date(req.body.startTime); // Update start time
+        if (data.startTime) {
+            workLog.startTime = new Date(data.startTime); // Update start time
         }
 
         // Recalculate the duration if endTime is updated
@@ -175,7 +229,7 @@ router.post('/report', verifyToken, async (req, res) => {
         endDate,
         reportType,
         dateRange, // For range-based filters (e.g., daily, weekly, monthly)
-    } = req.body; // Filters from request body
+    } = req.body.data; // Filters from request body
 
     try {
         const { start, end } = parseDateRange(startDate, endDate); // Parse the start and end date for range

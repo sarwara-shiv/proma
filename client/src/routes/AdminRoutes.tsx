@@ -9,6 +9,7 @@ import { ReactElement } from 'react';
 import UserGroups from '../pages/admin/groups/UserGroups';
 import Kickoff from '../pages/common/kickoff/Kickoff';
 import Tasks from '../pages/common/tasks/components/Tasks';
+import MyTasks from '../pages/common/myTasks/MyTasks';
 import MainTasks from '../pages/common/tasks/MainTasks';
 import Documentation from '../pages/common/documentation/Documentation';
 
@@ -19,6 +20,7 @@ const routeComponents: Record<string, ReactElement> = {
   Documentation: <Documentation />,
   Kickoff: <Kickoff />,
   Tasks: <Tasks />,
+  MyTasks: <MyTasks />,
   MainTasks: <MainTasks />,
   UserGroups: <UserGroups />,
 };

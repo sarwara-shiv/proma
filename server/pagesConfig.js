@@ -57,6 +57,20 @@ const Pages = {
       access:['all'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    WORKLOGS: {
+      name: 'worklogs',
+      displayName: 'Work Logs',
+      model:"WorkLog",
+      access:['all'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
+    DAILY_REPORTS: {
+      name: 'dailyreports',
+      displayName: 'Daily Reports',
+      model:"DailyReport",
+      access:['all'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     // Add more pages here
   }; 
   

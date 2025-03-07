@@ -325,7 +325,103 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
   }
 }
 
-export { 
+// ------------------ WORKLOG
+// ------------------ 
+interface WorkLogInterface{
+  body?:any;
+  id?:string;
+  type:'start'|'stop'|'update';
+}
+
+const workLogActions = async(args:WorkLogInterface)=>{
+  const { body, id, type} = args;
+  if (type) {
+    try {
+      const response = await axios.post(`${API_URL}/worklog/${type}${id ? '/'+id :''}`, 
+        {
+          page:'worklogs', data:body?body:{}
+        },
+        {
+          headers
+      });
+      console.log(response);
+      return response.data; 
+    } catch (error) {
+      console.log(error);
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
+const startWorkLog = async(args:WorkLogInterface)=>{
+  const { body, id, type} = args;
+  if (body) {
+    try {
+      const response = await axios.post(`${API_URL}/worklog/start`, 
+        {
+          page:'worklog', data:body?body:{}
+        },
+        {
+          headers
+      });
+      return response.data; 
+    } catch (error) {
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
+// stop worklog
+const stopWorkLog = async(args:WorkLogInterface)=>{
+  const { body, id} = args;
+  if (id) {
+    try {
+      const response = await axios.post(`${API_URL}/worklog/stop/${id}`, 
+        {
+          page:'worklog', data:body?body:{}
+        },
+        {
+          headers
+      });
+      return response.data; 
+    } catch (error) {
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
+// update worklog
+const updateWorkLog = async(args:WorkLogInterface)=>{
+  const { body, id} = args;
+  if (id) {
+    try {
+      const response = await axios.post(`${API_URL}/worklog/update/${id}`, 
+        {
+          page:'worklog', data:body?body:{}
+        },
+        {
+          headers
+      });
+      return response.data; 
+    } catch (error) {
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
+export {
+  workLogActions,
+  startWorkLog,
+  stopWorkLog,
+  updateWorkLog, 
   searchUserByUsername, 
   getRecords, 
   deleteRecordById, 

@@ -294,7 +294,14 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     const createdBy = user?._id;
     let responsiblePerson:ObjectId | string | null | undefined = 
     mainTaskData?.responsiblePerson ? (mainTaskData?.responsiblePerson as unknown as User )._id : user?._id;
-    ;
+    
+    if (!responsiblePerson) {
+        let oid = mainTaskData?.responsiblePerson 
+                  ? mainTaskData.responsiblePerson 
+                  : null;
+        responsiblePerson = oid;
+    }
+
     if(mid && createdBy){
       try{
         let level = 1;
@@ -317,7 +324,16 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
            ids:[mid]
          }]
         }
-        const res = await addUpdateRecords({action:'add', type:'tasks', relatedUpdates, body:{name:value, _mid:mid, createdBy, responsiblePerson, level}})
+
+        // set default assigned data
+        let assignedData = {};
+        let assignedBy
+        if(level === 1){
+          assignedData = {...assignedData, assignedBy:user?._id, assignedDate:new Date()}
+        }
+
+
+        const res = await addUpdateRecords({action:'add', type:'tasks', relatedUpdates, body:{name:value, _mid:mid, createdBy, responsiblePerson, level, ...assignedData}})
       
         if(res.status === 'success'){
           const content = `${t(`RESPONSE.${res.code}`)}`;
@@ -439,8 +455,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   }
 
   // handle responsible person
-  const handleResponsiblePerson = async(taskId:string|ObjectId, user:User)=>{
-    if(taskId && user){
+  const handleResponsiblePerson = async(taskId:string|ObjectId, ruser:User)=>{
+    if(taskId && ruser){
       const cTask = subtasks?.filter(st=>st._id === taskId);
       let ids = [];
       let relatedUpdates:RelatedUpdates[]= []
@@ -451,12 +467,12 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           collection:'tasks',
           field:'responsiblePerson',
           type:'string',
-          value:user._id,
+          value:ruser._id,
           ids:[...ids]
        }]
       }
 
-      const tndata = {responsiblePerson : user._id}
+      const tndata = {responsiblePerson : ruser._id, assignedBy:user?._id, assignedDate: new Date()}
       try{
         const res = await addUpdateRecords({type:'tasks', action:'update', relatedUpdates, id:taskId as unknown as string, body:{...tndata}});
         if(res.status === 'success'){

@@ -11,6 +11,7 @@ import { rolesRouter } from './routes/roles/userRoles.js';
 import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js'; 
 import { ChangeLog } from './models/models.js';
+import { worklogRouter } from './routes/worklog/workLog.js';
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/resource", resourceRouter);
 app.use("/auth", userRouter);
 app.use("/roles", rolesRouter);
 app.use("/groups", groupsRouter);
+app.use("/worklog", worklogRouter);
 
 // DB CONNECTION
 mongoose.connect(mongoURI).then(()=>{

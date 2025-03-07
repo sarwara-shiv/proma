@@ -9,3 +9,4 @@ export { default as FormsTitle } from './FormsTitle';
 export { default as PageSubmenu } from './PageSubmenu';
 export { default as PageTitel } from './PageTitel';
 export { default as ToggleSwitch } from './ToggleSwitch';
+export { default as NoData } from './NoData';

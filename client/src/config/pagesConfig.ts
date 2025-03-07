@@ -86,6 +86,14 @@ const PagesConfig: Record<string, PageConfig> = {
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:5
   },
+  MY_TASKS: {
+    name: 'myTasks',
+    displayName: 'My Tasks',
+    root:"mytasks",
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:6
+  },
   // Add more pages here as needed
 };
 

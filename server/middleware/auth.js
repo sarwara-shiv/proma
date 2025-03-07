@@ -23,6 +23,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     const { page } = req.body; // page should match one of the `Pages` entries
+
     const pageConfig = Object.values(Pages).find(p => p.name === page);
 
     if (!pageConfig) {

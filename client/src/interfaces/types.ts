@@ -311,6 +311,30 @@ export interface QaTask extends BaseTask {
     updatedAt?: Date;
     createdBy?:(string|ObjectId)
   }
+  export interface DailyReport {
+    _id?:string;
+    _cid?:string; 
+    user: string;
+    date: Date;
+    totalDuration?: Number
+    notes?:string
+    workLogs: WorkLog[], // Work logs connected to this report
+    status: 'open' | 'closed';
+    createdDate?: Date;
+  }
+
+  export interface WorkLog{
+    _id?:string;
+    _cid?: string;
+    user: string 
+    project: string
+    task: string
+    startTime: Date
+    endTime?: Date
+    duration?: Number
+    notes?: string
+    status: 'active' | 'completed';
+  }
 
   export interface DailyReportTasks{
     name?:string,
