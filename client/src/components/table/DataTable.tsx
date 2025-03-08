@@ -25,6 +25,24 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
   const [globalFilter, setGlobalFilter] = useState<string>('');
   const [columnSizing, setColumnSizing] = useState({});
 
+  // Group the data by 'project'
+  const groupedData = data.reduce((acc, row) => {
+    const projectKey = row._mid;
+    if (!acc[projectKey]) {
+      acc[projectKey] = [];
+    }
+    acc[projectKey].push(row);
+    return acc;
+  }, {});
+
+  const groupedRows = Object.keys(groupedData).map((projectKey) => {
+    const projectRows = groupedData[projectKey];
+    return [
+      { isHeader: true, project: projectKey }, // Insert header for each project
+      ...projectRows, // Add all rows for this project
+    ];
+  }).flat();
+
   // Initialize the table with filtering and sorting
   const table = useReactTable({
     data,
@@ -96,6 +114,7 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
         <table className="table-auto border-collapse w-full table-fixed">
           <thead className="sticky top-0 bg-white z-10">
             {table.getHeaderGroups().map((headerGroup) => (
+              
               <tr key={headerGroup.id} 
               className="border-b trgroup">
                 {headerGroup.headers.map((header, index) => {

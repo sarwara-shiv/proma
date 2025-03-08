@@ -336,11 +336,20 @@ export interface QaTask extends BaseTask {
     status: 'active' | 'completed';
   }
 
+  export interface TasksByProject {
+      projectID: string,
+      tasks:Task[],
+      project:Project
+  }
+  
+  
+
   export interface DailyReportTasks{
     name?:string,
     description?:string,
     status?:'completed'|'pending'|'inProgress',
     notes?:string
   }
+
 
   

@@ -91,7 +91,6 @@ interface GetRecorsWithFilters{
 }
 
 const getRecordsWithFilters = async (args: GetRecorsWithFilters) => {
-  console.log(args);
   const { type, limit, pageNr, populateFields=[], filters={}, orderBy={} } = args;
   if (type) {
 
@@ -344,10 +343,8 @@ const workLogActions = async(args:WorkLogInterface)=>{
         {
           headers
       });
-      console.log(response);
       return response.data; 
     } catch (error) {
-      console.log(error);
       return { status: "error", code: "unknown_error", message:error, error };
     }
   } else {

@@ -1,7 +1,7 @@
 import DataTable from '../../../../components/table/DataTable';
 import { Headings, Loader, NoData } from '../../../../components/common';
 import { getRecordsWithFilters, getRecordsWithLimit, workLogActions } from '../../../../hooks/dbHooks';
-import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLog } from '../../../../interfaces';
+import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLog, TasksByProject } from '../../../../interfaces';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,8 @@ import { compareDates, getDatesDifference } from '../../../../utils/dateUtils';
 import { useAuth } from '../../../../hooks/useAuth';
 import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { useAppContext } from '../../../../context/AppContext';
+import { filterTaskByProject } from '../../../../utils/tasksUtils';
+import MyTasksByProject from './MyTasksByProject';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
@@ -20,6 +22,7 @@ const AllMyTasks = () => {
     const {user} = useAuth();
     const {t} = useTranslation();
     const [records, setRecords] = useState<Task[]>();
+    const [tasksByProject, setTasksByProject] = useState<TasksByProject[]>([]);
     const [loader, setLoader] = useState(true);
 
     useEffect(()=>{
@@ -51,7 +54,6 @@ const AllMyTasks = () => {
                 ];
                 const res = await getRecordsWithFilters({type:'worklogs', limit:1, populateFields, filters, orderBy:{status:'asc'}, pageNr:1});
                 if(res){
-                    console.log(res);
                     if(res.status == 'success' && res.data && res.data.length > 0){
                         setActiveWorkLog(res.data[0]);
                     }else{
@@ -106,6 +108,9 @@ const AllMyTasks = () => {
             if(res){
                 if(res.status === 'success'){
                     setRecords(res.data);
+                    const fTasks = filterTaskByProject(res.data);
+                    setTasksByProject(fTasks.byProject);
+                    console.log(fTasks);
                 }
             }
             setLoader(false);
@@ -456,6 +461,11 @@ const AllMyTasks = () => {
                     )}
                 </div>
             </div>
+
+            {/* Show tasks by project */}
+            {tasksByProject && tasksByProject.length>0 ? <MyTasksByProject tasks={tasksByProject}/> : <NoData />}
+
+            {/* Show tasks in tabular form */}
             {records && records.length > 0 && 
             <div>
                 <Headings text={`${t('PAGES.myTasks_assigned')}`} classes='mb-3'/>
