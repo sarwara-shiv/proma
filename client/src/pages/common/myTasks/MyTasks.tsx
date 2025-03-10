@@ -28,6 +28,7 @@ const MyTasks = () => {
   const [pageTitle, setPageTitle] = useState("My Tasks");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
+ 
   return (
     <div className='page-wrap relative'>
       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>

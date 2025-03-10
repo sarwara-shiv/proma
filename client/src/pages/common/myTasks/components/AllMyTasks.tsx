@@ -1,9 +1,9 @@
 import DataTable from '../../../../components/table/DataTable';
-import { Headings, Loader, NoData } from '../../../../components/common';
+import { CustomPopup, Headings, Loader, NoData } from '../../../../components/common';
 import { getRecordsWithFilters, getRecordsWithLimit, workLogActions } from '../../../../hooks/dbHooks';
-import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLog, TasksByProject } from '../../../../interfaces';
+import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLog, TasksByProject, CustomPopupType } from '../../../../interfaces';
 import { ColumnDef } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
@@ -13,6 +13,8 @@ import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { useAppContext } from '../../../../context/AppContext';
 import { filterTaskByProject } from '../../../../utils/tasksUtils';
 import MyTasksByProject from './MyTasksByProject';
+import { CustomInput } from '../../../../components/forms';
+import { JSX } from 'react/jsx-runtime';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
@@ -24,11 +26,18 @@ const AllMyTasks = () => {
     const [records, setRecords] = useState<Task[]>();
     const [tasksByProject, setTasksByProject] = useState<TasksByProject[]>([]);
     const [loader, setLoader] = useState(true);
+    const [taskNotes, setTaskNotes] = useState<string>('');
+    const [toggleTaskData, setToggleTaskData] = useState<{note:string}>({note:''})
+    const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:''})
 
     useEffect(()=>{
         getData();
         getActiveWorkLog();
     },[]); 
+
+    useEffect(() => {
+        console.log('Updated taskNote:', taskNotes); 
+    }, [taskNotes]);
 
     // get active task
     const getActiveWorkLog = async()=>{
@@ -122,7 +131,9 @@ const AllMyTasks = () => {
     }
 
 
-    const startWorkLog = async({task}:{task:Task})=>{
+    // start stop worklog
+    const startWorkLog = async({task, note=''}:{task:Task, note?:string})=>{
+        
         try{
             const taskID = task ? task._id : null;
             const project = task._mid && task._mid ? (task._mid as unknown as Project)._id : null;
@@ -163,9 +174,14 @@ const AllMyTasks = () => {
                     
                 ];
 
-                const res = await workLogActions({type:'start', body:{task:taskID, populateFields, project, id}});
-                
+                if(taskNotes){}
+
+                console.log('-------------task note--------------',taskNotes);
+                console.log('------------------notes -------',note);
+
+                const res = await workLogActions({type:'start', body:{task:taskID, notes:taskNotes, populateFields, project, id}});
                 if(res.status === 'success'){
+                    // setTaskNote('');
                     
                     if(res.code === 'worklog_stopped'){
                         setActiveWorkLog(null);
@@ -175,6 +191,7 @@ const AllMyTasks = () => {
                         setActiveWorkLog(res.data); 
                     }
                 }else{
+                    // setTaskNote('');
                     console.error('not started');
                 }
             }else{
@@ -182,7 +199,85 @@ const AllMyTasks = () => {
             }
         }catch(error){
         }
+        closePopup();
     }
+
+
+
+
+    /**
+     * 
+     * HANDLE WORKLOG TOGGLE
+     */
+    const toggleWorklog = ({task}:{task:Task})=>{
+        let text: string | JSX.Element;
+        const taskID = task ? task._id : null;
+        const project = task._mid && task._mid ? (task._mid as unknown as Project)._id : null;
+        let id = activeWorkLog && activeWorkLog._id ? activeWorkLog._id : null;
+
+        if(taskID && project){
+            let isCurrent = false;
+            
+            if(activeWorkLog && activeWorkLog.task && (typeof activeWorkLog.task === "object" && activeWorkLog.task !== null)){
+                if(taskID === (activeWorkLog.task as unknown as Task)._id){
+                    isCurrent = true;
+                }
+            }else{
+                if(activeWorkLog && activeWorkLog.task && taskID === activeWorkLog.task){
+                    isCurrent = true;
+                }
+            }
+
+            if(isCurrent){
+                text = <div>Are you sure you want to close current Task? <span className="font-bold text-primary">{(activeWorkLog?.task as unknown as Task).name} </span></div>;
+                console.log('closing current task');
+            }else{
+                if(id){
+                    text = <div>are you sure you want to close task? <span className="font-bold text-primary">"{(activeWorkLog?.task as unknown as Task).name}"</span> and open New Task <span className="font-bold text-primary">"{task.name}"</span></div>;
+                    console.log('Close old worklog and start new work log');
+                }else{
+                    console.log("create new task");
+                }
+            }
+        }
+        if(id){
+            setCustomPopupData((res:CustomPopupType)=>{
+                return ({...res, isOpen:true, content:text, yesFunction:()=>onStopWorklog({task}), data:task})
+            })
+        }else{
+            startWorkLog({task});
+        }
+    }
+
+    // On Stop Work Log
+    const onStopWorklog = ({task}:{task:Task})=>{
+        console.log(task);
+        setCustomPopupData((res:CustomPopupType)=>{
+            return ({...res, isOpen:true, title:'Add Note', yesFunction:()=>startWorkLog({task, note:taskNotes}), data:task, 
+                content:<CustomInput 
+                    type='textarea' onChange={setNotes}
+                />
+            });
+        })
+    }
+
+    const setNotes = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const updatedNote = event.target.value;
+        console.log(updatedNote); // To make sure the value is captured
+        setTaskNotes((prevVal)=>{
+            console.log(prevVal);
+            return updatedNote
+        }); 
+    }
+
+    // closePopup
+    const closePopup = ()=>{
+        console.log(taskNotes);
+        setCustomPopupData((res:CustomPopupType)=>{
+            return ({...res, isOpen:false, title:'', content:''});
+        })
+    }
+
 
     const columns: ColumnDef<Task, any>[] = useMemo(() => [
         {
@@ -192,7 +287,7 @@ const AllMyTasks = () => {
                 const task = row.original;
                 const taskId = activeWorkLog && activeWorkLog.task ? typeof activeWorkLog.task === 'object' && activeWorkLog.task !== null ? (activeWorkLog.task as unknown as Task)._id : activeWorkLog.task : null;
               return (
-                  <div onClick={()=>startWorkLog({task: task as unknown as Task})}
+                  <div onClick={()=>toggleWorklog({task: task as unknown as Task})}
                   className={` px-1 font-bold flex  justify-center items-center 
                     text-xl rounded-md text-center cursor-pointer
                   `}>
@@ -479,8 +574,19 @@ const AllMyTasks = () => {
         </>
             
         }
+
+        <CustomPopup 
+            isOpen={custoPopupData.isOpen}
+            onClose={closePopup}
+            yesFunction={custoPopupData.yesFunction ? custoPopupData.yesFunction : closePopup}
+            noFunction={closePopup}
+            data={custoPopupData.data? custoPopupData.data : {}}
+            title={custoPopupData.title}
+            content={custoPopupData.content}
+        />
     </div>
   )
 }
 
 export default AllMyTasks
+

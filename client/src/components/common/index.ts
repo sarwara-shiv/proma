@@ -10,3 +10,4 @@ export { default as PageSubmenu } from './PageSubmenu';
 export { default as PageTitel } from './PageTitel';
 export { default as ToggleSwitch } from './ToggleSwitch';
 export { default as NoData } from './NoData';
+export { default as LeaveWarningPopup } from './LeaveWarningPopup';

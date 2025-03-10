@@ -10,7 +10,7 @@ const router = express.Router();
 // START Worklog & END CURRENT WORKLOG
 router.post("/start", verifyToken, async (req, res) => {
     try {
-        const { id, task, project, populateFields = [], ...data } = req.body.data; // Extract ID, task, and project from request
+        const { id, task, project, notes='', populateFields = [], ...data } = req.body.data; // Extract ID, task, and project from request
         let resData = null;
 
         // Find any active work log for the user
@@ -36,10 +36,13 @@ router.post("/start", verifyToken, async (req, res) => {
 
         // Stop active work log if required
         if (stopOld && activeWorkLog) {
+            console.log('-----------',notes);
             activeWorkLog.status = 'completed';
+            activeWorkLog.notes = notes;
             activeWorkLog.endTime = new Date();
             activeWorkLog.duration = Math.round((activeWorkLog.endTime - activeWorkLog.startTime) / (1000 * 60)); // Duration in minutes
             await activeWorkLog.save();
+
         }
 
         // Create new work log if needed

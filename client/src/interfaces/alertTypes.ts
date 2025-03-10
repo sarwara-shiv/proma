@@ -16,4 +16,17 @@ export interface AlertPopupType {
     data?:any;
     display?:'timer' | null;
     type?:"info" | "error" | "fail" | "warning" | "success" | "form";
+}
+
+export interface CustomPopupType {
+    isOpen: boolean;
+    onClose?: () => void;
+    title: string;
+    content: React.ReactNode;
+    yesBtnText?:string;
+    noBtnText?:string;
+    data?:any;
+    type?: "form" | "text";
+    yesFunction?:(data: any)=>void;
+    noFunction?:(data:any)=>void;
   }
