@@ -301,7 +301,7 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
           accessorKey: 'responsiblePerson',
           cell: ({ getValue }: { getValue: () => string }) => {
             const cUser = getValue() as unknown as User
-            return <span>{cUser.name}</span>;
+            return <span>{cUser?.name}</span>;
           },
             meta:{
                 style :{

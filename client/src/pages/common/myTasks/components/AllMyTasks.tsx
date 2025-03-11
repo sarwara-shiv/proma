@@ -288,8 +288,8 @@ const AllMyTasks = () => {
                 const taskId = activeWorkLog && activeWorkLog.task ? typeof activeWorkLog.task === 'object' && activeWorkLog.task !== null ? (activeWorkLog.task as unknown as Task)._id : activeWorkLog.task : null;
               return (
                   <div onClick={()=>toggleWorklog({task: task as unknown as Task})}
-                  className={` px-1 font-bold flex  justify-center items-center 
-                    text-xl rounded-md text-center cursor-pointer
+                  className={` px-1 font-bold flex  justify-center items-center hover:text-green-500
+                    text-xl rounded-md text-center cursor-pointer ${taskId && taskId === task._id ? 'text-green-500' : 'text-slate-400'}
                   `}>
                     {taskId && taskId === task._id ? <IoPauseSharp/> : <IoPlay />}
                   </div>
