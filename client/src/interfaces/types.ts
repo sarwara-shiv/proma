@@ -318,12 +318,12 @@ export interface QaTask extends BaseTask {
     date: Date;
     totalDuration?: Number
     notes?:string
-    workLogs: WorkLog[], // Work logs connected to this report
+    workLogs: WorkLogType[], // Work logs connected to this report
     status: 'open' | 'closed';
     createdDate?: Date;
   }
 
-  export interface WorkLog{
+  export interface WorkLogType{
     _id?:string;
     _cid?: string;
     user: string 

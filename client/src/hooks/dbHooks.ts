@@ -329,7 +329,7 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
 interface WorkLogInterface{
   body?:any;
   id?:string;
-  type:'start'|'stop'|'update';
+  type:'start'|'stop'|'update'|'report';
 }
 
 const workLogActions = async(args:WorkLogInterface)=>{

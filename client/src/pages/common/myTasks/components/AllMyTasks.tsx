@@ -1,7 +1,7 @@
 import DataTable from '../../../../components/table/DataTable';
 import { CustomPopup, Headings, Loader, NoData } from '../../../../components/common';
 import { getRecordsWithFilters, getRecordsWithLimit, workLogActions } from '../../../../hooks/dbHooks';
-import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLog, TasksByProject, CustomPopupType } from '../../../../interfaces';
+import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLogType, TasksByProject, CustomPopupType } from '../../../../interfaces';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'

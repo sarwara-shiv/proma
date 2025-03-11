@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { DailyReport, WorkLog } from "@/interfaces";
+import { DailyReport, WorkLogType } from "../interfaces";
 
 // Define the shape of context data
 interface AppContextType {
-  activeWorkLog: WorkLog | null;
-  setActiveWorkLog: (workLog: WorkLog | null) => void;
+  activeWorkLog: WorkLogType | null;
+  setActiveWorkLog: (workLog: WorkLogType | null) => void;
   activeDailyReport: DailyReport | null;
   setActiveDailyReport: (dailyReport: DailyReport | null) => void;
 }
@@ -17,7 +17,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const storedWorkLog = localStorage.getItem("activeWorkLog");
     const storedDailyReport = localStorage.getItem("activeDailyReport");
 
-    const [activeWorkLog, setActiveWorkLog] = useState<WorkLog | null>(
+    const [activeWorkLog, setActiveWorkLog] = useState<WorkLogType | null>(
         storedWorkLog ? JSON.parse(storedWorkLog) : null
     );
         const [activeDailyReport, setActiveDailyReport] = useState<DailyReport | null>(

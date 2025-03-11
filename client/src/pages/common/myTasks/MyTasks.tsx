@@ -1,12 +1,12 @@
 import { NavLink, useLocation, useParams } from 'react-router-dom';
 import PageTitel from '../../../components/common/PageTitel';
 import React, { ReactNode, useEffect, useState } from 'react';
-import { IoPlay, IoPauseSharp } from "react-icons/io5";
+import { IoPlay, IoPauseSharp, IoTimerOutline } from "react-icons/io5";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import AllMyTasks from './components/AllMyTasks';
 import { useAuth } from '../../../hooks/useAuth';
-import ActiveTask from './components/ActiveTask';
+import WorkLog from './components/WorkLog';
 
 interface NavItem {
   link: string;
@@ -15,7 +15,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { link: "mytasks/activetask", title: "myTasks_active", icon: <IoPlay /> },
+  { link: "mytasks/worklog", title: "worklog", icon: <IoTimerOutline /> },
   { link: "mytasks", title: "myTasks_all", icon: <IoPlay /> },
 ];
 
@@ -36,7 +36,7 @@ const MyTasks = () => {
         <div className='content-wrap p-4 '>
             {
               action && 
-              action ==="activetask" ? <ActiveTask />   : <AllMyTasks />  
+              action ==="worklog" ? <WorkLog />   : <AllMyTasks />  
             //   action ==="update" ? <MyTasks  data={data} id={objectId as string}  action='update'/> : <AllMyTasks />  
             }
         </div>

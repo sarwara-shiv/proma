@@ -3,6 +3,8 @@ import { verifyToken } from '../../middleware/auth.js';
 import { WorkLog, DailyReport } from '../../models/models.js'; 
 import { generateUniqueId } from '../../utils/idGenerator.js';
 import { parseDateRange } from '../../utils/DateUtil.js';
+import moment from 'moment';
+import mongoose from 'mongoose';
 
 
 const router = express.Router();
@@ -222,6 +224,7 @@ router.post("/update/:id", verifyToken, async (req, res) => {
 });
 
 
+
 // Report endpoint
 router.post('/report', verifyToken, async (req, res) => {
     const {
@@ -230,39 +233,56 @@ router.post('/report', verifyToken, async (req, res) => {
         taskId,
         startDate,
         endDate,
-        reportType,
-        dateRange, // For range-based filters (e.g., daily, weekly, monthly)
+        reportType
     } = req.body.data; // Filters from request body
 
     try {
-        const { start, end } = parseDateRange(startDate, endDate); // Parse the start and end date for range
+        let start, end;
+
+        // If startDate is not provided, set default values based on report type
+        if (!startDate) {
+            const today = moment().startOf('day');
+            if (reportType === 'weekly') {
+                start = today.clone().subtract(7, 'days').toDate();
+            } else if (reportType === 'monthly') {
+                start = today.clone().subtract(1, 'month').toDate();
+            } else {
+                start = today.toDate();
+            }
+        } else {
+            start = moment(startDate).startOf('day').toDate();
+        }
+
+        // If endDate is not provided, set it to the end of the current day
+        end = endDate ? moment(endDate).endOf('day').toDate() : moment().endOf('day').toDate();
 
         let aggregatePipeline = [];
+
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
         // Match worklogs by date range and other filters
         let matchStage = {
             startTime: { $gte: start, $lte: end },
+            user: userObjectId,
+            status: 'completed'
         };
 
-        if (userId) matchStage.user = userId;
-        if (projectId) matchStage.project = projectId;
-        if (taskId) matchStage.task = taskId;
+        // If projectId or taskId is provided, include them in the match stage
+        if (projectId) matchStage.project = new mongoose.Types.ObjectId(projectId);
+        if (taskId) matchStage.task = new mongoose.Types.ObjectId(taskId);
 
         // Initial match stage
         aggregatePipeline.push({ $match: matchStage });
 
         // Aggregation stage for grouping by the type (daily, weekly, monthly)
         let groupStage = {
-            _id: {
-                user: '$user',
-                date: { $dateToString: { format: '%Y-%m-%d', date: '$startTime' } },
-            },
+            _id: '$user',
             totalDuration: { $sum: '$duration' },
         };
 
+        // Modify the group stage based on the report type (daily, weekly, monthly)
         switch (reportType) {
             case 'daily':
-                // Group by user and day
                 groupStage = {
                     _id: {
                         user: '$user',
@@ -273,7 +293,6 @@ router.post('/report', verifyToken, async (req, res) => {
                 break;
 
             case 'weekly':
-                // Group by user and week number
                 groupStage = {
                     _id: {
                         user: '$user',
@@ -284,20 +303,12 @@ router.post('/report', verifyToken, async (req, res) => {
                 break;
 
             case 'monthly':
-                // Group by user and month
                 groupStage = {
                     _id: {
                         user: '$user',
-                        month: { $month: '$startTime' },
+                        month: { $month: '$startTime' }, // Grouping by month number
+                        year: { $year: '$startTime' } // Ensuring cross-year reports work
                     },
-                    totalDuration: { $sum: '$duration' },
-                };
-                break;
-
-            case 'dateRange':
-                // Group by user and the specified range
-                groupStage = {
-                    _id: '$user',
                     totalDuration: { $sum: '$duration' },
                 };
                 break;
@@ -305,34 +316,67 @@ router.post('/report', verifyToken, async (req, res) => {
             default:
                 groupStage = {
                     _id: '$user',
-                    totalDuration: { $sum: '$duration' },
+                    totalDuration: { $sum: { $ifNull: ['$duration', 0] } },
                 };
                 break;
+        }
+
+        // If projectId is provided, include the project in the group
+        if (projectId) {
+            groupStage._id.project = '$project'; // Add project to the group stage
+        }
+
+        // If taskId is provided, include the task in the group
+        if (taskId) {
+            groupStage._id.task = '$task'; // Add task to the group stage
         }
 
         // Push the group stage into the aggregation pipeline
         aggregatePipeline.push({ $group: groupStage });
 
-        // Add the sorting stage for the result to be in an ordered format (optional)
+        // Sorting stage (sorting by user and date)
         aggregatePipeline.push({
             $sort: {
-                '_id.user': 1, // Sort by user (can be changed based on requirements)
+                '_id.user': 1,
             },
         });
 
         // Execute the aggregation query
-        const reportData = await WorkLog.aggregate(aggregatePipeline).populate('user project task');
+        let reportData = await WorkLog.aggregate(aggregatePipeline);
 
+        // Populate the user, project, and task fields if provided
+        reportData = await WorkLog.populate(reportData, {
+            path: 'user', // Target the user inside _id
+        });
+
+        // Populate project and task if needed
+        if (projectId) {
+            reportData = await WorkLog.populate(reportData, {
+                path: 'project',
+            });
+        }
+
+        if (taskId) {
+            reportData = await WorkLog.populate(reportData, {
+                path: 'task',
+            });
+        }
+
+
+        // Return the result
         res.status(200).json({
             status: 'success',
             message: 'Report generated successfully',
             data: reportData,
+            params: { startDate: start, endDate: end, reportType, taskId, projectId }
         });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: 'error', message: 'Error generating report' });
     }
 });
+
 
 
 export { router as worklogRouter };
