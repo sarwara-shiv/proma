@@ -1,5 +1,5 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, BaseTask, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, RichTextEditorProps, SidePanelProps, Task, User } from '@/interfaces';
+import { AlertPopupType, BaseTask, CustomPopupType, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, RichTextEditorProps, SidePanelProps, Task, User } from '@/interfaces';
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 import { format } from 'date-fns';
 import path from 'path';
 import { useTranslation } from 'react-i18next';
-import { CustomAlert, FlashPopup, Loader } from '../../../../components/common';
+import { CustomAlert, CustomPopup, FlashPopup, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
@@ -20,7 +20,7 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
 import ColorPicker from '../../../../components/common/ColorPicker';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { CustomDropdown, MensionUserInput } from '../../../../components/forms';
+import { CustomDropdown, MensionUserInput, SelectDateTime } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
@@ -82,6 +82,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     value: '',
     data: {}
   });
+  const [richTextData, setRichtTextData] = useState<{id:string, field:string, content:string} | null>({id:'', field:'', content:''});
+  const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:''})
 
   const thStyles = 'text-xs font-semibold p-1 text-left text-primary border border-slate-200';
   const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
@@ -109,8 +111,15 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   // Rich text editor change
   const RichtTextEditorChange = (content: string, data:any)=>{
     if(content && data._id && data.field){
-      updateTask(data._id, {[data.field]:content}, true);
-      // setEditorData({...editorData, value:'', data:{}})
+      setRichtTextData({id:data._id, field:data.field, content});
+    }
+  }
+  
+  // on Click save rich text Data
+  const saveRichTextData = ()=>{
+    console.log(richTextData);
+    if(richTextData?.id && richTextData.field && richTextData.content){
+      updateTask(richTextData.id, {[richTextData.field]:richTextData.content}, true);
     }
   }
 
@@ -511,6 +520,17 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     
   }
   
+  // set date
+  const setDate = ()=>{
+
+  }
+
+  // closePopup
+  const closePopup = ()=>{
+    setCustomPopupData((res:CustomPopupType)=>{
+        return ({...res, isOpen:false, title:'', content:''});
+    })
+}
 
 
   // delete task
@@ -669,6 +689,9 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                               setEditorData({...editorData, value:'', data:{}})
                                               setEditorData({...editorData, value:st.description || '', data: {_id:st._id, field:'description'}})
                                               setSidePanelData({...sidePanelData, isOpen:true, title:st._cid || '', subtitle:st.name})
+                                              if(st._id){
+                                                setRichtTextData({id:st?._id, field:'description', content:st.description ? st.description : ''})
+                                              }
 
                                           }}>
                                             <span>{t('details')}</span>
@@ -780,6 +803,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                 <CustomDateTimePicker2 selectedDate={st.startDate ? st.startDate : null} style='table'
                                         onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'startDate', value)}
                                 />
+                                
                               </td>
                             <td className={`${tdStyles} text-xs`}>
                               {/* {st.dueDate ? format(st.dueDate, 'dd.MM.yyyy') : ''} */}
@@ -929,9 +953,15 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
         onClose={()=>{
           setSidePanelData({...sidePanelData, isOpen:false});
           setEditorData({...editorData, value:'', data:{}})
-        
+          setRichtTextData(null);
         }}
         >
+            <div className='flex justify-end mb-2'>
+              <div className='btn btn-solid flex justify-center items-center px-2 py-0.5 rounded-md cursor-pointer' onClick={saveRichTextData}>
+                {t('save')}
+              </div>
+            </div>
+
           <RichtTextEditor
             value={editorData.value}
             data={editorData.data}
@@ -939,6 +969,14 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           />
           
         </SidePanel>  
+
+        <CustomPopup 
+            isOpen={custoPopupData.isOpen}
+            onClose={closePopup}
+            data={custoPopupData.data? custoPopupData.data : {}}
+            title={custoPopupData.title}
+            content={custoPopupData.content}
+        />
     </div>
   )
 }

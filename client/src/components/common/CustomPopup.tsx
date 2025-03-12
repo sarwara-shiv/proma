@@ -41,10 +41,16 @@ const ConfirmPopup: React.FC<CustomPopupType> = ({ isOpen, onClose, title, conte
         <div className='text-sm'>
           {content}
         </div>
-        <div className='flex mt-2 justify-end'> 
-            <div className="px-3 py-1 bg-green-100/50 hover:bg-green-100 ml-2 rounded-sm cursor-pointer text-green-900" onClick={()=>onYesClick(data)}>{yesBtnText ? yesBtnText : <IoCheckmarkSharp />} </div>
-            <div className="px-3 py-1 bg-red-100/50 hover:bg-red-100 ml-2 rounded-sm cursor-pointer text-red-900" onClick={()=>onNoClick(data)}>{noBtnText ? noBtnText : <IoClose />}</div>    
-        </div>
+        {(yesFunction || noFunction) && (
+          <div className='flex mt-2 justify-end'> 
+            {yesFunction && 
+              <div className="px-3 py-1 bg-green-100/50 hover:bg-green-100 ml-2 rounded-sm cursor-pointer text-green-900" onClick={()=>onYesClick(data)}>{yesBtnText ? yesBtnText : <IoCheckmarkSharp />} </div>
+            }
+            {noFunction && 
+              <div className="px-3 py-1 bg-red-100/50 hover:bg-red-100 ml-2 rounded-sm cursor-pointer text-red-900" onClick={()=>onNoClick(data)}>{noBtnText ? noBtnText : <IoClose />}</div>    
+            }
+          </div>
+        )}
       </div>
     </div>
   );

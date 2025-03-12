@@ -7,3 +7,5 @@ export { default as MensionUserInput } from './MensionUserInput';
 export { default as UserGroupsSelect } from './UserGroupsSelect'; 
 export { default as UserRolesSelect } from './UserRolesSelect'; 
 export { default as UserSearchPopup } from './UserSearchPopup'; 
+export { default as RichTextArea } from './RichTextArea'; 
+export { default as SelectDateTime } from './SelectDateTime'; 

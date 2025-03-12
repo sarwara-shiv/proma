@@ -20,6 +20,7 @@
         "myTasks_active":"Active Task",
         "myTasks_assigned": "Assigned Tasks",
         "users":"Users",
+        "worklog":"Work Log",
         "users_all":"Users",
         "users_add":"Add User",
         "users_update":"update User",
@@ -196,8 +197,10 @@
     "endDateBiggerThanStartDate":"End Date should be less then Start Date",
     "page":"Page",
     "projectType":"Project Type",
-    "inhouse":"Inhouse",
+    "inhouse":"In House",
     "client":"Client",
+    "start":"Client",
+    "stop":"Stop",
     "notDefined":"Not Defined",
     "maintasks":"Main Tasks",
     "mainTask":"Main Task",
@@ -287,5 +290,7 @@
     "needApprovalFrom":"Approval From",
     "projectDetails":"Project Details",
     "private":"Private",
+    "noActiveTask":"No Active Task",
+    "worklog":"Work Log",
     "public":"Public"
 }

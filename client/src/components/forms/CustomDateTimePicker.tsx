@@ -129,8 +129,8 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
     // Validate and update the date if it's in the correct format
     if (input.length === 10) {
       const parsedDate = parse(input, 'dd.MM.yyyy', new Date());
-
       if (!isNaN(parsedDate.getTime())) {
+        handleDateChange(parsedDate);
         setDateValue(parsedDate);
         // if (onDateChange) onDateChange(recordId, parsedDate, name);
         // if (onChange) onChange(recordId, parsedDate, name);
@@ -186,7 +186,7 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
       {ReactDOM.createPortal(
         <div
           ref={menuRef}
-          className={`fixed ${isOpen ? 'display-block z-50' : 'display-none'} `}
+          className={`fixed ${isOpen ? 'display-block z-50' : 'display-none pointer pointer-events-none'} `}
           style={{
             top: `${position.top}px`,
             left: `${position.left}px`,

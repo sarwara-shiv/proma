@@ -13,7 +13,7 @@ import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { useAppContext } from '../../../../context/AppContext';
 import { filterTaskByProject } from '../../../../utils/tasksUtils';
 import MyTasksByProject from './MyTasksByProject';
-import { CustomInput } from '../../../../components/forms';
+import { CustomInput, RichTextArea } from '../../../../components/forms';
 import { JSX } from 'react/jsx-runtime';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
@@ -25,6 +25,7 @@ const AllMyTasks = () => {
     const {t} = useTranslation();
     const [records, setRecords] = useState<Task[]>();
     const [tasksByProject, setTasksByProject] = useState<TasksByProject[]>([]);
+    const [clickedTask, setClickedTask] = useState<Task|null>(null)
     const [loader, setLoader] = useState(true);
     const [taskNotes, setTaskNotes] = useState<string>('');
     const [toggleTaskData, setToggleTaskData] = useState<{note:string}>({note:''})
@@ -78,6 +79,8 @@ const AllMyTasks = () => {
     // get all tasks
     const getData = async()=>{
         setLoader(true);
+        setTasksByProject([]);
+        setRecords([]);
         try{
             const populateFields=[
                 {path:'_mid'}, 
@@ -119,7 +122,9 @@ const AllMyTasks = () => {
                     setRecords(res.data);
                     const fTasks = filterTaskByProject(res.data);
                     setTasksByProject(fTasks.byProject);
-                    console.log(fTasks);
+                    console.log(res.data);
+                }else{
+                    setTasksByProject([]);
                 }
             }
             setLoader(false);
@@ -136,8 +141,10 @@ const AllMyTasks = () => {
         
         try{
             const taskID = task ? task._id : null;
-            const project = task._mid && task._mid ? (task._mid as unknown as Project)._id : null;
+            const project = task._mid && task._mid && (task._mid as unknown as MainTask)._pid ? ((task._mid as unknown as MainTask)._pid as unknown as Project)._id : null;
+            console.log(project);
             let id = activeWorkLog && activeWorkLog._id ? activeWorkLog._id : null;
+            console.log();
 
             if(taskID && project){
                 let isCurrent = false;
@@ -174,20 +181,14 @@ const AllMyTasks = () => {
                     
                 ];
 
-                if(taskNotes){}
-
-                console.log('-------------task note--------------',taskNotes);
-                console.log('------------------notes -------',note);
-
                 const res = await workLogActions({type:'start', body:{task:taskID, notes:taskNotes, populateFields, project, id}});
                 if(res.status === 'success'){
                     // setTaskNote('');
-                    
+                    console.log(res.data)
                     if(res.code === 'worklog_stopped'){
                         setActiveWorkLog(null);
                     }
                     if(res.data){
-                      
                         setActiveWorkLog(res.data); 
                     }
                 }else{
@@ -241,24 +242,50 @@ const AllMyTasks = () => {
             }
         }
         if(id){
+            setClickedTask(task);
             setCustomPopupData((res:CustomPopupType)=>{
-                return ({...res, isOpen:true, content:text, yesFunction:()=>onStopWorklog({task}), data:task})
+                return ({...res, isOpen:true, data:task, 
+                content:<>
+                    <div className='text-xs mb-2'>{text}</div><RichTextArea name="textarea"
+                        onChange={(name, value)=>richtTextonChange(value)} label='Add Notes' height='150' maxHeight='150'
+                    />    
+                    </>
+                })
             })
+            // setCustomPopupData((res:CustomPopupType)=>{
+            //     return ({...res, isOpen:true, data:task, 
+            //     content:<>
+            //         <div className='text-xs mb-2'>{text}</div><CustomInput 
+            //             type='textarea' onChange={setNotes} label='Add Notes'
+            //         />    
+            //         </>
+            //     })
+            // })
         }else{
             startWorkLog({task});
         }
     }
 
+    const richtTextonChange = (value:string)=>{
+        setTaskNotes((prevVal)=>{
+            console.log(prevVal);
+            return value
+        }); 
+
+    }
+
     // On Stop Work Log
-    const onStopWorklog = ({task}:{task:Task})=>{
-        console.log(task);
-        setCustomPopupData((res:CustomPopupType)=>{
-            return ({...res, isOpen:true, title:'Add Note', yesFunction:()=>startWorkLog({task, note:taskNotes}), data:task, 
-                content:<CustomInput 
-                    type='textarea' onChange={setNotes}
-                />
-            });
-        })
+    const onStopWorklog = async()=>{
+        console.log(taskNotes);
+        console.log(clickedTask);
+        if(clickedTask){
+            try{
+                await startWorkLog({task:clickedTask});
+                closePopup();
+            }catch(error){
+                console.log(error);
+            }
+        }
     }
 
     const setNotes = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -273,11 +300,12 @@ const AllMyTasks = () => {
     // closePopup
     const closePopup = ()=>{
         console.log(taskNotes);
+        setTaskNotes('');
+        setClickedTask(null);
         setCustomPopupData((res:CustomPopupType)=>{
             return ({...res, isOpen:false, title:'', content:''});
         })
     }
-
 
     const columns: ColumnDef<Task, any>[] = useMemo(() => [
         {
@@ -541,24 +569,47 @@ const AllMyTasks = () => {
             <div className='mb-8'>
                 <Headings text={`${t('PAGES.myTasks_active')}`} classes=''/>
                 <div className='card bg-white mt-2'>
-                    {activeWorkLog && activeWorkLog.task ? (
+                    {activeWorkLog && activeWorkLog.task ?  
+                    (<>
+                        <div className='block px-2 py-1 flex gap-2 items-center justify-between'>
+                            <div>
+                                <span className='text-primary font-bold text-lg '>{(((activeWorkLog.task as unknown as Task)._mid as unknown as MainTask)._pid as unknown as Project).name}</span>
+                                <span className="text-xs px-1 py-0.5 text-slate-500 ml-1 font-normal bg-slate-200/60 rounded-sm">{t(`${(((activeWorkLog.task as unknown as Task)._mid as unknown as MainTask)._pid as unknown as Project).projectType}`)}</span>
+                            </div>
+                            <div onClick={()=>toggleWorklog({task: (activeWorkLog.task as unknown as Task)})} 
+                                className='text-green-500 text-sm flex gap-1 
+                                    items-center
+                                    py-0.5 px-1
+                                    bg-green-100 rounded-md
+                                    cursor-pointer btn btn-danger
+                                '>
+                                {t('stop')}
+                            </div>
+                        </div>
                         <div className='flex flex-wrap gap-2 text-sm p-2'>
-                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60'><span className='text-slate-500 '>{t('project')}</span> : {(((activeWorkLog.task as unknown as Task)._mid as unknown as MainTask)._pid as unknown as Project).name}</div>
-                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('mainTask')}</span> : {((activeWorkLog.task as unknown as Task)._mid as unknown as Task).name}</div>
-                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('task')}</span> : {(activeWorkLog.task as unknown as Task).name}</div>
-                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500'>{t('assignedBy')}</span> : {(activeWorkLog.user as unknown as User).name}</div>
-                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 '>{t('assignedDate')}</span> : 
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs'>{t('mainTask')}</span> : {((activeWorkLog.task as unknown as Task)._mid as unknown as Task).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs '>{t('task')}</span> : {(activeWorkLog.task as unknown as Task).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs'>{t('assignedBy')}</span> : {(activeWorkLog.user as unknown as User).name}</div>
+                            <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs '>{t('assignedDate')}</span> : 
                                 {(activeWorkLog.task as unknown as Task).assignedDate ? format(((activeWorkLog.task as unknown as Task).assignedDate) as unknown as Date, 'dd.MM.yyyy') : ''}
                             </div>
                         </div>
+                        </>
                     ) :(
-                        <NoData />
+                        <NoData content={<div className='text-sm text-slate-500'>{t('noActiveTask')}</div>}/>
                     )}
                 </div>
             </div>
 
             {/* Show tasks by project */}
-            {tasksByProject && tasksByProject.length>0 ? <MyTasksByProject tasks={tasksByProject}/> : <NoData />}
+            {tasksByProject && tasksByProject.length>0 ? 
+                <div>
+                    <Headings text={`${t('projects')}`} classes='mb-2'/>
+                    <MyTasksByProject tasks={tasksByProject}/> 
+                </div>
+            : 
+                <NoData />
+            }
 
             {/* Show tasks in tabular form */}
             {records && records.length > 0 && 
@@ -578,7 +629,7 @@ const AllMyTasks = () => {
         <CustomPopup 
             isOpen={custoPopupData.isOpen}
             onClose={closePopup}
-            yesFunction={custoPopupData.yesFunction ? custoPopupData.yesFunction : closePopup}
+            yesFunction={onStopWorklog}
             noFunction={closePopup}
             data={custoPopupData.data? custoPopupData.data : {}}
             title={custoPopupData.title}

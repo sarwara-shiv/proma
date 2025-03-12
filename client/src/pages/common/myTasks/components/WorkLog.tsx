@@ -41,9 +41,9 @@ const WorkLog = () => {
     const userId = user?._id as unknown as ObjectId;
     if(userId && wtype){
       try{
-        const projectId = '6712bd940ec9148f17228d30';
+        const projectId = '6712b34aec33d905712ccf72';
         // const projectId = '67c76ae1d1823709654ba843';
-        const res = await workLogActions({type:'report', body:{userId, reportType:wtype, projectId,startDate:'2025-03-01'}});
+        const res = await workLogActions({type:'report', body:{userId, reportType:wtype, projectId}});
         console.log(res);
       }catch(error){
         console.log(error);

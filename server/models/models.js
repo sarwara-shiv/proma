@@ -71,7 +71,7 @@ DailyReportSchema.index({ user: 1, date: 1, status: 1 });
 
 // WORK LOG SCHEMA
 const WorkLogSchema = new Schema({
-  _cid: { type: String }, 
+  _cid: { type: String },
   user: {type: Schema.Types.ObjectId, ref: 'User', required: true }, // Who worked
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true }, // Project association
   task: { type: Schema.Types.ObjectId, ref: 'Task', required: true }, // Task worked on

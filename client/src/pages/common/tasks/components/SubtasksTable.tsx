@@ -60,6 +60,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
       value: '',
       data: {}
     });
+    const [richTextData, setRichtTextData] = useState<{id:string, field:string, content:string} | null>({id:'', field:'', content:''});
     const thStyles = 'text-xs font-semibold p-1 text-primary text-left border border-slate-200';
     const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
   
@@ -68,10 +69,18 @@ const SubtasksTable:React.FC<ArgsType> = ({
      // Rich text editor change
   const RichtTextEditorChange = (content: string, data:any)=>{
     if(content && data._id && data.field){
-      updateTask && updateTask(data._id, {[data.field]:content}, true);
+      setRichtTextData({id:data._id, field:data.field, content});
+      // updateTask && updateTask(data._id, {[data.field]:content}, true);
       // setEditorData({...editorData, value:'', data:{}})
     }
   }
+  const saveRichTextData = ()=>{
+    console.log(richTextData);
+    if(richTextData?.id && richTextData.field && richTextData.content){
+      updateTask && updateTask(richTextData.id, {[richTextData.field]:richTextData.content}, true);
+    }
+  }
+
   useEffect(()=>{
     setMainTaskData(mainTask);
   },[mainTask?.customFields])
@@ -223,6 +232,9 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                               setEditorData({...editorData, value:'', data:{}})
                                               setEditorData({...editorData, value:st.description || '', data: {_id:st._id, field:'description'}})
                                               setSidePanelData({...sidePanelData, isOpen:true, title:st._cid || '', subtitle:st.name})
+                                              if(st._id){
+                                                setRichtTextData({id:st?._id, field:'description', content:st.description ? st.description : ''})
+                                              }
 
                                           }}>
                                             <span>{t('details')}</span>
@@ -436,9 +448,14 @@ const SubtasksTable:React.FC<ArgsType> = ({
         onClose={()=>{
           setSidePanelData({...sidePanelData, isOpen:false});
           setEditorData({...editorData, value:'', data:{}})
-        
+          setRichtTextData(null);
         }}
         >
+          <div className='flex justify-end mb-2'>
+              <div className='btn btn-solid flex justify-center items-center px-2 py-0.5 rounded-md cursor-pointer' onClick={saveRichTextData}>
+                {t('save')}
+              </div>
+            </div>
           <RichtTextEditor
             value={editorData.value}
             data={editorData.data}

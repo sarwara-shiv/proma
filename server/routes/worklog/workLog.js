@@ -38,13 +38,16 @@ router.post("/start", verifyToken, async (req, res) => {
 
         // Stop active work log if required
         if (stopOld && activeWorkLog) {
-            console.log('-----------',notes);
             activeWorkLog.status = 'completed';
             activeWorkLog.notes = notes;
             activeWorkLog.endTime = new Date();
             activeWorkLog.duration = Math.round((activeWorkLog.endTime - activeWorkLog.startTime) / (1000 * 60)); // Duration in minutes
-            await activeWorkLog.save();
 
+            if (activeWorkLog.duration > 0) {
+                await activeWorkLog.save();  // Save only if duration > 0
+            } else {
+                await activeWorkLog.deleteOne();  // Delete if duration is 0
+            }
         }
 
         // Create new work log if needed
@@ -344,23 +347,18 @@ router.post('/report', verifyToken, async (req, res) => {
         // Execute the aggregation query
         let reportData = await WorkLog.aggregate(aggregatePipeline);
 
-        // Populate the user, project, and task fields if provided
-        reportData = await WorkLog.populate(reportData, {
-            path: 'user', // Target the user inside _id
-        });
-
-        // Populate project and task if needed
-        if (projectId) {
-            reportData = await WorkLog.populate(reportData, {
-                path: 'project',
-            });
-        }
-
-        if (taskId) {
-            reportData = await WorkLog.populate(reportData, {
-                path: 'task',
-            });
-        }
+       
+        reportData = await WorkLog.populate(reportData, [
+            { path: '_id.user', model: 'User', select:'name email username' },
+            { path: '_id.project', model: 'Project', select:'name projectType'  },
+            { path: '_id.task', model: 'Task', select:'name assignedBy',
+                populate: { 
+                    path: 'assignedBy', 
+                    model: 'User', 
+                    select: 'name email'
+                } 
+              }
+        ]);
 
 
         // Return the result
