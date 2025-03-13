@@ -107,6 +107,7 @@ const initializeDefaultData = async () => {
             { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
           ]
         },
         {
@@ -124,7 +125,8 @@ const initializeDefaultData = async () => {
             { page: 'roles', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
-            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
           ]
         },
         {
@@ -142,19 +144,20 @@ const initializeDefaultData = async () => {
             { page: 'roles', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
             { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
-            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
           ]
         },
-        {
-          displayName: 'Guest', 
-          _cid:await generateUniqueId('roles'),
-          name: 'guest', 
-          isEditable: false, 
-          type: 'default',
-          permissions: [
-            { page: 'documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
-          ]
-        }
+        // {
+        //   displayName: 'Guest', 
+        //   _cid:await generateUniqueId('roles'),
+        //   name: 'guest', 
+        //   isEditable: false, 
+        //   type: 'default',
+        //   permissions: [
+        //     { page: 'documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+        //   ]
+        // }
       ]);
       console.log('Default roles created.');
     } else {

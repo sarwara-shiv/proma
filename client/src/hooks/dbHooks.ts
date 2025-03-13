@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 
 const JWT_TOKEN = Cookies.get('access_token');  
 const API_URL = process.env.REACT_APP_API_URL;
-
+console.log(JWT_TOKEN);
 const headers = {
   'Authorization': `Bearer ${JWT_TOKEN}`, 
   'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ const getRecordsWithFilters = async (args: GetRecorsWithFilters) => {
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithFilters`,
         {
-          page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields, filters, orderBy
+          page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields, filters, orderBy 
         }, 
         {
           headers

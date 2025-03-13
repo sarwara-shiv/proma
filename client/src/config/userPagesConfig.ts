@@ -13,7 +13,7 @@ export interface PagePermissions {
 }
 
 // Define the structure for a page configuration
-export interface PageConfig {
+export interface UserPageConfig {
   name: string;       // Internal name for the page
   displayName: string; // User-friendly name for the page
   actions: PageAction[]; // List of actions available for the page
@@ -21,18 +21,19 @@ export interface PageConfig {
   access?:string[];
   nav?:string[];
   icon?:IconType;
-  subMenu?:PageConfig;
+  subMenu?:UserPageConfig;
   sortOrder:number
 }
 
 // Create an object to hold all your pages' configurations
-const PagesConfig: Record<string, PageConfig> = {
+const UserPagesConfig: Record<string, UserPageConfig> = {
   USERS: {
     name: 'users',
     root:"users",
     displayName: 'Users',
     icon:FaUsers,
     access:['admin', 'manager'],
+    nav:['admin', 'manager'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:2
   },
@@ -42,6 +43,7 @@ const PagesConfig: Record<string, PageConfig> = {
     icon:FaUserTie,
     displayName: 'User Roles',
     access:['admin', 'manager'],
+    nav:['admin', 'manager'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:1
   },
@@ -58,6 +60,7 @@ const PagesConfig: Record<string, PageConfig> = {
     name: 'groups',
     displayName: 'User Groups',
     root:"groups",
+    nav:['admin', 'manager'],
     icon:MdOutlineInstallDesktop,
     access:['admin', 'manager'], 
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
@@ -68,6 +71,7 @@ const PagesConfig: Record<string, PageConfig> = {
     displayName: 'Tasks',
     root:"tasks",
     access:['all'],
+    nav:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:6
   },
@@ -76,6 +80,7 @@ const PagesConfig: Record<string, PageConfig> = {
     displayName: 'Documentation',
     root:"documentation",
     access:['all'],
+    nav:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:7
   },
@@ -92,10 +97,11 @@ const PagesConfig: Record<string, PageConfig> = {
     displayName: 'My Tasks',
     root:"mytasks",
     access:['all'],
+    nav:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
     sortOrder:6
-  }
+  },
   // Add more pages here as needed
 };
 
-export default PagesConfig;
+export {UserPagesConfig}

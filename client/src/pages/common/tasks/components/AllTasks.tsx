@@ -240,7 +240,7 @@ const AllTasks = () => {
     ], []);
 
   return (
-    <div className='mt-8 p-4'>
+    <div className='p-4'>
         {loader ? <Loader type='full'/>: 
         <>
             {records && records.length > 0 && 

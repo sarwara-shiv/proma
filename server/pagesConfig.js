@@ -71,6 +71,13 @@ const Pages = {
       access:['all'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    MYTASKS: {
+      name: 'mytasks',
+      displayName: 'My Tasks',
+      model:"MyTasks",
+      access:['all'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     // Add more pages here
   }; 
   

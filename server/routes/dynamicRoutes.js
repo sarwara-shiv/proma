@@ -408,7 +408,7 @@ router.post('/:resource/getRecordsWithLimit', verifyToken, async (req, res) => {
 
       // Execute the query
       const records = await query;
-    const totalRecords = await model.countDocuments();
+    const totalRecords = await model.countDocuments(); 
   
     if (!records) {
       return res.json({ status: "error", message:'Record not found', code:"empty" });

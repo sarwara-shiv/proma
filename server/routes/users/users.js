@@ -133,10 +133,14 @@ router.post("/login", async (req, res) => {
 
         // Generate a JWT token
         const token = jwt.sign(
-            { _id: user._id, email: user.email, username: user.username, role: "admin", groups:user.groups, roles:user.roles, permissions:combinedPermissions },
-            SECRET_KEY,
-            { expiresIn: '10h' }
+            { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+            SECRET_KEY
         );
+        // const token = jwt.sign(
+        //     { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+        //     SECRET_KEY,
+        //     { expiresIn: '10h' }
+        // );
 
        return res.json({
             status: "success",
@@ -144,11 +148,14 @@ router.post("/login", async (req, res) => {
             token,
             code: "loggedin",
             userID: user._id,
-            role: "admin",
+            role: user.roles[0].name,
             roles:user.roles,
             useremail: user.email,
             username: user.username
         });
+
+
+
     } catch (error) {
         console.error("Error logging in:", error);  // Log error for debugging
         return res.status(500).json({ status: "error", message: "Login failed", code: "unknown_error", error });

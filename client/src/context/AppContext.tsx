@@ -7,7 +7,20 @@ interface AppContextType {
   setActiveWorkLog: (workLog: WorkLogType | null) => void;
   activeDailyReport: DailyReport | null;
   setActiveDailyReport: (dailyReport: DailyReport | null) => void;
+
+  pageTitle: string;
+  setPageTitle: (title: string) => void;
+  isSidebarOpen: boolean;
+  isUserAuthenticated: boolean;
+  setIsUserAuthenticated: (isAuthenticated: boolean) => void;
+  setIsSidebarOpen: (isOpen: boolean) => void;
+  currentPage: string;
+  setCurrentPage: (page: string) => void;
+  language: string;
+  setLanguage: (lang: string) => void;
 }
+
+
 
 // Create the context with default values
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -16,6 +29,12 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     const storedWorkLog = localStorage.getItem("activeWorkLog");
     const storedDailyReport = localStorage.getItem("activeDailyReport");
+    const [pageTitle, setPageTitle] = useState<string>("Home");
+    const [currentPage, setCurrentPage] = useState<string>("Dashboard");
+    const [language, setLanguage] = useState<string>("en");
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+    const [isUserAuthenticated, setIsUserAuthenticated] = useState<boolean>(true);
+    const [isLicenseValid, setIsLicenseValid] = useState<boolean>(true);
 
     const [activeWorkLog, setActiveWorkLog] = useState<WorkLogType | null>(
         storedWorkLog ? JSON.parse(storedWorkLog) : null
@@ -39,7 +58,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }, [activeDailyReport]);
 
   return (
-    <AppContext.Provider value={{ activeWorkLog, setActiveWorkLog, activeDailyReport, setActiveDailyReport }}>
+    <AppContext.Provider value={{ 
+      activeWorkLog, 
+      setActiveWorkLog, 
+      activeDailyReport, 
+      setActiveDailyReport, 
+      pageTitle,
+      setPageTitle,
+      isUserAuthenticated,
+      setIsUserAuthenticated,
+      isSidebarOpen,
+      setIsSidebarOpen,
+      currentPage,
+      setCurrentPage,
+      language,
+      setLanguage,
+      
+      }}>
       {children}
     </AppContext.Provider>
   );

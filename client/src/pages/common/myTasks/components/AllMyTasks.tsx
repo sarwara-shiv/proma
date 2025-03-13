@@ -563,7 +563,7 @@ const AllMyTasks = () => {
     ], [activeWorkLog]);
 
   return (
-    <div className='mt-8 p-4'>
+    <div className='p-4'>
         {loader ? <Loader type='full'/>: 
         <>
             <div className='mb-8'>

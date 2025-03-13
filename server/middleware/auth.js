@@ -5,8 +5,10 @@ import jwt from 'jsonwebtoken';
 
 const verifyToken = async (req, res, next) => {
   const token = req.headers['authorization'];
+  console.log('----------------------');
+  console.log(token);
   if (!token) {
-    return res.status(403).json({ message: 'No token provided' });
+    return res.status(403).json({ message: 'No token provided' }); 
   }
   
   
@@ -15,7 +17,7 @@ const verifyToken = async (req, res, next) => {
     const SECRET_KEY = process.env.SECRET_KEY;
     const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY);
 
-
+    console.log('--------------- view permissions');
     // Check if the user exists
     const user = await UserModel.findById(decoded._id).populate('roles');
     if (!user) {
@@ -41,6 +43,7 @@ const verifyToken = async (req, res, next) => {
     const permissions = await getEffectivePermissions(user, page);    
 
     // Check if the user has view permissions for the requested page 
+    console.log('--------------- view permissions');
     if (!permissions.canView) {
       return res.status(403).json({ message: 'Access denied' });
     }
