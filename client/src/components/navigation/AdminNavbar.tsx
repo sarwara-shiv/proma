@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PagesConfig, { PageConfig } from '../../config/pagesConfig';
-import { useAuth } from '../../hooks/useAuth';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LogoutButton from '../auth/LogoutButton';
+import {useAuthContext } from '../../context/AuthContext';
 
 const AdminNavbar = () => {
     const { t } = useTranslation();
-    const { user, permissions, roles } = useAuth();
+    const { permissions, roles } = useAuthContext();
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
     // Check user permissions

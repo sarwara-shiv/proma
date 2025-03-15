@@ -4,8 +4,9 @@ import { getEffectivePermissions } from './permissionsHelper.js';
 import jwt from 'jsonwebtoken';
 
 const verifyToken = async (req, res, next) => {
-  const token = req.headers['authorization'];
-  console.log('----------------------');
+  // const token = req.headers['authorization']; -- old
+  const token = req.cookies?.token; // -- new
+  console.log('--------------token --------');
   console.log(token);
   if (!token) {
     return res.status(403).json({ message: 'No token provided' }); 
@@ -15,8 +16,8 @@ const verifyToken = async (req, res, next) => {
   try {
     
     const SECRET_KEY = process.env.SECRET_KEY;
-    const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY);
-
+    // const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY); -- old
+    const decoded = jwt.verify(token, SECRET_KEY); // --- new
     console.log('--------------- view permissions');
     // Check if the user exists
     const user = await UserModel.findById(decoded._id).populate('roles');

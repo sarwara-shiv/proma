@@ -1,14 +1,14 @@
-import { useAuth } from "../../../hooks/useAuth";
 import PagesConfig, { PageConfig } from "../../../config/pagesConfig";
 import { useAppContext } from "../../../context/AppContext";
 import React, { useState } from "react";
 import LogoutButton from "../../../components/auth/LogoutButton";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {useAuthContext } from "../../../context/AuthContext";
 
 const AdminSidebar: React.FC = () => {
     const {isSidebarOpen} = useAppContext();
-    const { user, permissions, roles } = useAuth();
+    const {roles, permissions} = useAuthContext();
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const {t} = useTranslation();
     // Check user permissions

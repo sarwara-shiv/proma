@@ -1,7 +1,7 @@
 import { Priorities, ProjectStatuses } from '../../../../config/predefinedDataConfig';
 import { Loader, PageTitel } from '../../../../components/common';
 import { getRecordWithID } from '../../../../hooks/dbHooks';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 import { AlertPopupType, DynamicCustomField, FlashPopupType, MainTask, NavItem, Project, Task, User } from '@/interfaces';
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react'
@@ -17,7 +17,7 @@ interface ArgsType {
   }
 const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems}) => {
     const { t } = useTranslation();
-    const {user} = useAuth();
+    const {user} = useAuthContext();
     const {id} = useParams();
     const [projectData, setProjectData] = useState<Project>();
     const [loading, setLoading] = useState<boolean>(false);

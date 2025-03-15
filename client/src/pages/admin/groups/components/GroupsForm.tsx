@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import CustomInput from '../../../../components/forms/CustomInput';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
-import { useAuth } from '../../../../hooks/useAuth'; 
-import { PermissionsMap, UserRole } from '../../../../interfaces';
-import PagePermissionsSelect from '../../../../components/forms/PagePermissionsSelect';
+import { UserRole } from '../../../../interfaces';
 import CustomAlert from '../../../../components/common/CustomAlert';
-import { addRecords, addUpdateRecords } from '../../../../hooks/dbHooks';
-import { ObjectId } from 'mongodb';
+import {addUpdateRecords } from '../../../../hooks/dbHooks';
 import FormsTitle from '../../../../components/common/FormsTitle';
 
 interface ArgsType {
@@ -21,14 +18,12 @@ const checkDataBy: string[] = ['name', 'displayName'];
 
 const GroupsForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
   const { name = '', displayName = '', description = ''} = data || {};
-  const { user } = useAuth();
   const [alertData, setAlertData] = useState({isOpen:false, title:"", content:'', data:{}, type:"success"});
 
   // Initialize formData state with props
   const [formData, setFormData] = useState({ name, displayName, description });
 
   const { t } = useTranslation();
-  const API_URL = process.env.REACT_APP_API_URL;
 
   // Handle input changes
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

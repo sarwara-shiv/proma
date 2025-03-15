@@ -11,7 +11,7 @@ import { CustomAlert, FlashPopup, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { DeleteById } from '../../../../components/actions';
 import { FaAngleRight } from 'react-icons/fa';
@@ -36,7 +36,7 @@ let DeleteRelatedUpdates:RelatedUpdates[]= [{
 
 const TasksBackup:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
   const {id} = useParams();
-  const {user} = useAuth();
+  const {user} = useAuthContext();
   const {t} = useTranslation();
   const [projectData, setProjectData] = useState<Project>();
   const [projectId, setProjectId] = useState<ObjectId | string>(id ? id : '');
@@ -49,7 +49,7 @@ const TasksBackup:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubN
 
 
   const thStyles = 'text-xs font-normal text-slate-600 p-2 text-left border border-slate-200';
-  const tdStyles = 'text-xs font-normal text-slate-400 p-2 text-left  border border-slate-200';
+  const tdStyles = 'text-xs font-normal text-slate-400 p-2 text-left  border border-slate-200'; 
 
   const tdClasses = 'p-2 text-xs';
 

@@ -11,7 +11,7 @@ import { CustomAlert, FlashPopup, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { DeleteById } from '../../../../components/actions';
 import { FaAngleRight, FaUserCircle } from 'react-icons/fa';
@@ -65,7 +65,7 @@ interface SubTasksCount{
 
 const Tasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
   const {id} = useParams();
-  const {user} = useAuth();
+  const {user} = useAuthContext();
   const {t} = useTranslation();
   const [projectData, setProjectData] = useState<Project>();
   const [projectId, setProjectId] = useState<ObjectId | string>(id ? id : '');

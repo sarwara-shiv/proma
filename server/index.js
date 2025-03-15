@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from "express";
+import cookieParser from 'cookie-parser';
 import cors from "cors";
 
 import mongoose, { mongo } from 'mongoose';
@@ -15,9 +16,21 @@ import { worklogRouter } from './routes/worklog/workLog.js';
 
 
 const app = express();
-
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+// app.use(cors()); --- old
+const allowedOrigins = [process.env.CLIENT_URL];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,  // This is important to allow cookies and other credentials
+};
+app.use(cors(corsOptions));
 
 //debugging data for development
 mongoose.set('debug', true);

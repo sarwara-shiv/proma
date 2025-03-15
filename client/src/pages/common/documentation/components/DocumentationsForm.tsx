@@ -1,20 +1,18 @@
 import { CustomInput } from '../../../../components/forms';
 import { CustomAlert, FlashPopup, FormButton, PageTitel, ToggleSwitch } from '../../../../components/common';
 import { AlertPopupType, DeleteRelated, Documentation, DynamicCustomField, FlashPopupType, NavItem, OrderByFilter, PaginationProps, QueryFilters, RelatedUpdates } from '@/interfaces';
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { MdAdd, MdChevronRight, MdClose, MdEdit, MdMenu } from 'react-icons/md';
 import { useParams } from 'react-router-dom';
 import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
 import { addUpdateRecords, getRecordsWithFilters } from '../../../../hooks/dbHooks';
-import { useAuth } from '../../../../hooks/useAuth';
 import { DeleteById } from '../../../../components/actions';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { extractRecursiveIds } from '../../../../utils/commonUtils';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
-import { FaEye } from 'react-icons/fa';
-import DocumentationNav from './DocumentationNav';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import {useAuthContext } from '../../../../context/AuthContext';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
 }
@@ -29,7 +27,7 @@ const EmptyCustomField:DynamicCustomField = {
 
 const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
     const {t} = useTranslation();
-    const {user} = useAuth();
+    const {user} = useAuthContext();
     const {action, id} = useParams();
     const [loader, setLoader] = useState(true);
     const [records, setRecords] = useState<Documentation[]>([]);

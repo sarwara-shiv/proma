@@ -1,14 +1,15 @@
-import { useAuth } from '../../../hooks/useAuth';
+
 import Logo from '../../common/Logo';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { MdClose, MdMenu } from 'react-icons/md';
 import { useAppContext } from '../../../context/AppContext';
+import {useAuthContext } from '../../../context/AuthContext';
 
 const AdminHeader = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
     const { t } = useTranslation();
-    const { user } = useAuth();
+    const {user} = useAuthContext();
     // Function to toggle sidebar for small screens
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);

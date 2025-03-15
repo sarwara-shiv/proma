@@ -10,7 +10,7 @@ import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import FormButton from '../../../../components/common/FormButton';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 import { ObjectId } from 'mongodb';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { formatDate, compareDates, isPastDate } from '../../../../utils/dateUtils';
@@ -58,7 +58,7 @@ const checkDataBy: string[] = ['name'];
 const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
   const {id} = useParams();
-  const {user} = useAuth();
+  const {user} = useAuthContext();
   const [projectId, setProjectId] = useState<string|ObjectId>(id ? id : '');
   const [formData, setFormData] = useState<Project>(initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });

@@ -10,7 +10,7 @@ import { TaskCategory, TaskStatuses } from '../../../../config/predefinedDataCon
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import { format } from 'date-fns';
 import { CustomAlert, FlashPopup } from '../../../../components/common';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 
 interface ArgsType{
     pid:ObjectId | string;
@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
 
 const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems}) => {
     const {t} = useTranslation();
-    const {user} = useAuth();
+    const {user} = useAuthContext();
     const [mainTasksData, setMainTasksData] = useState<MainTask[]>();
     const [userGroupsData, setUserGroupsData] = useState<UserGroup[]>();
     const [currentMainTask, setCurrentMainTask] = useState<MainTask>();

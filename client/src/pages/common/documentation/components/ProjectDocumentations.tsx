@@ -1,6 +1,5 @@
 import { CustomAlert, FlashPopup } from '../../../../components/common';
 import { getRecordsWithFilters } from '../../../../hooks/dbHooks';
-import { useAuth } from '../../../../hooks/useAuth';
 import { AlertPopupType, Documentation, FlashPopupType, NavItem, PaginationProps, QueryFilters } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
@@ -15,7 +14,6 @@ interface ArgsType{
 const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems}) => {
     const {action, id} = useParams();
     const {t} = useTranslation();
-    const {user} = useAuth();
     const [loader, setLoader] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
     const [records, setRecords] = useState<Documentation[]>([]);
@@ -23,7 +21,7 @@ const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems}) => {
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
     const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
     const [activeDocData, setActiveDocData] = useState<Documentation | null>(null);
-    const [activeTask, setActiveTask] = useState<string[]>([]);
+
 
     const navItems: NavItem[] = [
         { link: `projects`, title: "projects_all" },

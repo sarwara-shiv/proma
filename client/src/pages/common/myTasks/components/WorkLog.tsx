@@ -5,7 +5,7 @@ import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { MdAdd } from "react-icons/md";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../../components/common/PageSubmenu';
-import { useAuth } from '../../../../hooks/useAuth';
+import {useAuthContext } from '../../../../context/AuthContext';
 import { WorkLogType } from '../../../../interfaces';
 import { workLogActions } from '../../../../hooks/dbHooks';
 import { ObjectId } from 'mongodb';
@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
 ];
 
 const WorkLog = () => {
-  const {user} = useAuth();
+  const {user} = useAuthContext();
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();

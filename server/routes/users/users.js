@@ -104,12 +104,13 @@ router.post("/update", verifyToken, async (req, res) => {
 
 // LOGIN
 router.post("/login", async (req, res) => {
-    const { email, password } = req.body;  // Fixed typo here
+    const { email, password } = req.body;
     try {
         const user = await UserModel.findOne({ email }).populate('roles').populate('groups');
         if (!user) {
             return res.status(404).json({ status: "error", message: `User does not exist with email: ${email}`, code: "unknown_user" });
         }
+        
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ status: "error", message: "Invalid password", code: "invalid_password" });
@@ -134,30 +135,28 @@ router.post("/login", async (req, res) => {
         // Generate a JWT token
         const token = jwt.sign(
             { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
-            SECRET_KEY
+            SECRET_KEY,
+            { expiresIn: '10h' }
         );
-        // const token = jwt.sign(
-        //     { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
-        //     SECRET_KEY,
-        //     { expiresIn: '10h' }
-        // );
 
-       return res.json({
-            status: "success",
-            message: "Login successful",
-            token,
-            code: "loggedin",
-            userID: user._id,
-            role: user.roles[0].name,
-            roles:user.roles,
-            useremail: user.email,
-            username: user.username
+        // Set the token in an HTTP-only cookie
+        res.cookie("token", token, {
+            httpOnly: true,   // Prevents client-side access
+            secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+            sameSite: "strict", // Helps mitigate CSRF attacks
+            maxAge: 10 * 60 * 60 * 1000 // Cookie expiration time (10 hours)
         });
 
-
+        return res.json({
+            status: "success",
+            message: "Login successful",
+            code: "loggedin",
+            token,
+            data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+        });
 
     } catch (error) {
-        console.error("Error logging in:", error);  // Log error for debugging
+        console.error("Error logging in:", error);
         return res.status(500).json({ status: "error", message: "Login failed", code: "unknown_error", error });
     }
 });
@@ -179,7 +178,13 @@ router.post("/get", verifyToken, async (req, res) => {
 
 // LOGOUT
 router.post("/logout", (req, res) => {
-    res.clearCookie('token');  // Clear the cookie containing the JWT token
+    // res.clearCookie('access_token');  // Clear the cookie containing the JWT token -- old
+    // res.clearCookie('token');  // Clear the cookie containing the JWT token -- old
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict"
+    });
     res.status(200).json({ message: 'Logout successful', code: "loggedout" });
 });
 

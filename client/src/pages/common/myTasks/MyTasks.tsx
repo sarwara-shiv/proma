@@ -1,11 +1,9 @@
-import { NavLink, useLocation, useParams } from 'react-router-dom';
-import PageTitel from '../../../components/common/PageTitel';
-import React, { ReactNode, useEffect, useState } from 'react';
-import { IoPlay, IoPauseSharp, IoTimerOutline } from "react-icons/io5";
+import {  useLocation, useParams } from 'react-router-dom';
+import { ReactNode, useState } from 'react';
+import { IoPlay, IoTimerOutline } from "react-icons/io5";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import AllMyTasks from './components/AllMyTasks';
-import { useAuth } from '../../../hooks/useAuth';
 import WorkLog from './components/WorkLog';
 
 interface NavItem {
@@ -20,11 +18,9 @@ const navItems: NavItem[] = [
 ];
 
 const MyTasks = () => {
-  const {user} = useAuth();
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
-  const { data, objectId } = location.state || {}; 
   const [pageTitle, setPageTitle] = useState("My Tasks");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';

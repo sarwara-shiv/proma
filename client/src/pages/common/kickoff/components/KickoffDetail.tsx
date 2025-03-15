@@ -3,13 +3,13 @@ import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffRespon
 import { CustomAlert, FlashPopup, PageTitel } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { CustomDropdown, CustomInput } from '../../../../components/forms';
+import { CustomDropdown } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
 import { ApprovalStatus, milestoneStatuses } from '../../../../config/predefinedDataConfig';
-import { useAuth } from '../../../../hooks/useAuth';
 import RichTextArea from '../../../../components/forms/RichTextArea';
+import {useAuthContext } from '../../../../context/AuthContext';
 
 interface ArgsType {
     cid?: string | null;
@@ -36,10 +36,9 @@ const kickoffDataInitial: Kickoff = {
 
 const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const { t } = useTranslation();
-    const {user} = useAuth();
+    const {user} = useAuthContext();
     const {id} = useParams();
     const [createdBy, setCreatedBy] = useState<User>();
-    const [projectStatus, setProjectStatus] = useState<any>();
     const [projectData, setProjectData] = useState<Project>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);

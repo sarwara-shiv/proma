@@ -1,28 +1,32 @@
-import React from 'react';
-import { useCookies } from 'react-cookie';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import {useAuthContext}  from "../../context/AuthContext";
+import { logout } from "../../context/logout";
+import { useNavigate } from "react-router-dom";
 
-const LogoutButton = () => {
-    const [_, setCookies] = useCookies(["access_token"]);
+const LogoutButton: React.FC = () => {
+    const {setUser, setRole, setRoles, setIsAuthenticated, setPermissions } = useAuthContext();
     const navigate = useNavigate();
 
-    const logout = () => {
-        // Expire the cookie by setting a past expiration date (or simply remove it)
-        setCookies("access_token", "", { path: "/" });
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setUser(null); // Clear user state
+      setRole(null);
+      setRoles([]);
+      setPermissions([]);
+      setIsAuthenticated(false);
+      // Redirect to login page
+      navigate("/auth");
+    } catch (error:any) {
+      console.error("Logout failed:", error.message);
+    }
+  };
 
-        // Remove token & user data from localStorage
-        window.localStorage.removeItem("access_token");
-        window.localStorage.removeItem("userID");
-
-        // Redirect to login page
-        navigate("/auth");
-    };
-
-    return (
+  return (
         <div>
-            <button onClick={logout} className="btn btn-solid">Logout</button>
+            <button onClick={handleLogout} className="btn btn-solid">Logout</button>
         </div>
-    );
+    )
 };
 
 export default LogoutButton;

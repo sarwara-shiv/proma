@@ -8,20 +8,20 @@ import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { compareDates, getDatesDifference } from '../../../../utils/dateUtils';
-import { useAuth } from '../../../../hooks/useAuth';
 import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { useAppContext } from '../../../../context/AppContext';
 import { filterTaskByProject } from '../../../../utils/tasksUtils';
 import MyTasksByProject from './MyTasksByProject';
 import { CustomInput, RichTextArea } from '../../../../components/forms';
 import { JSX } from 'react/jsx-runtime';
+import {useAuthContext } from '../../../../context/AuthContext';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
 
 const AllMyTasks = () => {
     const {activeWorkLog, setActiveWorkLog, activeDailyReport, setActiveDailyReport} = useAppContext();
-    const {user} = useAuth();
+    const {user} = useAuthContext();
     const {t} = useTranslation();
     const [records, setRecords] = useState<Task[]>();
     const [tasksByProject, setTasksByProject] = useState<TasksByProject[]>([]);

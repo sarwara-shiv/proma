@@ -6,9 +6,13 @@ import { ObjectId } from 'mongodb';
 const JWT_TOKEN = Cookies.get('access_token');  
 const API_URL = process.env.REACT_APP_API_URL;
 console.log(JWT_TOKEN);
+//----- old code
+// const headers = {
+//   'Authorization': `Bearer ${JWT_TOKEN}`, 
+//   'Content-Type': 'application/json'
+// }
 const headers = {
-  'Authorization': `Bearer ${JWT_TOKEN}`, 
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
 }
 
 // GET ALL DATA
@@ -39,7 +43,8 @@ const getRecords = async (args: GetRecordsArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body : {}
         }, 
         {
-          headers
+          headers,
+          withCredentials: true 
         });
       return response.data;
     } catch (error) {
@@ -69,7 +74,8 @@ const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
           page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields
         }, 
         {
-          headers
+          headers,
+          withCredentials: true 
         });
       return response.data;
     } catch (error) {
@@ -100,7 +106,8 @@ const getRecordsWithFilters = async (args: GetRecorsWithFilters) => {
           page:type === 'auth' ? 'users' : type, limit, pageNr,populateFields, filters, orderBy 
         }, 
         {
-          headers
+          headers,
+          withCredentials: true 
         });
       return response.data;
     } catch (error) {
@@ -124,7 +131,8 @@ const addRecords = async (args: GetRecordsArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body :{}
         }, 
         {
-          headers
+          headers,
+          withCredentials: true 
         });
       return response.data;
     } catch (error) {
@@ -157,7 +165,8 @@ const getRecordWithID = async(args:GeTRecordsWithID)=>{
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/getRecordsWithId`,{
         page:type === 'auth' ? 'users' : type, data:body || {}, id, populateFields
       }, {
-        headers
+        headers,
+        withCredentials: true 
       });
       return response.data; 
     }catch(error){
@@ -193,7 +202,8 @@ const addUpdateRecords = async (args: AddUpdateRecords) => {
           page:type === 'auth' ? 'users' : type, data:body || {}, action, id, checkDataBy, relatedUpdates
         }, 
         {
-          headers
+          headers,
+          withCredentials: true 
         });
       return response.data;
     } catch (error) {
@@ -218,7 +228,8 @@ const forgotPassword = async(args:ForgotPassword) =>{
         email
       },
       {
-        headers
+        headers,
+        withCredentials: true 
     });
     return response.data; 
   }catch(error){
@@ -237,7 +248,8 @@ const resetPassword = async(args:ResetPassword) =>{
   try{
     const response = await axios.post(`${API_URL}/auth/reset-password/${token}`, {password},
       {
-        headers
+        headers,
+        withCredentials: true 
     });
 
     return response.data; 
@@ -260,7 +272,8 @@ const adminResetPassword = async(args:AdminResetPassword) =>{
         page:'users',id, password
       }, 
       {
-        headers
+        headers,
+        withCredentials: true 
       });
     return response.data; 
   }catch(error){
@@ -291,7 +304,8 @@ const deleteRecordById = async (args: DeleteByIdArgs) => {
           page:type === 'auth' ? 'users' : type, data:body?body:{}, relatedUpdates, deleteRelated
         },
         {
-          headers
+          headers,
+          withCredentials: true 
       });
       return response.data; 
     } catch (error) {
@@ -312,7 +326,8 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
     try{
       const response = await axios.get(`${API_URL}/auth/search-users?name=${query}`, 
         {
-          headers
+          headers,
+          withCredentials: true 
       });
 
       return response.data;
@@ -341,7 +356,8 @@ const workLogActions = async(args:WorkLogInterface)=>{
           page:'worklogs', data:body?body:{}
         },
         {
-          headers
+          headers,
+          withCredentials: true 
       });
       return response.data; 
     } catch (error) {
@@ -361,7 +377,8 @@ const startWorkLog = async(args:WorkLogInterface)=>{
           page:'worklog', data:body?body:{}
         },
         {
-          headers
+          headers,
+          withCredentials: true 
       });
       return response.data; 
     } catch (error) {
@@ -382,7 +399,8 @@ const stopWorkLog = async(args:WorkLogInterface)=>{
           page:'worklog', data:body?body:{}
         },
         {
-          headers
+          headers,
+          withCredentials: true 
       });
       return response.data; 
     } catch (error) {
@@ -403,7 +421,8 @@ const updateWorkLog = async(args:WorkLogInterface)=>{
           page:'worklog', data:body?body:{}
         },
         {
-          headers
+          headers,
+          withCredentials: true 
       });
       return response.data; 
     } catch (error) {

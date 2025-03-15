@@ -1,8 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { MdClose, MdMenu } from 'react-icons/md';
 import AdminHeader from './components/AdminHeader';
 import AdminSidebar from './components/AdminSidebar';
 import Footer from './components/AdminFooter';
@@ -10,11 +7,7 @@ import { useAppContext } from '../../context/AppContext';
 
 const AdminLayout = () => {
     const { t } = useTranslation();
-    const { user, role } = useAuth();
-    const {isSidebarOpen, setIsSidebarOpen} = useAppContext()
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-      };
+    const {isSidebarOpen} = useAppContext()
     return (
         <div className="layout h-screen flex flex-col">
         {/* Header (Fixed Below Top Menu Bar) */}

@@ -1,13 +1,11 @@
-import { NavLink, useLocation, useParams } from 'react-router-dom';
-import PageTitel from '../../../components/common/PageTitel';
-import React, { ReactNode, useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import { ReactNode, useState } from 'react';
 import { FaUserTie } from 'react-icons/fa';
 import { MdAdd } from "react-icons/md";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import UsersForm from './components/UsersForm';
 import AllUsers from './components/UsersList';
-import { useAuth } from '../../../hooks/useAuth';
 
 interface NavItem {
   link: string;
@@ -21,7 +19,6 @@ const navItems: NavItem[] = [
 ];
 
 const Users = () => {
-  const {user} = useAuth();
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
