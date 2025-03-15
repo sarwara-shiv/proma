@@ -12,6 +12,7 @@ import MyTasks from "../pages/common/myTasks/MyTasks";
 import MainTasks from "../pages/common/tasks/MainTasks";
 import WorkLog from "../pages/common/myTasks/components/WorkLog";
 import Layout from "../components/layout/Layout";
+import { useAuthContext } from "../context/AuthContext";
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
@@ -26,6 +27,8 @@ const routeComponents: Record<string, ReactElement> = {
   WorkLog: <WorkLog />,
 };
 const UserRoutes = () => {
+  const {user} = useAuthContext();
+  console.log(user);
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

@@ -5,7 +5,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AllProjects from './components/AllProjects';
 import ProjectsForm from './components/ProjectsForm';
-import Tasks from '../tasks/components/Tasks';
 import Kickoff from '../kickoff/Kickoff';
 import ProjectDetails from './components/ProjectDetails';
 import { IoMdAdd } from 'react-icons/io';
