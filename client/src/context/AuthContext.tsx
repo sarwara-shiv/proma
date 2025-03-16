@@ -35,25 +35,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const userData = await checkAuthStatus();
-                setUser(userData);
-                setRoles(userData.roles);
-                setRole(userData.role);
-                setIsAuthenticated(true);
-                setPermissions(userData.permissions);
-            } catch {
+                const userData = await checkAuthStatus(); // This will make an API call to verify token and fetch user data
+                console.log(userData.data);
+                if (userData.data) {
+                    setUser(userData.data); // Set user info
+                    setRoles(userData.data.roles);
+                    setRole(userData.data.role);
+                    setPermissions(userData.data.permissions);
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                // In case of error, clear the state and set to unauthenticated
                 setUser(null);
                 setRoles([]);
                 setRole(null);
-                setIsAuthenticated(false);
                 setPermissions([]);
+                setIsAuthenticated(false);
             } finally {
-                setLoading(false);
+                setLoading(false); // Set loading state to false after data fetching is complete
             }
         };
-
+    
         fetchUser();
     }, []);
+    
 
     return (
         <AuthContext.Provider value={{ 

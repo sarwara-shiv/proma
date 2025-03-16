@@ -9,29 +9,33 @@ import './assets/styles/layout.css';
 import {useAuthContext } from "./context/AuthContext";
 function App() {
   const {t} = useTranslation("common");
-  const {isAuthenticated, role, roles, user} = useAuthContext();
+  const {isAuthenticated, role, roles, user, loading} = useAuthContext();
   console.log(user);
   const isAdmin = roles?.some(role => role.name.toLowerCase() === 'admin');
+  console.log(isAdmin);
+  console.log(isAuthenticated);
+   // If the app is loading user data, show a loading spinner or some placeholder
+   if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="App bg-slate-100 min-h-screen">
-      <Router>
-        <Routes >
+     <Router>
+      <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-            {isAdmin && (
+          {isAdmin && (
               <Route path="/admin/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/unauthorized" />} />
-            )}
-            {!isAdmin && (
+          )}
+          {!isAdmin && (
               <Route path="/user/*" element={isAuthenticated ? <UserRoutes /> : <Navigate to="/unauthorized" />} />
-            )}
-          
-          {/* Unauthorised page */}
+          )}
           <Route path="/unauthorized" element={<Unauthorised />} />
-          {/* Unknown routes to login */}
           <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </Router>
+          {/* <Route path="*" element={<Navigate to={isAuthenticated ? isAdmin ? "/admin" : "/user" : "/login"} />} /> */}
+      </Routes>
+  </Router>
     </div> 
   );
 }

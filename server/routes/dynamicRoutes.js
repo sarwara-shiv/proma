@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
+import { io } from '../socket.js'; 
 import bcrypt from 'bcrypt';
 import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport, WorkLog } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
@@ -197,6 +198,16 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
       if (!updatedRecord) {
         // return res.status(404).json({ error: 'Record not found' });
         return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
+      }
+
+      // Emit task updated event to the assigned user using Socket.io
+      if (resource === 'tasks') {
+        // Assuming updatedRecord has a field `assignedTo` (userId of the person assigned the task)
+        const assignedUserSocketId = onlineUsers.get(updatedRecord.assignedTo.toString());  // Get the user's socket ID
+        if (assignedUserSocketId) {
+          io.to(assignedUserSocketId).emit('task-updated', updatedRecord);
+          console.log("Task updated and notification sent to user:", updatedRecord.assignedTo);
+        }
       }
 
        // Log changes

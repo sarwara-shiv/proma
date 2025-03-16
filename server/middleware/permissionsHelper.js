@@ -3,14 +3,13 @@ import { UserRolesModel } from '../models/userRolesModel.js';
 
 // Helper function to merge user and role permissions
 const getEffectivePermissions = async (user, page) => {
-  console.log('-----------effective permissions'); 
   let userPermissions = user.permissions.get(page) || {};
-
+  
   // Fetch roles
   const userRoles = await UserRolesModel.find({
     _id: { $in: user.roles }
   });
-
+  
   let rolePermissions = {
     canCreate: false,
     canUpdate: false,

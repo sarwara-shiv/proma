@@ -6,8 +6,6 @@ import jwt from 'jsonwebtoken';
 const verifyToken = async (req, res, next) => {
   // const token = req.headers['authorization']; -- old
   const token = req.cookies?.token; // -- new
-  console.log('--------------token --------');
-  console.log(token);
   if (!token) {
     return res.status(403).json({ message: 'No token provided' }); 
   }
@@ -18,14 +16,21 @@ const verifyToken = async (req, res, next) => {
     const SECRET_KEY = process.env.SECRET_KEY;
     // const decoded = jwt.verify(token.split(' ')[1], SECRET_KEY); -- old
     const decoded = jwt.verify(token, SECRET_KEY); // --- new
-    console.log('--------------- view permissions');
     // Check if the user exists
-    const user = await UserModel.findById(decoded._id).populate('roles');
+    const user = await UserModel.findById(decoded._id).populate('roles').populate('groups');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { page } = req.body; // page should match one of the `Pages` entries
+    let { page } = req.body; // page should match one of the `Pages` entries
+
+    if (!page && req.query.page) {
+      page = req.query.page; // This is for GET requests or other query-based requests
+    }
+
+    if (!page) {
+      return res.status(400).json({ message: 'Page not given' });
+    }
 
     const pageConfig = Object.values(Pages).find(p => p.name === page);
 
@@ -44,9 +49,15 @@ const verifyToken = async (req, res, next) => {
     const permissions = await getEffectivePermissions(user, page);    
 
     // Check if the user has view permissions for the requested page 
-    console.log('--------------- view permissions');
     if (!permissions.canView) {
-      return res.status(403).json({ message: 'Access denied' });
+      if(page == 'auth'){
+        const rpermissions = await getEffectivePermissions(user, 'users');
+        if(!rpermissions.canView){
+          return res.status(403).json({ message: 'Access denied' });
+        }  
+      }else{
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
 
     req.permissions = permissions;

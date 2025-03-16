@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from "express";
 import cookieParser from 'cookie-parser';
 import cors from "cors";
-
+import http from "http";
 import mongoose, { mongo } from 'mongoose';
 
 import initializeDefaultData from './initDefaultData.js';
@@ -13,9 +13,16 @@ import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js'; 
 import { ChangeLog } from './models/models.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
+import { initializeSocket } from './socket.js';
+
 
 
 const app = express();
+const server = http.createServer(app); // Create HTTP server
+// Initialize Socket.io
+const io = initializeSocket(server);
+app.set('socket', io);
+
 app.use(cookieParser());
 app.use(express.json());
 // app.use(cors()); --- old
@@ -35,7 +42,7 @@ app.use(cors(corsOptions));
 //debugging data for development
 mongoose.set('debug', true);
 
-const DB_PASS = process.env.DB_PASS;
+// const DB_PASS = process.env.DB_PASS;
 const mongoURI = process.env.DB_LOCAL_URL; 
 const PORT = process.env.PORT || 3001; 
 
@@ -68,6 +75,7 @@ db.on('connected', () => {
 db.on('error', (err) => {
     console.error('Mongoose connection error:', err); 
 }); 
+
 
 app.listen(PORT, ()=> console.log("SERVER STARTED"));
 

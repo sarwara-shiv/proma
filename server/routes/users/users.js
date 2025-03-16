@@ -147,11 +147,14 @@ router.post("/login", async (req, res) => {
             maxAge: 10 * 60 * 60 * 1000 // Cookie expiration time (10 hours)
         });
 
+        // Emit a socket event to mark the user as connected
+        const socket = req.app.get('socket'); // Make sure the socket instance is accessible
+        socket.emit("user-connected", user._id); // Emit the event with userId
+
         return res.json({
             status: "success",
             message: "Login successful",
             code: "loggedin",
-            token,
             data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
         });
 
@@ -178,6 +181,19 @@ router.post("/get", verifyToken, async (req, res) => {
 
 // LOGOUT
 router.post("/logout", (req, res) => {
+    console.log(req);
+    const token = req.cookies?.token; 
+    const SECRET_KEY = process.env.SECRET_KEY;
+    const decoded = jwt.verify(token, SECRET_KEY);
+
+    const socket = req.app.get('socket'); // Ensure this is the Socket.io instance from your server
+
+    // Check if the user is connected to a socket and emit 'user-disconnected'
+    const userId = decoded._id;  // Assuming you're storing the user in `req.user` after authentication
+    if (userId) {
+      socket.emit("user-disconnected", userId);  // Emit event to mark user as disconnected
+      console.log(`User with ID ${userId} disconnected`);
+    }
     // res.clearCookie('access_token');  // Clear the cookie containing the JWT token -- old
     // res.clearCookie('token');  // Clear the cookie containing the JWT token -- old
     res.clearCookie("token", {
@@ -189,8 +205,36 @@ router.post("/logout", (req, res) => {
 });
 
 // VERIFY USER
-router.get('/check-users', verifyToken, (req, res) => { 
-    res.status(200).json(req.user);
+router.get('/check-users', verifyToken, (req, res) => {
+    console.log(req.user); 
+    console.log(res); 
+
+    if (!req.user) {
+        return res.status(401).json({ message: "User not authenticated" });
+    }
+    console.log('---------- USER DATA ----');
+    let user = req.user;
+    let rolePermissions = [];
+    let userPermissions = user.permissions ? Array.from(user.permissions) : [];
+
+    user.roles.forEach(role => {
+        if (role.permissions) {
+            rolePermissions = [...rolePermissions, ...role.permissions];
+        }
+    });
+
+    const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
+    const result =  {
+        status: "success",
+        message: "Login successful",
+        code: "loggedin",
+        token:req.cookies?.token,
+        data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+    };
+
+    console.log(result);  // Check if user data is attached to the request
+    console.log(req.user);  // Check if user data is attached to the request
+    res.status(200).json(result); // Send back user data
 });
 
 // DELETE BY ID

@@ -27,6 +27,8 @@ const routeComponents: Record<string, ReactElement> = {
   WorkLog: <WorkLog />,
 };
 
+console.log(routes);
+
 const AdminRoutes = () => {
   return (
     <Routes>

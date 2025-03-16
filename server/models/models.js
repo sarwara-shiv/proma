@@ -215,7 +215,6 @@ const BaseTaskSchema = new Schema({
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
-  assignedDate: { type: Date },
   newlyAssigned: { type: Boolean },
   customFields: [DynamicFieldSchema],  // Custom fields array
   defaultFieldColors: [DefaultFieldColors],
@@ -390,7 +389,7 @@ const ProjectSchema = new Schema({
   kickoff: KickoffSchema,
   documentation: [{ type: Schema.Types.ObjectId, ref: 'Documentation' }],
   personsInvolved: [
-    { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
   ],
   teamMembers: [
     { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -417,6 +416,18 @@ const DocumentationSchema = new Schema({
   privacy: {type: String, enum:['public', 'private'] , default: 'private'},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+});
+// Documentation Schema
+const ProjectContent = new Schema({
+  _cid:{type:String},
+  _pid:{type:String},
+  name: { type: String, required: true },
+  level:{ type: Number},
+  description: { type: String },
+  customFields: [DynamicCustomField],
+  subDocuments: [{ type: Schema.Types.ObjectId, ref: 'ProjectContent' }],
+  privacy: {type: String, enum:['public', 'private'] , default: 'private'},
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
