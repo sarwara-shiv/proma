@@ -73,8 +73,6 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       ? await checkIfRecordExists(model, checkDataBy, data) 
       : {};
 
-    console.log('-----exists', exists);
-
     // If any key in the 'exists' object is true, it means a conflict exists
     if (Object.values(exists).some(value => value)) {
       return res.status(200).json({ 
@@ -98,14 +96,12 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
 
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
         for (const update of relatedUpdates) {
-          console.log(update);
           const relatedModel = getModel(update.collection); // Get the model for the related collection
-          console.log(relatedModel);
+
           if (relatedModel) {
             if (update.type === 'array') {
               // Add the new record ID to an array field
-              console.log('-------------------------')
-              console.log(savedRecord._id, update.ids)
+
               await relatedModel.updateMany(
                 { _id: { $in: update.ids } },  // IDs to match in the related collection
                 { $addToSet: { [update.field]: update.value ? update.value : savedRecord._id } }  // Add the ID to the array field
@@ -134,7 +130,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
 
   } catch (error) {
     // Log error details and send an error response
-    console.error('Error details:', error);
+
     return res.status(500).json({ 
       status: "error", 
       message: 'Server error', 
@@ -149,7 +145,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
 router.post('/:resource/update', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const { ...data } = req.body.data;
-  const { id, checkDataBy, relatedUpdates=[] } = req.body; 
+  const { id, checkDataBy, relatedUpdates=[], newData=[]} = req.body; 
 
   const model = getModel(resource);
 
@@ -201,17 +197,29 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
       }
 
       // Emit task updated event to the assigned user using Socket.io
-      if (resource === 'tasks') {
-        // Assuming updatedRecord has a field `assignedTo` (userId of the person assigned the task)
-        const assignedUserSocketId = onlineUsers.get(updatedRecord.assignedTo.toString());  // Get the user's socket ID
-        if (assignedUserSocketId) {
-          io.to(assignedUserSocketId).emit('task-updated', updatedRecord);
-          console.log("Task updated and notification sent to user:", updatedRecord.assignedTo);
-        }
-      }
+      // if (resource === 'tasks' && data.responsiblePerson) {
+      //   const assignedUserSocketId = onlineUsers.get(data.responsiblePerson.toString()); 
+      //   if (assignedUserSocketId) {
+      //     io.to(assignedUserSocketId).emit('task-updated', updatedRecord);
+      //     console.log('---------------------------------------------');
+      //     console.log("Task updated and notification sent to user:", data.responsiblePerson.toString());
+      //   }
+      // }
 
-       // Log changes
-      //  await logChanges(resource, id, originalRecord, updatedRecord, req.user._id);  
+      console.log("-----------------------------------");
+      console.log("-----------------------------------");
+      console.log("-----------------------------------");
+      console.log(data);
+      console.log(id);
+      console.log(updatedRecord);
+      console.log("-----------------------------------");
+      console.log("-----------------------------------"); 
+      console.log("-----------------------------------");
+
+      if(resource === 'tasks' || resource === "maintasks"){
+        // Log changes
+       await logChanges(resource, id, data, originalRecord, req.user._id);  
+      }
 
 
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
@@ -232,8 +240,6 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
                 { _id: { $in: update.ids } },  // IDs to match in the related collection
                 { $set: { [update.field]: update.value ? update.value : updatedRecord._id  } }  // Replace the ID in the field
               );
-              console.log('---------------------');
-              console.log(res);
             }
           }
         }
@@ -356,16 +362,14 @@ router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
     // return res.status(400).json({ error: 'ID is required for deletion' });
     return res.json({ status: "error", message:'ID not found', code:"id_required" });
   }
-  console.log('------ids');
-  console.log(id);
+
   try {
     let records;
     if(Array.isArray(id)){
-      console.log('------ids 2');
-      console.log(id);
+
       records = await model.find({_id:{$in:id}});
     }else{
-      console.log(id);
+
       // records = await model.findById(id);
 
       let query = model.findById(id);
@@ -505,7 +509,7 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
           const tillDate = moment(value.date, format).endOf('day').toDate();
           
           queryObj[key] = { $gte: fromDate, $lte: tillDate };
-          console.log({ $gte: fromDate, $lte: tillDate })
+
         }
 
         // not equal to
@@ -548,9 +552,6 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
           sortObj[field] = sortDirection;
         }
       });
-
-      // Debugging output for sorting object
-      console.log('Sorting by:', sortObj);
 
       // Apply the sort to the query
       query = query.sort(sortObj);

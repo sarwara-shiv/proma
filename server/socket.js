@@ -18,6 +18,7 @@ export const initializeSocket = (server) => {
 
         // Store userId when they connect
         socket.on("user-connected", (userId) => {
+            console.log('-------------------------------------------');
             onlineUsers.set(userId, socket.id);
         });
 

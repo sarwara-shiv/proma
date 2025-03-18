@@ -104,8 +104,12 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       getData();
   }, []);
 
+  // TODO
+  // DO IT SEPERATELY
+  // required to update custom field
   useEffect(()=>{
-      updateMainTask();
+      // updateMainTask();
+      // updateMainTaskCustomField();
   }, [mainTaskData?.customFields]);
 
   // Rich text editor change
@@ -131,7 +135,27 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       const res =  await addUpdateRecords({id:mid,  type:'maintasks', action:'update', body:{...nData}});
       if(res.status === 'success'){
         const content = `${t(`RESPONSE.${res.code}`)}`;
+        
         setFlashPopupData({...flashPopupData, isOpen:true, message:content});
+      }
+
+    }catch(error){
+      console.log(error);
+    }
+  }
+  // updateMainTask
+  const updateMainTaskCustomField= async(data:any = null)=>{
+    try{
+      const mid = mainTaskId as unknown as string;
+      const nData = data ? data : mainTaskData;
+      if(nData && nData.customFields){
+        console.log(nData.customFields);
+        const res =  await addUpdateRecords({id:mid,  type:'maintasks', action:'update', body:{customFields:nData.customFields}});
+        if(res.status === 'success'){
+          const content = `${t(`RESPONSE.${res.code}`)}`;
+          setMainTaskData(data);
+          setFlashPopupData({...flashPopupData, isOpen:true, message:content});
+        }
       }
 
     }catch(error){
@@ -214,6 +238,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           }else{
             cfields = [value];
           }
+          updateMainTaskCustomField({...prevVal, customFields:[...cfields]});
           return {...prevVal, customFields:[...cfields]}
         })
       }else{
@@ -230,6 +255,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
           }else{
             cfields = [value];
           }
+          updateMainTaskCustomField({...prevVal, customFields:[...cfields]});
           return {...prevVal, customFields:[...cfields]}
         })
       }
@@ -291,7 +317,9 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       if (Array.isArray(updatedMainTaskData.subtasks)) {
         removeCustomFieldFromSubtasks(updatedMainTaskData.subtasks);
       }
-  
+      console.log('--------------------------------------');
+      console.log(updatedMainTaskData.customFields);
+      updateMainTaskCustomField(updatedMainTaskData);
       return updatedMainTaskData; // Return the updated state
     });
   };
@@ -429,7 +457,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
   // update task
   const updateTask = async(taskId:string|ObjectId, cfdata:any, refresh:boolean = true)=>{
-
+    console.log(taskId);
+    console.log(cfdata);
     if(taskId && cfdata){
       let relatedUpdates:RelatedUpdates[]= [];
       if(cfdata && cfdata.status){
@@ -449,6 +478,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
       }
       try{
+        console.log(cfdata);
         const res = await addUpdateRecords({type:'tasks', action:'update', relatedUpdates, id:taskId as unknown as string, body:{...cfdata}});
         if(res.status === 'success'){
           const content = `${t(`RESPONSE.${res.code}`)}`;
@@ -749,18 +779,22 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                   </div>
                                   }
                                 </div>
+                                
                                 <div className='
                                   group-hover:translate group-hover:translate-x-3 transition-all
                                   flex justify-between items-start
                                 '>
+                                  
                                   <ClickToEdit value={st.name}  name='name'
                                       onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
                                     />
                                   {/* {st.name}  */}
-                                  {st.subtasks && st.subtasks.length > 0 && 
+                                  {st.subtasks && st.subtasks.length > 0 && <>
                                     <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
+                                  </>
                                   }
                                 </div>
+                                
                               </div>
                             </td>
                             <td className={`${tdStyles} group`}

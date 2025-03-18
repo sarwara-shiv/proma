@@ -18,6 +18,8 @@ import { initializeSocket } from './socket.js';
 
 
 const app = express();
+app.use(express.json({ limit: "50mb" })); // Adjust size as needed
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 const server = http.createServer(app); // Create HTTP server
 // Initialize Socket.io
 const io = initializeSocket(server);

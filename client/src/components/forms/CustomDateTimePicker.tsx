@@ -67,7 +67,6 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
   }, []);
 
   useEffect(() => {
-    console.log(dateValue);
     if (selectedDate) {
       setDateValue(selectedDate);
       setManualInput(format(selectedDate, 'dd.MM.yyyy'));

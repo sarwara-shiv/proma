@@ -84,6 +84,9 @@ const SubtasksTable:React.FC<ArgsType> = ({
   useEffect(()=>{
     setMainTaskData(mainTask);
   },[mainTask?.customFields])
+  useEffect(()=>{
+    console.log(subTasksCount);
+  },[subTasksCount])
 
 
   const handleDrag = (result: any) => {
@@ -114,7 +117,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
   }
 
   const toggleSubTasksCount = (taskId: ObjectId | string) => {
-  
+  console.log(taskId);
     if (taskId) {
       setSubTasksCount(prevVal => {
         if (!prevVal) return [];
@@ -294,7 +297,6 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                   <ClickToEdit value={st.name}  name='name'
                                       onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
                                     />
-                                  {/* {st.name}  */}
                                   {st.subtasks && st.subtasks.length > 0 && 
                                     <span className='ml-1 font-normal text-xs text-slate-500 bg-gray-200 rounded-sm px-1 py-0.7'>{st.subtasks.length}</span>
                                   }

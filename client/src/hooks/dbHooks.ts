@@ -196,6 +196,9 @@ interface AddUpdateRecords {
 const addUpdateRecords = async (args: AddUpdateRecords) => {
   const { type, body, action="add", id=null, checkDataBy=[], relatedUpdates=[] } = args;
   if (type) {
+    console.log(type);
+    console.log(action);
+    console.log(body);
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/${action}`, 
         {

@@ -231,9 +231,6 @@ router.get('/check-users', verifyToken, (req, res) => {
         token:req.cookies?.token,
         data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
     };
-
-    console.log(result);  // Check if user data is attached to the request
-    console.log(req.user);  // Check if user data is attached to the request
     res.status(200).json(result); // Send back user data
 });
 
