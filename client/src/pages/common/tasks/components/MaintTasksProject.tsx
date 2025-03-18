@@ -411,14 +411,14 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
   const addUpdateMainTask = (pid:string | ObjectId | null, action:string, taskData:MainTask | null)=>{
     if(pid){
         if(action === 'add'){
-            setAlertData({...alertData, isOpen:true, type:'form',
+            setAlertData({...alertData, isOpen:true, type:'form', title:`${t("add")}`,
                 content:<MainTaskForm action='add'  onChange={updateMainTasks} pid={pid}
                 mainTasks={data && data.mainTasks as unknown as MainTask[] || []}
                 />
             })
         }
         if(action === 'update' && taskData){
-            setAlertData({...alertData, isOpen:true, type:'form',
+            setAlertData({...alertData, isOpen:true, type:'form',title:<>{t("update")} <span className='text-primary'>{taskData.name}</span></>,
                 content:<MainTaskForm action='update'  onChange={updateMainTasks} pid={pid}
                 mainTask={taskData}
                 mainTasks={data && data.mainTasks as unknown as MainTask[] || []}

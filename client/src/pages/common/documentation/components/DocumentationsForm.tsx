@@ -551,11 +551,12 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                         })
                         }
                     </div>  
-                    <div className="mt-6 text-right fixed bottom-6 flex right-6 flex flex-cols gap-4">
-                        <CustomSmallButton  type='add' size="sm" position='absolute' text={t('addCustomField')} onClick={()=>addRemoveCustomField(-1)} />
-                        <FormButton  btnText={formAction === 'update' ? t('update') : t('create')}  onClick={()=>saveData()}/>
-                    </div>
+                    
                 </div>
+            <div className="mt-6 text-right fixed bottom-12 flex right-6 flex flex-cols gap-4">
+                <CustomSmallButton  type='add' size="sm" position='absolute' text={t('addCustomField')} onClick={()=>addRemoveCustomField(-1)} />
+                <FormButton  btnText={formAction === 'update' ? t('update') : t('create')}  onClick={()=>saveData()}/>
+            </div>
             </div>
         </div>
 

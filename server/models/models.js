@@ -268,9 +268,18 @@ const MainTaskSchema = new Schema({
     default: 'toDo'
   },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User'},
+  assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
+  assignedDate: { type: Date, default: Date.now  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 })
+
+MainTaskSchema.pre('save', function (next) {
+  if (this.isModified('responsiblePerson')) {
+    this.assignedDate = new Date();
+  }
+  next();
+});
 
 // Close ticket when all tasks are completed
 TicketSchema.methods.checkCompletion = async function () {

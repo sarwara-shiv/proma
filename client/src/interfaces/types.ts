@@ -192,6 +192,8 @@ export interface QaTask extends BaseTask {
     subtasks?:Task[];
     status: 'toDo' | 'inProgress' | 'completed' | 'onHold' | 'blocked' | 'pendingReview';
     createdBy?:ObjectId,
+    assignedBy?:ObjectId,
+    assignedDate?:Date,
     createdAt?:Date,
     updatedAt?: Date,
   }

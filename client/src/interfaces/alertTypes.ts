@@ -11,7 +11,7 @@ export interface FlashPopupType{
 export interface AlertPopupType {
     isOpen: boolean;
     onClose?: () => void;
-    title?: string | null;
+    title?: string | null | React.ReactNode;
     content: React.ReactNode | string;
     data?:any;
     display?:'timer' | null;

@@ -26,8 +26,10 @@ const Layout = () => {
             )} */}
             {role === 'admin' ? <AdminSidebar /> : <UserSidebar />}
             {/* Main Content */}
-            <main className={`flex-1 ml-64 mt-0 mb-14 px-2 transition-all ease duration-100 ${isSidebarOpen ? "ml-[200px]" : "ml-[0px]"}`}>
-                <Outlet />
+            <main className={`flex-1 ml-64 mt-0 mb-10 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-[200px]" : "ml-[0px]"}`}>
+                <div>
+                    <Outlet />
+                </div>
             </main>
         </div>
 

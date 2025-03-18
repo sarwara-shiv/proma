@@ -145,6 +145,7 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
                         const createdBy = user && user._id ? user._id : null;
                         if(createdBy !== null){
                             newData.createdBy = createdBy
+                            newData.assignedBy = createdBy
                         }
                     }
                     

@@ -387,7 +387,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   
     if (taskId) {
       setSubTasksCount(prevVal => {
-        if (!prevVal) return [];
+        if (!prevVal) prevVal = [];
   
         // Check if the task already exists in the array
         const taskExists = prevVal.find(d => d.taskId === taskId);
@@ -918,8 +918,11 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                       openCustomFieldsPopup={openCustomFieldsPopup}
                                       getData={getData}
                                       addTask={addTask}
+                                      toggleSubTasksCount = {toggleSubTasksCount}
+                                      subTasksCount={subTasksCount}
                                       parentTask={st}
                                       updateTask={updateTask}
+                                      showNextLevel={true}
                                       handleTaskInput={handleTaskInput}
                                     />
                                   </td>

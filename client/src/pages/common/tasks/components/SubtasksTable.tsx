@@ -31,6 +31,8 @@ interface ArgsType{
     addCustomField:(value:DynamicField, index:number|null)=>void;
     deleteCustomField:(index:number, key:string)=>void;
     openCustomFieldsPopup:()=>void;
+    subTasksCount:SubTasksCount[],
+    toggleSubTasksCount:(taskId: string | ObjectId)=>void,
     handleTaskCustomField:(taskId: string | ObjectId,
       customField: DynamicField,
       value: any,
@@ -38,6 +40,7 @@ interface ArgsType{
     getData:()=>void;
     handleTaskInput:(taskId:string|ObjectId, field:string, value:string | Date | null)=>void;
     DeleteRelatedUpdates:RelatedUpdates[];
+    showNextLevel:boolean;
     addTask:({name, value, taskId}:{name:string, value:string, taskId:string|ObjectId|null, parentTask:Task|null})=>void
 }
 
@@ -49,12 +52,12 @@ interface SubTasksCount{
 const SubtasksTable:React.FC<ArgsType> = ({
     mainTask, subtasks, type='task', taskId=null,
     addCustomField, deleteCustomField, openCustomFieldsPopup,addTask,getData,DeleteRelatedUpdates,
-    handleTaskCustomField, handleTaskInput, parentTask=null, updateTask
+    handleTaskCustomField, handleTaskInput, parentTask=null, updateTask,toggleSubTasksCount,subTasksCount, showNextLevel=false
 }) => {
     const {t} = useTranslation();
     const [mainTaskData, setMainTaskData] = useState<MainTask | null>(mainTask || null)
     const [subtasksData, setSubtasksdata] = useState<Task[] | null>(subtasks || null)
-    const [subTasksCount, setSubTasksCount] = useState<SubTasksCount[]>();
+    const [subTasksCount2, setSubTasksCount2] = useState<SubTasksCount[]>();
     const [sidePanelData, setSidePanelData] = useState<SidePanelProps>({isOpen:false, title:'', subtitle:'',children:''});
     const [editorData, setEditorData] = useState({
       value: '',
@@ -116,27 +119,27 @@ const SubtasksTable:React.FC<ArgsType> = ({
     console.log(width, ' : ' ,index)
   }
 
-  const toggleSubTasksCount = (taskId: ObjectId | string) => {
-  console.log(taskId);
-    if (taskId) {
-      setSubTasksCount(prevVal => {
-        if (!prevVal) return [];
+  // const toggleSubTasksCount2 = (taskId: ObjectId | string) => {
+  // console.log(taskId);
+  //   if (taskId) {
+  //     setSubTasksCount(prevVal => {
+  //       if (!prevVal) prevVal = [];
   
-        // Check if the task already exists in the array
-        const taskExists = prevVal.find(d => d.taskId === taskId);
+  //       // Check if the task already exists in the array
+  //       const taskExists = prevVal.find(d => d.taskId === taskId);
   
-        if (taskExists) {
-          // If the task exists, toggle the isOpen property
-          return prevVal.map(d =>
-            d.taskId === taskId ? { ...d, isOpen: !d.isOpen } : d
-          );
-        } else {
-          // If the task doesn't exist, add a new entry
-          return [...prevVal, { taskId, isOpen: true }];
-        }
-      });
-    }
-  };
+  //       if (taskExists) {
+  //         // If the task exists, toggle the isOpen property
+  //         return prevVal.map(d =>
+  //           d.taskId === taskId ? { ...d, isOpen: !d.isOpen } : d
+  //         );
+  //       } else {
+  //         // If the task doesn't exist, add a new entry
+  //         return [...prevVal, { taskId, isOpen: true }];
+  //       }
+  //     });
+  //   }
+  // };
 
   return (
     <div>
@@ -278,22 +281,26 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                     onClick={() => toggleSubTasksCount(tskID)}
                                     className="ml-1 cursor-pointer"
                                   >
-                                    <FaAngleRight 
-                                      className="text-slate-400"
-                                      style={{
-                                        transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
-                                          ? 'rotate(90deg)' 
-                                          : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease', // For smooth rotation
-                                      }} 
-                                    />
+                                    <>
+                                    {showNextLevel && 
+                                      <FaAngleRight 
+                                        className="text-slate-400"
+                                        style={{
+                                          transform: subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) 
+                                            ? 'rotate(90deg)' 
+                                            : 'rotate(0deg)',
+                                          transition: 'transform 0.3s ease', // For smooth rotation
+                                        }} 
+                                      />
+                                    }
+                                    </>
                                   </div>
                                   }
                                 </div>
-                                <div className='
-                                  group-hover:translate group-hover:translate-x-3 transition-all
+                                <div className={`
+                                  ${showNextLevel && 'group-hover:translate group-hover:translate-x-3 transition-all'}
                                   flex justify-between items-start
-                                '>
+                                `}>
                                   <ClickToEdit value={st.name}  name='name'
                                       onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'name', value)}
                                     />
@@ -385,7 +392,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                 >
                                     <SubtasksTable 
                                       mainTask={mainTaskData || null}
-                                      subtasks={st.subtasks ? st.subtasks as unknown as Task[]: []}
+                                      subtasks={st.subtasks ? st.subtasks as unknown as Task[] : []}
                                       type='subtask'
                                       taskId={tskID}
                                       handleTaskCustomField={handleTaskCustomField}
@@ -397,8 +404,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                       addTask={addTask}
                                       parentTask={st}
                                       updateTask={updateTask}
-                                      handleTaskInput={handleTaskInput}
-                                    />
+                                      showNextLevel={false}
+                                      handleTaskInput={handleTaskInput} subTasksCount={[]} toggleSubTasksCount={toggleSubTasksCount }                                    />
                                   </td>
                               </tr>
                             
