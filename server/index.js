@@ -15,6 +15,57 @@ import { ChangeLog } from './models/models.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
 import { initializeSocket } from './socket.js';
 
+import { Pinecone } from "@pinecone-database/pinecone";
+
+
+console.log(process.env.PINECONE_API_KEY);
+const pinecone = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY,
+});
+
+const createIndex = async () => {
+  try {
+    const indexName = "tasks-ai-search";
+    const dimension = 384; // Change this to match the embedding model output
+
+    const existingIndexesResponse = await pinecone.listIndexes();
+    const existingIndexes = existingIndexesResponse.indexes.map(index => index.name);
+
+    if (!existingIndexes.includes(indexName)) {
+      await pinecone.createIndex({
+        name: indexName,
+        dimension: dimension,
+        metric: "cosine",
+        spec: {
+          serverless: {
+            cloud: "aws",
+            region: "us-east-1",
+          },
+        },
+      });
+
+      console.log(`Index "${indexName}" created successfully.`);
+    } else {
+      console.log(`Index "${indexName}" already exists.`);
+    }
+  } catch (error) {
+    console.error("Error creating Pinecone index:", error);
+  }
+};
+
+const deleteIndex = async () => {
+  try {
+    const indexName = "tasks-ai-search";
+    await pinecone.deleteIndex(indexName);
+    console.log(`Index "${indexName}" deleted successfully.`);
+  } catch (error) {
+    console.error("Error deleting Pinecone index:", error);
+  }
+};
+
+// Call the function to delete the index
+// deleteIndex();
+createIndex();
 
 
 const app = express();

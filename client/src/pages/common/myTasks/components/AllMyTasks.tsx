@@ -1,6 +1,6 @@
 import DataTable from '../../../../components/table/DataTable';
 import { CustomPopup, Headings, Loader, NoData } from '../../../../components/common';
-import { getRecordsWithFilters, getRecordsWithLimit, workLogActions } from '../../../../hooks/dbHooks';
+import { getRecordsWithFilters, getRecordsWithLimit, searchTasksAI, workLogActions } from '../../../../hooks/dbHooks';
 import { MainTask, OrderByFilter, QueryFilters, NotEqualTo, Task, User, Project, WorkLogType, TasksByProject, CustomPopupType } from '../../../../interfaces';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useEffect, useMemo, useRef, useState } from 'react'
@@ -132,6 +132,16 @@ const AllMyTasks = () => {
         }catch(err){
             setLoader(false);
            
+        }
+    }
+
+    // search ai tasks
+    const searchTasks = async(type:"tasks" | "maintasks", query:string)=>{
+        try{
+            const res = await searchTasksAI({type:"tasks", query});
+            console.log(res);
+        }catch(error){
+            console.log(error);
         }
     }
 
@@ -566,6 +576,7 @@ const AllMyTasks = () => {
     <div className='p-4'>
         {loader ? <Loader type='full'/>: 
         <>
+            <CustomInput type='text' onChange={(event)=>searchTasks("tasks", event.target.value)}/>
             <div className='mb-8'>
                 <Headings text={`${t('PAGES.myTasks_active')}`} classes=''/>
                 <div className='card bg-white mt-2'>

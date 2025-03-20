@@ -436,11 +436,40 @@ const updateWorkLog = async(args:WorkLogInterface)=>{
   }
 }
 
+/**
+ * 
+ * @param args string
+ * 
+ * @returns 
+ */
+const searchTasksAI = async(args:{query:string, type:"tasks"|"maintasks" })=>{
+  const {query, type}  = args;
+  if (query && (type === "tasks" || type==="maintasks")) {
+    try {
+      const response = await axios.post(`${API_URL}/resource/${type}/search`, 
+        {
+          page:type, data:{query}
+        },
+        {
+          headers,
+          withCredentials: true 
+      });
+      return response.data; 
+    } catch (error) {
+      console.log(query, type);
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
 export {
   workLogActions,
   startWorkLog,
   stopWorkLog,
   updateWorkLog, 
+  searchTasksAI,
   searchUserByUsername, 
   getRecords, 
   deleteRecordById, 
