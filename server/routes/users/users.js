@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { verifyToken } from '../../middleware/auth.js';
 import UserModel from '../../models/userModel.js'; 
+import { onlineUsers } from '../../socket.js';
 
 const router = express.Router();
 
@@ -148,8 +149,26 @@ router.post("/login", async (req, res) => {
         });
 
         // Emit a socket event to mark the user as connected
-        const socket = req.app.get('socket'); // Make sure the socket instance is accessible
-        socket.emit("user-connected", user._id); // Emit the event with userId
+        const io = req.app.get('socket'); // Access the socket instance
+        if (!io) {
+            console.log("Socket not connected");
+        } else {
+            console.log("Socket connected");
+            console.log(`*** Emitting user-connected event for userId: ${user._id}`);
+            console.log(user._id.toString());
+            console.log("🔥 io.sockets:", io.sockets.sockets.size);
+            console.log("🔥 io.sockets:", onlineUsers);
+
+            // Find the socket ID for the user
+            const assignedUserSocketId = onlineUsers.get(user._id.toString());
+            if (assignedUserSocketId) {
+                // Emit the event to the specific user's socket
+                io.to(assignedUserSocketId).emit("user-connected", user._id.toString());
+                console.log("🎉 Event sent to user's socket:", assignedUserSocketId);
+            } else {
+                console.log("User is not connected via socket.");
+            }
+        }
 
         return res.json({
             status: "success",
@@ -181,17 +200,17 @@ router.post("/get", verifyToken, async (req, res) => {
 
 // LOGOUT
 router.post("/logout", (req, res) => {
-    console.log(req);
+    // console.log(req);
     const token = req.cookies?.token; 
     const SECRET_KEY = process.env.SECRET_KEY;
     const decoded = jwt.verify(token, SECRET_KEY);
 
-    const socket = req.app.get('socket'); // Ensure this is the Socket.io instance from your server
+    const io = req.app.get('socket');  // Ensure this is the Socket.io instance from your server
 
     // Check if the user is connected to a socket and emit 'user-disconnected'
     const userId = decoded._id;  // Assuming you're storing the user in `req.user` after authentication
-    if (userId) {
-      socket.emit("user-disconnected", userId);  // Emit event to mark user as disconnected
+    if (userId && io) {
+      io.emit("user-disconnected", userId.toString());  // Emit event to mark user as disconnected
       console.log(`User with ID ${userId} disconnected`);
     }
     // res.clearCookie('access_token');  // Clear the cookie containing the JWT token -- old
@@ -206,8 +225,8 @@ router.post("/logout", (req, res) => {
 
 // VERIFY USER
 router.get('/check-users', verifyToken, (req, res) => {
-    console.log(req.user); 
-    console.log(res); 
+    // console.log(req.user); 
+    // console.log(res); 
 
     if (!req.user) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -237,7 +256,7 @@ router.get('/check-users', verifyToken, (req, res) => {
 // DELETE BY ID
 router.post("/delete", verifyToken, async (req, res) => {
     const { id, action } = req.body.data;
-    console.log(req.body);
+    // console.log(req.body);
     try {
         if(id){
             const result = await UserModel.findByIdAndDelete(id);
@@ -260,7 +279,7 @@ router.post('/forgot-password', async(req, res)=>{
     const {email} = req.body;
     try{
         const user = await UserModel.findOne({email});
-        console.log(user);
+        // console.log(user);
         if(!user){
             return res.json({ status: "error", message:"User not found with email", code:"user_with_email_not_found" });
         }

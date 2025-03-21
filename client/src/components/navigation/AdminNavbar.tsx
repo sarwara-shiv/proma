@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PagesConfig, { PageConfig } from '../../config/pagesConfig';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LogoutButton from '../auth/LogoutButton';
 import {useAuthContext } from '../../context/AuthContext';
+import { useSocket } from '@/context/SocketContext';
 
 const AdminNavbar = () => {
     const { t } = useTranslation();
@@ -73,7 +74,6 @@ const AdminNavbar = () => {
                         }
                         return null;
                     })}
-
                     <li><LogoutButton /></li>
                 </ul>
             </nav>

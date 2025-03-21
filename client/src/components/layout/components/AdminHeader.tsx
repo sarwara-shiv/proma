@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { MdClose, MdMenu } from 'react-icons/md';
 import { useAppContext } from '../../../context/AppContext';
 import {useAuthContext } from '../../../context/AuthContext';
+import LogoutButton from '../../../components/auth/LogoutButton';
 
 const AdminHeader = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
@@ -57,9 +58,12 @@ const AdminHeader = () => {
                         </div>
                         {/* <span>{t('adminPanel')}</span> */}
                     </div>
-                    <div className="text-sm">
-                        <span className="text-primary font-bold">Hi </span>
-                        {user?.username && <>{user.username}</>}
+                    <div className="text-sm flex gap-2">
+                        <span>
+                            <span className="text-primary font-bold">{t('hello')} </span>
+                            {user?.username && <>{user.username}</>}
+                        </span> |
+                        <div><LogoutButton type='link'/></div>
                     </div>
                 </div>
             </header>

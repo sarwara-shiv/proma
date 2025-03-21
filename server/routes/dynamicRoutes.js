@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
-import { io } from '../socket.js'; 
+import { io, onlineUsers } from '../socket.js'; 
 import bcrypt from 'bcrypt';
 import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport, WorkLog } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
@@ -118,39 +118,49 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
         }
       }
 
-      if(resource === 'tasks' || resource === "maintasks"){
-        // Log changes
-        const populatedTask = await Task.findById(savedRecord._id)
-          .populate('createdBy responsiblePerson subtasks customPriority customStatus')
-          .exec();
-          const taskDetails = {
-            name: populatedTask.name,
-            description: populatedTask.description || "",  // If there's no description, provide a fallback
-            priority: populatedTask.priority,
-            status: populatedTask.status,
-            responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
-            createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
-            dueDate: populatedTask.dueDate,
-            startDate: populatedTask.startDate,
-            resource:resource,
-            subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
-            customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
-          };
-          const taskText = `
-            Task: ${taskDetails.name}
-            Description: ${taskDetails.description}
-            Priority: ${taskDetails.priority}
-            Status: ${taskDetails.status}
-            Responsible Person: ${taskDetails.responsiblePerson}
-            Created By: ${taskDetails.createdBy}
-            Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
-            Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
-            Subtasks: ${taskDetails.subtasks}
-            Resource: ${taskDetails.resource}
-            Custom Fields: ${taskDetails.customFields}
-          `;
+      // ADD TASKS TO PINECONE
+      // if(resource === 'tasks' || resource === "maintasks"){
+      //   // Log changes
+      //   const populatedTask = await Task.findById(savedRecord._id)
+      //     .populate('createdBy responsiblePerson subtasks customPriority customStatus')
+      //     .exec();
+      //     const taskDetails = {
+      //       name: populatedTask.name,
+      //       description: populatedTask.description || "",  // If there's no description, provide a fallback
+      //       priority: populatedTask.priority,
+      //       status: populatedTask.status,
+      //       responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
+      //       createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
+      //       dueDate: populatedTask.dueDate,
+      //       startDate: populatedTask.startDate,
+      //       resource:resource,
+      //       subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
+      //       customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
+      //     };
+      //     const taskText = `
+      //       Task: ${taskDetails.name}
+      //       Description: ${taskDetails.description}
+      //       Priority: ${taskDetails.priority}
+      //       Status: ${taskDetails.status}
+      //       Responsible Person: ${taskDetails.responsiblePerson}
+      //       Created By: ${taskDetails.createdBy}
+      //       Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
+      //       Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
+      //       Subtasks: ${taskDetails.subtasks}
+      //       Resource: ${taskDetails.resource}
+      //       Custom Fields: ${taskDetails.customFields}
+      //     `;
 
-       await upsertToPinecone(savedRecord._id.toString(), taskText);
+      //  await upsertToPinecone(savedRecord._id.toString(), taskText);
+      // }
+
+       // Emit task updated event to the assigned user using Socket.io
+       if ((resource === 'tasks' || resource ===  'maintasks') && savedRecord._id && savedRecord.responsiblePerson) {
+        console.log('****',savedRecord);
+        const assignedUserSocketId = onlineUsers.get(savedRecord.responsiblePerson.toString());         
+        if (assignedUserSocketId) {
+          io.to(assignedUserSocketId).emit('new-task-assigned', savedRecord);
+        }
       }
 
   
@@ -233,24 +243,14 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
       }
 
       // Emit task updated event to the assigned user using Socket.io
-      // if (resource === 'tasks' && data.responsiblePerson) {
-      //   const assignedUserSocketId = onlineUsers.get(data.responsiblePerson.toString()); 
-      //   if (assignedUserSocketId) {
-      //     io.to(assignedUserSocketId).emit('task-updated', updatedRecord);
-      //     console.log('---------------------------------------------');
-      //     console.log("Task updated and notification sent to user:", data.responsiblePerson.toString());
-      //   }
-      // }
+      if ((resource === 'tasks' || resource ===  'maintasks') && data && data.responsiblePerson) {
+        const socket = req.app.get('socket'); 
+        const assignedUserSocketId = onlineUsers.get(data.responsiblePerson.toString());         
+        if (assignedUserSocketId) {
+          socket.to(assignedUserSocketId).emit('new-task-assigned', updatedRecord);
+        }
+      }
 
-      console.log("-----------------------------------");
-      console.log("-----------------------------------");
-      console.log("-----------------------------------");
-      console.log(data);
-      console.log(id);
-      console.log(updatedRecord);
-      console.log("-----------------------------------");
-      console.log("-----------------------------------"); 
-      console.log("-----------------------------------");
 
       if(resource === 'tasks' || resource === "maintasks"){
         // Log changes
@@ -283,40 +283,41 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
         }
       }
 
-      if(resource === 'tasks' || resource === "maintasks"){
-        // Log changes
-        const populatedTask = await Task.findById(updatedRecord._id)
-          .populate('createdBy responsiblePerson subtasks customPriority customStatus')
-          .exec();
-          const taskDetails = {
-            name: populatedTask.name,
-            description: populatedTask.description || "",  // If there's no description, provide a fallback
-            priority: populatedTask.priority,
-            status: populatedTask.status,
-            responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
-            createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
-            dueDate: populatedTask.dueDate,
-            startDate: populatedTask.startDate,
-            resource:resource,
-            subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
-            customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
-          };
-          const taskText = `
-            Task: ${taskDetails.name}
-            Description: ${taskDetails.description}
-            Priority: ${taskDetails.priority}
-            Status: ${taskDetails.status}
-            Responsible Person: ${taskDetails.responsiblePerson}
-            Created By: ${taskDetails.createdBy}
-            Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
-            Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
-            Subtasks: ${taskDetails.subtasks}
-            Custom Fields: ${taskDetails.customFields}
-            resource:${taskDetails.resource}
-          `;
+      // ADD TASKS TO PINECONE
+      // if(resource === 'tasks' || resource === "maintasks"){
+      //   // Log changes
+      //   const populatedTask = await Task.findById(updatedRecord._id)
+      //     .populate('createdBy responsiblePerson subtasks customPriority customStatus')
+      //     .exec();
+      //     const taskDetails = {
+      //       name: populatedTask.name,
+      //       description: populatedTask.description || "",  // If there's no description, provide a fallback
+      //       priority: populatedTask.priority,
+      //       status: populatedTask.status,
+      //       responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
+      //       createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
+      //       dueDate: populatedTask.dueDate,
+      //       startDate: populatedTask.startDate,
+      //       resource:resource,
+      //       subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
+      //       customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
+      //     };
+      //     const taskText = `
+      //       Task: ${taskDetails.name}
+      //       Description: ${taskDetails.description}
+      //       Priority: ${taskDetails.priority}
+      //       Status: ${taskDetails.status}
+      //       Responsible Person: ${taskDetails.responsiblePerson}
+      //       Created By: ${taskDetails.createdBy}
+      //       Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
+      //       Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
+      //       Subtasks: ${taskDetails.subtasks}
+      //       Custom Fields: ${taskDetails.customFields}
+      //       resource:${taskDetails.resource}
+      //     `;
 
-       await upsertToPinecone(updatedRecord._id.toString(), taskText);
-      }
+      //  await upsertToPinecone(updatedRecord._id.toString(), taskText);
+      // }
 
 
       return res.status(200).json({ status: "success", message:'Record updated', code:"record_updated", data:updatedRecord });

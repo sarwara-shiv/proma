@@ -80,11 +80,9 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
                 filters,
                 orderBy
             });  
-            console.log(res);
+
             if (res.status === "success") {
                 setData(res.data || []);
-                console.log(res.data);
-                console.log(res);
                 setPaginationData({...paginationData, totalRecords:res.totalRecords, totalPages:res.totalPages, currentPage:res.currentPage})
             }else{
                 setData([]);
@@ -176,7 +174,6 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
             },
             cell: ({ getValue }: { getValue: () => string }) => {
                 const project = getValue() as unknown as Project;
-                console.log(project)
                 return <span>{project && project.name || ''}</span>; 
                 // return <span>{'pna,me'}</span>;
             },
@@ -389,14 +386,12 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
     }
 
     const handleDataChange = async (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
-        console.log(recordId, name, value, selectedData);
         if(recordId && name && value){
           const nData = {[name]:value};
           updateData(recordId, nData);
         }
       };
       const handleDateChange = (recordId:string|ObjectId, value: Date | null, name:string)=>{
-        console.log(recordId, value, name);
         if(recordId && name && value){
           const nData = {[name]:value};
           updateData(recordId, nData);
@@ -417,7 +412,7 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
               }
             }
           }catch(err){
-            console.log(err);
+            console.error(err);
           }
         }
       }

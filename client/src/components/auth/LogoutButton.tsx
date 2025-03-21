@@ -2,10 +2,17 @@ import React from "react";
 import {useAuthContext}  from "../../context/AuthContext";
 import { logout } from "../../context/logout";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-const LogoutButton: React.FC = () => {
+interface ArgsType{
+  type?: "button"|'link';
+  classes?:string
+}
+
+const LogoutButton: React.FC<ArgsType> = ({type="button", classes}) => {
     const {setUser, setRole, setRoles, setIsAuthenticated, setPermissions } = useAuthContext();
     const navigate = useNavigate();
+    const {t} = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -24,7 +31,17 @@ const LogoutButton: React.FC = () => {
 
   return (
         <div>
-            <button onClick={handleLogout} className="btn btn-solid">Logout</button>
+            {type === 'button' &&
+             <button onClick={handleLogout} className="btn btn-solid">{t('logout')}</button>
+            }
+            {type === 'link' &&
+             <div onClick={handleLogout} className={`
+              underline cursor-pointer hover:no-underline 
+              ${classes && classes}`
+              }>
+                {t('logout')}
+              </div>
+            }
         </div>
     )
 };

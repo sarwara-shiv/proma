@@ -1,16 +1,49 @@
 import { useAppContext } from "../../../context/AppContext";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LogoutButton from "../../../components/auth/LogoutButton";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserPagesConfig, UserPageConfig } from "../../../config/userPagesConfig";
 import {useAuthContext } from "../../../context/AuthContext";
+import { useSocket } from "../../../context/SocketContext";
+import { ReactComponent as LogoIcon } from '../../../assets/images/svg/logo-icon.svg';
 
 const UserSidebar: React.FC = () => {
     const {isSidebarOpen} = useAppContext();
     const { permissions, role } = useAuthContext();
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const {t} = useTranslation();
+    const socket = useSocket();
+    const [newTasks, setNewTasks] = useState<number>(0);
+    useEffect(() => {
+        if (socket) {
+          // Listen for the 'new-task-assigned' event
+          socket.on('new-task-assigned', (task) => {
+            console.log('New task assigned:', task);
+            let ntasks = newTasks + 1;
+            setNewTasks((pre:number)=>{
+                return pre +1;
+            })
+            console.log(newTasks)
+            // Show a notification or update the UI
+            // alert(`New task assigned: ${task.name}`);
+          });
+        }else{
+            console.log("no socket");
+        }
+    
+        return () => {
+          if (socket) {
+            socket.off('new-task-assigned');
+          }
+        };
+      }, [socket]);
+
+      const handleNewTasks = async(page:UserPageConfig)=>{
+        if(page && page.name === 'mytasks'){
+            setNewTasks((prev:number)=>{return 0})
+        }
+      }
 
     // Check user permissions
     const hasAccess = (page: UserPageConfig): boolean => {
@@ -48,16 +81,27 @@ const UserSidebar: React.FC = () => {
                     return (
                         <li key={index} className="relative">
                             <div className="flex items-center justify-between p-1">
-                                <NavLink
+                            <NavLink
                                     to={`/user/${page.root}`}
-                                    className={({ isActive }) =>
-                                        `flex-1 rounded-lg text-sm flex items-center justify-start ${isActive ? "text-primary font-bold" : "text-gray-400 font-light hover:text-primary"}`
+                                        className={({ isActive }) =>{
+                                            return  `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-primary font-bold bg-gray-200/50" : "text-gray-400 font-light hover:text-primary hover:bg-gray-200/50"}`
+                                        }
                                     }
+                                    onClick={()=>handleNewTasks(page)}
                                 >
                                     <span className='icon me-2 w-[20px] h-[20px] rounded-full bg-primary-light p-1'>
-                                        {page.icon && <page.icon />}
+                                        {page.icon ? <page.icon /> : <LogoIcon className="text-gray-400" />} 
                                     </span>
-                                    {t(`NAV.${page.name}`)}
+                                    <div className="flex justify-between items-center flex-1">
+                                        {t(`NAV.${page.name}`)}
+                                        {newTasks > 0 && page.name === 'mytasks' && 
+                                        <span className="
+                                             right-0 p-[2px] bg-primary rounded-md h-3 flex justify-center items-center text-[10px] aspect-[1/1] text-white font-bold
+                                        ">
+                                            {newTasks}
+                                            </span>
+                                        }
+                                    </div>
                                 </NavLink>
 
                                 {page.subMenu && Object.keys(page.subMenu).length > 0 && (
@@ -83,7 +127,7 @@ const UserSidebar: React.FC = () => {
                 return null;
             })}
 
-            <li><LogoutButton /></li>
+            {/* <li><LogoutButton /></li> */}
         </ul>
       </div>
       

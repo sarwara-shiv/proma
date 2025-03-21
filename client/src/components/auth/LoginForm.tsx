@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { login } from "../../context/login"; // Import login function
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -6,18 +6,34 @@ import CustomInput from "../forms/CustomInput";
 import FormButton from "../common/FormButton";
 import FormsTitle from "../common/FormsTitle";
 import {useAuthContext } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 
 const LoginForm: React.FC = () => {
   const { setUser, setRole, setRoles, setIsAuthenticated, setPermissions } = useAuthContext(); // Use setUser from context
   const [data, setData] = useState({ email: "", password: "" });
   const { t } = useTranslation("common");
   const navigate = useNavigate();
+  const socket = useSocket();
 
   // Handle form input changes
   const handleInputs = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const field = event.target.name;
     setData({ ...data, [field]: event.target.value });
   };
+
+  useEffect(() => {
+    if (socket) {
+      // Listen for the 'user-connected' event (optional, for debugging)
+      socket.on('user-connected', (userId) => {
+        console.log('🎉 Received user-connected event in frontend:', userId);
+      });
+
+      // Cleanup listener on unmount
+      return () => {
+        socket.off('user-connected');
+      };
+    }
+  }, [socket]);
 
   // Submit form
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -31,10 +47,15 @@ const LoginForm: React.FC = () => {
       setPermissions(userData.data.permissions);
       setIsAuthenticated(true);
       console.log(userData);
+
+      if(socket){
+        socket.emit('user-connected', userData.data._id);
+      }
+
       if (userData.data.role === 'admin') {
-        navigate('/admin');
+        navigate('/admin/mytasks');
       } else {
-        navigate('/user');
+        navigate('/user/mytasks');
       }
     } catch (error) {
       console.error("Login failed:", error);

@@ -3,82 +3,25 @@ import express from "express";
 import cookieParser from 'cookie-parser';
 import cors from "cors";
 import http from "http";
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 
 import initializeDefaultData from './initDefaultData.js';
 
-import {userRouter} from "./routes/users/users.js"; 
+import { userRouter } from "./routes/users/users.js";
 import { rolesRouter } from './routes/roles/userRoles.js';
 import { resourceRouter } from './routes/dynamicRoutes.js';
-import { groupsRouter } from './routes/groups/userGroups.js'; 
-import { ChangeLog } from './models/models.js';
+import { groupsRouter } from './routes/groups/userGroups.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
 import { initializeSocket } from './socket.js';
 
-import { Pinecone } from "@pinecone-database/pinecone";
-
-
-console.log(process.env.PINECONE_API_KEY);
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY,
-});
-
-const createIndex = async () => {
-  try {
-    const indexName = "tasks-ai-search";
-    const dimension = 384; // Change this to match the embedding model output
-
-    const existingIndexesResponse = await pinecone.listIndexes();
-    const existingIndexes = existingIndexesResponse.indexes.map(index => index.name);
-
-    if (!existingIndexes.includes(indexName)) {
-      await pinecone.createIndex({
-        name: indexName,
-        dimension: dimension,
-        metric: "cosine",
-        spec: {
-          serverless: {
-            cloud: "aws",
-            region: "us-east-1",
-          },
-        },
-      });
-
-      console.log(`Index "${indexName}" created successfully.`);
-    } else {
-      console.log(`Index "${indexName}" already exists.`);
-    }
-  } catch (error) {
-    console.error("Error creating Pinecone index:", error);
-  }
-};
-
-const deleteIndex = async () => {
-  try {
-    const indexName = "tasks-ai-search";
-    await pinecone.deleteIndex(indexName);
-    console.log(`Index "${indexName}" deleted successfully.`);
-  } catch (error) {
-    console.error("Error deleting Pinecone index:", error);
-  }
-};
-
-// Call the function to delete the index
-// deleteIndex();
-createIndex();
-
-
 const app = express();
-app.use(express.json({ limit: "50mb" })); // Adjust size as needed
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 const server = http.createServer(app); // Create HTTP server
-// Initialize Socket.io
-const io = initializeSocket(server);
-app.set('socket', io);
 
 app.use(cookieParser());
 app.use(express.json());
-// app.use(cors()); --- old
+
 const allowedOrigins = [process.env.CLIENT_URL];
 const corsOptions = {
   origin: (origin, callback) => {
@@ -88,16 +31,13 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,  // This is important to allow cookies and other credentials
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
-//debugging data for development
-mongoose.set('debug', true);
-
-// const DB_PASS = process.env.DB_PASS;
-const mongoURI = process.env.DB_LOCAL_URL; 
-const PORT = process.env.PORT || 3001; 
+// Initialize Socket.io
+const io = initializeSocket(server, app);
+app.set('socket',io);
 
 // ROUTES
 app.use("/resource", resourceRouter);
@@ -107,45 +47,29 @@ app.use("/groups", groupsRouter);
 app.use("/worklog", worklogRouter);
 
 // DB CONNECTION
-mongoose.connect(mongoURI).then(()=>{
-    initializeDefaultData();
-}).catch(()=>{
-    console.error('DB Connection Error');
-})
+const mongoURI = process.env.DB_LOCAL_URL;
+const PORT = process.env.PORT || 3001;
 
-const db = mongoose.connection; 
+mongoose.connect(mongoURI).then(() => {
+    initializeDefaultData();
+}).catch(() => {
+    console.error('DB Connection Error');
+});
+
+const db = mongoose.connection;
 db.on('connected', () => {
     console.log('Mongoose connection established successfully.');
     const db = mongoose.connection.db;
     console.log('Connected to database:', db.databaseName);
-    
+
     const { host, port, name } = mongoose.connection;
     console.log('Host:', host);
     console.log('Port:', port);
-    console.log('Database Name:', name); 
+    console.log('Database Name:', name);
 });
-  
+
 db.on('error', (err) => {
-    console.error('Mongoose connection error:', err); 
-}); 
+    console.error('Mongoose connection error:', err);
+});
 
-
-app.listen(PORT, ()=> console.log("SERVER STARTED"));
-
-app.get('/changelog/:documentId', async (req, res) => {
-    const { documentId } = req.params;
-  
-    try {
-      // Fetch change logs for the specified document ID
-      const changeLogs = await ChangeLog.find({ documentId });
-  
-      if (changeLogs.length === 0) {
-        return res.status(404).json({ message: 'No change logs found for this document ID.' });
-      }
-  
-      return res.json(changeLogs);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'An error occurred while fetching change logs.' });
-    }
-  });
+server.listen(PORT, () => console.log("SERVER STARTED"));

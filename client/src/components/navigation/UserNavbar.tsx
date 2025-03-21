@@ -9,7 +9,7 @@ const UserNavbar = () => {
     const { t } = useTranslation();
     const { permissions } = useAuthContext();
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-
+        console.log("admin nav bar");
     // Check user permissions
     const hasAccess = (page: PageConfig): boolean => {
         if (page.access?.includes('all')) return true;
