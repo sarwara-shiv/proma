@@ -13,6 +13,7 @@ import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
 import { initializeSocket } from './socket.js';
+import { dummyWorklogData, printIds } from './dummyData.js';
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -57,7 +58,7 @@ mongoose.connect(mongoURI).then(() => {
 });
 
 const db = mongoose.connection;
-db.on('connected', () => {
+db.on('connected', async () => {
     console.log('Mongoose connection established successfully.');
     const db = mongoose.connection.db;
     console.log('Connected to database:', db.databaseName);
@@ -66,7 +67,13 @@ db.on('connected', () => {
     console.log('Host:', host);
     console.log('Port:', port);
     console.log('Database Name:', name);
+
+    // print ids for collection
+    // printIds(db);
+    // await dummyWorklogData(db);
+    
 });
+
 
 db.on('error', (err) => {
     console.error('Mongoose connection error:', err);

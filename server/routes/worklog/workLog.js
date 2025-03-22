@@ -4,6 +4,7 @@ import { WorkLog, DailyReport } from '../../models/models.js';
 import { generateUniqueId } from '../../utils/idGenerator.js';
 import { parseDateRange } from '../../utils/DateUtil.js';
 import moment from 'moment';
+import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
 
