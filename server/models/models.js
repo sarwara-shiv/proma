@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 export * from './userRolesModel.js'
 export * from './userGroupModel.js'
+export * from './chatModel.js'
 
 const CounterSchema = new Schema({
   _id: { type: String, required: true },  // e.g., 'project', 'task', 'question'
@@ -292,6 +293,7 @@ TicketSchema.methods.checkCompletion = async function () {
     await ticket.save();
   }
 };
+
 
 // Kickoff Question Schema
 const KickoffQuestionSchema = new Schema({
