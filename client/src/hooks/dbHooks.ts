@@ -347,7 +347,7 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
 interface WorkLogInterface{
   body?:any;
   id?:string;
-  type:'start'|'stop'|'update'|'report';
+  type:'start'|'stop'|'update'|'report' | 'report2' | 'user-report' | 'admin-report' | 'reportByType' | 'projectReport' | 'adminReport' | 'adminReportByType';
 }
 
 const workLogActions = async(args:WorkLogInterface)=>{

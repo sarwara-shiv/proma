@@ -1,3 +1,4 @@
+import { fontSize } from '@mui/system';
 import type { PluginAPI } from 'tailwindcss/types/config';
 
 const customStyles = (plugin: PluginAPI) => {
@@ -13,7 +14,7 @@ const customStyles = (plugin: PluginAPI) => {
         marginBottom:'0.75rem',
         color:'#cbd5e1'
       }
-    },
+    }
   });
 };
 
