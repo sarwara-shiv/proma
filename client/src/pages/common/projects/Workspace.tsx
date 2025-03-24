@@ -14,10 +14,12 @@ import MainTasksProject from '../tasks/components/MaintTasksProject';
 import ProjectDocumentations from '../documentation/components/ProjectDocumentations';
 import DocumentationsForm from '../documentation/components/DocumentationsForm';
 import Documentation from '../documentation/Documentation';
+import ProjectReport from './components/ProjectReport';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
   { link: "projects/add", title: "projects_add", icon:<IoMdAdd />},
+  // { link: "projects/report", title: "projects_report", icon:<IoMdAdd />},
 ];
 
 const Project = () => {
@@ -45,6 +47,7 @@ const Project = () => {
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} cid={id} data={data}/>  :
               action=== "documentation" && id ? <ProjectDocumentations setSubNavItems={setSubNavItems} />  :
+              action=== "report" && id ? <ProjectReport setSubNavItems={setSubNavItems} />  :
               <AllProjects setSubNavItems={setSubNavItems} navItems={navItems}/>  
             }
         </div>

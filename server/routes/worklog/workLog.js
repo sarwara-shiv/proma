@@ -989,12 +989,15 @@ router.post('/projectReport', verifyToken, async (req, res) => {
             acc[item.projectId._id].totalDuration += item.totalDuration;
 
             // Track the users who worked on the project
-            if (!acc[item.projectId._id].users.find(user => user.userId.toString() === item.userId.toString())) {
+            let existingUser = acc[item.projectId._id].users.find(user => user.userId.toString() === item.userId.toString());
+            if (!existingUser) {
                 acc[item.projectId._id].users.push({
                     userId: item.userId,
                     userName: item.userId.name,
-                    totalDuration: item.totalDuration
+                    totalDuration: item.totalDuration // ❌ This might be incorrect
                 });
+            } else {
+                existingUser.totalDuration += item.totalDuration; // ✅ Fix: Aggregate user duration properly
             }
 
             // Track total duration by task
@@ -1028,10 +1031,10 @@ router.post('/projectReport', verifyToken, async (req, res) => {
 
         // Helper function to convert to working days, hours, minutes
         const convertToWorkingTime = (duration) => {
-            const workingDays = Math.floor(duration / 480);  // 1 working day = 480 minutes
-            const workingHours = Math.floor((duration % 480) / 60);  // Remaining working hours
-            const workingMinutes = duration % 60;  // Remaining minutes
-            return { workingDays, workingHours, workingMinutes };
+            const days = Math.floor(duration / 480);  // 1 working day = 480 minutes
+            const hours = Math.floor((duration % 480) / 60);  // Remaining working hours
+            const minutes = duration % 60;  // Remaining minutes
+            return { days, hours, minutes };
         };
 
         // Format the final response with converted times
