@@ -7,11 +7,12 @@ import { useAppContext } from '../../context/AppContext';
 import UserHeader from './components/UserHeader';
 import UserSidebar from './components/UserSidebar';
 import {useAuthContext } from '../../context/AuthContext';
+import { Task } from '../../interfaces';
+import ActiveWorkLog from './components/ActiveWorkLog';
 
 const Layout = () => {
     const { t } = useTranslation();
     const {role} = useAuthContext();
-    console.log(role);
     const {isSidebarOpen} = useAppContext()
     return (
         <div className="layout h-screen flex flex-col">
@@ -32,7 +33,7 @@ const Layout = () => {
                 </div>
             </main>
         </div>
-
+       <ActiveWorkLog />
         {/* Footer (Fixed at Bottom) */}
         <Footer/>
         </div>

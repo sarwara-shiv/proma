@@ -4,10 +4,11 @@ import AdminHeader from './components/AdminHeader';
 import AdminSidebar from './components/AdminSidebar';
 import Footer from './components/AdminFooter';
 import { useAppContext } from '../../context/AppContext';
+import ActiveWorkLog from './components/ActiveWorkLog';
 
 const AdminLayout = () => {
     const { t } = useTranslation();
-    const {isSidebarOpen} = useAppContext()
+    const {isSidebarOpen} = useAppContext();
     return (
         <div className="layout h-screen flex flex-col">
         {/* Header (Fixed Below Top Menu Bar) */}
@@ -28,7 +29,7 @@ const AdminLayout = () => {
                 </div>
             </main>
         </div>
-
+        <ActiveWorkLog />
         {/* Footer (Fixed at Bottom) */}
         <Footer/>
         </div>

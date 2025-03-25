@@ -185,10 +185,10 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             </div>
           </div>
           {/* Header details */}
-          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
+          <div className='flex flex-col sm:flex-row gap-3'>
             {/* TASKS */}
-            <div className='card bg-blue-100 border-2 border-white p-1'>
-              <h2 className='text-blue-500 font-bold text-sm mb-2'>{t('tasks')}</h2>
+            <div className='card bg-green-100 border-2 border-white p-1 w-fit'>
+              <h2 className='text-green-400 font-bold text-sm mb-2'>{t('tasks')}</h2>
               <div className='text-xs text-slate-500 flex flex-cols gap-2'>
                   <span>{t('maintasks')}:</span>
                   <span className='font-bold'>{mainTasks ? mainTasks.length : 0}</span>
@@ -201,10 +201,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                     }
                     </span>
               </div>
-            </div>
-            <div className='card bg-green-100 border-2 border-white p-1'>
-              <h2 className='text-green-400 font-bold text-sm mb-2'>{t('kickOff')}</h2>
-              <div className='relative w-[100px]'>
+              <div className='relative w-[250px]'>
                 <PieChartWithPaddingAngle data={mainTasks}/>
               </div>
             </div>

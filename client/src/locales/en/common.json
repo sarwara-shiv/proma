@@ -296,5 +296,12 @@
     "private":"Private",
     "noActiveTask":"No Active Task",
     "worklog":"Work Log",
-    "public":"Public"
+    "public":"Public",
+    "date":"Date",
+    "Duration":"Duration",
+    "note":"Note",
+    "active_task":"Active Task",
+    "start_time":"Started At",
+    "end_time":"Ended At",
+    "srnr":"Nr."
 }

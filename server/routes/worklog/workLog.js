@@ -149,9 +149,10 @@ router.post("/start", verifyToken, async (req, res) => {
 // STOP WORKLOG
 router.post("/stop/:id", verifyToken, async (req, res) => {
     try {
-        const {...data} = req.body.data;
+        const { worklogId, notes=''} = req.body.data; 
         // Find the work log by ID
-        const workLog = await WorkLog.findById(req.params.id);
+        const workLog = await WorkLog.findById(worklogId);
+
 
         // If work log is not found
         if (!workLog) {
@@ -161,7 +162,7 @@ router.post("/stop/:id", verifyToken, async (req, res) => {
         // Update the work log with the completed status, current end time, and notes from the request body
         workLog.status = 'completed';
         workLog.endTime = new Date(); // Set the current date-time as end time
-        workLog.notes = data.notes || workLog.notes; // Update notes with data from request body (if provided)
+        workLog.notes = notes; // Update notes with data from request body (if provided)
 
         // Recalculate the duration based on the new endTime
         workLog.duration = Math.round((workLog.endTime - workLog.startTime) / (1000 * 60)); // Convert ms to minutes
@@ -170,7 +171,7 @@ router.post("/stop/:id", verifyToken, async (req, res) => {
         await workLog.save();
 
         // Return the updated work log as the response
-        return res.status(200).json({ status: "success", message:'Record updated', code:"record_updated", data:'' });
+        return res.status(200).json({ status: "success", message:'Worklog Stopped', code:"worklog_stopped", data:'' });
     } catch (error) {
         console.error(error);
         return res.status(200).json({ status: "error", message:"unknown_error", code:"unknown_error"});
@@ -670,12 +671,113 @@ router.post('/reportByType', verifyToken, async (req, res) => {
 
 /**
  * 
+ * GET ACTIVE REPORTS
+ * 
+ */
+router.post('/adminActiveWorklog', verifyToken, async (req, res) => {
+    const { status = "active" } = req.body.data; // Optional filters
+
+    try {
+        let start = moment().startOf('day').toDate();
+        let end = moment().endOf('day').toDate();
+
+        // Aggregation pipeline
+        let aggregatePipeline = [];
+
+        // Match worklogs by date range and status
+        let matchStage = {
+            status: status,
+            startTime: { $gte: start, $lte: end }
+        };
+
+        // Adding match stage to aggregation pipeline
+        aggregatePipeline.push({ $match: matchStage });
+
+        // Group worklogs by user, project, task, and date (No duration, just startTime)
+        let groupStage = {
+            _id: {
+                user: '$user',
+                project: '$project',
+                task: '$task',
+                date: { $dateToString: { format: '%Y-%m-%d', date: '$startTime' } }
+            },
+            notes: { 
+                $push: {
+                    worklogId: '$_id',
+                    note: '$notes',
+                    startTime: '$startTime' // Include the startTime in the notes
+                }
+            }
+        };
+
+        // Adding group stage to aggregation pipeline
+        aggregatePipeline.push({ $group: groupStage });
+
+        // Project the necessary fields
+        aggregatePipeline.push({
+            $project: {
+                _id: 1,
+                projectId: '$_id.project',
+                userId: '$_id.user',
+                taskId: '$_id.task',
+                date: '$_id.date',
+                notes: 1
+            }
+        });
+
+        // Sorting by user and date
+        aggregatePipeline.push({ $sort: { 'userId': 1, 'date': 1 } });
+
+        // Execute the aggregation query
+        let reportData = await WorkLog.aggregate(aggregatePipeline);
+
+        // Populate user, project, and task details
+        reportData = await WorkLog.populate(reportData, [
+            { path: 'userId', model: 'User', select: 'name email username' },
+            { path: 'projectId', model: 'Project', select: 'name projectType' },
+            { path: 'taskId', model: 'Task', select: 'name assignedBy',
+                populate: { path: 'assignedBy', model: 'User', select: 'name email' }
+            }
+        ]);
+
+        // Group the report data by user
+        let groupedByUsers = reportData.reduce((acc, item) => {
+            const userId = item.userId._id.toString();  // Ensure we use the string representation for key comparison
+            if (!acc[userId]) {
+                acc[userId] = {
+                    userId: item.userId._id,
+                    userName: item.userId.name,
+                    data: []
+                };
+            }
+            acc[userId].data.push(item); // Add the item to the user's data array
+            return acc;
+        }, {});
+
+        // Convert grouped data to an array of objects
+        const result = Object.values(groupedByUsers);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Active report generated successfully',
+            data: result,
+            params: { startDate: start, endDate: end, status }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: 'error', message: 'Error generating active report' });
+    }
+});
+
+
+/**
+ * 
  * ADMIN REPORTS
  * get data for specific id or for all ids
  * 
  */
 router.post('/adminReport', verifyToken, async (req, res) => {
-    const { projectId, taskId, startDate, endDate, userId } = req.body.data; // Optional filters
+    const { projectId, taskId, startDate, endDate, userId, status="completed" } = req.body.data; // Optional filters
 
     try {
         let start = startDate ? moment(startDate).startOf('day').toDate() : moment().startOf('day').toDate();
@@ -685,7 +787,7 @@ router.post('/adminReport', verifyToken, async (req, res) => {
 
         // Match worklogs by date range, project, task, status, and optionally userId
         let matchStage = {
-            status: 'completed',
+            status: status,
             startTime: { $gte: start, $lte: end }
         };
 

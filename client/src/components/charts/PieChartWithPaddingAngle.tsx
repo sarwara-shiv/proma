@@ -27,7 +27,7 @@ const PieChartWithPaddingAngle: React.FC<PieChartWithPaddingAngleProps> = ({ dat
 
   return (
     // ResponsiveContainer wraps the PieChart and makes it responsive
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width={250} height={250}>
       <PieChart>
         <Pie
           data={pieData}
@@ -35,7 +35,7 @@ const PieChartWithPaddingAngle: React.FC<PieChartWithPaddingAngleProps> = ({ dat
           nameKey="name"
           cx="50%" // X position
           cy="50%" // Y position
-          outerRadius={120} // Radius of the pie
+          outerRadius={70} // Radius of the pie
           fill="#8884d8"
           paddingAngle={5} // Padding between slices
           label // Adds labels to each slice

@@ -5,8 +5,8 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { workLogActions } from "../../../../hooks/dbHooks";
-import UserBarChart from "./UserBarChart";
-import UserPieChart from "./UserPieChart";
+import UserBarChart from "../../../../components/charts/UserBarChart";
+import UserPieChart from "../../../../components/charts/UserPieChart";
 import { format } from "date-fns";
 
 interface ProjectReportType {
