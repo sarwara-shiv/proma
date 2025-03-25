@@ -428,6 +428,7 @@ const WorkLog = () => {
                                 <th className='w-10'>{t('srnr')}</th>
                                 <th>{t('Project')}</th>
                                 <th>{t('Task')}</th>
+                                <th>{t('user')}</th>
                                 <th>{t('duration')}</th>
                                 <th className='text-right'>{t('start_time')}</th>
                               </tr>
@@ -440,6 +441,7 @@ const WorkLog = () => {
                                     <td>{tkey+1}</td>
                                     <td>{tasks.projectId.name}</td>
                                     <td>{tasks.taskId.name}</td>
+                                    <td>{data.userName}</td>
                                     <td className='items-left text-left'>
                                       <div className='flex justify-start items-center gap-2'>
                                           <span className='flex flex-col justify-center items-center'><span className='font-bold pr-1'>{tasks.days}</span>{t('days')}</span>
