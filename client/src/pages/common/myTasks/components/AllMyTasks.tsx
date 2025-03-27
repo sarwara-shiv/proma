@@ -461,7 +461,7 @@ const AllMyTasks = () => {
               const _id = row.original._id ? row.original._id as unknown as string : '';
               return (
                   <div className={`${getColorClasses(cid)} rounded-md px-1`} >
-                      {cid}
+                      {t(cid)}
                   </div>
               )
             },
@@ -481,7 +481,7 @@ const AllMyTasks = () => {
               const _id = row.original._id ? row.original._id as unknown as string : '';
               return (
                   <div className={`${getColorClasses(cid)} rounded-md px-1`} >
-                      {cid}
+                      {t(cid)}
                   </div>
               )
             },

@@ -88,6 +88,7 @@ export interface BaseTask {
   createdBy: ObjectId;  // User reference
   sortOrder?: number;
   isRework?: boolean;
+  difficultyLevel?:'easy'|'medium'|'hight';
   reason?:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
   priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities
   customPriority?:ObjectId;  // Custom priority reference
