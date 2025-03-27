@@ -9,6 +9,7 @@ export interface User {
   name?:string;
   email: string;
   password?: string;
+  firma?:string;
   groups?: string[]; 
   roles?: string[]; 
   permissions?: PermissionsMap; 

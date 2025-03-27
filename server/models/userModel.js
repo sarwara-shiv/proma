@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   roles: [{ type: Schema.Types.ObjectId, ref: 'UserRoles' }], 
   groups: [{ type: Schema.Types.ObjectId, ref: 'UserGroups' }], 
+  firma: { type: String, default:"self"}, 
   permissions: {
     type: Map,
     of: {

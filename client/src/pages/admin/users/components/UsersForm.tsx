@@ -152,10 +152,12 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
 
           {/* Render roles once they are fetched */}
             <UserRolesSelect onChange={handleRoleChange} selectedRoles={formData.roles} />
-            <UserGroupsSelect onChange={handleGroupsChange} selectedValues={formData.groups} type='multiple'/> 
+            {selectedRoleName !== 'client' && 
+              <UserGroupsSelect onChange={handleGroupsChange} selectedValues={formData.groups} type='multiple'/> 
+            }
 
           <div className="mt-6">
-            {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && 
+            {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && selectedRoleName !== 'client' && 
               <PagePermissionsSelect
                 initialPermissions={selectedPermissions}
                 onPermissionsChange={handlePermissionsChange}

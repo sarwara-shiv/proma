@@ -262,15 +262,6 @@ const AllMyTasks = () => {
                     </>
                 })
             })
-            // setCustomPopupData((res:CustomPopupType)=>{
-            //     return ({...res, isOpen:true, data:task, 
-            //     content:<>
-            //         <div className='text-xs mb-2'>{text}</div><CustomInput 
-            //             type='textarea' onChange={setNotes} label='Add Notes'
-            //         />    
-            //         </>
-            //     })
-            // })
         }else{
             startWorkLog({task});
         }
@@ -597,6 +588,11 @@ const AllMyTasks = () => {
                                 {t('stop')}
                             </div>
                         </div>
+                        {activeWorkLog.reason && activeWorkLog.isRework &&
+                            <div className='inline-block px-2 py-1 rounded-md text-sm'>
+                                <span className='text-slate-500 text-xs'>{t('rework')}</span> : {t(activeWorkLog.reason)}
+                            </div>
+                        }
                         <div className='flex flex-wrap gap-2 text-sm p-2'>
                             <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs'>{t('mainTask')}</span> : {((activeWorkLog.task as unknown as Task)._mid as unknown as Task).name}</div>
                             <div className='inline-block px-2 py-1 rounded-md bg-slate-200/60 '><span className='text-slate-500 text-xs '>{t('task')}</span> : {(activeWorkLog.task as unknown as Task).name}</div>

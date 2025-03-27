@@ -52,6 +52,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             {path: 'kickoff.responsibilities.persons'},
             {path: 'kickoff.approval.user'},
             {path: 'createdBy'},
+            {path: 'client'},
             {path: 'mainTasks',
               populate : {
                 path:'subtasks',
@@ -114,6 +115,14 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
         <div>
           <div className='p-3 mb-3  text-slate-500'>
             <div className=''>
+            {projectData.client && typeof projectData.client === 'object' && 
+              <div className='relative flex w-fit items-center  rounded-md mb-2 pr-2 py-1'>
+                  <div className=''>
+                    <span className='text-primary text-2xl font-bold pr-2'>{(projectData.client as unknown as User).name}</span>
+                    <span>( {(projectData.client as unknown as User).firma})</span>
+                  </div>
+              </div>
+              }
               <div className='flex justify-left gap-3'>
                 {projectData.createdAt && 
                   <div>
@@ -136,12 +145,17 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                     <span className='text-slate-400 text-xs'>{t('createdBy')}: </span>
                     <span className='text-sm text-slate'>
                       {(projectData.createdBy as unknown as User).name}
+                      
                     </span>
                     </div>
                 }
               </div>
               <div className='flex justify-between w-full'>
+        
+                <div>
+               
                 <h1 className='text-2xl text-primary font-bold'>{projectData.name}</h1>
+                </div>
                 <div className='flex justify-cols gap-3'>
 
                   {getStatusData(projectData.status) && 

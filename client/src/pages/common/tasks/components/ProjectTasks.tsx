@@ -1,4 +1,4 @@
-import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
+import { addUpdateRecords, assignTasks, getRecordWithID } from '../../../../hooks/dbHooks';
 import { AlertPopupType, BaseTask, CustomPopupType, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, RichTextEditorProps, SidePanelProps, Task, User } from '@/interfaces';
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
@@ -26,7 +26,7 @@ import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePi
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
 import { sanitizeString } from '../../../../utils/commonUtils';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
-import { Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
+import { AssignedReason, AssignedType, Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 import SidePanel from '../../../../components/common/SidePanel';
@@ -77,13 +77,14 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [loader, setLoader] = useState(true);
+  const [assignData, setAssignData] = useState<{reason:string, isRework:boolean}>({reason:"todo", isRework:false});
   const [sidePanelData, setSidePanelData] = useState<SidePanelProps>({isOpen:false, title:'', subtitle:'',children:''});
   const [editorData, setEditorData] = useState({
     value: '',
     data: {}
   });
   const [richTextData, setRichtTextData] = useState<{id:string, field:string, content:string} | null>({id:'', field:'', content:''});
-  const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:''})
+  const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:'', yesFunction:()=>{}})
 
   const thStyles = 'text-xs font-semibold p-1 text-left text-primary border border-slate-200';
   const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
@@ -103,6 +104,9 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       }
       getData();
   }, []);
+  useEffect(()=>{
+
+  }, [assignData]);
 
   // TODO
   // DO IT SEPERATELY
@@ -526,6 +530,104 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     }
   }
 
+  /**
+   * 
+   * ASSIGN TASK POPUP
+   * 
+   */
+  const assignTaskPopup = (taskId:string|ObjectId, ruser:User)=>{
+    const tType = AssignedType.map(item => ({
+      ...item,
+      name: t(item.name) // Translate the name before passing it
+    }));
+    const tReason = AssignedReason.map(item => ({
+      ...item,
+      name: t(item.name) // Translate the name before passing it
+    }));
+
+    if(taskId && ruser){
+      setCustomPopupData((res:CustomPopupType)=>{        
+
+        return ({...res, isOpen:true, title:`${t('assign_task')}`, 
+          yesFunction: () => {
+        setAssignData((prevAssignData) => {
+          setAssignTask(taskId, ruser, prevAssignData.reason, prevAssignData.isRework);
+          return prevAssignData; // Ensures no unnecessary re-renders
+        });
+      },
+          content:<div>
+              <div className='mb-3'>
+                <span className='text-slate-300 text-sm'>User: </span> <span className='text-primary font-bold'> {ruser.name}</span>
+              </div>
+              <div>
+                <CustomDropdown data={tType} name='assignedType' onChange={(id, name, value, data)=>{
+                  console.log(data);
+                  setAssignData((prev)=>{ return ({...prev, isRework:data._id ==='initial' ? false : true})})
+                }
+                }
+                    selectedValue={assignData.isRework ? 'rework' : 'initial'} label='Type'
+                  />
+              </div>
+                <div>
+                  <CustomDropdown data={tReason} name='assignedReason' onChange={(id, name, value, data)=>{
+                    console.log(data);
+                    setAssignData((prev)=>{ return ({...prev, reason:data._id})})
+                  }
+                }
+                selectedValue={assignData.reason} label='Reason'
+                />
+                </div>
+              
+          </div>
+        });
+      })
+    }
+  }
+
+  const closeAssignedTask = ()=>{
+    console.log(assignData);
+    setCustomPopupData({...custoPopupData, isOpen:false})
+  }
+
+  /**
+   * 
+   * ASSIGN TAKS API CALL
+   * 
+   */
+  const setAssignTask = async(taskId:string|ObjectId, ruser:User, reason:string, isRework:boolean)=>{
+    if(taskId && ruser && reason && (isRework === true || isRework === false)){
+      const cTask = subtasks?.filter(st=>st._id === taskId);
+      let ids = [];
+      let relatedUpdates:RelatedUpdates[]= []
+      if(cTask){
+        ids = extractAllIds(cTask[0]);
+        if(ids && Array.isArray(ids) && ids.length > 0)
+        relatedUpdates= [{
+          collection:'tasks',
+          field:'responsiblePerson',
+          type:'string',
+          value:ruser._id,
+          ids:[...ids]
+       }]
+      }
+
+      const tndata = {responsiblePerson : ruser._id, assignedBy:user?._id, assignedDate: new Date(), reason:isRework ? reason : 'todo', isRework}
+      try{
+        const res = await assignTasks({relatedUpdates, id:taskId as unknown as string,body:{...tndata}});
+        if(res.status === 'success'){
+          const content = `${t(`RESPONSE.${res.code}`)}`;
+          setFlashPopupData({...flashPopupData, isOpen:true, message:t(res.code)})
+          getData();
+          closePopup();
+        }else{
+          setFlashPopupData({...flashPopupData, isOpen:true, message:t(res.code)})
+        }
+      }catch(error){
+        console.log(error);
+      }
+    }
+  }
+
   const handleDrag = (result: any) => {
     if (!result.destination) return;
     const stasks = subtasks ? subtasks as unknown as Task[] : [];
@@ -557,8 +659,9 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
   // closePopup
   const closePopup = ()=>{
+    setAssignData({...assignData, reason:'todo', isRework:false});
     setCustomPopupData((res:CustomPopupType)=>{
-        return ({...res, isOpen:false, title:'', content:''});
+        return ({...res, isOpen:false, title:'', content:'', yesFunction:()=>{}});
     })
 }
 
@@ -815,7 +918,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                         <ul>
                                           <li className='px-2 py-1 my-1 hover:bg-slate-100 text-sm'>
                                             <p className='text-xs text-slate-400'>Responsible Person</p>
-                                            <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/>
+                                            {/* <MensionUserInput onClick={(user, data)=>handleResponsiblePerson(st._id ? st._id:'', user)} inputType='text' type='users'/> */}
+                                            <MensionUserInput onClick={(user, data)=>assignTaskPopup(st._id ? st._id:'', user)} inputType='text' type='users'/>
                                           </li>
                                         </ul>
                                     </CustomContextMenu>
@@ -1013,6 +1117,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
             data={custoPopupData.data? custoPopupData.data : {}}
             title={custoPopupData.title}
             content={custoPopupData.content}
+            yesFunction={custoPopupData.yesFunction && custoPopupData.yesFunction}
+            noFunction={closePopup}
         />
     </div>
   )

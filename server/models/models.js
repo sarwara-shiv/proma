@@ -3,6 +3,29 @@ export * from './userRolesModel.js'
 export * from './userGroupModel.js'
 export * from './chatModel.js'
 
+
+// Page-Level Permissions Schema
+const PagePermissionSchema = new Schema({
+  page: { type: String, required: true },  // Page or Section name
+  canCreate: { type: Boolean, default: false },
+  canUpdate: { type: Boolean, default: false },
+  canDelete: { type: Boolean, default: false },
+  canView: { type: Boolean, default: false },
+});
+
+
+// Permissions Schema
+const PermissionSchema = new Schema({
+  person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  permissions: [PagePermissionSchema],  // Array of permissions for different pages
+});
+
+// Predefined Enums
+const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview'];
+const taskAssignReasons = ['todo','errors', 'missingRequirements', 'clientFeedback', 'feedback'];
+const predefinedPriorities = ['high', 'medium', 'low'];
+const predefinedProjectStatuses = ['notStarted', 'inProgress', 'completed', 'onHold', 'cancelled'];
+
 const CounterSchema = new Schema({
   _id: { type: String, required: true },  // e.g., 'project', 'task', 'question'
   sequence_value: { type: Number, required: true },
@@ -80,6 +103,8 @@ const WorkLogSchema = new Schema({
   endTime: { type: Date }, // Work end time, null if task still active
   duration: { type: Number }, // Auto-calculated (in minutes)
   notes: { type: String }, // Optional notes for the log
+  reason:{type:String, enum:taskAssignReasons, default:'todo'},
+  isRework:{type:Boolean, default:false},
   status: { type: String, enum: ['active', 'completed'], default: 'active' }, // Task status
 }, { timestamps: true });
 
@@ -97,25 +122,8 @@ WorkLogSchema.pre('save', function (next) {
 });
 
 
-// Page-Level Permissions Schema
-const PagePermissionSchema = new Schema({
-  page: { type: String, required: true },  // Page or Section name
-  canCreate: { type: Boolean, default: false },
-  canUpdate: { type: Boolean, default: false },
-  canDelete: { type: Boolean, default: false },
-  canView: { type: Boolean, default: false },
-});
 
-// Permissions Schema
-const PermissionSchema = new Schema({
-  person: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  permissions: [PagePermissionSchema],  // Array of permissions for different pages
-});
 
-// Predefined Enums
-const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview'];
-const predefinedPriorities = ['high', 'medium', 'low'];
-const predefinedProjectStatuses = ['notStarted', 'inProgress', 'completed', 'onHold', 'cancelled'];
 
 // Task Status Schema
 const TaskStatusSchema = new Schema({
@@ -200,7 +208,6 @@ const BaseTaskSchema = new Schema({
   _mid: { type: Schema.Types.ObjectId, ref: 'MainTask', required: true },  // Main Task this task belongs to
   name: { type: String, required: true },
   startDate: { type: Date },
-  assignedDate: { type: Date, default: Date.now  },
   dueDate: { type: Date },
   endDate: { type: Date },
   createdAt: { type: Date, default: Date.now },
@@ -213,10 +220,19 @@ const BaseTaskSchema = new Schema({
   priority: { type: String, enum: predefinedPriorities, default: 'low' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
+  assignNote: { type: String},
+  difficultyLevel: { type: Number, enum:[1,2,3,4,5,6,7,8,9,10], default:5},
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
-  newlyAssigned: { type: Boolean },
+  isRework:{type:Boolean, default:false},
+  assignedDate: { type: Date, default: Date.now  },
+  reason:{type:String, enum:taskAssignReasons,default:'todo'},
+  revisions:[{
+    assignedBy:{ type: Schema.Types.ObjectId, ref: 'User'},
+    reason:{type:String, enum:taskAssignReasons,default:'todo'},
+    timestamp:{type:Date, default:Date.now}
+  }],
   customFields: [DynamicFieldSchema],  // Custom fields array
   defaultFieldColors: [DefaultFieldColors],
   subtasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],  // Subtasks reference to tasks
@@ -395,6 +411,7 @@ const ProjectSchema = new Schema({
   priority: { type: String, enum: predefinedPriorities, default: 'medium' },
   customPriority: { type: Schema.Types.ObjectId, ref: 'ProjectPriority' },
   startDate: { type: Date, required: true },
+  client:{type: Schema.Types.ObjectId, ref: 'User',required:false}, 
   endDate: { type: Date },
   projectType:{type: String, enum:['client', 'inhouse'] , default: 'client'},
   kickoff: KickoffSchema,

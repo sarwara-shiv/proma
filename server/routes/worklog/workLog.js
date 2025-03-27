@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
-import { WorkLog, DailyReport } from '../../models/models.js'; 
+import { WorkLog, DailyReport,Task } from '../../models/models.js'; 
 import { generateUniqueId } from '../../utils/idGenerator.js';
 import { sortReportByProjects, sortReportByUsers, sortReportByTasks } from '../../utils/utilFunctions.js';
 import { parseDateRange } from '../../utils/DateUtil.js';
@@ -62,12 +62,22 @@ router.post("/start", verifyToken, async (req, res) => {
                 });
             }
 
+            const taskDetails = await Task.findOne(
+                { _id: task }, 
+                { reason: 1, isRework: 1 } // Projection: Include only these fields
+            );
+
+            const isRework = taskDetails.isRework ? true : false;
+            const reason = taskDetails.reason ? taskDetails.reason : 'todo';
+
             let newWorkLogData = {
                 ...data,
                 user: req.user._id,
                 task,
                 project,
                 status: 'active',
+                isRework,
+                reason,
                 startTime: new Date()
             };
 

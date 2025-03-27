@@ -76,5 +76,17 @@ const QuestionsStatuses = [
     {_id: 'waiting', name:'Waiting', color:'waiting'},
     {_id: 'notAnswered', name:'Not Answered', color:'notAnswered'},
 ]
+// 'todo','errors', 'missingRequirements', 'clientFeedback', 'feedback'
+const AssignedReason = [
+    {_id: 'todo', name:'todo'},
+    {_id: 'errors', name:'errors'},
+    {_id: 'missingRequirements', name:'missingRequirements'},
+    {_id: 'clientFeedback', name:'clientFeedback'},
+    {_id: 'feedback', name:'feedback'},
+]
+const AssignedType = [
+    {_id: 'initial', name:'initial' },
+    {_id: 'rework', name:'rework'},
+]
 
-export {dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

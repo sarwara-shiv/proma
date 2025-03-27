@@ -163,7 +163,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
       {isOpen && (
         <div
           ref={dropdownListRef}
-          className={`${style === 'default' ? 'absolute' : 'fixed'} bg-white border-2 border-white border rounded-md shadow-lg overflow-y-auto z-50`}
+          className={`${style === 'default' ? 'absolute' : 'fixed'} bg-slate-100 border-1 border border-slate-200 rounded-md shadow-lg overflow-y-auto z-50`}
           style={
             style === 'table' ?
             {

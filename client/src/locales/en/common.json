@@ -302,6 +302,15 @@
     "note":"Note",
     "active_task":"Active Task",
     "start_time":"Started At",
+    "assign_task":"Assign Task",
+    "initial":"Intial",
+    "rework":"Rework",
+    "feedback":"Based on Feedback",
+    "errors":"Has Errors",
+    "missingRequirements":"Requirments are not completed",
+    "clientFeedback":"Client Feedback",
+    "task_assigned":"Task Assigned",
+    "todo":"TODO",
     "end_time":"Ended At",
     "srnr":"Nr."
 }

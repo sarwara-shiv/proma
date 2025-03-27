@@ -1,6 +1,6 @@
 import FormsTitle from '../../../../components/common/FormsTitle';
-import { CustomInput, CustomSelectList } from '../../../../components/forms';
-import { AlertPopupType, DynamicCustomField, FlashPopupType, NavItem, PersonsInvolved, Project } from '@/interfaces';
+import { CustomInput, CustomSelectList, MensionUserInput } from '../../../../components/forms';
+import { AlertPopupType, DynamicCustomField, FlashPopupType, NavItem, PersonsInvolved, Project, User } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ProjectStatuses, Priorities, ProjectType } from '../../../../config/predefinedDataConfig';
@@ -21,6 +21,8 @@ import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import { useParams } from 'react-router-dom';
 import { PageTitel } from '../../../../components/common';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
+import MentionUserInput from '../../../../components/forms/MensionUserInput';
+import { IoMdClose } from 'react-icons/io';
 
 interface ArgsType {
   cid?:string | null;
@@ -34,7 +36,8 @@ const initialValues: Project = {
   description: '',
   status: 'notStarted',
   priority: 'medium',
-  projectType:'client',
+  projectType:'inhouse',
+  client:'',
   startDate: new Date(),
   endDate: new Date(), 
   documentation: [],
@@ -46,6 +49,7 @@ const initialValues: Project = {
   updatedAt: new Date(),
   createdBy:null
 };
+
 
 const priorityColors=[
   {value:"high", color:"text-red-600 bg-red-100"},
@@ -60,6 +64,8 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
   const {id} = useParams();
   const {user} = useAuthContext();
   const [projectId, setProjectId] = useState<string|ObjectId>(id ? id : '');
+  const [emptyValues, setEmptyValues] = useState<Project>(initialValues);
+  const [client, setClient] = useState<User | 'self' | null>();
   const [formData, setFormData] = useState<Project>(initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
@@ -68,7 +74,11 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
 
   useEffect(()=>{
     setSubNavItems(navItems);
-    getData();
+    if(action === 'add'){
+      setFormData(emptyValues);
+    }else{
+      getData();
+    }
 
     ProjectStatuses.map((d)=>{
       d.name = t(`${d.name}`)
@@ -80,11 +90,19 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
     })
 
   },[])
+  useEffect(()=>{
+    if(action === 'add'){
+      setFormData(emptyValues);
+    }else{
+      getData();
+    }
+  },[action])
 
   const getData = async()=>{
     try{
       const populateFields = [
           {path: 'personsInvolved'},
+          {path: 'client'},
       ]
 
         if(projectId){
@@ -92,7 +110,10 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
 
             if(res.status === 'success' && res.data){
                setFormData({...formData, ...res.data});
-               console.log(res.data); 
+               if(res.data.client){
+                setClient(res.data.client);
+               }
+               console.log(res.data);
             }
 
         }
@@ -139,6 +160,14 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
     const {name, value} = event.target;
     setFormData({...formData, [name]:value});
   };
+  const handleClient = (user:User | string) => {
+    if(user && typeof user === 'object'){
+      const clientId = user._id as unknown as string;
+      setFormData({...formData, client:clientId});
+    }else{
+      setFormData({...formData, client:user});
+    }
+  };
 
   const handleRichText = (name:string, value:string) => {
     if(name && value)
@@ -181,8 +210,12 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
 
   const handleProjectType = (value:string | string[])=>{
     console.log(value);
-    if (typeof value === 'string' || value instanceof String)
-    setFormData({...formData, projectType:value === 'inhouse' ? 'inhouse' : 'client'});
+    if (typeof value === 'string' || value instanceof String){
+      setFormData({...formData, projectType:value === 'inhouse' ? 'inhouse' : 'client', client:null});
+      if(value === 'inhouse'){
+        setClient(null);
+      }
+    }
   }
 
   const handleProjCustomField = (name: string, fieldsData: DynamicCustomField, index: number = -1) => {
@@ -242,7 +275,6 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
         </div> */}
         <form onSubmit={(e) => submitForm(e)} className=''>
           <div className='card bg-white'>
-
             <div className='fields-wrap grid grid-cols-[1fr_auto] gap-4 mb-6'>
               <div className='w-full'>
                 <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
@@ -258,14 +290,40 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
                     focus:outline-none 
                     focus:border-b
                     `}
-                    />
+                  />
                 </div>
+              </div>
+              <div className='flex items-end gap-8'>
+             {formData.projectType && formData.projectType === 'client' && 
+                <div className='flex-1'>
+                  {client && typeof client === 'object' && <>
+                    <div className='relative flex pr-7 w-fit items-center bg-primary-light rounded-md mb-2 px-2 py-1'>
+                        <span className='absolute -right-1 -top-1 w-4  h-4 
+                          rounded-full text-xs flex justify-center items-center bg-red-100 cursor-pointer
+                          text-red-800 hover:text-red-100 hover:bg-red-500'
+                          onClick={()=>{handleClient(''); setClient(null)}}
+                          >
+                          <IoMdClose className='relative'/>
+                          </span>
+                        <div className=''>
+                          <span className='text-primary text-2xl font-bold pr-2'>{client.name }</span>
+                          <span>({client.firma && client.firma})</span>
+                        </div>
+                    </div>
+                  </>}
 
-                <div className="">
-                  <CustomSelectList name="projectType" label={t('projectType')} inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
-                </div>
+                  {client && typeof client !== 'object' && <>
+                    <span>{client }</span>
+                  </>}
+                  
+                  <MentionUserInput type='users' inputType='text' role='client'onClick={(user, data)=>{handleClient(user); setClient(user)}}/>
+                  </div>
+                }
+              <div className="">
+                <CustomSelectList name="projectType" label={t('projectType')} inputType='radio' data={ProjectType} selectedValue={formData.projectType} onChange={handleProjectType}/>
+              </div>
             </div>
-          </div>
+            </div>
           <div className='card bg-white grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
                   <div className="w-full">
                     <CustomDateTimePicker

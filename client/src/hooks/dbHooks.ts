@@ -175,6 +175,45 @@ const getRecordWithID = async(args:GeTRecordsWithID)=>{
   }
 }
 
+/**
+ * 
+ * assign task
+ * 
+ */
+interface AssignTaskType {
+  body?:any,
+  id?:string | null;
+  relatedUpdates?:RelatedUpdates[];
+}
+const assignTasks = async (args: AssignTaskType) => {
+  const {relatedUpdates=[], body, id=null} = args;
+  if (body) {
+    console.log(body);
+   console.log(relatedUpdates);
+   console.log(id);
+    try {
+      const response = await axios.post(`${API_URL}/resource/tasks/assign`, 
+        {
+          page:'tasks', data:body, relatedUpdates, id
+        }, 
+        {
+          headers,
+          withCredentials: true 
+        });
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      return { status: "error", code: "unknown_error", error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" };
+  }
+};
+/**
+ * 
+ * Add update all recoreds in general
+ * 
+ */
 interface AddUpdateRecords {
   type: string;
   body?:any
@@ -184,14 +223,6 @@ interface AddUpdateRecords {
   checkDataBy?:string[];
   relatedUpdates?:RelatedUpdates[];
 }
-
-// interface RelatedUpdates{
-//   collection:string;
-//   field:string;
-//   type:'array' | 'string',
-//   ids:(string | ObjectId)[]
-// }
-
 
 const addUpdateRecords = async (args: AddUpdateRecords) => {
   const { type, body, action="add", id=null, checkDataBy=[], relatedUpdates=[] } = args;
@@ -321,13 +352,14 @@ const deleteRecordById = async (args: DeleteByIdArgs) => {
 
 // search user by username
 interface SearchByUsername {
-  query:string
+  query:string,
+  role?: "user" | "manager" | "admin" | "employee"| "client"
 }
 const searchUserByUsername = async(args:SearchByUsername)=>{
-  const {query} = args;
+  const {query, role} = args;
   if(query){
     try{
-      const response = await axios.get(`${API_URL}/auth/search-users?name=${query}`, 
+      const response = await axios.get(`${API_URL}/auth/search-users?name=${query}&role=${role ? role : 'user'}`, 
         {
           headers,
           withCredentials: true 
@@ -475,6 +507,7 @@ export {
   deleteRecordById, 
   addRecords, 
   addUpdateRecords, 
+  assignTasks,
   resetPassword, 
   forgotPassword, 
   adminResetPassword, 

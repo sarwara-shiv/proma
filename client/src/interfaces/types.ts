@@ -71,7 +71,6 @@ export interface DynamicField {
 }
 
 
-
 export interface BaseTask {
   _id?:string;
   _cid?: string;  // Optional Client or Company ID
@@ -88,6 +87,8 @@ export interface BaseTask {
   note?: string;
   createdBy: ObjectId;  // User reference
   sortOrder?: number;
+  isRework?: boolean;
+  reason?:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
   priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities
   customPriority?:ObjectId;  // Custom priority reference
   status: 'toDo' | 'inProgress' | 'done' | 'onHold' | 'inReview' | 'blocked';  // Assuming these are your predefined statuses
@@ -97,6 +98,11 @@ export interface BaseTask {
   subtasks: ObjectId[];  // Array of references to subtasks (Tasks)
   ticket?: ObjectId;  // Reference to Ticket
   permissions: Permission[];  // Array of permissions
+  revisions?:{
+    assignedBy:string,
+    reason:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
+    timestamp:Date
+  }[],
   defaultFieldColors?:{field:String, color:String}[]
 }
 
@@ -270,6 +276,7 @@ export interface QaTask extends BaseTask {
     endDate?: Date;
     projectType?:'inhouse' | 'client';
     kickoff?: Kickoff;
+    client?: string | null;
     documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: (string | ObjectId)[];
     teamMembers?: (string | ObjectId)[];
@@ -335,6 +342,8 @@ export interface QaTask extends BaseTask {
     endTime?: Date
     duration?: Number
     notes?: string
+    isRework?: boolean;
+    reason?:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
     status: 'active' | 'completed';
   }
 

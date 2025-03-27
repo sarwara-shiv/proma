@@ -6,16 +6,17 @@ import { searchUserByUsername } from '../../hooks/dbHooks';
 
 interface UserSearchPopupProps {
   query: string;
+  role?:"user"|"client"
   onSelect: (user: User) => void;
   onClose: () => void;
 }
 
-const UserSearchPopup: React.FC<UserSearchPopupProps> = ({ query, onSelect, onClose }) => {
+const UserSearchPopup: React.FC<UserSearchPopupProps> = ({ query, onSelect, onClose, role="user" }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     if (query) {
-        searchUserByUsername({query}).then((response)=>{
+        searchUserByUsername({query, role:role}).then((response)=>{
            if(response.status === 'success'){
             setUsers(response.data);
            }

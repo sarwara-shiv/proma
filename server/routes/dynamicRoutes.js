@@ -54,6 +54,104 @@ const getModel = (resource) => {
 //   },
 
 
+/**
+ * TODO
+ * create route to assign tasks
+ * seperate it from dynamnic route
+ * 
+ */
+router.post('/tasks/assign', verifyToken, async (req, res) => {
+  let { data } = req.body; 
+  let { relatedUpdates, id } = req.body; 
+  const model = getModel('tasks'); 
+  if (!model) {
+    return res.json({ status: "error", message:'Model not found', code:"invalid_resource" });
+  }
+
+  if (!id) {
+    return res.json({ status: "error", message:'ID not found', code:"id_required" });
+  }
+
+  try{
+    const originalRecord = await model.findById(id); 
+    if (!originalRecord) {
+      return res.json({ status: "error", message: 'Record not found', code: "record_not_found" });
+    }
+
+    const assignedBy = data.assignedBy;
+    const rPerson = data.responsiblePerson;
+    const isRework = data.isRework;
+    const reason = data.reason;
+    const updatedRecord = await model.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          responsiblePerson: rPerson,
+          assignedBy: assignedBy,
+          isRework: isRework,
+          assignedDate: new Date(),
+          reason: isRework ? reason : 'todo'
+        },
+        $push: {
+          revisions: {
+            assignedBy: assignedBy,
+            reason: reason,
+            timestamp: new Date()
+          }
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedRecord) {
+      // return res.status(404).json({ error: 'Record not found' });
+      return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
+    }
+
+    // EMIT TASK ASSIGNED EVENT
+    if (data && data.responsiblePerson) {
+      const socket = req.app.get('socket'); 
+      const assignedUserSocketId = onlineUsers.get(data.responsiblePerson.toString());        
+      if (assignedUserSocketId) {
+        socket.to(assignedUserSocketId).emit('new-task-assigned', updatedRecord);
+      }
+    }
+    // add logs
+    await logChanges('tasks', id, data, originalRecord, req.user._id);  
+
+    if (relatedUpdates && Array.isArray(relatedUpdates)) {
+      for (const update of relatedUpdates) {
+
+        const relatedModel = getModel(update.collection); // Get the model for the related collection
+        if (relatedModel) {
+          if (update.type === 'array') {
+            // Add the new record ID to an array field
+
+            await relatedModel.updateMany(
+              { _id: { $in: update.ids } },  // IDs to match in the related collection
+              { $addToSet: { [update.field]: update.value ? update.value : updatedRecord._id } }  // Add the ID to the array field
+            );
+          } else if (update.type === 'string') {
+
+           const res= await relatedModel.updateMany(
+              { _id: { $in: update.ids } },  // IDs to match in the related collection
+              { $set: { [update.field]: update.value ? update.value : updatedRecord._id  } }  // Replace the ID in the field
+            );
+          }
+        }
+      }
+    }
+
+    return res.status(200).json({ status: "success", message:'Task Assigned', code:"task_assigned", data:updatedRecord });
+  }catch(error){
+    return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
+  }
+
+  return res.json({ status: "working", message:'working', code:"working", data:{data, relatedUpdates, id} });
+})
+
+
+//add update general records
 router.post('/:resource/add', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const model = getModel(resource);  // Retrieve the model based on the resource
@@ -92,6 +190,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
 
       const _cid = await generateUniqueId(resource);
       if(_cid) data = {...data, _cid};
+
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
 
@@ -252,8 +351,8 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
       }
 
 
+      // Log changes
       if(resource === 'tasks' || resource === "maintasks"){
-        // Log changes
        await logChanges(resource, id, data, originalRecord, req.user._id);  
       }
 

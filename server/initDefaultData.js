@@ -148,16 +148,19 @@ const initializeDefaultData = async () => {
             { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
           ]
         },
-        // {
-        //   displayName: 'Guest', 
-        //   _cid:await generateUniqueId('roles'),
-        //   name: 'guest', 
-        //   isEditable: false, 
-        //   type: 'default',
-        //   permissions: [
-        //     { page: 'documentation', canCreate: false, canUpdate: false, canDelete: false, canView: true },
-        //   ]
-        // }
+        {
+          displayName: 'Client', 
+          _cid:await generateUniqueId('roles'),
+          name: 'client', 
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
+            { page: 'tasks', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'users', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+          ]
+        }
       ]);
       console.log('Default roles created.');
     } else {

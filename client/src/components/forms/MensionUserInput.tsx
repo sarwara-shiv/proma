@@ -7,11 +7,12 @@ interface ArgsType{
   inputType?: 'text' | 'textarea';
   data?:any;
   type?:"text" | "users";
+  role?:"user" | "client"
   initialValues?:string | User[];
   onClick?:(user:User, data:any)=>void;
 }
 
-const MentionUserInput: React.FC<ArgsType> = ({inputType="textarea", type="text", data, onClick}) => {
+const MentionUserInput: React.FC<ArgsType> = ({inputType="textarea", type="text", data, onClick, role="user"}) => {
   const [text, setText] = useState(type==='users' ? '@' : '');
   const [query, setQuery] = useState('');
   const [showPopup, setShowPopup] = useState(false);
@@ -74,6 +75,7 @@ w-full bg-gray-50 border text-gray-900 text-sm rounded-sm focus:outline-none blo
       }
       {showPopup && (
         <UserSearchPopup
+        role={role}
           query={query}
           onSelect={handleSelectUser}
           onClose={() => setShowPopup(false)}

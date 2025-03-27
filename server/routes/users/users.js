@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { verifyToken } from '../../middleware/auth.js';
 import UserModel from '../../models/userModel.js'; 
+import { UserRolesModel } from '../../models/userRolesModel.js';
 import { onlineUsers } from '../../socket.js';
 
 const router = express.Router();
@@ -383,9 +384,25 @@ router.post('/admin-reset-password', verifyToken, async(req,res)=>{
 // search user by username
 router.get('/search-users', async(req,res)=>{
     const query = req.query.name;
+    const role = req.query.role;
+
     if(query){
         try {
-            const users = await UserModel.find({ name: { $regex: query, $options: 'i' } }).limit(10);
+            let filter = { name: { $regex: query, $options: 'i' } };
+            // Find the ObjectId of the "client" role
+            const clientRole = await UserRolesModel.findOne({ name: "client" });
+
+            if (!clientRole) {
+                return res.status(400).json({ status: "error", message: "Client role not found." });
+            }
+            if (role && role.toLowerCase() === "client") {
+                // Exclude users who have the "client" role
+                filter.roles = { $in: [clientRole._id] };
+            }else{
+                filter.roles = { $nin: [clientRole._id] };
+            }
+            // const users = await UserModel.find({ name: { $regex: query, $options: 'i' } }).limit(10);
+            const users = await UserModel.find(filter).limit(10);
             return res.json({ status: "success", message:"users found", code:"users_found", data:users });
           } catch (error) {
             res.status(500).json({ message: error.message });
