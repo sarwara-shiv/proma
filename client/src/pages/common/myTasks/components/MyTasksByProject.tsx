@@ -8,7 +8,6 @@ interface ArgsType {
 }
 
 const MyTasksByProject:React.FC<ArgsType> = ({tasks}) => {
-    console.log(tasks);
     const {t} = useTranslation()
     return (
         <div className="flex flex-wrap gap-6">

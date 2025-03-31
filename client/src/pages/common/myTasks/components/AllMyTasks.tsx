@@ -15,6 +15,8 @@ import MyTasksByProject from './MyTasksByProject';
 import { CustomInput, RichTextArea } from '../../../../components/forms';
 import { JSX } from 'react/jsx-runtime';
 import {useAuthContext } from '../../../../context/AuthContext';
+import CustomSmallButton from '../../../../components/common/CustomSmallButton';
+import { IoMdSearch } from 'react-icons/io';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
@@ -27,6 +29,7 @@ const AllMyTasks = () => {
     const [tasksByProject, setTasksByProject] = useState<TasksByProject[]>([]);
     const [clickedTask, setClickedTask] = useState<Task|null>(null)
     const [loader, setLoader] = useState(true);
+    const [queryString, setQueryString] = useState<string>('');
     const [taskNotes, setTaskNotes] = useState<string>('');
     const [toggleTaskData, setToggleTaskData] = useState<{note:string}>({note:''})
     const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:''})
@@ -136,7 +139,7 @@ const AllMyTasks = () => {
     }
 
     // search ai tasks
-    const searchTasks = async(type:"tasks" | "maintasks", query:string)=>{
+    const searchTasks = async(query:string)=>{
         try{
             const res = await searchTasksAI({type:"tasks", query});
             console.log(res);
@@ -567,7 +570,10 @@ const AllMyTasks = () => {
     <div className='p-4'>
         {loader ? <Loader type='full'/>: 
         <>
-            <CustomInput type='text' onChange={(event)=>searchTasks("tasks", event.target.value)}/>
+            <div className='flex items-center'>
+                <CustomInput type='text' onChange={(event)=>setQueryString(event.target.value)} />
+                <CustomSmallButton type='search'  icon={<IoMdSearch/>} onClick={()=>searchTasks(queryString)}/>
+            </div>
             <div className='mb-8'>
                 <Headings text={`${t('PAGES.myTasks_active')}`} classes=''/>
                 <div className='card bg-white mt-2'>

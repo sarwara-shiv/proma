@@ -1,6 +1,7 @@
 import { HfInference } from "@huggingface/inference";
 import { Pinecone } from "@pinecone-database/pinecone";
-import axios from 'axios';
+import { OpenAI } from 'openai';
+import moment from "moment/moment.js";
 import 'dotenv/config';
 
 // Initialize Pinecone
@@ -8,9 +9,10 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY,
 });
 
+const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 const index = pinecone.index("tasks-ai-search");
 
-// Generate embeddings using OpenAI
+// Generate embeddings using HUGGING FACE
 async function getEmbedding(text) {
   try {
     const inference = new HfInference(process.env.HF_ACCESS_TOKEN);
@@ -23,6 +25,7 @@ async function getEmbedding(text) {
     console.error("Error generating embedding:", error);
   }
 }
+
 
 // Upsert (Add/Update) data in Pinecone
 async function upsertToPinecone(taskId, taskText) {
@@ -126,7 +129,6 @@ async function searchInPinecone(query) {
     return [];
   }
 }
-
 
 
 export { upsertToPinecone, deleteFromPinecone, searchInPinecone };

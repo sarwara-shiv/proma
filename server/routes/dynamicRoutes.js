@@ -11,7 +11,7 @@ import { generateUniqueId } from '../utils/idGenerator.js';
 import moment from 'moment/moment.js';
 import { deleteMaintaskTasks, deleteProjectTasks } from './controllers/deleteProjectTasks.js';
 import { logChanges } from '../utils/ChangeLog.js';   
-import { upsertToPinecone, deleteFromPinecone, searchInPinecone } from '../pinecone/embedding.js';
+import { processTasksQuery } from '../openai/tasksSearch.js';
 
 const router = express.Router();
 
@@ -513,9 +513,9 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
       }
     }
 
-    if(resource === 'tasks' || resource === "maintasks"){
-      await deleteFromPinecone(id);
-    }
+    // if(resource === 'tasks' || resource === "maintasks"){
+    //   await deleteFromPinecone(id);
+    // }
 
 
     // res.status(200).json({ message: 'Record deleted successfully' });
@@ -803,7 +803,7 @@ router.post('/:resource/search', verifyToken, async (req, res) => {
   console.log(query);
   try {
     if(resource === 'tasks' || resource === "maintasks"){
-      const searchResults = await searchInPinecone(query);
+      const searchResults = await processTasksQuery(query);
       console.log("-------------------");
       console.log("-------------------");
       console.log("-------------------");

@@ -1,8 +1,9 @@
 import React from 'react'
 import { FaPencilAlt } from 'react-icons/fa';
+import { IoMdSearch } from 'react-icons/io';
 import { IoAdd, IoClose, IoPencil, IoRemove } from 'react-icons/io5';
 interface ArgsType{
-    type: 'add' | 'delete' | 'remove' | 'update';
+    type: 'add' | 'delete' | 'remove' | 'update' | 'search';
     icon?:React.ReactNode;
     text?:string;
     size?:'sm' | 'md' | 'lg';
@@ -44,10 +45,15 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
         ${colorClass}
       `} onClick={onClick}>
         <span className='icon'>
-          {type === 'add' ? <IoAdd /> :
+          {icon ? icon : 
+          
+          <>{type === 'add' ? <IoAdd /> :
           type === 'delete' ? <IoRemove /> : 
           type === 'remove' ? <IoClose /> : 
+          type === 'search' ? <IoMdSearch /> : 
           type === 'update' ? <FaPencilAlt /> : ''
+        }
+        </>
         }
         </span>
         {text && <span className='text ml-2'>{text}</span>}
@@ -75,11 +81,16 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
     }
         onClick={onClick}
     >
-            {type === 'add' ? <IoAdd /> :
-        type === 'delete' ? <IoRemove /> : 
-        type === 'remove' ? <IoClose /> : 
-        type === 'update' ? <FaPencilAlt /> : ''
-      }
+       {icon ? icon : 
+          
+          <>{type === 'add' ? <IoAdd /> :
+          type === 'delete' ? <IoRemove /> : 
+          type === 'remove' ? <IoClose /> : 
+          type === 'search' ? <IoMdSearch /> : 
+          type === 'update' ? <FaPencilAlt /> : ''
+        }
+        </>
+        }
     </div>
     }
     </>
