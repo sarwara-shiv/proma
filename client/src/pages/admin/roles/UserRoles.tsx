@@ -8,6 +8,7 @@ import PageSubmenu from '../../../components/common/PageSubmenu';
 import RolesForm from './components/RolesForm';
 import AllRoles from './components/AllRoles';
 import { ObjectId } from 'mongodb';
+import { useAppContext } from '../../../context/AppContext';
 
 interface NavItem {
   link: string;
@@ -21,20 +22,22 @@ const navItems: NavItem[] = [
 ];
 
 const UserRoles = () => {
+  const {pageTitle, setPageTitle} = useAppContext();
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
-  const [pageTitle, setPageTitle] = useState("roles");
+  // const [pageTitle, setPageTitle] = useState("roles");
   const {pathname} = location;
   const { data, objectId } = location.state || {}; 
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
   useEffect(()=>{ 
-
+    setPageTitle(t('roles'));
   },[])
 
   return (
     <div className='page-wrap relative '>
-       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
+       {/* <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${action ? action : "all"}`)}/> */}
+       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${action ? action : "all"}`)}/>
       <div className='content mb-7'>
         <div className='content-wrap p-4 '> 
             {

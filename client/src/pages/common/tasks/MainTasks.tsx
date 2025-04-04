@@ -7,6 +7,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import MainTasksAll from './components/MainTasksAll';
 import MainTaskForm from './components/MainTaskForm';
 import Tasks from './components/Tasks';
+import { useAppContext } from '../../../context/AppContext';
 const navItems: NavItem[] = [
     { link: "maintasks", title: "maintasks_all" },
     { link: "maintasks/add", title: "maintasks_add", icon:<IoMdAdd />},
@@ -16,14 +17,18 @@ const MainTasks = () => {
     const { t } = useTranslation();
     const location = useLocation();
     const { data, objectId, pid } = location.state || {}; 
-    const [pageTitle, setPageTitle] = useState("maintasks");
+    // const [pageTitle, setPageTitle] = useState("maintasks");
     const {pathname} = location;
     const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
     const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
+    const {pageTitle, setPageTitle} = useAppContext();
+    useEffect(()=>{
+      setPageTitle(t('maintasks'))
+    },[]);
   
     return (
         <div className='page-wrap relative'>
-        <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
+        <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${action ? action : "all"}`)}/>
         <div className='content  mb-7'> 
             <div className='content-wrap p-4 '>
                 {action && 

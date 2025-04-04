@@ -14,7 +14,7 @@ const AdminLayout = () => {
         {/* Header (Fixed Below Top Menu Bar) */}
         <AdminHeader />
         {/* Main Content Area */}
-        <div className="flex flex-1 overflow-y-auto mb-8">
+        <div className="flex flex-1 overflow-y-auto mb-0">
             {/* Sidebar Toggle Button */}
 
             {/* Sidebar (Conditionally render based on state) */}
@@ -23,7 +23,7 @@ const AdminLayout = () => {
             <AdminSidebar /> 
 
             {/* Main Content */}
-            <main className={`flex-1 ml-64 mt-0 mb-10 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-[200px]" : "ml-[0px]"}`}> 
+            <main className={`flex-1 pl-3 ml-64 mt-0 mb-0 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-[200px]" : "ml-[0px]"}`}> 
                 <div>
                     <Outlet />
                 </div>
@@ -31,7 +31,7 @@ const AdminLayout = () => {
         </div>
         <ActiveWorkLog />
         {/* Footer (Fixed at Bottom) */}
-        <Footer/>
+        {/* <Footer/> */}
         </div>
     );
 };

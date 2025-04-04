@@ -19,7 +19,7 @@ function App() {
     return <div>Loading...</div>;
   }
   return (
-    <div className="App bg-slate-100 min-h-screen">
+    <div className="App min-h-screen">
      <Router>
       <Routes>
           <Route path="/login" element={<Login />} />

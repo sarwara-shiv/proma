@@ -15,6 +15,7 @@ import ProjectDocumentations from '../documentation/components/ProjectDocumentat
 import DocumentationsForm from '../documentation/components/DocumentationsForm';
 import Documentation from '../documentation/Documentation';
 import ProjectReport from './components/ProjectReport';
+import { useAppContext } from '../../../context/AppContext';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
@@ -27,15 +28,19 @@ const Project = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const { data, objectId } = location.state || {}; 
-  const [pageTitle, setPageTitle] = useState("projects");
+  // const [pageTitle, setPageTitle] = useState("projects");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
   const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
-  console.log(action);
+  // console.log(action);
+  const {pageTitle, setPageTitle} = useAppContext();
+    useEffect(()=>{
+      setPageTitle(t('projects'))
+    },[]);
 
   return (
     <div className='page-wrap relative'>
-      <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
+      <PageSubmenu basePath={basePath} navItems={subNavItems} title={t(`${action ? action : "all"}`)}/>
       <div className='content mb-7'>
         <div className='content-wrap p-4 '>
             {

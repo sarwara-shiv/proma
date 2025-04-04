@@ -1,10 +1,11 @@
 import {  useLocation, useParams } from 'react-router-dom';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { IoPlay, IoTimerOutline } from "react-icons/io5";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import AllMyTasks from './components/AllMyTasks';
 import WorkLog from './components/WorkLog';
+import { useAppContext } from '../../../context/AppContext';
 
 interface NavItem {
   link: string;
@@ -21,13 +22,17 @@ const MyTasks = () => {
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
-  const [pageTitle, setPageTitle] = useState("My Tasks");
+  // const [pageTitle, setPageTitle] = useState("My Tasks");
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
+  const {pageTitle, setPageTitle} = useAppContext();
+    useEffect(()=>{
+      setPageTitle(t('tasks'))
+    },[]);
  
   return (
     <div className='page-wrap relative'>
-      <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${pageTitle}`)} action={t(`${action ? action : "all"}`)}/>
+      <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${action ? action : "all"}`)}/>
       <div className='content mb-7'>
         <div className='content-wrap p-4 '>
             {

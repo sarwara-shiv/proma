@@ -7,6 +7,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import DocumentationsAll from './components/DocumentationsAll';
 import DocumentationsForm from './components/DocumentationsForm';
 import ProjectDocumentations from './components/ProjectDocumentations';
+import { useAppContext } from '../../../context/AppContext';
 const navItems: NavItem[] = [
     { link: "projects", title: "projects_all" },
     { link: "documentation", title: "documentation_all", icon:<IoMdAdd />},
@@ -16,10 +17,14 @@ const Documentation = () => {
     const { t } = useTranslation();
     const location = useLocation();
     const { data, objectId, pid } = location.state || {}; 
-    const [pageTitle, setPageTitle] = useState("documentation");
+    // const [pageTitle, setPageTitle] = useState("documentation");
     const {pathname} = location;
     const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
     const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
+    const {pageTitle, setPageTitle} = useAppContext();
+    useEffect(()=>{
+      setPageTitle(t('documentation'))
+    },[]);
   
     return (
         <div className='page-wrap relative '>

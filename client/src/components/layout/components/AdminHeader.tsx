@@ -41,32 +41,54 @@ const AdminHeader = () => {
         };
     }, [setIsSidebarOpen]); // Empty dependency array ensures this runs on mount
     return (
-        <header className="bg-primary-light text-gray-900 w-full px-5 py-5 w-full top-0 left-0 right-0 z-30">
-                <div className="container  min-w-full flex items-center justify-between px-2">
-                    <div className="left-nav flex items-center space-x-2">
-                   
-                        <div className="text-lg font-semibold flex justify-start gap-2 items-center">
-                            <button
-                                onClick={toggleSidebar}
-                                className={`text-parimary-dark w-[30px] flex justify-center items-center py-1 text-xl bg-white
-                                    rounded-sm hover:bg-primary-dark hover:text-white transition-colors duration-200
-                                    `}
-                            >
-                                {isSidebarOpen ? <MdClose /> : <MdMenu /> }
-                            </button>
-                            <Logo />
-                        </div>
-                        {/* <span>{t('adminPanel')}</span> */}
-                    </div>
-                    <div className="text-sm flex gap-2">
-                        <span>
-                            <span className="text-primary font-bold">{t('hello')} </span>
-                            {user?.username && <>{user.username}</>}
-                        </span> |
-                        <div><LogoutButton type='link'/></div>
+        <header className="text-gray-900 w-full px-4 py-1 mb-2 w-full top-1 left-0 right-0 z-30 flex justify-between ">
+            <div className="text-lg font-semibold flex justify-start gap-2 items-center">
+                <button
+                    onClick={toggleSidebar}
+                    className={`mt-0 text-parimary-dark w-[30px] flex justify-center items-center py-0 text-3xl bg-white
+                        rounded-sm hover:bg-primary-dark hover:text-white transition-colors duration-200 font-800
+                        `}
+                >
+                    {isSidebarOpen ? <MdClose /> : <MdMenu /> }
+                </button>
+                <Logo />
+
+                <div className='border-l-2 border-slate-400 ml-2 pl-4 font-bold text-2xl text-slate-700'>
+                    {pageTitle}
+                </div>
+            </div>
+            <div className="text-sm flex gap-2">
+                    <span>
+                        <span className="text-primary font-bold">{t('hello')} </span>
+                        {user?.username && <>{user.username}</>}
+                    </span> 
+                    {/* | */}
+                    {/* <div className='font-bold text-md'><LogoutButton type='link'/></div> */}
+            </div>
+            {/* <div className="container  min-w-full flex items-center justify-between px-2">
+                <div className="left-nav flex items-center space-x-2">
+                
+                    <div className="text-lg font-semibold flex justify-start gap-2 items-center">
+                        <button
+                            onClick={toggleSidebar}
+                            className={`text-parimary-dark w-[30px] flex justify-center items-center py-1 text-xl bg-white
+                                rounded-sm hover:bg-primary-dark hover:text-white transition-colors duration-200
+                                `}
+                        >
+                            {isSidebarOpen ? <MdClose /> : <MdMenu /> }
+                        </button>
+                        <Logo />
                     </div>
                 </div>
-            </header>
+                <div className="text-sm flex gap-2">
+                    <span>
+                        <span className="text-primary font-bold">{t('hello')} </span>
+                        {user?.username && <>{user.username}</>}
+                    </span> |
+                    <div><LogoutButton type='link'/></div>
+                </div>
+            </div> */}
+        </header>
     )
 }
 
