@@ -17,6 +17,8 @@ import { JSX } from 'react/jsx-runtime';
 import {useAuthContext } from '../../../../context/AuthContext';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import { IoMdSearch } from 'react-icons/io';
+import LeadChatbot from '../../../../components/ai/LeadChatbot';
+import LeadForm from '../../../../components/ai/LeadForm';
 
 const pinnedColumns = ['actions','project','_cid', 'name', 'actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
@@ -40,7 +42,7 @@ const AllMyTasks = () => {
     },[]); 
 
     useEffect(() => {
-        console.log('Updated taskNote:', taskNotes); 
+       
     }, [taskNotes]);
 
     // get active task
@@ -75,7 +77,7 @@ const AllMyTasks = () => {
                 }
             }
         }catch(error){
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -125,7 +127,7 @@ const AllMyTasks = () => {
                     setRecords(res.data);
                     const fTasks = filterTaskByProject(res.data);
                     setTasksByProject(fTasks.byProject);
-                    console.log(res.data);
+                   
                 }else{
                     setTasksByProject([]);
                 }
@@ -144,7 +146,7 @@ const AllMyTasks = () => {
             const res = await searchTasksAI({type:"tasks", query});
             console.log(res);
         }catch(error){
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -155,9 +157,7 @@ const AllMyTasks = () => {
         try{
             const taskID = task ? task._id : null;
             const project = task._mid && task._mid && (task._mid as unknown as MainTask)._pid ? ((task._mid as unknown as MainTask)._pid as unknown as Project)._id : null;
-            console.log(project);
             let id = activeWorkLog && activeWorkLog._id ? activeWorkLog._id : null;
-            console.log();
 
             if(taskID && project){
                 let isCurrent = false;
@@ -170,13 +170,6 @@ const AllMyTasks = () => {
                     if(activeWorkLog && activeWorkLog.task && taskID === activeWorkLog.task){
                         isCurrent = true;
                     }
-                }
-
-                if(isCurrent){
-                    console.log('closing current task');
-                }else{
-                    id = null
-                    console.log("creating new task / closing current task");
                 }
 
                 const populateFields=[
@@ -197,7 +190,7 @@ const AllMyTasks = () => {
                 const res = await workLogActions({type:'start', body:{task:taskID, notes:taskNotes, populateFields, project, id}});
                 if(res.status === 'success'){
                     // setTaskNote('');
-                    console.log(res.data)
+
                     if(res.code === 'worklog_stopped'){
                         setActiveWorkLog(null);
                     }
@@ -244,13 +237,13 @@ const AllMyTasks = () => {
 
             if(isCurrent){
                 text = <div>Are you sure you want to close current Task? <span className="font-bold text-primary">{(activeWorkLog?.task as unknown as Task).name} </span></div>;
-                console.log('closing current task');
+               
             }else{
                 if(id){
                     text = <div>are you sure you want to close task? <span className="font-bold text-primary">"{(activeWorkLog?.task as unknown as Task).name}"</span> and open New Task <span className="font-bold text-primary">"{task.name}"</span></div>;
-                    console.log('Close old worklog and start new work log');
+                    
                 }else{
-                    console.log("create new task");
+                   
                 }
             }
         }
@@ -272,7 +265,7 @@ const AllMyTasks = () => {
 
     const richtTextonChange = (value:string)=>{
         setTaskNotes((prevVal)=>{
-            console.log(prevVal);
+           
             return value
         }); 
 
@@ -280,30 +273,20 @@ const AllMyTasks = () => {
 
     // On Stop Work Log
     const onStopWorklog = async()=>{
-        console.log(taskNotes);
-        console.log(clickedTask);
+       
         if(clickedTask){
             try{
                 await startWorkLog({task:clickedTask});
                 closePopup();
             }catch(error){
-                console.log(error);
+                console.error(error);
             }
         }
     }
 
-    const setNotes = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const updatedNote = event.target.value;
-        console.log(updatedNote); // To make sure the value is captured
-        setTaskNotes((prevVal)=>{
-            console.log(prevVal);
-            return updatedNote
-        }); 
-    }
-
     // closePopup
     const closePopup = ()=>{
-        console.log(taskNotes);
+       
         setTaskNotes('');
         setClickedTask(null);
         setCustomPopupData((res:CustomPopupType)=>{
@@ -634,6 +617,9 @@ const AllMyTasks = () => {
             </div>
             
             }
+
+            <LeadChatbot />
+            <LeadForm />
         
         </>
             

@@ -40,13 +40,11 @@ const LoginForm: React.FC = () => {
     event.preventDefault();
     try {
       const userData = await login(data.email, data.password);
-      console.log();
       setUser(userData.data); // Update global user state
       setRole(userData.data.role);
       setRoles(userData.data.roles);
       setPermissions(userData.data.permissions);
       setIsAuthenticated(true);
-      console.log(userData);
 
       if(socket){
         socket.emit('user-connected', userData.data._id);

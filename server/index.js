@@ -13,6 +13,7 @@ import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
 import { initializeSocket } from './socket.js';
+import { leadRoutes } from './routes/leadRoutes/leadRoutes.js';
 import { dummyWorklogData, printIds } from './dummyData.js';
 
 const app = express();
@@ -46,6 +47,7 @@ app.use("/auth", userRouter);
 app.use("/roles", rolesRouter);
 app.use("/groups", groupsRouter);
 app.use("/worklog", worklogRouter);
+app.use("/leads", leadRoutes);
 
 // DB CONNECTION
 const mongoURI = process.env.DB_LOCAL_URL;
