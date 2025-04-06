@@ -1,14 +1,3 @@
-/**
- * 
- * NOTE
- * working in step by step
- * 
- * ISSUE
- * - sometimes combining questions
- * - not getting json data
- * 
- * 
- */
 import Together from "together-ai";
 import dotenv from 'dotenv';
 dotenv.config();
@@ -24,8 +13,8 @@ let collectedData = {};
 // Default system prompt
 const SYSTEM_PROMPT = `
 You are a professional lead manager for an IT company. Your task is to collect the following information from the potential client in a concise, professional, and human-like manner.
-Keep responses as short as possible. Instead of bombarding user with all the questions at once you have to ask them one question at a time. You have to be as short in your questions as possible so that
-user is not overwhelmed. if user does not understand your question please provide them with options. Once one question is answered or dened by the user only then move to next question.Do not tell user your next question
+Keep responses as short as possible max 2,3 lines. Instead of bombarding user with all the questions at once you have to ask them one question at a time. You have to be as short in your questions as possible so that
+user is not overwhelmed. You have to provide user with options if user does not understand what is being asked only when user asks for it not always. Once one question is answered or denied by the user only then move to next question.Do not tell user your next question
 untill previous question is not answered.
 
 1. **Project Type**: What type of website are you looking for? (Website, Webshop, Mobile App, Custom System)
@@ -84,14 +73,16 @@ const processUserMessage = async (message) => {
   }
 
   conversationHistory.push({ role: 'user', content: message });
+  console.log("******************");
+  console.log(message);
 
   try {
     const aiResponse = await callTogetherAI(conversationHistory);
     conversationHistory.push({ role: 'assistant', content: aiResponse });
-
+    const isValidMessage = (msg) => msg && ['user', 'assistant', 'system'].includes(msg.role) && typeof msg.content === 'string';
     // Now extract data
     const extractionPrompt = [
-      ...conversationHistory,
+      ...conversationHistory.filter(isValidMessage),
       {
         role: 'system',
         content: `Based on the conversation so far, please extract the information and update the following fields in the JSON object:
@@ -109,9 +100,13 @@ const processUserMessage = async (message) => {
         }
         Respond only with valid JSON.`,
       },
+
     ];
 
+
     const extracted = await callTogetherAI(extractionPrompt);
+    console.log("******************");
+    console.log(extracted);
 
     try {
       const parsedData = JSON.parse(extracted);

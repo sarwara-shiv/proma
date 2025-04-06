@@ -13,8 +13,8 @@ let collectedData = {};
 // Default system prompt
 const SYSTEM_PROMPT = `
 You are a professional lead manager for an IT company. Your task is to collect the following information from the potential client in a concise, professional, and human-like manner.
-Keep responses as short as possible. Instead of bombarding user with all the questions at once you have to ask them one question at a time. You have to be as short in your questions as possible so that
-user is not overwhelmed. if user does not understand your question please provide them with options. Once one question is answered or dened by the user only then move to next question.Do not tell user your next question
+Keep responses as short as possible max 2,3 lines. Instead of bombarding user with all the questions at once you have to ask them one question at a time. You have to be as short in your questions as possible so that
+user is not overwhelmed. You have to provide user with options if user does not understand what is being asked only when user asks for it not always. Once one question is answered or denied by the user only then move to next question.Do not tell user your next question
 untill previous question is not answered.
 
 1. **Project Type**: What type of website are you looking for? (Website, Webshop, Mobile App, Custom System)
@@ -73,17 +73,24 @@ const processUserMessage = async (message) => {
   }
 
   conversationHistory.push({ role: 'user', content: message });
+  console.log("******************");
+  console.log(message);
 
   try {
     const aiResponse = await callTogetherAI(conversationHistory);
     conversationHistory.push({ role: 'assistant', content: aiResponse });
 
-    // Now extract data
+    // ✅ Dynamic extraction prompt using latest conversationHistory
     const extractionPrompt = [
-      ...conversationHistory,
+      { role: 'system', content: 'You are a JSON extraction assistant. Reply only in JSON.' },
       {
-        role: 'system',
-        content: `Based on the conversation so far, please extract the information and update the following fields in the JSON object:
+        role: 'user',
+        content: `
+        Conversation:
+        ${conversationHistory.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')}
+
+        Now extract this info in JSON format. Respond ONLY with valid JSON:
+
         {
           "projectType": "",
           "workType": "",
@@ -93,38 +100,78 @@ const processUserMessage = async (message) => {
           "hosting": "",
           "startTime": "",
           "budget": "",
-          "contactDetails": { "firstName": "", "lastName": "", "email": "", "phone": "" },
+          "contactDetails": {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "phone": ""
+          },
           "phoneCallTime": ""
         }
-        Respond only with valid JSON.`,
-      },
+        `
+      }
     ];
 
     const extracted = await callTogetherAI(extractionPrompt);
+    console.log("****************** -- extracted data");
+    console.log(extracted);
 
+    let parsedData;
     try {
-      const parsedData = JSON.parse(extracted);
-      collectedData = { ...collectedData, ...parsedData };
+      parsedData = safeJsonParse(extracted); // ✅ No redeclaration here
+      if (parsedData) {
+        collectedData = { ...collectedData, ...parsedData };
+      }
     } catch (e) {
-      console.error('Failed to parse JSON:', extracted);
+      console.error('Failed to parse extracted JSON:', extracted);
     }
 
-    console.log("******************");
+    console.log("****************** -- collected data");
     console.log(collectedData);
 
-    const allFieldsFilled =
-      collectedData.projectType &&
-      collectedData.workType &&
-      collectedData.serverNeeded &&
-      collectedData.maintenance &&
-      collectedData.design &&
-      collectedData.hosting &&
-      collectedData.startTime &&
-      collectedData.budget &&
-      collectedData.contactDetails &&
-      collectedData.phoneCallTime;
+    // const allFieldsFilled ={
+    //   projectType:collectedData.projectType ? collectedData.projectType: '',
+    //   workType:collectedData.workType ? collectedData.workType: '', 
+    //   serverNeeded:collectedData.serverNeeded ? collectedData.serverNeeded: '',
+    //   maintenance:collectedData.maintenance ? collectedData.maintenance: '', 
+    //   design:collectedData.design ? collectedData.design: '', 
+    //   hosting:collectedData.hosting ? collectedData.hosting: '', 
+    //   startTime:collectedData.startTime ? collectedData.startTime: '', 
+    //   phoneCallTime:collectedData.phoneCallTime ? collectedData.phoneCallTime: '',
+    //   contactDetails:{
+    //     firstName:collectedData.contactDetails.firstName ? collectedData.contactDetails.firstName : '', 
+    //     lastName:collectedData.contactDetails.lastName ? collectedData.contactDetails.lastName: '', 
+    //     email:collectedData.contactDetails.email ? collectedData.contactDetails.email: '',  
+    //     phone:collectedData.contactDetails.phone ? collectedData.contactDetails.phone: '', 
+    //   }
+    // }
+    const allFieldsFilled = 
+      {
+        ...(collectedData.projectType && collectedData.projectType.trim()  != "" && { projectType: collectedData.projectType }),
+        ...(collectedData.workType && collectedData.workType.trim()  != "" && { workType: collectedData.workType }),
+        ...(collectedData.serverNeeded && collectedData.serverNeeded.trim()  != "" && { serverNeeded: collectedData.serverNeeded }),
+        ...(collectedData.maintenance && collectedData.maintenance.trim()  != "" && { maintenance: collectedData.maintenance }),
+        ...(collectedData.design && collectedData.design.trim()  != "" && { design: collectedData.design }),
+        ...(collectedData.hosting && collectedData.hosting.trim()  != "" && { hosting: collectedData.hosting }),
+        ...(collectedData.startTime && collectedData.design.trim()  != "" && { design: collectedData.startTime }),
+        ...(collectedData.budget && collectedData.budget.trim()  != "" && { budget: collectedData.budget }),
+        ...(collectedData.phoneCallTime && collectedData.phoneCallTime.trim()  != "" && { phoneCallTime: collectedData.phoneCallTime }),
+        contactDetails:{
+          ...(collectedData.contactDetails.firstName && collectedData.contactDetails.firstName.trim()  != "" && { firstName: collectedData.contactDetails.firstName }),
+          ...(collectedData.contactDetails.lastName && collectedData.contactDetails.lastName.trim()  != "" && { firstName: collectedData.contactDetails.lastName }),
+          ...(collectedData.contactDetails.email && collectedData.contactDetails.email.trim()  != "" && { firstName: collectedData.contactDetails.email }),
+          ...(collectedData.contactDetails.phone && collectedData.contactDetails.phone.trim()  != "" && { firstName: collectedData.contactDetails.phone }),
+        }
+      }
 
-    if (allFieldsFilled) {
+      console.log('************--- all test');
+    console.log(allFieldsFilled);
+   
+    
+    console.log('************--- all fieldsfilled');
+    console.log(allFieldsFilled);
+
+    if (allFieldsFilled && Object.keys(allFieldsFilled).length === 10) {
       const {
         projectType,
         workType,
@@ -160,7 +207,7 @@ const processUserMessage = async (message) => {
       const saveResult = await saveDataToDatabase(collectedData);
 
       return {
-        response: summaryTable,
+        response: aiResponse,
         summaryTable,
         jsonSummary: collectedData,
         dataSaved: saveResult.success,
@@ -168,11 +215,64 @@ const processUserMessage = async (message) => {
       };
     }
 
-    return { response: aiResponse };
+    return { response: aiResponse, jsonSummary:allFieldsFilled };
   } catch (error) {
     console.error('Error during processing:', error);
     return { response: 'Sorry, an error occurred while processing your message.' };
   }
 };
+
+
+const jsonExtractionPrompt = {
+  role: 'user',
+  content: `
+Conversation:
+${conversationHistory.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')}
+
+Now extract this info in JSON format. Respond ONLY with valid JSON:
+
+{
+  "projectType": "",
+  "workType": "",
+  "serverNeeded": "",
+  "maintenance": "",
+  "design": "",
+  "hosting": "",
+  "startTime": "",
+  "budget": "",
+  "contactDetails": {
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "phone": ""
+  },
+  "phoneCallTime": ""
+}
+`
+};
+
+const safeJsonParse = (text) => {
+  try {
+    // Try parsing directly
+    return JSON.parse(text);
+  } catch (e) {
+    // Try to auto-fix minor issues like trailing commas or cut-off strings
+    const fixed = text.trim()
+      .replace(/,\s*}/g, '}') // remove trailing commas before }
+      .replace(/,\s*]/g, ']') // remove trailing commas before ]
+      .replace(/("phoneCallTime"\s*:\s*)$/, '$1""') // fix incomplete field
+      .replace(/\\n/g, '') // remove escaped newlines (optional)
+      .replace(/[\u0000-\u001F]+/g, '') // remove control characters
+    ;
+
+    try {
+      return JSON.parse(fixed);
+    } catch (err) {
+      console.error("❌ Still failed to parse:", fixed);
+      return null;
+    }
+  }
+};
+
 
 export { processUserMessage };
