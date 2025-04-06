@@ -11,7 +11,9 @@ import { generateUniqueId } from '../utils/idGenerator.js';
 import moment from 'moment/moment.js';
 import { deleteMaintaskTasks, deleteProjectTasks } from './controllers/deleteProjectTasks.js';
 import { logChanges } from '../utils/ChangeLog.js';   
-import { processTasksQuery } from '../openai/tasksSearch.js';
+// import { upsertToChroma, deleteFromChroma, searchInChroma } from '../pinecone/chromadb.js';
+// import { processTasksQuery } from '../openai/tasksSearch.js';
+import { processTasksQuery} from '../openai/tasksSearchTA.js';
 
 const router = express.Router();
 
@@ -217,40 +219,43 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
         }
       }
 
-      // ADD TASKS TO PINECONE
+      // ADD TASKS TO CHROMA
       // if(resource === 'tasks' || resource === "maintasks"){
-      //   // Log changes
-      //   const populatedTask = await Task.findById(savedRecord._id)
+      //     const populatedTask = await Task.findById(savedRecord._id)
       //     .populate('createdBy responsiblePerson subtasks customPriority customStatus')
       //     .exec();
-      //     const taskDetails = {
-      //       name: populatedTask.name,
-      //       description: populatedTask.description || "",  // If there's no description, provide a fallback
-      //       priority: populatedTask.priority,
-      //       status: populatedTask.status,
-      //       responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
-      //       createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
-      //       dueDate: populatedTask.dueDate,
-      //       startDate: populatedTask.startDate,
-      //       resource:resource,
-      //       subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
-      //       customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
-      //     };
-      //     const taskText = `
-      //       Task: ${taskDetails.name}
-      //       Description: ${taskDetails.description}
-      //       Priority: ${taskDetails.priority}
-      //       Status: ${taskDetails.status}
-      //       Responsible Person: ${taskDetails.responsiblePerson}
-      //       Created By: ${taskDetails.createdBy}
-      //       Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
-      //       Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
-      //       Subtasks: ${taskDetails.subtasks}
-      //       Resource: ${taskDetails.resource}
-      //       Custom Fields: ${taskDetails.customFields}
-      //     `;
 
-      //  await upsertToPinecone(savedRecord._id.toString(), taskText);
+      //   const taskDetails = {
+      //     name: populatedTask.name,
+      //     description: populatedTask.description || "",  // If there's no description, provide a fallback
+      //     priority: populatedTask.priority,
+      //     status: populatedTask.status,
+      //     responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
+      //     createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
+      //     dueDate: populatedTask.dueDate,
+      //     startDate: populatedTask.startDate,
+      //     resource: resource,
+      //     subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
+      //     customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
+      //   };
+
+      //   // Formatting the task text for embedding
+      //   const taskText = ` 
+      //     Task: ${taskDetails.name}
+      //     Description: ${taskDetails.description}
+      //     Priority: ${taskDetails.priority}
+      //     Status: ${taskDetails.status}
+      //     Responsible Person: ${taskDetails.responsiblePerson}
+      //     Created By: ${taskDetails.createdBy}
+      //     Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
+      //     Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
+      //     Subtasks: ${taskDetails.subtasks}
+      //     Resource: ${taskDetails.resource}
+      //     Custom Fields: ${taskDetails.customFields}
+      //   `;
+
+      //   // Upsert the task to ChromaDB
+      //   await upsertToChroma(savedRecord._id.toString(), taskText);
       // }
 
        // Emit task updated event to the assigned user using Socket.io

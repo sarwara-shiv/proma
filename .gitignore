@@ -45,3 +45,6 @@ TODO.md
 *.zip
 documentation.js
 dummyData.js
+run_chroma_server.py
+chroma-data
+chroma-env

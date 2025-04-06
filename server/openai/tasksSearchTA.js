@@ -1,92 +1,63 @@
-import { OpenAI } from 'openai';
+import Together from "together-ai";
 import moment from "moment/moment.js";
 import 'dotenv/config';
-
+const together = new Together({
+  apiKey: process.env.TOGETHER_API_KEY,
+});
 const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function detectIntentAndExtractEntities(query) {
   try {
-    const response = await openai.chat.completions.create({ 
-      model: "gpt-4-turbo",
+    const systemPrompt = `
+You are an assistant that extracts structured data from user queries.
+Return a JSON object with the following fields: 
+- reqType: 'get' | 'create' | 'update'
+- intent: one of ['search_tasks', 'recent_tasks', 'completed_tasks', 'in_progress_tasks', 'todo_tasks', 'search_project', 'tasks_assigned', 'tasks_with_project', 'tasks_with_priority', 'rework_tasks']
+- user: string (optional)
+- project: string (optional)
+- taskType: string (optional)
+- status: string (optional)
+- assignedTo: string (optional)
+- assignedBy: string (optional)
+- dateType: 'startDate' | 'endDate' | 'dueDate' (optional)
+- startDate, endDate, dueDate: ISO format dates (optional)
+
+Only respond with the JSON object and nothing else.
+`;
+
+    const prompt = `${systemPrompt}\n\nUser query: "${query}"`;
+
+    const response = await together.chat.completions.create({
+      model: "meta-llama/Llama-3-8b-chat-hf", // or another supported Together model
       messages: [
-        { role: "system", content: "Extract intent, request type, and structured entities from a user query. Keep response minimal and accurate." },
-        { role: "user", content: `Analyze this query: '${query}'.` }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `User query: "${query}"` },
       ],
-      functions: [
-        {
-          name: "extract_intent_entities",
-          description: "Extracts intent, request type, and structured entities from a user query.",
-          parameters: {
-            type: "object",
-            properties: {
-              reqType: { type: "string", enum: ["get", "create", "update"], description: "Action requested (get = retrieve, create = add, update = modify)." },
-              intent: { 
-                type: "string", 
-                enum: [
-                  "search_tasks", "recent_tasks", "completed_tasks", "in_progress_tasks", "todo_tasks",
-                  "search_project", "tasks_assigned", "tasks_with_project", "tasks_with_priority", "rework_tasks"
-                ],
-                description: "User intent from query."
-              },
-              user: { type: "string", description: "User mentioned in the query, if any." },
-              project: { type: "string", description: "Project name if provided." },
-              taskType: { type: "string", description: "Type of task mentioned." },
-              status: { type: "string", description: "Task status (completed, in-progress, etc.)." },
-              assignedTo: { type: "string", description: "Person assigned to the task." },
-              assignedBy: { type: "string", description: "Person who assigned the task." },
-              dateType: { 
-                type: "string",
-                enum: ["startDate", "endDate", "dueDate"],
-                description: "Type of date specified in query."
-              },
-              startDate: { type: "string", format: "date", description: "Start date extracted from query, if any." },
-              endDate: { type: "string", format: "date", description: "End date extracted from query, if any." },
-              dueDate: { type: "string", format: "date", description: "Due date extracted from query, if any." }
-            },
-            required: ["reqType", "intent"]
-          }
-        }
-      ],
-      function_call: { name: "extract_intent_entities" },
       temperature: 0,
     });
 
-    console.log("OpenAI Response:", response);
-    console.log("Full OpenAI Response:", JSON.stringify(response, null, 2));
-    // const parsedEntities = JSON.parse(response.choices[0].message.function_call.arguments);
-    // Validate response
-    if (!response.choices || response.choices.length === 0) {
-      throw new Error("OpenAI response does not contain 'choices'.");
-    }
+    const content = response.choices[0].message.content;
 
-    const message = response.choices[0].message;
-
-    // Check if the response contains 'function_call'
-    if (!message.function_call || !message.function_call.arguments) {
-      throw new Error("OpenAI response does not contain valid function arguments.");
-    }
-
-    // Parse the extracted entities from the function call arguments
+    // Try parsing the returned JSON
     let parsedEntities;
     try {
-      parsedEntities = JSON.parse(message.function_call.arguments);
-    } catch (jsonError) {
-      throw new Error("Error parsing function arguments as JSON: " + jsonError.message);
+      parsedEntities = JSON.parse(content);
+    } catch (e) {
+      throw new Error("Failed to parse model output as JSON: " + content);
     }
 
-      // Handle relative time expressions dynamically
-      parsedEntities.startDate = getStartDateFromQuery(query);
-      parsedEntities.endDate = getEndDateFromQuery(query);
-      parsedEntities.dueDate = getDueDateFromQuery(query);
+    // Append extracted dates
+    parsedEntities.startDate = getStartDateFromQuery(query);
+    parsedEntities.endDate = getEndDateFromQuery(query);
+    parsedEntities.dueDate = getDueDateFromQuery(query);
 
     return parsedEntities;
-    
   } catch (error) {
     console.error("Error detecting intent & extracting entities:", error);
     return {};
   }
 }
+
 
 
 // Helper function to determine the date type (startDate, endDate, dueDate) based on the query
