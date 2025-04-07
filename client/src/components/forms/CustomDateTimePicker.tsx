@@ -11,6 +11,7 @@ interface ArgsType {
   onDateChange?: (recordId: string | ObjectId, date: Date | null, name: string) => void;
   onChange?: (recordId: string | ObjectId, value: Date | null, name: string) => void;
   showTimeSelect?: boolean;
+  showDateSelect?: boolean;
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -25,6 +26,7 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
   onDateChange,
   onChange,
   showTimeSelect = false,
+  showDateSelect = true,
   name = "",
   placeholder = '__.__.____', // Default placeholder showing the format
   required = false,
@@ -197,7 +199,13 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
           <DatePicker
             selected={dateValue}
             onChange={handleDateChange}
-            dateFormat="dd.MM.yyyy"
+            dateFormat={
+              showDateSelect && showTimeSelect
+                ? 'dd.MM.yyyy HH:mm'
+                : showTimeSelect
+                ? 'HH:mm'
+                : 'dd.MM.yyyy'
+            }
             timeFormat={showTimeSelect ? 'HH:mm' : undefined}
             showTimeSelect={showTimeSelect}
             timeIntervals={15}

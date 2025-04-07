@@ -403,6 +403,33 @@ const workLogActions = async(args:WorkLogInterface)=>{
   }
 }
 
+interface DailyReportType{
+  body?:any;
+  id?:string;
+  type:'start'|'stop'|'update'| 'active';
+}
+
+const dailyReportActions = async(args:DailyReportType)=>{
+  const { body, id, type} = args;
+  if (type) {
+    try {
+      const response = await axios.post(`${API_URL}/daily-report/${type}${id ? '/'+id :''}`, 
+        {
+          page:'worklogs', data:body?body:{}
+        },
+        {
+          headers,
+          withCredentials: true 
+      });
+      return response.data; 
+    } catch (error) {
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
 const startWorkLog = async(args:WorkLogInterface)=>{
   const { body, id, type} = args;
   if (body) {
@@ -497,6 +524,7 @@ const searchTasksAI = async(args:{query:string, type:"tasks"|"maintasks" })=>{
 }
 
 export {
+  dailyReportActions,
   workLogActions,
   startWorkLog,
   stopWorkLog,

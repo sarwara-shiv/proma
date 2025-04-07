@@ -12,6 +12,7 @@ import { rolesRouter } from './routes/roles/userRoles.js';
 import { resourceRouter } from './routes/dynamicRoutes.js';
 import { groupsRouter } from './routes/groups/userGroups.js';
 import { worklogRouter } from './routes/worklog/workLog.js';
+import { dailyReportRouter } from './routes/worklog/dailyReport.js'; 
 import { initializeSocket } from './socket.js';
 import { leadRoutes } from './routes/leadRoutes/leadRoutes.js';
 import { dummyWorklogData, printIds } from './dummyData.js';
@@ -48,6 +49,7 @@ app.use("/roles", rolesRouter);
 app.use("/groups", groupsRouter);
 app.use("/worklog", worklogRouter);
 app.use("/leads", leadRoutes);
+app.use("/daily-report", dailyReportRouter);
 
 // DB CONNECTION
 const mongoURI = process.env.DB_LOCAL_URL;

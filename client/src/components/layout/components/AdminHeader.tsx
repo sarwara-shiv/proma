@@ -6,6 +6,7 @@ import { MdClose, MdMenu } from 'react-icons/md';
 import { useAppContext } from '../../../context/AppContext';
 import {useAuthContext } from '../../../context/AuthContext';
 import LogoutButton from '../../../components/auth/LogoutButton';
+import ToggleDailyReport from '../../../components/specific/dailyReport/ToggleDailyReport';
 
 const AdminHeader = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
@@ -58,12 +59,13 @@ const AdminHeader = () => {
                 </div>
             </div>
             <div className="text-sm flex gap-2">
-                    <span>
-                        <span className="text-primary font-bold">{t('hello')} </span>
-                        {user?.username && <>{user.username}</>}
-                    </span> 
-                    {/* | */}
-                    {/* <div className='font-bold text-md'><LogoutButton type='link'/></div> */}
+                <div>
+                    <ToggleDailyReport />
+                </div>
+                <span>
+                    <span className="text-primary font-bold">{t('hello')} </span>
+                    {user?.username && <>{user.username}</>}
+                </span> 
             </div>
             {/* <div className="container  min-w-full flex items-center justify-between px-2">
                 <div className="left-nav flex items-center space-x-2">

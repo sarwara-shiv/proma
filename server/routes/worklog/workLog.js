@@ -96,12 +96,12 @@ router.post("/start", verifyToken, async (req, res) => {
         // Check for existing daily report
         const existingReport = await DailyReport.findOne({
             user: req.user._id,
-            date: { $gte: today }
+            startDate: { $gte: today }
         });
 
         // Close open reports from previous days
         await DailyReport.updateMany(
-            { user: req.user._id, date: { $lt: today }, status: 'open' },
+            { user: req.user._id, startDate: { $lt: today }, status: 'open' },
             { $set: { status: 'closed' } }
         );
 
@@ -109,7 +109,7 @@ router.post("/start", verifyToken, async (req, res) => {
             // Create a new daily report
             const newDailyReport = new DailyReport({
                 user: req.user._id,
-                date: new Date(),
+                startDate: new Date(),
                 totalDuration: 0,
                 notes: '',
                 workLogs: resData ? [resData._id] : [],
@@ -1287,7 +1287,6 @@ function sortByUsers(reportData){
 
     return sortedByUsers;
 }
-
 
 
 export { router as worklogRouter };

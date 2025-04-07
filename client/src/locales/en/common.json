@@ -203,7 +203,7 @@
     "projectType":"Project Type",
     "inhouse":"In House",
     "client":"Client",
-    "start":"Client",
+    "start":"Start",
     "stop":"Stop",
     "notDefined":"Not Defined",
     "maintasks":"Main Tasks",

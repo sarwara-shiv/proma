@@ -307,30 +307,30 @@ export interface QaTask extends BaseTask {
     createdBy?:(string|ObjectId)
   }
   // Daily Report Interface
-  export interface DailyReport {
-    _id?:string;
-    user:string;
-    project:string;
-    date: Date;
-    hoursWorked?:number;
-    tasks?: string;
-    customFields?: DynamicCustomField[];
-    subDocuments?: string[]; // Array of Documentation objectIds
-    createdAt?: Date;
-    privacy:'private' | 'public';
-    updatedAt?: Date;
-    createdBy?:(string|ObjectId)
-  }
+  // export interface DailyReport {
+  //   _id?:string;
+  //   user:string;
+  //   project:string;
+  //   date: Date;
+  //   hoursWorked?:number;
+  //   tasks?: string;
+  //   customFields?: DynamicCustomField[];
+  //   subDocuments?: string[]; // Array of Documentation objectIds
+  //   createdAt?: Date;
+  //   privacy:'private' | 'public';
+  //   updatedAt?: Date;
+  //   createdBy?:(string|ObjectId)
+  // }
   export interface DailyReport {
     _id?:string;
     _cid?:string; 
     user: string;
-    date: Date;
+    startDate?: Date;
     totalDuration?: Number
     notes?:string
     workLogs: WorkLogType[], // Work logs connected to this report
     status: 'open' | 'closed';
-    createdDate?: Date;
+    endDate?: Date;
   }
 
   export interface WorkLogType{

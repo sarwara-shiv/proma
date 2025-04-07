@@ -81,17 +81,24 @@ const TicketSchema = new Schema({
 const DailyReportSchema = new Schema({
   _cid: { type: String }, 
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // User for whom the report is
-  date: { type: Date, required: true, index: true }, // The date for the report
   totalDuration: { type: Number, default: 0 }, // Total duration for the day in minutes
   notes: { type: String, default: '' }, // Notes for the daily report
   workLogs: [{ type: Schema.Types.ObjectId, ref: 'WorkLog' }], // Work logs connected to this report
   status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
-  createdDate: { type: Date, default: Date.now },
+  endDate:{type:Date},
+  startDate:{type: Date, default: Date.now, required: true, index: true  },
 }, { timestamps: true });
 
-DailyReportSchema.index({ user: 1, date: 1 });  
+DailyReportSchema.index({ user: 1, startDate: 1, endDate:1 });  
 DailyReportSchema.index({ user: 1, status: -1 });  
-DailyReportSchema.index({ user: 1, date: 1, status: 1 });
+DailyReportSchema.index({ user: 1, startDate: 1, status: 1 });
+
+DailyReportSchema.pre('save', function (next) {
+  if (this.endDate) {
+    this.totalDuration = Math.round((this.endTime - this.createdDate) / (1000 * 60)); // Convert ms to minutes
+  }
+  next();
+});
 
 // WORK LOG SCHEMA
 const WorkLogSchema = new Schema({
