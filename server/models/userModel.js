@@ -9,6 +9,7 @@ const UserSchema = new Schema({
   roles: [{ type: Schema.Types.ObjectId, ref: 'UserRoles' }], 
   groups: [{ type: Schema.Types.ObjectId, ref: 'UserGroups' }], 
   firma: { type: String, default:"self"}, 
+  workLoad:{type:Number, default:0, required:true},
   permissions: {
     type: Map,
     of: {
@@ -32,6 +33,18 @@ UserSchema.method.hashPassword = async function(password){
 
 UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
+};
+
+UserSchema.methods.updateWorkLoad = function (isAssigned) {
+  if (isAssigned) {
+    // Increase the work load when a task is assigned
+    this.workLoad += 1;
+  } else {
+    // Decrease the work load when a task is removed
+    if(this.workLoad > 0)
+    this.workLoad -= 1;
+  }
+  return this.save(); // Save the user after updating the workload
 };
 
 const UserModel = mongoose.model('User', UserSchema);

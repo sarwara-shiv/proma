@@ -66,7 +66,7 @@ export const logChanges = async (collectionName, documentId, newChanges, origina
     return;
   }
 
-  console.log("🚀 Logging Changes:", changesLog);
+  // console.log("🚀 Logging Changes:", changesLog);
 
   const logEntry = new ChangeLog({
     collectionName,
@@ -77,7 +77,7 @@ export const logChanges = async (collectionName, documentId, newChanges, origina
 
   try {
     await logEntry.save();
-    console.log("✅ Change log saved successfully.");
+    // console.log("✅ Change log saved successfully.");
   } catch (error) {
     console.error("❌ Error saving change log:", error);
     throw error;

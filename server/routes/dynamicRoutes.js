@@ -14,6 +14,7 @@ import { logChanges } from '../utils/ChangeLog.js';
 // import { upsertToChroma, deleteFromChroma, searchInChroma } from '../pinecone/chromadb.js';
 // import { processTasksQuery } from '../openai/tasksSearch.js';
 import { processTasksQuery} from '../openai/tasksSearchTA.js';
+import { updateUserWorkload } from '../utils/dbUtilFunctions.js';
 
 const router = express.Router();
 
@@ -78,6 +79,10 @@ router.post('/tasks/assign', verifyToken, async (req, res) => {
     const originalRecord = await model.findById(id); 
     if (!originalRecord) {
       return res.json({ status: "error", message: 'Record not found', code: "record_not_found" });
+    }
+
+    if(originalRecord.responsiblePerson && data.responsiblePerson){
+       await updateUserWorkload([[originalRecord.responsiblePerson, -1], [data.responsiblePerson, 1]]);
     }
 
     const assignedBy = data.assignedBy;
@@ -196,6 +201,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
       const newRecord = new model(data);
       const savedRecord = await newRecord.save();
 
+     
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
         for (const update of relatedUpdates) {
           const relatedModel = getModel(update.collection); // Get the model for the related collection
@@ -218,49 +224,12 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
           }
         }
       }
-
-      // ADD TASKS TO CHROMA
-      // if(resource === 'tasks' || resource === "maintasks"){
-      //     const populatedTask = await Task.findById(savedRecord._id)
-      //     .populate('createdBy responsiblePerson subtasks customPriority customStatus')
-      //     .exec();
-
-      //   const taskDetails = {
-      //     name: populatedTask.name,
-      //     description: populatedTask.description || "",  // If there's no description, provide a fallback
-      //     priority: populatedTask.priority,
-      //     status: populatedTask.status,
-      //     responsiblePerson: populatedTask.responsiblePerson ? populatedTask.responsiblePerson.name : '',
-      //     createdBy: populatedTask.createdBy ? populatedTask.createdBy.name : '',
-      //     dueDate: populatedTask.dueDate,
-      //     startDate: populatedTask.startDate,
-      //     resource: resource,
-      //     subtasks: populatedTask.subtasks.map(subtask => subtask.name).join(", "),
-      //     customFields: populatedTask.customFields.length > 0 ? populatedTask.customFields.map(field => field.value).join(", ") : ''
-      //   };
-
-      //   // Formatting the task text for embedding
-      //   const taskText = ` 
-      //     Task: ${taskDetails.name}
-      //     Description: ${taskDetails.description}
-      //     Priority: ${taskDetails.priority}
-      //     Status: ${taskDetails.status}
-      //     Responsible Person: ${taskDetails.responsiblePerson}
-      //     Created By: ${taskDetails.createdBy}
-      //     Due Date: ${taskDetails.dueDate ? taskDetails.dueDate.toISOString() : 'N/A'}
-      //     Start Date: ${taskDetails.startDate ? taskDetails.startDate.toISOString() : 'N/A'}
-      //     Subtasks: ${taskDetails.subtasks}
-      //     Resource: ${taskDetails.resource}
-      //     Custom Fields: ${taskDetails.customFields}
-      //   `;
-
-      //   // Upsert the task to ChromaDB
-      //   await upsertToChroma(savedRecord._id.toString(), taskText);
-      // }
-
        // Emit task updated event to the assigned user using Socket.io
        if ((resource === 'tasks' || resource ===  'maintasks') && savedRecord._id && savedRecord.responsiblePerson) {
-        console.log('****',savedRecord);
+        
+        // updae user workload
+        await updateUserWorkload([[savedRecord.responsiblePerson, 1]]);
+
         const assignedUserSocketId = onlineUsers.get(savedRecord.responsiblePerson.toString());         
         if (assignedUserSocketId) {
           io.to(assignedUserSocketId).emit('new-task-assigned', savedRecord);
@@ -358,11 +327,8 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
 
       // Log changes
       if(resource === 'tasks' || resource === "maintasks"){
-       await logChanges(resource, id, data, originalRecord, req.user._id);  
+        await logChanges(resource, id, data, originalRecord, req.user._id);  
       }
-
-
-
 
       if (relatedUpdates && Array.isArray(relatedUpdates)) {
         for (const update of relatedUpdates) {
@@ -464,10 +430,16 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
     }
     
     deletedRecord = await model.findByIdAndDelete(id);
+    console.log('******', deletedRecord);
+
 
     if (!deletedRecord) {
       // return res.status(404).json({ error: 'Record not found' });
       return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
+    }
+
+    if(deletedRecord.responsiblePerson){
+      await updateUserWorkload([[deletedRecord.responsiblePerson, -1]]);
     }
      // Handle related updates
 

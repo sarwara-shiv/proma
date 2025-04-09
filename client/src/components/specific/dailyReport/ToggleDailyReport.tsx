@@ -1,5 +1,5 @@
 import { IoMdArrowDown } from "react-icons/io";
-import { ToggleSwitch } from "../../../components/common";
+import { ToggleSwitch, DigitalClock } from "../../../components/common";
 import { useAppContext } from "../../../context/AppContext";
 import { dailyReportActions } from "../../../hooks/dbHooks";
 import { useEffect } from "react";
@@ -70,7 +70,10 @@ const ToggleDailyReport = ()=>{
                         }    
                     `}>{activeDailyReport ? <span>{t('stop')}</span> : <span>{t('start')}</span> }</div>
 
-                    <div className="cursor-pointer hover:text-primary"><MdOutlineKeyboardArrowDown className="text-2xl"/></div>
+                    <div className="cursor-pointer hover:text-primary">
+                        <DigitalClock size="xs"/>
+                        <MdOutlineKeyboardArrowDown className="text-2xl"/>
+                    </div>
                     <CloseDailyReport />
                 </div>
             </div>

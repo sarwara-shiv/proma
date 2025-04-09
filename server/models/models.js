@@ -228,7 +228,7 @@ const BaseTaskSchema = new Schema({
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   assignNote: { type: String},
-  difficultyLevel: { type: Number, enum:['easy','medium','hight'], default:'medium'},
+  difficultyLevel: { type: String, enum:['easy','medium','hight'], default:'medium'},
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
