@@ -134,6 +134,9 @@ router.post("/start", verifyToken, async (req, res) => {
         } else if (resData) {
             // Add new work log to existing daily report
             existingReport.workLogs.push(resData._id);
+
+            existingReport.paused.push({ startTime: existingReport.endDate , endTime: new Date() });
+            existingReport.status = 'open';
             await existingReport.save();
         }
 
