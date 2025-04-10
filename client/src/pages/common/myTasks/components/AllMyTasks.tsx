@@ -265,7 +265,6 @@ const AllMyTasks = () => {
 
     const richtTextonChange = (value:string)=>{
         setTaskNotes((prevVal)=>{
-           
             return value
         }); 
 
@@ -618,8 +617,8 @@ const AllMyTasks = () => {
             
             }
 
-            <LeadChatbot />
-            <LeadForm />
+            {/* <LeadChatbot />
+            <LeadForm /> */}
         
         </>
             

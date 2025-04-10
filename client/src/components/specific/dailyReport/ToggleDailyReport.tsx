@@ -1,15 +1,18 @@
 import { IoMdArrowDown } from "react-icons/io";
-import { ToggleSwitch, DigitalClock } from "../../../components/common";
+import { ToggleSwitch, DigitalClock, CustomPopup, TimeElapsed } from "../../../components/common";
 import { useAppContext } from "../../../context/AppContext";
 import { dailyReportActions } from "../../../hooks/dbHooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+import { MdOutlineKeyboardArrowDown, MdPause } from "react-icons/md";
 import CloseDailyReport from "./CloseDailyReport";
+import { CustomPopupType } from "../../../interfaces";
+import CustomContextMenu from "../../../components/common/CustomContextMenu";
 
 const ToggleDailyReport = ()=>{
     const {activeDailyReport, setActiveDailyReport} = useAppContext();
     const {t} = useTranslation();
+    const [custoPopupData, setCustomPopupData] = useState<CustomPopupType>({isOpen:false, title:'', content:''})
 
     useEffect(()=>{
         if(!activeDailyReport){
@@ -30,6 +33,25 @@ const ToggleDailyReport = ()=>{
         }catch(error){
             console.error(error);
         }
+    }
+
+    // open popup
+    const openDailyReport = ()=>{
+        setCustomPopupData((res:CustomPopupType)=>{
+            return ({...res, isOpen:true, data:'', 
+            content:<>
+                <CloseDailyReport />   
+                </>
+            })
+        })
+    }
+
+
+    // close popup
+    const closePopup = ()=>{
+        setCustomPopupData(res=>{
+            return {...res, isOpen:false}
+        })
     }
 
     // TOGGLE DAILY REPORT
@@ -61,22 +83,53 @@ const ToggleDailyReport = ()=>{
     return (
         <div>
             <div className="toggle-report">
-                <div className="toggle-btn flex flex-wrap gap-1 py-1 px-1 items-center bg-primary-light rounded-full">
+                <div className="toggle-btn flex flex-wrap gap-1 py-0 px-1 items-center bg-primary-light rounded-full">
+                    {activeDailyReport ?
+                    <div className="cursor-pointer hover:text-primary flex flex-row" >
+                    <CustomContextMenu showIcon={false} maxWidth={400} text={<>
+                        {/* <div
+                            className={`
+                                cursor-pointer flex justify-center py-1/50 px-2 rounded-full  hover:shadow-none items-center ${activeDailyReport ? 
+                                'bg-red-100 text-red-500 shadow-md shadow-red-500/50 ' : 
+                                'bg-green-100 text-green-500 shadow-xl shadow-green-500/50 '
+                                }    
+                            `}>{activeDailyReport ? <span>{t('stop')}</span> : <span>{t('start')}</span> } 
+                            </div> */}
+                            {/* <DigitalClock /> */}
+                            {activeDailyReport.status === 'paused' ? <><MdPause /> {t('paused')}</>: 
+                                <><TimeElapsed startDate={activeDailyReport.startDate} showSeconds={false}/> </>
+                            }
+                            <MdOutlineKeyboardArrowDown className="text-2xl"/>
+                        </>}>
+                        <CloseDailyReport />
+                    </CustomContextMenu>
+                </div>
+                    :
                     <div onClick={toggleDailyReport}
                     className={`
                         cursor-pointer flex justify-center py-1/50 px-2 rounded-full  hover:shadow-none items-center ${activeDailyReport ? 
                            'bg-red-100 text-red-500 shadow-md shadow-red-500/50 ' : 
                            'bg-green-100 text-green-500 shadow-xl shadow-green-500/50 '
                         }    
-                    `}>{activeDailyReport ? <span>{t('stop')}</span> : <span>{t('start')}</span> }</div>
+                    `}><span>{t('start')}</span>
+                    <DigitalClock />
+                    </div> 
+                    }
 
-                    <div className="cursor-pointer hover:text-primary">
-                        <DigitalClock size="xs"/>
-                        <MdOutlineKeyboardArrowDown className="text-2xl"/>
-                    </div>
-                    <CloseDailyReport />
+                    
                 </div>
             </div>
+
+            <CustomPopup 
+                isOpen={custoPopupData.isOpen}
+                onClose={closePopup}
+                noFunction={closePopup}
+                data={custoPopupData.data? custoPopupData.data : {}}
+                title={custoPopupData.title}
+                content={custoPopupData.content}
+            />
+
+
         </div>
     )
 }

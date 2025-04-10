@@ -5,10 +5,12 @@ import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 interface CustomContextMenuProps {
   children: React.ReactNode;
   iconSize?:'xs' | 'sm' | 'md';
-  text?:React.ReactNode | null
+  text?:React.ReactNode | null;
+  showIcon?:boolean;
+  maxWidth?:number;
 }
 
-const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSize='sm', text=null }) => {
+const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSize='sm', text=null, showIcon=true, maxWidth=150 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -89,7 +91,7 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSiz
     <div className="relative">
       {/* Trigger Button */}
         <button ref={buttonRef} className={`p-1 rounded text-${iconSize} `} onClick={toggleMenu}>
-          {text ? <p className='flex justify-start items-center'><IoEllipsisVerticalSharp /> {text}</p> : <IoEllipsisVerticalSharp />}
+          {text ? <p className='flex justify-start items-center'> <> {showIcon && <IoEllipsisVerticalSharp />}</> {text}</p> : <IoEllipsisVerticalSharp />}
         </button>
 
       {/* Custom Context Menu */}
@@ -101,7 +103,8 @@ const CustomContextMenu: React.FC<CustomContextMenuProps> = ({ children, iconSiz
             style={{
               top: `${position.top}px`,
               left: `${position.left}px`,
-              width: '150px', // Adjust the width as needed
+              width: `${maxWidth ? 'auto' : '150px'}`, // Adjust the width as needed
+              maxWidth:`${maxWidth ? maxWidth+'px' : 'auto'}`,
               maxHeight: `${position.maxHeight}px`, // Set dynamic max height
               overflowY:
                 menuRef.current && position.maxHeight < (menuRef.current.scrollHeight || 0)

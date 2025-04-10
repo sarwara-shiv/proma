@@ -11,6 +11,18 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
+
+/**
+ * 
+ * TODO
+ * - when stopped and started again same day
+ * - create new paused
+ *    - old stopped date is paused startTime
+ *   - new stopped date as paused endTime
+ * - DailyReport startTime same and endTime null
+ * 
+ */
+
 // START Worklog & END CURRENT WORKLOG
 router.post("/start", verifyToken, async (req, res) => {
     try {

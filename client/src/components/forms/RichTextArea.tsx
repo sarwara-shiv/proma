@@ -14,10 +14,12 @@ const isImageUrl = (url: string) => {
   return /\.(jpeg|jpg|gif|png|svg|webp)$/.test(url);
 };
 
-const RichTextArea: React.FC<ArgsType> = ({ textSize='sm', name = "", label = "", defaultValue = '', onChange, height='150', maxHeight }) => {
+const RichTextArea: React.FC<ArgsType> = ({ textSize='sm', name = "", label = "", defaultValue = '', onChange, height='100', maxHeight }) => {
   const [value, setValue] = useState<string>(defaultValue);
   const contentEditableRef = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<Range | null>(null);
+
+  maxHeight = height && !maxHeight ? (parseInt(height) + 50).toString() : maxHeight ? maxHeight : '150';
 
   // Handle input changes
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
@@ -115,7 +117,7 @@ const RichTextArea: React.FC<ArgsType> = ({ textSize='sm', name = "", label = ""
           min-h-[${height}px] 
           ${maxHeight ? `max-h-[${maxHeight}px]` : ""}
           relative text-${textSize} text-slate-800`}
-        style={{ whiteSpace: 'pre-wrap', overflowY: 'auto' }} // Keep formatting
+        style={{ whiteSpace: 'pre-wrap', overflowY: 'auto', minHeight:`${height}px`, maxHeight:`${maxHeight}px` }} // Keep formatting
         suppressContentEditableWarning // Prevent React warning
       />
     </div>

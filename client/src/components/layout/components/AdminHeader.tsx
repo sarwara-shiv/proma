@@ -58,7 +58,7 @@ const AdminHeader = () => {
                     {pageTitle}
                 </div>
             </div>
-            <div className="text-sm flex gap-2">
+            <div className="text-sm flex gap-4 items-center">
                 <div>
                     <ToggleDailyReport />
                 </div>

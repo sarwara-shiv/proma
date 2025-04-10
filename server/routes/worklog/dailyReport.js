@@ -97,7 +97,25 @@ router.post("/stop", verifyToken, async (req, res) => {
         dailyReport.notes = notes; // Update notes with data from request body (if provided)
 
         // Recalculate the duration based on the new endDate
-        dailyReport.totalDuration = Math.round((dailyReport.endDate - dailyReport.startDate) / (1000 * 60)); // Convert ms to minutes
+        const totalTimeMs = endDate.getTime() - new Date(dailyReport.startDate).getTime();
+        const totalPausedMs = dailyReport.paused.reduce((acc, p) => {
+          const start = new Date(p.startTime).getTime();
+          const end = new Date(p.endTime || date).getTime();
+          return acc + (end - start);
+        }, 0);
+        dailyReport.totalDuration = Math.round((totalTimeMs - totalPausedMs) / (1000 * 60)); // Duration in minutes
+
+        const workLog = await WorkLog.findOne({
+            user: dailyReport.user._id,
+            status: "active", // Find active work log
+          });
+  
+          if (workLog) {
+            // Mark the work log as completed
+            workLog.status = "completed";
+            workLog.endDate = date; // Set end date for the work log
+            await workLog.save(); // Save the updated work log
+          }
 
          // Save the updated work log
          await dailyReport.save();
@@ -113,6 +131,131 @@ router.post("/stop", verifyToken, async (req, res) => {
         });
     }
 })
+
+/**
+ * 
+ * @params id - id of active dailyreport
+ * @params type - pause, resume, close
+ * @params notes : string
+ * @params date : data 
+ * 
+ */
+router.post("/update", verifyToken, async (req, res) => {
+    const { id, type, notes = "", date = new Date() } = req.body.data;
+  
+    if (!id || !type) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields",
+        code: "missing_fields",
+      });
+    }
+  
+    try {
+      const dailyReport = await DailyReport.findById(id).populate("workLogs");
+  
+      if (!dailyReport) {
+        return res.status(404).json({
+          status: "error",
+          message: "Daily report not found",
+          code: "report_not_found",
+        });
+      }
+      const workLog = await WorkLog.findOne({
+        user: dailyReport.user._id,
+        status: "active", // Find active work log
+      });
+
+      switch (type) {
+        case "pause":
+          // Add a new paused interval with endTime as null (paused state)
+          dailyReport.paused.push({ startTime: date, endTime: null });
+          dailyReport.status = "paused";
+          
+  
+          if (workLog) {
+            // Mark the work log as completed
+            workLog.status = "completed";
+            workLog.endDate = date; // Set end date for the work log
+            await workLog.save(); // Save the updated work log
+          }
+          break;
+  
+        case "resume":
+          // Resume from pause: update last paused interval if endTime is null
+          const lastPause = dailyReport.paused[dailyReport.paused.length - 1];
+          if (lastPause && !lastPause.endTime) {
+            // Make sure the endTime is updated with the current date
+            lastPause.endTime = date;
+            dailyReport.status = "open"; // Mark as open when resumed
+          } else {
+            return res.status(400).json({
+              status: "error",
+              message: "No active paused interval to resume.",
+              code: "no_active_pause",
+            });
+          }
+          break;
+  
+        case "close":
+          dailyReport.status = "closed";
+          dailyReport.endDate = date;
+  
+          // Finish last paused interval if still open (i.e., endTime is null)
+          const last = dailyReport.paused[dailyReport.paused.length - 1];
+          if (last && !last.endTime) {
+            last.endTime = date; // Set endTime for the last pause interval
+          }
+  
+          // Recalculate total duration (excluding paused time)
+          const totalTimeMs = new Date(date).getTime() - new Date(dailyReport.startDate).getTime();
+          const totalPausedMs = dailyReport.paused.reduce((acc, p) => {
+            const start = new Date(p.startTime).getTime();
+            const end = new Date(p.endTime || date).getTime();
+            return acc + (end - start);
+          }, 0);
+          dailyReport.totalDuration = Math.round((totalTimeMs - totalPausedMs) / (1000 * 60)); // Duration in minutes
+
+           if (workLog) {
+            // Mark the work log as completed
+            workLog.status = "completed";
+            workLog.endDate = date; // Set end date for the work log
+            await workLog.save(); // Save the updated work log
+            }
+
+          break;
+  
+        case "notes":
+          dailyReport.notes = notes;
+          break;
+  
+        default:
+          return res.status(400).json({
+            status: "error",
+            message: "Invalid update type",
+            code: "invalid_type",
+          });
+      }
+  
+      await dailyReport.save();
+  
+      return res.status(200).json({
+        status: "success",
+        message: `Daily report updated: ${type}`,
+        code: `report_${type}_updated`,
+        data: dailyReport,
+      });
+    } catch (error) {
+      console.error("Update error:", error);
+      return res.status(500).json({
+        status: "error",
+        message: "Internal server error",
+        code: "server_error",
+      });
+    }
+});
+
+  
 
 // Get active daily report
 router.post("/active", verifyToken, async (req, res) => {

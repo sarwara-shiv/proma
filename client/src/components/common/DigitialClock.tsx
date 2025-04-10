@@ -46,9 +46,10 @@ const DigitalClock: React.FC<ArgsType> = ({size='xs', showSeconds=false}) => {
       <span className='px-[0px] animate-blink'>:</span>
       <span className={`${widthMap[size]} text-center`}>{minutes}</span>
       {showSeconds && <>
-      <span className='px-[0px]'>:</span>
-      <span className={`${widthMap[size]} text-center`}>{seconds}</span>
-      </>}
+        <span className='px-[0px] animate-blink'>:</span>
+        <span className={`${widthMap[size]} text-center`}>{seconds}</span>
+      </>
+      }
     </div>
   );
 };

@@ -77,6 +77,18 @@ const TicketSchema = new Schema({
   updatedAt: { type: Date, default: Date.now }, 
 });
 
+const PausedIntervalSchema = new Schema({
+  startTime: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  endTime: {
+    type: Date,
+    required: false,
+  },
+},{ _id: false });
+
 // DAILY REPORT SCHEMA
 const DailyReportSchema = new Schema({
   _cid: { type: String }, 
@@ -84,7 +96,8 @@ const DailyReportSchema = new Schema({
   totalDuration: { type: Number, default: 0 }, // Total duration for the day in minutes
   notes: { type: String, default: '' }, // Notes for the daily report
   workLogs: [{ type: Schema.Types.ObjectId, ref: 'WorkLog' }], // Work logs connected to this report
-  status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
+  status: { type: String, enum: ['open', 'closed', 'paused'], default: 'open' }, // Ticket status
+  paused:[PausedIntervalSchema],
   endDate:{type:Date},
   startDate:{type: Date, default: Date.now, required: true, index: true  },
 }, { timestamps: true });
@@ -95,8 +108,20 @@ DailyReportSchema.index({ user: 1, startDate: 1, status: 1 });
 
 DailyReportSchema.pre('save', function (next) {
   if (this.endDate) {
-    this.totalDuration = Math.round((this.endTime - this.createdDate) / (1000 * 60)); // Convert ms to minutes
+    // Calculate total time from start to end (in ms)
+    const totalTimeMs = new Date(this.endDate).getTime() - new Date(this.startDate).getTime();
+
+    // Calculate total paused time (in ms)
+    const totalPausedTimeMs = this.paused.reduce((acc, pausedInterval) => {
+      const start = new Date(pausedInterval.startTime).getTime();
+      const end = pausedInterval.endTime ? new Date(pausedInterval.endTime).getTime() : Date.now(); // Use current time if endTime is not set
+      return acc + (end - start);
+    }, 0);
+
+    // Subtract paused time from total time and convert to minutes
+    this.totalDuration = Math.round((totalTimeMs - totalPausedTimeMs) / (1000 * 60));
   }
+
   next();
 });
 

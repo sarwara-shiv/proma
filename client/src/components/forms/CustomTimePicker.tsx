@@ -9,6 +9,7 @@ interface CustomTimePickerProps {
   maxTime?: string;
   is24Hour?: boolean;
   popup?: boolean;
+  size?:'sm' | 'md' | 'lg' | 'xl'
 }
 
 const pad = (num: number) => String(num).padStart(2, '0');
@@ -35,6 +36,7 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
   maxTime,
   is24Hour = true,
   popup = true,
+  size='sm'
 }) => {
   // State for hour, minute, and AM/PM for 12-hour format
   const [hour, setHour] = useState('');
@@ -46,6 +48,15 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hoursInputRef = useRef<HTMLInputElement>(null);
   const minutesInputRef = useRef<HTMLInputElement>(null);
+
+  const inputW = size === 'sm' ? 'w-7' : 
+                  size === 'md' ? 'w-8' :
+                  size === 'lg' ? 'w-12' :
+                 'w-16';
+  const btnW = size === 'sm' ? 'text-lg' : 
+                  size === 'md' ? 'text-xl' :
+                  size === 'lg' ? 'text-2xl' :
+                 'text-3xl';
 
   // Set default time to current time if no value is provided
   const getCurrentTime = () => {
@@ -206,10 +217,10 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
   };
 
   const renderInputs = () => (
-    <div className="flex items-center space-x-0 text-xl">
+    <div className={`flex items-center space-x-0 text-${size}`}>
       {/* Hour Input */}
       <div className='flex flex-col'>
-        <button onClick={() => adjustTime('hour', 1)} className="text-2xl flex justify-center items-center"><MdOutlineKeyboardArrowUp/></button>
+        <button onClick={() => adjustTime('hour', 1)} className={`${btnW} flex justify-center items-center`}><MdOutlineKeyboardArrowUp/></button>
           <input
             ref={hoursInputRef}
             value={hour}
@@ -217,16 +228,16 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
             onBlur={handleBlur}
             onWheel={(e) => handleWheel(e, 'hour')}
             onKeyDown={(e) => handleKeyDown(e, 'hour')}
-            className="w-12 text-center rounded p-1 shadow-none border focus:shadow-lg focus:outline-none focus:border-white"
+            className={`${inputW} text-center rounded p-1 shadow-none border focus:shadow-lg focus:outline-none focus:border-white`}
             maxLength={2}
             placeholder="HH"
           />
-          <button onClick={() => adjustTime('hour', -1)} className="text-2xl flex justify-center items-center"><MdOutlineKeyboardArrowDown/></button>
+          <button onClick={() => adjustTime('hour', -1)} className={`${btnW} flex justify-center items-center`}><MdOutlineKeyboardArrowDown/></button>
       </div>
       <span>:</span>
       {/* Minute Input */}
       <div className='flex flex-col'>
-        <button onClick={() => adjustTime('minute', 1)} className="text-2xl flex justify-center items-center"><MdOutlineKeyboardArrowUp/></button>
+        <button onClick={() => adjustTime('minute', 1)} className={`${btnW} flex justify-center items-center`}><MdOutlineKeyboardArrowUp/></button>
         <input
           ref={minutesInputRef}
           value={minute}
@@ -234,11 +245,11 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
           onKeyDown={(e) => handleKeyDown(e, 'minute')}
           onWheel={(e) => handleWheel(e, 'minute')}
           onBlur={handleBlur}
-          className="w-12 text-center rounded p-1 shadow-none border focus:shadow-lg focus:outline-none focus:border-white"
+          className={`${inputW} text-center rounded p-1 shadow-none border focus:shadow-lg focus:outline-none focus:border-white`}
           maxLength={2}
           placeholder="MM"
         />
-        <button onClick={() => adjustTime('minute', -1)} className="text-2xl flex justify-center items-center"><MdOutlineKeyboardArrowDown/></button>
+        <button onClick={() => adjustTime('minute', -1)} className={`${btnW} flex justify-center items-center`}><MdOutlineKeyboardArrowDown/></button>
       </div>
 
       {/* AM/PM Toggle */}

@@ -329,7 +329,8 @@ export interface QaTask extends BaseTask {
     totalDuration?: Number
     notes?:string
     workLogs: WorkLogType[], // Work logs connected to this report
-    status: 'open' | 'closed';
+    status: 'open' | 'closed' | 'paused';
+    paused?:{startTime:Date, endTime?:Date}[]
     endDate?: Date;
   }
 
