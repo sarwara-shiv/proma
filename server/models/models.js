@@ -21,7 +21,7 @@ const PermissionSchema = new Schema({
 });
 
 // Predefined Enums
-const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview'];
+const predefinedTaskStatuses = ['toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview', 'approved'];
 const taskAssignReasons = ['todo','errors', 'missingRequirements', 'clientFeedback', 'feedback'];
 const predefinedPriorities = ['high', 'medium', 'low'];
 const predefinedProjectStatuses = ['notStarted', 'inProgress', 'completed', 'onHold', 'cancelled'];
@@ -67,15 +67,46 @@ const DynamicCustomField = new Schema({
 
 // Ticket Schema
 const TicketSchema = new Schema({
+  _cid: { type: String }, // Unique Ticket ID
   title: { type: String, required: true },
-  _cid:{type:String},
   description: { type: String },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // User who created the ticket
-  tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }], // Tasks associated with the ticket
-  status: { type: String, enum: ['open', 'closed'], default: 'open' }, // Ticket status
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }, 
-});
+  priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+  status: { type: String, enum: ['open', 'inProgress', 'resolved', 'closed'], default: 'open' },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  assignedTo: { type: Schema.Types.ObjectId, ref: 'User' }, // Assigned person (can be null if unassigned)
+  createdDate: { type: Date, default: Date.now },
+  dueDate: { type: Date },
+  comments: [{
+    commentBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    commentText: { type: String },
+    commentDate: { type: Date, default: Date.now },
+  }],
+}, { timestamps: true });
+
+
+// Close ticket when all tasks are completed
+TicketSchema.methods.checkCompletion = async function () {
+  const ticket = this;
+
+  try {
+    // Fetch all tasks linked to this ticket
+    const tasks = await mongoose.model('Task').find({ ticket: ticket._id });
+
+    // Check if all tasks have been completed
+    const allCompleted = tasks.every(task => task.status === 'completed');
+
+    if (allCompleted) {
+      // If all tasks are completed, close the ticket
+      ticket.status = 'closed';
+      await ticket.save();
+      console.log('Ticket status updated to closed');
+    } else {
+      console.log('Not all tasks are completed yet');
+    }
+  } catch (err) {
+    console.error('Error while checking ticket completion:', err);
+  }
+};
 
 const PausedIntervalSchema = new Schema({
   startTime: {
@@ -235,6 +266,18 @@ const TasksColWidth = new Schema({
 //   updatedAt: { type: Date, default: Date.now },
 // });
 
+/**
+ * 
+ * STORY POINTS MEANING
+ * 1. XS  - Very trivial task (like text change etc)
+ * 2. S   - Easy Task 
+ * 3. M   - Requires some thought, may be one component in api
+ * 5. L   - Multi step Task
+ * 8. XL  - Complex Task, new fetures, integration with multiple systems
+ * 13 XXL - Too big, should be broken down into smaller tasks or stories
+ * 
+ */
+
 const BaseTaskSchema = new Schema({
   _cid: { type: String }, // task id
   _mid: { type: Schema.Types.ObjectId, ref: 'MainTask', required: true },  // Main Task this task belongs to
@@ -253,17 +296,37 @@ const BaseTaskSchema = new Schema({
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   assignNote: { type: String},
-  difficultyLevel: { type: String, enum:['easy','medium','hight'], default:'medium'},
+  difficultyLevel: { type: String, enum:['easy','medium','high'], default:'medium'},
+  sprintId:{type:String},
+  storyPoint:{type:Number, enum:[1,2,3,5,8,13], default:1}, // 
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
   isRework:{type:Boolean, default:false},
   assignedDate: { type: Date, default: Date.now  },
   reason:{type:String, enum:taskAssignReasons,default:'todo'},
+  requiresApproval: { type: Boolean, default: true },
+  approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected', null], default: null },
+  approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  approvedAt: { type: Date },
+  approver: { type: Schema.Types.ObjectId, ref: 'User' },
+  rejectedReason: { type: String },
+  observers:[{ type: Schema.Types.ObjectId, ref: 'User'}],
+  approvals: [{
+    reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    approved: { type: Boolean },
+    reviewedAt: { type: Date, default: Date.now },
+    comment: { type: String },
+  }],
   revisions:[{
     assignedBy:{ type: Schema.Types.ObjectId, ref: 'User'},
     reason:{type:String, enum:taskAssignReasons,default:'todo'},
     timestamp:{type:Date, default:Date.now}
+  }],
+  dependencies: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Task', // Reference to the dependent task(s)
+    required: false
   }],
   customFields: [DynamicFieldSchema],  // Custom fields array
   defaultFieldColors: [DefaultFieldColors],
@@ -280,8 +343,74 @@ BaseTaskSchema.pre('save', function (next) {
   if (this.isModified('responsiblePerson')) {
     this.assignedDate = new Date();
   }
+  if (this.isModified('approvalStatus')) {
+    // If client approval status is updated
+    const isApproved = this.approvalStatus === 'approved';
+    const isRejected = this.approvalStatus === 'rejected';
+
+    // Check if status has changed to "approved" or "rejected"
+    if (isApproved || isRejected) {
+      // Add an approval or rejection entry to the clientApprovals array
+      this.approvals.push({
+        reviewedBy: this.clientApprovedBy, // the user who reviewed it
+        approved: isApproved, // boolean indicating approval or rejection
+        reviewedAt: new Date(), // the date of review
+        comment: this.rejectedReason || '', // rejection reason or an empty string if approved
+      });
+
+      // Set the approval/rejection details
+      if (isApproved) {
+        this.clientApprovedAt = new Date(); // Set approval date
+      } else if (isRejected) {
+        this.clientApprovedAt = null; // Clear approval date if rejected
+      }
+    }
+  }
+  // Set default approver if approval is required but no approver is set
+  if (this.requiresApproval && !this.approver) {
+    try {
+      if (this.assignedBy) {
+        this.approver = this.assignedBy;
+      } else {
+        this.approver = this.createdBy;
+      }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
   next();
 });
+
+BaseTaskSchema.methods.canStartTask = async function () {
+  if (this.dependencies && this.dependencies.length > 0) {
+    // Check if all dependent tasks are completed
+    const dependenciesCompleted = await Task.find({ 
+      _id: { $in: this.dependencies },
+      status: { $in: ['done', 'approved'] } // Adjust based on your task status
+    });
+
+    if (dependenciesCompleted.length !== this.dependencies.length) {
+      return false; // Not all dependencies are completed
+    }
+  }
+  return true; // No dependencies, or all dependencies are completed
+};
+
+/**
+ * DEMO UPDATE TASK USE METHOD
+ * 
+ */
+// async function updateTaskStatus(taskId, newStatus) {
+//   const task = await Task.findById(taskId);
+
+//   if (task && await task.canStartTask()) {
+//     task.status = newStatus;
+//     await task.save();
+//   } else {
+//     throw new Error('Cannot start task. Dependencies not completed.');
+//   }
+// }
 
 // QA Task Schema extending BaseTaskSchema
 const QaTaskSchema = BaseTaskSchema.discriminator('QaTask', new Schema({
@@ -300,7 +429,7 @@ const TaskSchema = BaseTaskSchema.discriminator('Task', new Schema({
 }, { _id: false }));
 
 const MainTaskSchema = new Schema({
-  _pid:{type:String, required:true, ref:'Project'}, // Project ObjectId
+  _pid:{type:String, ref:'Project'}, // Project ObjectId
   name:{type:String, required:true},
   category:{type:String, required:true}, 
   startDate: { type: Date},
@@ -321,26 +450,50 @@ const MainTaskSchema = new Schema({
   assignedDate: { type: Date, default: Date.now  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+   // Client approval fields
+   clientApprovalRequired: { type: Boolean, default: false },
+   clientApprovalStatus: { type: String, enum: ['pending', 'approved', 'rejected', null], default: null },
+   clientApprovedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+   clientApprovedAt: { type: Date },
+   clientRejectedReason: { type: String },
+   clientApprovals: [{
+    reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    approved: { type: Boolean },
+    reviewedAt: { type: Date, default: Date.now },
+    comment: { type: String },
+  }],
 })
 
 MainTaskSchema.pre('save', function (next) {
   if (this.isModified('responsiblePerson')) {
     this.assignedDate = new Date();
   }
+  if (this.isModified('clientApprovalStatus')) {
+    // If client approval status is updated
+    const isApproved = this.clientApprovalStatus === 'approved';
+    const isRejected = this.clientApprovalStatus === 'rejected';
+
+    // Check if status has changed to "approved" or "rejected"
+    if (isApproved || isRejected) {
+      // Add an approval or rejection entry to the clientApprovals array
+      this.clientApprovals.push({
+        reviewedBy: this.clientApprovedBy, // the user who reviewed it
+        approved: isApproved, // boolean indicating approval or rejection
+        reviewedAt: new Date(), // the date of review
+        comment: this.clientRejectedReason || '', // rejection reason or an empty string if approved
+      });
+
+      // Set the approval/rejection details
+      if (isApproved) {
+        this.clientApprovedAt = new Date(); // Set approval date
+      } else if (isRejected) {
+        this.clientApprovedAt = null; // Clear approval date if rejected
+      }
+    }
+  }
   next();
 });
 
-// Close ticket when all tasks are completed
-TicketSchema.methods.checkCompletion = async function () {
-  const ticket = this;
-  const tasks = await mongoose.model('Task').find({ _id: { $in: ticket.tasks } });
-  const allCompleted = tasks.every(task => task.status === 'completed');
-
-  if (allCompleted) {
-    ticket.status = 'closed';
-    await ticket.save();
-  }
-};
 
 
 // Kickoff Question Schema
@@ -360,6 +513,23 @@ const KickoffQuestionSchema = new Schema({
   askedDate:{type:Date},
   answerDate: { type: Date },
   answer: { type: String },
+});
+
+// TASK TEMPLATES
+const TaskTemplateSchema = new Schema({
+  _cid:{type:String},
+  name: { type: String, required: true }, // Task name
+  description: { type: String },          // Task description
+  priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' }, // Task priority
+  difficultyLevel: { type: String, enum: ['easy', 'medium', 'high'], default: 'medium' },
+  storyPoint: { type: Number, enum: [1, 2, 3, 5, 8, 13], default: 1 }, // Story point for tasks
+  status: { type: String, enum: ['toDo', 'inProgress', 'completed', 'blocked'], default: 'toDo' }, // Task status
+  type: { type: String, enum: ['mainTask', 'task', 'subtask', 'qaTask'], required: true }, // Define type of task
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  createdAt: { type: Date, default: Date.now },
+}, {
+  collection: 'task_templates',
+  timestamps: true
 });
 
 // Kickoff Responsibility Schema
@@ -499,6 +669,30 @@ const PasswordReset = new Schema({
   email:{type:String, required:true, unique:true},
 })
 
+// SPRINT SCHEMA
+const SprintSchema = new Schema({
+  _cid: { type: String }, // Sprint ID
+  _pid: { type: String, required: true, ref: 'Project' }, // Project ID the sprint is tied to
+  name: { type: String, required: true, unique:true },
+  goal: { type: String }, // Sprint Goal (Objective)
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  isActive: { type: Boolean, default: true }, // If sprint is active or finished
+  createdBy: { type: String, required: true }, // Creator (could be a manager, product owner, etc.)
+  backlog: [{
+    taskId: { type: Schema.Types.ObjectId, ref: 'Task' }, // List of tasks assigned to the sprint
+    status: { type: String, enum: ['pending', 'inProgress', 'done'], default: 'pending' }, // Task status in the sprint
+    storyPoints: { type: Number, default: 0 }, // Story Points for the task
+  }],
+  sprintRetrospective: {
+    date: { type: Date },
+    feedback: { type: String },
+    improvements: { type: String },
+  },
+}, {
+  timestamps: true, // Automatically track createdAt/updatedAt
+});
+
 
 
 // Create Models
@@ -509,6 +703,8 @@ const ProjectPriority = mongoose.model('ProjectPriority', ProjectPrioritySchema)
 const QaTask = mongoose.models.QaTask || mongoose.model('QaTask', QaTaskSchema);  // QA Task model
 const Task = mongoose.models.Task || mongoose.model('Task', TaskSchema);  // General Task model
 
+const Sprint = mongoose.model('Sprint', SprintSchema);  // SPRINT
+const TaskTemplate = mongoose.model('TaskTemplate', TaskTemplateSchema);  
 const MainTask = mongoose.model('MainTask', MainTaskSchema);  // Main Task model
 const Project = mongoose.model('Project', ProjectSchema);
 const Documentation = mongoose.model('Documentation', DocumentationSchema);
@@ -520,4 +716,4 @@ const WorkLog = mongoose.model('WorkLog', WorkLogSchema);
 
 
 
-export { WorkLog,DailyReport, ChangeLog, QaTask, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };
+export { WorkLog,DailyReport, TaskTemplate, ChangeLog, QaTask, Sprint, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

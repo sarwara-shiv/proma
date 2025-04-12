@@ -27,8 +27,18 @@ const getPrefix = (resource) => {
         return 'UG'; 
       case 'worklogs':
         return 'WL'; 
+      case 'tickets':
+        return 'TI'; 
+      case 'sprints':
+        return 'SP'; 
+      case 'scrums':
+        return 'SC'; 
+      case 'tasktemplates':
+        return 'TT'; 
       case 'dailyreports':
         return 'DR'; 
+      case 'teamleaders':
+        return 'TL'; 
       case 'documentation':
         return 'DO';
       default:

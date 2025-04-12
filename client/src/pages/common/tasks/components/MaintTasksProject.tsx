@@ -65,7 +65,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
       cell: ({ getValue, row }) => { 
         const cid = getValue() && getValue();
         const _id = row.original._id ? row.original._id as unknown as string : '';
-        const _pid = row.original._pid
+        const _pid = row.original._pid ?  row.original._pid : null;
         return (
             <div>
                  <div>

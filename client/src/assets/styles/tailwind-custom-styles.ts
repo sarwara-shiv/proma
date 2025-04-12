@@ -17,6 +17,9 @@ const customStyles = (plugin: PluginAPI) => {
     },
     'box-shadow':{
       boxShadow:'0px 0px 41px 5px rgba(0, 0, 0, 0.1)',
+    },
+    'text-2xs':{
+      fontSize:'11px'
     }
   });
 };

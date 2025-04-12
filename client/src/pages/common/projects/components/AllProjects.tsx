@@ -5,6 +5,7 @@ import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { IoCreateOutline, IoDocumentAttach, IoEllipsisVertical, IoLockClosed } from "react-icons/io5";
 import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { DiScrum } from "react-icons/di";
 
 import { MdRocketLaunch } from "react-icons/md";
 
@@ -104,6 +105,14 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                                             className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('tasks')}<FaTasks /> 
+                                        </NavLink>
+                                    </li>
+                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                        <NavLink
+                                            to={`sprints/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('sprints')}`}
+                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            >
+                                            {t('sprints')}<DiScrum /> 
                                         </NavLink>
                                     </li>
                                     <li className='px-1 py-1 my-1 hover:bg-slate-100'>

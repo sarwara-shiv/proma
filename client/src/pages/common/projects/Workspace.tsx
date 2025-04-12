@@ -16,6 +16,7 @@ import DocumentationsForm from '../documentation/components/DocumentationsForm';
 import Documentation from '../documentation/Documentation';
 import ProjectReport from './components/ProjectReport';
 import { useAppContext } from '../../../context/AppContext';
+import Sprints from '../Scrum/Sprints';
 
 const navItems: NavItem[] = [
   { link: "projects", title: "projects_all" },
@@ -48,6 +49,7 @@ const Project = () => {
               action === "add" ? <ProjectsForm setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="update" ? <ProjectsForm cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="maintasks" ? <MainTasksProject  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
+              action ==="sprints" ? <Sprints  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} navItems={navItems} cid={id} data={data}/>  :

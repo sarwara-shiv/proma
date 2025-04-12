@@ -313,6 +313,12 @@
     "missingRequirements":"Requirments are not completed",
     "clientFeedback":"Client Feedback",
     "task_assigned":"Task Assigned",
+    "sprints":"Sprints",
+    "sprint_add":"Add New",
+    "sprint_all":"All Sprints",
+    "sprint_update":"Update",
+    "scrum":"Scrum",
+    "backlogs":"Backlogs",
     "todo":"TODO",
     "end_time":"Ended At",
     "srnr":"Nr."

@@ -2,7 +2,7 @@ import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import { io, onlineUsers } from '../socket.js'; 
 import bcrypt from 'bcrypt';
-import { ChangeLog, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport, WorkLog } from '../models/models.js';
+import { ChangeLog, Sprint, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, QaTask, MainTask, DailyReport, WorkLog } from '../models/models.js';
 import { UserRolesModel } from '../models/userRolesModel.js';
 import UserModel from '../models/userModel.js'; 
 import UserGroupModel from '../models/userGroupModel.js'; 
@@ -24,6 +24,8 @@ const getModel = (resource) => {
         return Project;
       case 'tasks':
         return Task;
+      case 'sprints':
+        return Sprint;
       case 'roles':
         return UserRolesModel;
       case 'auth':

@@ -15,6 +15,20 @@ const Pages = {
       access:['admin', 'manager'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    TOKEN: {
+      name: 'tokens',
+      displayName: 'tokens',
+      model:"Token",
+      access:['admin', 'manager', 'FrontendDev', 'fullstackDev', 'uiux', 'ecommerceMgr'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
+    SPRINT: {
+      name: 'sprints',
+      displayName: 'sprints',
+      model:"Sprint",
+      access:['admin', 'manager', 'FrontendDev', 'fullstackDev', 'uiux', 'ecommerceMgr'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     USER_ROLES: {
       name: 'roles',
       displayName: 'UserRoles',

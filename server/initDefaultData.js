@@ -25,7 +25,9 @@ const initializeDefaultData = async () => {
         { _id: 'documentations', sequence_value: 1000 },
         { _id: 'questions', sequence_value: 1000 },
         { _id: 'tickets', sequence_value: 1000 },  
-        { _id: 'dailyreports', sequence_value: 1000 },  
+        { _id: 'scrums', sequence_value: 1000 },  
+        { _id: 'sprints', sequence_value: 1000 },  
+        { _id: 'teamleaders', sequence_value: 1000 },  
       ])
 
       console.log('default counter created');
@@ -108,6 +110,9 @@ const initializeDefaultData = async () => {
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true }, 
+            { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
           ]
         },
         {
@@ -126,7 +131,54 @@ const initializeDefaultData = async () => {
             { page: 'groups', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
-            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+          ]
+        },
+        {
+          name: 'teamLeader', 
+          displayName: 'Team Leader', 
+          _cid:await generateUniqueId('roles'),
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'dashboard', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'users', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'roles', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
+            { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },   
+            { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+          ]
+        },
+        {
+          name: 'scrumMaster', 
+          displayName: 'Scrum Master', 
+          _cid:await generateUniqueId('roles'),
+          isEditable: false, 
+          type: 'default',
+          permissions: [
+            { page: 'dashboard', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'users', canCreate: false, canUpdate: false, canDelete: false, canView: true },
+            { page: 'projects', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'tasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'documentatios', canCreate: true, canUpdate: true, canDelete: true, canView: true },
+            { page: 'roles', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
+            { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },   
+            { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
           ]
         },
         {
@@ -145,7 +197,10 @@ const initializeDefaultData = async () => {
             { page: 'groups', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
             { page: 'worklogs', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'dailyreports', canCreate: true, canUpdate: true, canDelete: true, canView: true },
-            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
+            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true }, 
+            { page: 'scrums', canCreate: false, canUpdate: true, canDelete: false, canView: true },  
+            { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },     
+            { page: 'sprints', canCreate: false, canUpdate: true, canDelete: false, canView: true },     
           ]
         },
         {

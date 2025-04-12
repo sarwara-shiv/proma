@@ -69,6 +69,13 @@ export interface DynamicField {
     role: ObjectId; // Reference to user groups
     persons?: ObjectId[]; // Array of User references
 }
+export interface IApproval {
+  reviewedBy: ObjectId;
+  approved: boolean;
+  reviewedAt: Date;
+  comment?: string;
+  timestamp?:Date
+}
 
 
 export interface BaseTask {
@@ -99,12 +106,41 @@ export interface BaseTask {
   subtasks: ObjectId[];  // Array of references to subtasks (Tasks)
   ticket?: ObjectId;  // Reference to Ticket
   permissions: Permission[];  // Array of permissions
+  observers:ObjectId[];
   revisions?:{
     assignedBy:string,
     reason:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
     timestamp:Date
   }[],
+  sprintId?: string;
+  storyPoint?: 1 | 2 | 3 | 5 | 8 | 13;
+  requiresApproval?: boolean;
+  approvalStatus?: 'pending' | 'approved' | 'rejected' | null;
+  approvedBy?: ObjectId;
+  approvedAt?: Date;
+  approver?: ObjectId;
+  rejectedReason?: string;
+  approvals?: IApproval[];
   defaultFieldColors?:{field:String, color:String}[]
+}
+
+interface Comment {
+  commentBy: ObjectId; // Refers to User who commented
+  commentText: string;
+  commentDate: Date;
+}
+
+export interface TicketType extends Document {
+  _cid: string; // Unique Ticket ID
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high'; // Priority levels
+  status: 'open' | 'inProgress' | 'resolved' | 'closed'; // Ticket status
+  createdBy: ObjectId; // Refers to the User who created the ticket
+  assignedTo?: ObjectId | null; // Refers to the User to whom the ticket is assigned (nullable)
+  createdDate?: Date;
+  dueDate?: Date; // Optional due date
+  comments: Comment[]; // Array of comments on the ticket
 }
 
 export interface TestCase {
@@ -122,6 +158,31 @@ export interface Bug {
 export interface QaTask extends BaseTask {
   testCases: TestCase[];  // Array of test cases
   bugs: Bug[];  // Array of bugs
+}
+export interface ISprintBacklogItem {
+  taskId: string; // MongoDB ObjectId as string
+  status: 'pending' | 'inProgress' | 'done';
+  storyPoints: number;
+}
+
+export interface ISprintRetrospective {
+  date?: Date;
+  feedback?: string;
+  improvements?: string;
+}
+
+export interface ISprint {
+  _id?: string;              // MongoDB _id
+  _cid?: string;             // Sprint ID (custom)
+  _pid: string;              // Project ID
+  name: string;
+  goal?: string;
+  startDate?: Date;
+  endDate?: Date;
+  isActive?: boolean;
+  createdBy?: string | ObjectId;
+  backlog?: ISprintBacklogItem[];
+  sprintRetrospective?: ISprintRetrospective;
 }
 
   
@@ -186,7 +247,7 @@ export interface QaTask extends BaseTask {
 
   export interface MainTask{
     _id?:ObjectId;
-    _pid:string;
+    _pid?:string;
     name:string;
     category:string;
     startDate?:Date | null;
@@ -203,6 +264,12 @@ export interface QaTask extends BaseTask {
     assignedDate?:Date,
     createdAt?:Date,
     updatedAt?: Date,
+    clientApprovalRequired?:boolean,
+    clientApprovalStatus?: 'pending' | 'approved' | 'rejected' | null;
+    clientApprovedBy?: ObjectId;
+    clientApprovedAt?: Date;
+    clientRejectedReason?: string;
+    approvals?: IApproval[];
   }
 
   export interface Milestone{
