@@ -8,7 +8,7 @@ import path from 'path';
 import { useTranslation } from 'react-i18next';
 import { FaAd, FaEdit, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
-import { CustomAlert, CustomTooltip, FlashPopup } from '../../../components/common';
+import { CustomAlert, CustomTooltip, FlashPopup, NoData } from '../../../components/common';
 import { CustomDropdown } from '../../../components/forms';
 import { getColorClasses } from '../../../mapping/ColorClasses';
 import { TaskStatuses } from '../../../config/predefinedDataConfig';
@@ -19,7 +19,7 @@ import { DeleteById } from '../../../components/actions';
 import EditSprints from './components/EditSprints';
 import SidePanel from '../../../components/common/SidePanel';
 import AddUpdateSprint from './components/AddUpdateSprint';
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiEdit3 } from "react-icons/fi";
 import { DiScrum } from 'react-icons/di';
 interface ArgsType {
     cid?:string | null;
@@ -32,15 +32,21 @@ interface ArgsType {
 const pinnedColumns = ['name'];
 const fixedWidthColumns = ['startDate', 'dueDate', 'endDate', 'action'];
 
+const pageNavData = [
+    {id:'sprint_manage', icon:<DiScrum/>, label:'sprint_manage', },
+]
+
 const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
+  const [lastSidePanelKey, setLastSidePanelKey] = useState<string|null>();
   const [projectId, setProjectId] = useState<ObjectId | string | null>(cid ? cid : id ? id : null);
   const [mainTasks, setMainTasks] = useState<MainTask[]>();
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint"})
   const [sprintsData, setSprintsData] = useState<ISprint[]>([]);
+  const [pageNav, setPageNav] = useState<{id:string, icon:React.ReactNode, label:string}>({id:'sprint', icon:<DiScrum/>, label:'sprint_all'});
 
 
   const tdClasses = 'p-2 text-xs';
@@ -109,15 +115,21 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
 
   // OPEN SIDE PANEL
   const addUpdateForm = (action:string = 'add')=>{
-    if(action === 'add'){
+      if(action === 'add'){
+        if(lastSidePanelKey === 'add-form'){
+            closeSidePanel();
+            return;
+        }
+        setLastSidePanelKey('add-form');
         setSpProps({...spProps, isOpen:true, title:`${t('sprint_add')}`,
-            children:<AddUpdateSprint projectId={projectId}/>
+            children:<AddUpdateSprint key="add-form" projectId={projectId}/>
         });
     }
   }
 
   // CLOSE SIDE PANEL
   const closeSidePanel = ()=>{
+    setLastSidePanelKey(null);
     setSpProps({...spProps, isOpen:false, children:''});
   }
 
@@ -125,7 +137,11 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
     <div>
         {/* BOARD */}
        <div className='kanaban-board'>
-            <EditSprints />
+            {cid ?  
+                <EditSprints pid={cid} />
+                :
+                <NoData />
+            }
         </div> 
 
         {/* NAVIGATION */}
@@ -150,7 +166,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
                         >
                         <span className='aspect-1/1 p-1 text-xl group-hover:scale-125 group-hover:text-primary 
                         transition-transform duration-100 ease origin-center
-                        '><FiEdit/> </span>
+                        '><FiEdit3/> </span>
                         <span className='text-[11px]'>
                             {t('sprint_update')}
                         </span>

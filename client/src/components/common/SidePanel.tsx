@@ -1,5 +1,5 @@
 import { SidePanelProps } from '@/interfaces';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 
 // interface SidePanelProps {
