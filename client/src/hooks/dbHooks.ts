@@ -376,6 +376,33 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
 
 // ------------------ WORKLOG
 // ------------------ 
+interface SprintInterface{
+  body?:any; // {id:sprintid, tasks:tasksIdArray[]}
+  id?:string;
+  type:'add-tasks' | 'remove-tasks' | 'get-tasks' | 'delete';
+}
+const sprintActions = async(args:SprintInterface)=>{
+  const { body, id, type} = args;
+  if (type) {
+    try {
+      const response = await axios.post(`${API_URL}/sprint/${type}${id ? '/'+id :''}`, 
+        {
+          page:'sprints', data:body?body:{}
+        },
+        {
+          headers,
+          withCredentials: true 
+      });
+      return response.data; 
+    } catch (error) {
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" }; 
+  }
+}
+
+
 interface WorkLogInterface{
   body?:any;
   id?:string;
@@ -524,6 +551,7 @@ const searchTasksAI = async(args:{query:string, type:"tasks"|"maintasks" })=>{
 }
 
 export {
+  sprintActions,
   dailyReportActions,
   workLogActions,
   startWorkLog,

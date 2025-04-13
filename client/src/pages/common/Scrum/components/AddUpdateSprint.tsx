@@ -17,6 +17,7 @@ interface ArgsType {
 const edata:ISprint = {
     name:'',
     _pid:'',
+    backlog:[],
     isActive:false
 }
 

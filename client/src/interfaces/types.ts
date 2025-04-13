@@ -113,7 +113,7 @@ export interface BaseTask {
     timestamp:Date
   }[],
   sprintId?: string;
-  storyPoint?: 1 | 2 | 3 | 5 | 8 | 13;
+  storyPoints?: 1 | 2 | 3 | 5 | 8 | 13;
   requiresApproval?: boolean;
   approvalStatus?: 'pending' | 'approved' | 'rejected' | null;
   approvedBy?: ObjectId;
@@ -180,8 +180,10 @@ export interface ISprint {
   startDate?: Date;
   endDate?: Date;
   isActive?: boolean;
+  totalStoryPoints?:number;
+  velocity?:number;
   createdBy?: string | ObjectId;
-  backlog?: ISprintBacklogItem[];
+  backlog: string[]; 
   sprintRetrospective?: ISprintRetrospective;
 }
 

@@ -15,6 +15,7 @@ import { worklogRouter } from './routes/worklog/workLog.js';
 import { dailyReportRouter } from './routes/worklog/dailyReport.js'; 
 import { initializeSocket } from './socket.js';
 import { leadRoutes } from './routes/leadRoutes/leadRoutes.js';
+import { sprintRouter } from './routes/scrum/sprints.js';
 import { dummyWorklogData, printIds } from './dummyData.js';
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/roles", rolesRouter);
 app.use("/groups", groupsRouter);
 app.use("/worklog", worklogRouter);
 app.use("/leads", leadRoutes);
+app.use("/sprint", sprintRouter);
 app.use("/daily-report", dailyReportRouter);
 
 // DB CONNECTION

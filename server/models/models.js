@@ -298,7 +298,7 @@ const BaseTaskSchema = new Schema({
   assignNote: { type: String},
   difficultyLevel: { type: String, enum:['easy','medium','high'], default:'medium'},
   sprintId:{type:String},
-  storyPoint:{type:Number, enum:[1,2,3,5,8,13], default:1}, // 
+  storyPoints:{type:Number, enum:[1,2,3,5,8,13], default:2}, // 
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
   assignedBy: { type: Schema.Types.ObjectId, ref: 'User'},
@@ -522,7 +522,7 @@ const TaskTemplateSchema = new Schema({
   description: { type: String },          // Task description
   priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' }, // Task priority
   difficultyLevel: { type: String, enum: ['easy', 'medium', 'high'], default: 'medium' },
-  storyPoint: { type: Number, enum: [1, 2, 3, 5, 8, 13], default: 1 }, // Story point for tasks
+  storyPoints: { type: Number, enum: [1, 2, 3, 5, 8, 13], default: 1 }, // Story point for tasks
   status: { type: String, enum: ['toDo', 'inProgress', 'completed', 'blocked'], default: 'toDo' }, // Task status
   type: { type: String, enum: ['mainTask', 'task', 'subtask', 'qaTask'], required: true }, // Define type of task
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -679,20 +679,70 @@ const SprintSchema = new Schema({
   endDate: { type: Date, required: true },
   isActive: { type: Boolean, default: true }, // If sprint is active or finished
   createdBy: { type: String, required: true }, // Creator (could be a manager, product owner, etc.)
-  backlog: [{
-    taskId: { type: Schema.Types.ObjectId, ref: 'Task' }, // List of tasks assigned to the sprint
-    status: { type: String, enum: ['pending', 'inProgress', 'done'], default: 'pending' }, // Task status in the sprint
-    storyPoints: { type: Number, default: 0 }, // Story Points for the task
+  totalStoryPoints: { type: Number, default: 0 },
+  completedStoryPoints: { type: Number, default: 0 },
+   burnDown: [{
+    date: { type: Date },
+    remainingPoints: { type: Number }
   }],
+  backlog: [{type: Schema.Types.ObjectId, ref: 'Task' }], // List of tasks assigned to the sprint,
+  velocity: { type: Number, default: 0 },
   sprintRetrospective: {
     date: { type: Date },
     feedback: { type: String },
     improvements: { type: String },
+    actionItems: [{ type: String }]
   },
+  history: [{
+    changeType: String, // e.g., 'reopened', 'extended', 'closed'
+    timestamp: Date,
+    changedBy: String,
+    reason: String // Optional reason for the change
+  }],
+  notes: [{ type: String }],    
 }, {
   timestamps: true, // Automatically track createdAt/updatedAt
 });
 
+SprintSchema.pre('save', async function(next) {
+  if (this.isModified('backlog') || this.isNew) {
+    // Fetch all tasks in the backlog and calculate totalStoryPoints and completedStoryPoints
+    const tasks = await Task.find({ _id: { $in: this.backlog } });
+
+    // Calculate total and completed story points
+    this.totalStoryPoints = tasks.reduce((total, task) => total + task.storyPoints ? task.storyPoints : 1, 0);
+    this.completedStoryPoints = tasks.filter(task => task.status === 'completed')
+                                     .reduce((total, task) => total + task.storyPoints ? task.storyPoints : 1, 0);
+  }
+
+  next();
+});
+
+SprintSchema.pre('save', async function(next) {
+  if (this.isModified('completedStoryPoints') || this.isNew) {
+    this.velocity = this.completedStoryPoints; // You can change this logic based on your needs
+  }
+
+  next();
+});
+
+SprintSchema.pre('save', async function(next) {
+  if (this.isModified('backlog') || this.isNew) {
+    const tasks = await Task.find({ _id: { $in: this.backlog } });
+
+    // Calculate remaining points
+    const remainingPoints = tasks.filter(task => task.status !== 'completed')
+                                  .reduce((total, task) => total + task.storyPoints ? task.storyPoints : 1, 0);
+
+    // Add the current remaining points to the burnDown chart
+    this.burnDown.push({
+      date: new Date(),
+      remainingPoints: remainingPoints
+    });
+  }
+
+  next();
+});
 
 
 // Create Models
