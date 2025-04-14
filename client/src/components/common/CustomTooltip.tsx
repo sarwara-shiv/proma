@@ -128,13 +128,17 @@ const CustomTooltip: React.FC<TooltipProps> = ({
       )}
 
       {visible && (
-        <div
-          ref={tooltipRef}
-          style={style}
-          className={`bg-primary-light border border-white shadow-md text-slate-500 text-xs px-2 py-1 rounded shadow-lg w-fit ${className}`}
-        >
-          {content}
-        </div>
+       <div
+       ref={tooltipRef}
+       style={style}
+       className={`bg-primary-light border border-white shadow-md text-slate-500 text-xs px-2 py-1 rounded shadow-lg w-fit ${className}`}
+     >
+       {typeof content === 'string' ? (
+         <span dangerouslySetInnerHTML={{ __html: content }} />
+       ) : (
+         content
+       )}
+     </div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
-import { CustomAlert, CustomTooltip, FlashPopup, Loader, NoData } from "../../../../components/common";
+import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Loader, NoData } from "../../../../components/common";
 import SidePanel from "../../../../components/common/SidePanel";
-import { AlertPopupType, FlashPopupType, ISprint, OrderByFilter, QueryFilters, SidePanelProps,Task } from "../../../../interfaces";
+import { AlertPopupType, CustomPopupType, FlashPopupType, ISprint, OrderByFilter, QueryFilters, SidePanelProps,Task, User } from "../../../../interfaces";
 import { ObjectId } from "mongodb";
 import React, { useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
@@ -8,13 +8,14 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { DiScrum } from "react-icons/di";
 import AddUpdateSprint from "./AddUpdateSprint";
-import { getRecordsWithFilters } from "../../../../hooks/dbHooks";
+import { getRecordsWithFilters, sprintActions } from "../../../../hooks/dbHooks";
 import { format } from "date-fns";
 import { FaEllipsisH, FaTasks } from "react-icons/fa";
-import { MdAdd, MdDelete, MdFormatListBulletedAdd, MdInfo, MdInfoOutline } from "react-icons/md";
+import { MdAdd, MdClose, MdDelete, MdFormatListBulletedAdd, MdInfo, MdInfoOutline, MdPerson } from "react-icons/md";
 import { FiEdit, FiEdit2, FiEdit3 } from "react-icons/fi";
 import { ToggleBtnWithUpdate } from "../../../../components/forms";
 import Backlog from "./Backlog";
+import SprintTimeLine from "./SprintTimeline";
 
 interface ArgsType {
   pid:string|ObjectId
@@ -28,6 +29,7 @@ const EditSprints: React.FC<ArgsType> = ({pid}) => {
   const [projectId, setProjectId] = useState<string|ObjectId>(pid);
   const [lastSidePanelKey, setLastSidePanelKey] = useState<string|null>();
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
+  const [popupData, setPopupData] = useState<CustomPopupType>({ isOpen: false, content: "", title: "", yesFunction:()=>{} });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint", onClose:()=>closeSidePanel()})
   const [sprintsData, setSprintsData] = useState<ISprint[]>();
@@ -52,9 +54,7 @@ const getData = async ()=>{
           { 
               path: 'backlog',
               populate: [
-                  { path: 'taskId',
-                      populate : 'responsiblePerson'
-                   },
+                  { path: 'responsiblePerson'},
               ]
           }
       ];
@@ -124,6 +124,38 @@ const getData = async ()=>{
         onUpdate={(sprint, action)=>setTimeout(()=>{ handleSprintUpdate(sprint) ;console.log(sprint, action)},500)}
         />
     });
+  }
+  // REMOVE TASK FROM SPRINT
+  const removeTaskFromSprint = async (sprint:ISprint, task:Task)=>{
+    console.log(sprint, task);
+    if(sprint && task){
+      try{
+        const res = await sprintActions({type:'remove-tasks', body:{id:sprint._id, tasks:[task._id]}});
+        if(res.status === 'success' && res.data){
+          handleSprintUpdate(res.data);
+          if(selectedSprint && selectedSprint._id === (res.data as unknown as ISprint)._id){
+            setSelectedSprint(res.data);
+          }
+        }
+        closePopup();
+      }catch(error){
+        console.error(error);
+      }
+    }
+    return;
+  }
+
+  // REMOVE TASK ALERT
+  const removeTaskAlert = (sprint:ISprint, task:Task)=>{
+    setPopupData({...popupData, 
+      isOpen:true, 
+      title:t('removeData?', {data:'Task'}),
+      content:<div className="text-xs">
+          <div><b>Sprint</b>: </div> ({sprint._cid})<i>{sprint.name} </i><br/>
+          <div><b>Task</b>: </div> ({task._cid})<i>{task.name}</i>
+      </div>,
+      yesFunction:()=>{removeTaskFromSprint(sprint, task)}
+    })
   }
 
   // UPDATE OBJECT DATA
@@ -213,10 +245,27 @@ const getData = async ()=>{
     }
   }
 
+  const isWithinSprint = (task:Task, sprint:ISprint) =>{
+    if(task.startDate && sprint.startDate && task.dueDate && sprint.endDate){
+      return task.startDate >= sprint.startDate && task.dueDate <= sprint.endDate; 
+    }else{
+      return true;
+    }
+  }
+
+  // close yeno popup
+  const closePopup = ()=>{
+    setPopupData({...popupData, isOpen:false, content:'', title:'', yesFunction:()=>{}});
+  }
+
 
   return (
     <div className="py-4 max-w-7xl mx-auto">
       {isLoader && <Loader type="full"/>}
+      {sprintsData && sprintsData.length > 0 && 
+        <SprintTimeLine sprints={sprintsData}/>
+      }
+
       {/* <h2 className="text-3xl font-bold text-center mb-8">Sprint Tasks</h2> */}
       <div className="flex justify-start items-start gap-8 overflow-x-auto pb-8 flex-col lg:flex-row">
         <div className="w-full bg-gray-100 p-2 rounded-lg lg:w-1/3 lg:min-w-[350px]" >
@@ -227,10 +276,10 @@ const getData = async ()=>{
               {sprintsData.map((sprint:ISprint, key:number)=>{
                 return (
                   <div key={`${key}-${sprint._id}`}>
-                    <div onClick={()=> selectSprint(sprint)}
-                    className={`rounded-lg flex gap-1 flex-col-stretch overflow-clip
+                    <div onClick={()=> {!selectedSprint || selectedSprint._id !== sprint._id && selectSprint(sprint)}}
+                    className={`rounded-lg flex gap-1 flex-col-stretch overflow-clip 
                         border bg-white transition-all ease duration-200
-                        ${selectedSprint && selectedSprint._id === sprint._id ? 'border-primary' : 'box-shadow-sm  border-white'} 
+                        ${selectedSprint && selectedSprint._id === sprint._id ? 'border-primary' : 'cursor-pointer box-shadow-sm  border-white'} 
                       `}>
                       <div className="border-r p-2 flex flex-col gap-2 justify-between">
                           <CustomTooltip content={t('tasks_add')}>
@@ -258,7 +307,7 @@ const getData = async ()=>{
                         </div>
                         <div className="flex-1 py-2 pe-2">
                           <div className="flex justify-between items-center border-b mb-1 pb-1 ">
-                            <div className={`${sprint.isActive ? 'text-green-500' : 'text-slate-300 '}`}>{sprint._cid}</div>
+                            <div className={`text-sm font-bold ${sprint.isActive ? 'text-green-500' : 'text-slate-300 '}`}>{sprint._cid}</div>
                             
                             <div className="">
                               {sprint._id && <ToggleBtnWithUpdate id={sprint._id} collection="sprints" name="isActive"
@@ -271,15 +320,17 @@ const getData = async ()=>{
                               
                             </div>
                           </div>
-                          <h4 className="text-md font-bold">{sprint.name}</h4>
-                          <div className="relative">
-                          <p
-                              className="text-sm line-clamp-1 cursor-pointer relative"
-                              dangerouslySetInnerHTML={{ __html: sprint.goal ? sprint.goal : '' }}
-                            >
-                            </p>
+                          <h4 className="text-sm font-bold">{sprint.name}</h4>
+                          {sprint.goal && 
+                            <CustomTooltip content={sprint.goal ? sprint.goal : '' }>
+                              <p
+                                className="text-xs line-clamp-2 cursor-pointer relative text-slate-500"
+                                dangerouslySetInnerHTML={{ __html: sprint.goal}}
+                                >
+                              </p>
+                            </CustomTooltip>
+                            }
                            
-                          </div>
                           <div className="flex gap-2 justify-between mt-1 border-t pt-1 text-xs">
                               <div className="flex flex-col items-left gap-x-1">
                                 <span className="text-slate-400">{t('startDate')}</span>
@@ -325,15 +376,88 @@ const getData = async ()=>{
                 console.log('---------', bkey);
                 console.log(backlog);
                 const task:Task = backlog as unknown as Task;
+                const inRange = isWithinSprint(task, selectedSprint);
                 return (
                   <div key={`${bkey}-${task._id}`}>
                     <div className="bg-white box-shadow-sm flex flex-1 rounded-md flex-row gap-2">
                       <div className="flex-1 p-2">
-                        <h2 className="font-bold text-sm">{task.name}</h2>
+                        <div className="flex justify-between items-center border-b mb-1 pb-1 ">
+                            <div className={`text-sm  font-bold ${task.status === 'completed' ? 'text-slate-300' : 'text-green-500 '}`}>{task._cid}</div>
+                            {!inRange && 
+                              <CustomTooltip content={t('outOfSprintRange_info')}>
+                                <div className="bg-red-100 text-red-400 p-1 text-xs rounded-md">{t('outOfSprintRange')}</div>
+                              </CustomTooltip>
+                            }
+                            
+                            <div className={`p-1 text-xs rounded-md ${task.status === 'completed' ? 'bg-green-100 text-green-500' : 'bg-slate-100 text-slate-500'}`}>
+                              {t(`${task.status}`)}
+                            </div>
+                          </div>
+                          <h2 className={`font-bold text-sm ${task.status === 'completed' && ' line-through  text-slate-400'}`}>{task.name}</h2>
+                            {task.description && 
+                                <CustomTooltip content={task.description ? task.description : '' }>
+                                  <p
+                                      className="text-xs line-clamp-2 cursor-pointer relative text-slate-500"
+                                      dangerouslySetInnerHTML={{ __html: task.description}}
+                                    >
+                                  </p>
+                              </CustomTooltip>
+                            }
+                          
+                          <div className="flex gap-2 justify-between mt-1 border-t pt-1 text-xs">
+                              <div className="flex flex-col items-left gap-x-1">
+                                <span className="text-slate-400">{t('startDate')}</span>
+                                {task.startDate ? 
+                                  <span className="">{format(task.startDate, 'dd.MM.yyyy')}</span>
+                                : <>-</> }
+                              </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-col items-left gap-x-1">
+                                <span className=" text-slate-400">{t('dueDate')}</span>
+                                {task.dueDate ? 
+                                  <span className="">{format(task.dueDate, 'dd.MM.yyyy')}</span>
+                                : <>-</> }
+                              </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-col items-left gap-x-1">
+                                <span className=" text-slate-400">{t('tasks')}</span>
+                                {task.endDate ? 
+                                  <span className="">{format(task.endDate, 'dd.MM.yyyy')}</span>
+                                : <>-</> }
+                              </div>
+                          </div>
+                          <div className="flex gap-2 justify-between mt-1 border-t pt-1 ">
+                              <div className="flex flex-row gap-x-1 justify-center items-center">
+                                <span className="text-primary text-lg"><MdPerson /></span>
+                                {task.responsiblePerson ? 
+                                  <span className="text-sm font-semibold">{(task.responsiblePerson as unknown as User).name}</span>
+                                : <>-</> }
+                              </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-row gap-x-1 justify-center items-center">
+                                <CustomTooltip content={t('storyPoints')}>
+                                  <span className="text-primary text-sm">SP: </span>
+                                  <span className="text-sm font-semibold">{task.storyPoints ? task.storyPoints : 1}</span>
+                                </CustomTooltip>
+                              </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-row gap-x-1 justify-center items-center">
+                                <CustomTooltip content={t('storyPoints')}>
+                                  <span className="text-primary text-sm">{t('subtasks')}: </span>
+                                  <span className="text-sm font-semibold">{task.subtasks ? task.subtasks.length : 0}</span>
+                                </CustomTooltip>
+                              </div>
+                          </div>
                         
                       </div>
                       <div className="flex flex-col justify-between border-l p-2 max-w-[50px]">
-                        <div>
+                        <CustomTooltip content={t('sprint_task_remove')}>
+                          <div onClick={()=>removeTaskAlert(selectedSprint, task)} 
+                            className={`apsect-1/1 rounded-full p-1 text-red-300 hover:bg-red-100 hover:text-red-500`}>
+                            <MdClose /> 
+                          </div>
+                        </CustomTooltip>
+                        <div className="apsect-1/1 rounded-full p-1 text-slate-400 hover:bg-primary-light hover:text-primary cursor-pointer">
                           <MdInfoOutline />
                         </div>
                       </div>
@@ -355,6 +479,14 @@ const getData = async ()=>{
           content={alertData.content}
           title={alertData.title}
           type={alertData.type || 'info'}  
+        />
+        <CustomPopup 
+          isOpen={popupData.isOpen}
+          title={popupData.title}
+          content={popupData.content}
+          yesFunction={popupData.yesFunction}
+          noFunction={closePopup}
+          onClose={closePopup}
         />
 
         <SidePanel isOpen={spProps.isOpen} children={spProps.children} title={spProps.title} onClose={spProps.onClose}/>

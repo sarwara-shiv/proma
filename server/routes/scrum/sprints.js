@@ -8,7 +8,7 @@ const router = express.Router();
 
 // ADD TASKS TO SPRINT
 router.post("/add-tasks", verifyToken, async (req, res) => {
-    const { id, tasks=[]} = req.body.data; 
+    const { id, tasks=[], autoAdjustDates=false} = req.body.data; 
 
     console.log(id, tasks);
     console.log('******* body -----', req.body);
@@ -49,9 +49,32 @@ router.post("/add-tasks", verifyToken, async (req, res) => {
         const sprintTasks = await Task.find({
             _id: { $in: sprint.backlog }
         });
+
+        if (autoAdjustDates && sprintTasks.length > 0) {
+          let earliestStart = sprint.startDate || new Date('9999-12-31');
+          let latestDue = sprint.endDate || new Date('1970-01-01');
+    
+          sprintTasks.forEach(task => {
+            if (task.startDate && task.startDate < earliestStart) {
+              earliestStart = task.startDate;
+            }
+    
+            const endRelevant = task.dueDate || task.endDate;
+            if (endRelevant && endRelevant > latestDue) {
+              latestDue = endRelevant;
+            }
+          });
+    
+          sprint.startDate = earliestStart;
+          sprint.endDate = latestDue;
+        }
+
+        // pouplate tasks
         await sprint.populate({
             path: 'backlog',
-            model: 'Task'
+            populate:{
+              path:'responsiblePerson'
+            }
           });
 
         return res.json({
@@ -135,7 +158,9 @@ router.post("/get-tasks", verifyToken, async (req, res) => {
   
       // Case 1: Only Sprint ID is provided
       if (sprintId && !projectId) {
-        tasks = await Task.find({ sprintId });
+        tasks = await Task.find({ sprintId }).populate({
+          path:'responsiblePerson'
+      });
       }
   
       // Case 2: Project ID is provided (with or without Sprint ID)
@@ -156,10 +181,13 @@ router.post("/get-tasks", verifyToken, async (req, res) => {
             { sprintId: null },                       // sprintId is explicitly null
             { sprintId: "" }                          // sprintId is an empty string
           ]
+        }).populate({
+            path:'responsiblePerson'
         });
   
         tasks = level1Tasks;
       }
+
   
       return res.json({ status: "success", data: tasks, code: "success" });
   

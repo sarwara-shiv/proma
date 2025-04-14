@@ -25,6 +25,12 @@ const ApprovalStatus = [
     {_id: 'needWork', name:'Need Work', color:'medium'},
     {_id: 'notRequired', name:'Not Required', color:'medium'},
 ]
+const SprintStatus = [
+    {_id: 'active', name:'In Review', color:'toDo'},
+    {_id: 'delayed', name:'Rejected', color:'fail'},
+    {_id: 'completed', name:'Approved', color:'success'}, 
+    {_id: 'upcoming', name:'Not Required', color:'medium'},
+]
 const DynamicFieldsTypes = [
     {_id: 'dropdown', name:'Dropdown'},
     {_id: 'string', name:'String'},
@@ -89,4 +95,4 @@ const AssignedType = [
     {_id: 'rework', name:'rework'},
 ]
 
-export {AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

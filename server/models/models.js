@@ -387,7 +387,7 @@ BaseTaskSchema.methods.canStartTask = async function () {
     // Check if all dependent tasks are completed
     const dependenciesCompleted = await Task.find({ 
       _id: { $in: this.dependencies },
-      status: { $in: ['done', 'approved'] } // Adjust based on your task status
+      status: { $in: ['completed', 'approved'] } // Adjust based on your task status
     });
 
     if (dependenciesCompleted.length !== this.dependencies.length) {
@@ -678,6 +678,7 @@ const SprintSchema = new Schema({
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   isActive: { type: Boolean, default: true }, // If sprint is active or finished
+  status:{type:String, enum:['active', 'completed', 'delayed' | 'upcoming'], default:'upcoming'},
   createdBy: { type: String, required: true }, // Creator (could be a manager, product owner, etc.)
   totalStoryPoints: { type: Number, default: 0 },
   completedStoryPoints: { type: Number, default: 0 },

@@ -99,7 +99,7 @@ export interface BaseTask {
   reason?:'todo'|'errors'|'missingRequirements'|'clientFeedback'|'feedback';
   priority: 'low' | 'medium' | 'high' | 'urgent';  // Assuming these are your predefined priorities
   customPriority?:ObjectId;  // Custom priority reference
-  status: 'toDo' | 'inProgress' | 'done' | 'onHold' | 'inReview' | 'blocked';  // Assuming these are your predefined statuses
+  status: 'toDo' | 'inProgress' | 'onHold' | 'inReview' | 'blocked' | 'completed';  // Assuming these are your predefined statuses
   customStatus?: ObjectId;  // Custom status reference
   responsiblePerson: ObjectId;  // User reference
   customFields: DynamicField[];  // Array of custom fields
@@ -171,6 +171,16 @@ export interface ISprintRetrospective {
   improvements?: string;
 }
 
+export type SprintStatus = 'active' | 'completed' | 'upcoming' | 'delayed';
+export interface SprintTimeLineData {
+  _cid: string;
+  name: string;
+  startDate: Date | string;
+  isActive:boolean;
+  endDate: Date | string;
+  status: SprintStatus;
+} 
+
 export interface ISprint {
   _id?: string;              // MongoDB _id
   _cid?: string;             // Sprint ID (custom)
@@ -181,6 +191,7 @@ export interface ISprint {
   endDate?: Date;
   isActive?: boolean;
   totalStoryPoints?:number;
+  status?:'active' | 'completed' | 'upcoming' | 'delayed';
   velocity?:number;
   createdBy?: string | ObjectId;
   backlog: string[]; 
