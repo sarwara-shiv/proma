@@ -1,7 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
+import { calculateWorkingHours, addWorkingHours } from '../utils/DateUtil.js';
 export * from './userRolesModel.js'
 export * from './userGroupModel.js'
 export * from './chatModel.js'
+
 
 
 // Page-Level Permissions Schema
@@ -288,6 +290,7 @@ const BaseTaskSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   description: { type: String },
+  expectedTime: {type:Number, default:0},
   note: { type: String },
   level:{ type: Number },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -381,6 +384,56 @@ BaseTaskSchema.pre('save', function (next) {
 
   next();
 });
+
+BaseTaskSchema.pre('save', function (next) {
+  // Auto-calculate expectedTime if missing
+  if (this.expectedTime === 0 && this.startDate && this.dueDate) {
+    this.expectedTime = calculateWorkingHours(this.startDate, this.dueDate);
+  }
+
+  // Auto-calculate dueDate if missing and expectedTime is given
+  if (!this.dueDate && this.startDate && this.expectedTime > 0) {
+    this.dueDate = addWorkingHours(this.startDate, this.expectedTime);
+  }
+
+  this.updatedAt = new Date();
+  next();
+});
+
+BaseTaskSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+  const docToUpdate = await this.model.findOne(this.getQuery());
+
+  if (!docToUpdate) return next();
+
+  // Pull from update if set, else fall back to existing doc
+  const startDate = update.startDate
+    ? new Date(update.startDate)
+    : docToUpdate.startDate;
+  const dueDate = update.dueDate
+    ? new Date(update.dueDate)
+    : docToUpdate.dueDate;
+  const expectedTime =
+    update.expectedTime !== undefined
+      ? update.expectedTime
+      : docToUpdate.expectedTime;
+
+  // If expectedTime is missing or 0 but both dates are present, calculate it
+  if ((!expectedTime || expectedTime === 0) && startDate && dueDate) {
+    update.expectedTime = calculateWorkingHours(startDate, dueDate);
+    console.log('-------------', calculateWorkingHours(startDate, dueDate));
+  }
+
+  // If dueDate is missing but startDate and expectedTime exist, calculate it
+  if ((!dueDate || update.dueDate === null) && startDate && expectedTime > 0) {
+    update.dueDate = addWorkingHours(startDate, expectedTime);
+  }
+
+  update.updatedAt = new Date();
+  this.setUpdate(update);
+  next();
+});
+
 
 BaseTaskSchema.methods.canStartTask = async function () {
   if (this.dependencies && this.dependencies.length > 0) {
@@ -676,6 +729,7 @@ const SprintSchema = new Schema({
   name: { type: String, required: true, unique:true },
   goal: { type: String }, // Sprint Goal (Objective)
   startDate: { type: Date, required: true },
+  expectedTime:{type:Number, default:0},
   endDate: { type: Date, required: true },
   isActive: { type: Boolean, default: true }, // If sprint is active or finished
   status:{type:String, enum:['active', 'completed', 'delayed' | 'upcoming'], default:'upcoming'},
@@ -742,6 +796,55 @@ SprintSchema.pre('save', async function(next) {
     });
   }
 
+  next();
+});
+
+SprintSchema.pre('save', function (next) {
+  // Auto-calculate expectedTime if missing
+  if (this.expectedTime === 0 && this.startDate && this.dueDate) {
+    this.expectedTime = calculateWorkingHours(this.startDate, this.dueDate);
+  }
+
+  // Auto-calculate dueDate if missing and expectedTime is given
+  if (!this.dueDate && this.startDate && this.expectedTime > 0) {
+    this.dueDate = addWorkingHours(this.startDate, this.expectedTime);
+  }
+
+  this.updatedAt = new Date();
+  next();
+});
+
+SprintSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+  const docToUpdate = await this.model.findOne(this.getQuery());
+
+  if (!docToUpdate) return next();
+
+  // Pull from update if set, else fall back to existing doc
+  const startDate = update.startDate
+    ? new Date(update.startDate)
+    : docToUpdate.startDate;
+  const dueDate = update.dueDate
+    ? new Date(update.dueDate)
+    : docToUpdate.dueDate;
+  const expectedTime =
+    update.expectedTime !== undefined
+      ? update.expectedTime
+      : docToUpdate.expectedTime;
+
+  // If expectedTime is missing or 0 but both dates are present, calculate it
+  if ((!expectedTime || expectedTime === 0) && startDate && dueDate) {
+    update.expectedTime = calculateWorkingHours(startDate, dueDate);
+    console.log('-------------', calculateWorkingHours(startDate, dueDate));
+  }
+
+  // If dueDate is missing but startDate and expectedTime exist, calculate it
+  if ((!dueDate || update.dueDate === null) && startDate && expectedTime > 0) {
+    update.dueDate = addWorkingHours(startDate, expectedTime);
+  }
+
+  update.updatedAt = new Date();
+  this.setUpdate(update);
   next();
 });
 

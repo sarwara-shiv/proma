@@ -2,12 +2,13 @@ import { useTranslation } from "react-i18next"
 import { ISprint, Project } from "../../../../interfaces"
 import { ObjectId } from "mongodb";
 import { act, useEffect, useState } from "react";
-import { CustomSelectList, RichTextArea } from "../../../../components/forms";
+import { CustomInput, CustomSelectList, RichTextArea } from "../../../../components/forms";
 import { FormButton, ToggleSwitch } from "../../../../components/common";
 import CustomDateTimePicker2 from "../../../../components/forms/CustomDateTimePicker";
 import moment from 'moment';
 import { addUpdateRecords } from "../../../../hooks/dbHooks";
 import { useAuthContext } from "../../../../context/AuthContext";
+import { addWorkingHours } from "../../../../utils/dateUtils";
 
 interface ArgsType {
     sprint?:ISprint,
@@ -18,6 +19,7 @@ const edata:ISprint = {
     name:'',
     _pid:'',
     backlog:[],
+    expectedTime:0,
     isActive:false
 }
 
@@ -41,9 +43,26 @@ const AddUpdateSprint:React.FC<ArgsType> = ({sprint, projectId}) => {
     },[])
 
     // HANDLE INPUT
-    const handleInputs = (name:string,value:string|boolean|Date)=>{
+    const handleInputs = (name:string,value:string|boolean|Date|number)=>{
         if(name ){
-            setFormData({...formData, [name]:value});
+            if(name === 'expectedTime'){
+                let nValue = value;
+                if(typeof value === 'string' || typeof value === 'number'){
+                    if(typeof value === 'string') {
+                        nValue = parseInt(value);
+                    }else{
+                        nValue = value;
+                    }
+
+                    setFormData({...formData, expectedTime:nValue});
+                    if(formData.startDate){
+                        const endDate = addWorkingHours(formData.startDate, nValue);
+                        setFormData({...formData, endDate});
+                    }
+                }
+            }else{
+                setFormData({...formData, [name]:value});
+            }
         }
     }
     // HANDLE INPUT
@@ -113,15 +132,21 @@ const AddUpdateSprint:React.FC<ArgsType> = ({sprint, projectId}) => {
                     /> 
                 </div>
             </div>
-            <div className='fields-wrap grid grid-cols-2 gap-4 mb-6'>
+            <div className='fields-wrap flex gap-4 mb-6'>
                 <div className=''>
                     <CustomDateTimePicker2 name="startDate" selectedDate={formData.startDate? formData.startDate : new Date()}
                         onChange={(rid, value, name)=>{value && handleInputs('startDate', value)}}
                         label={t('startDate')}
                     />
                 </div>
+                {formData.startDate && 
+                    <div className="w-16">
+                        <CustomInput type="number"  label={t('expectedTime')}
+                        onChange={(event)=>{event.target.value && handleInputs('expectedTime', event.target.value)}}/>
+                    </div>
+                }
                 <div className="">
-                    <CustomDateTimePicker2 name="startDate" selectedDate={formData.endDate? formData.endDate : new Date()}
+                    <CustomDateTimePicker2 name="endDate" selectedDate={formData.endDate? formData.endDate : new Date()}
                         onChange={(rid, value, name)=>{value && handleInputs('endDate', value)}}
                         label={t('endDate')}
                     />

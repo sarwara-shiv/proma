@@ -13,6 +13,7 @@ import MyTasks from '../pages/common/myTasks/MyTasks';
 import MainTasks from '../pages/common/tasks/MainTasks';
 import Documentation from '../pages/common/documentation/Documentation';
 import WorkLog from '../pages/common/myTasks/components/WorkLog';
+import Dashboard from '../pages/dashboard/Dashboard';
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
@@ -25,6 +26,7 @@ const routeComponents: Record<string, ReactElement> = {
   MainTasks: <MainTasks />,
   UserGroups: <UserGroups />,
   WorkLog: <WorkLog />,
+  Dashboard: <Dashboard />,
 };
 
 console.log(routes);

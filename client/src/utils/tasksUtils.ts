@@ -77,5 +77,21 @@ export const filterTaskByProject = (tasks: Task[]): { tasks: Task[], byProject: 
   return { tasks, byProject }; // Always return an object
 };
 
+/**
+ * 
+ * @param tasks : task array
+ * @returns 
+ */
+export const countTasksByStatus = (tasks: Task[]) => {
+  const statusCounts: Record<string, number> = {};
+
+  tasks.forEach((task) => {
+    const status = task.status;
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+  });
+
+  return statusCounts;
+};
+
 
   

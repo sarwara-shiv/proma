@@ -89,6 +89,7 @@ export interface BaseTask {
   assignedDate?:Date;
   createdAt?: Date;
   updatedAt?: Date;
+  expectedTime:number;
   level?:number;
   description?: string;
   note?: string;
@@ -179,6 +180,7 @@ export interface SprintTimeLineData {
   isActive:boolean;
   endDate: Date | string;
   status: SprintStatus;
+  tooltipData:string | ReactNode;
 } 
 
 export interface ISprint {
@@ -189,6 +191,7 @@ export interface ISprint {
   goal?: string;
   startDate?: Date;
   endDate?: Date;
+  expectedTime:number;
   isActive?: boolean;
   totalStoryPoints?:number;
   status?:'active' | 'completed' | 'upcoming' | 'delayed';

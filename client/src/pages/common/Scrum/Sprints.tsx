@@ -21,6 +21,9 @@ import SidePanel from '../../../components/common/SidePanel';
 import AddUpdateSprint from './components/AddUpdateSprint';
 import { FiEdit, FiEdit3 } from "react-icons/fi";
 import { DiScrum } from 'react-icons/di';
+import { MdDashboard, MdOutlineBarChart, MdOutlineViewTimeline } from 'react-icons/md';
+import SprintTimelineTable from './components/SprintTimelineTable';
+import SprintStatusChart from './components/SprintStatusChart';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -46,7 +49,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint"})
   const [sprintsData, setSprintsData] = useState<ISprint[]>([]);
-  const [pageNav, setPageNav] = useState<{id:string, icon:React.ReactNode, label:string}>({id:'sprint', icon:<DiScrum/>, label:'sprint_all'});
+  const [selectedNav, setSelectedNav] = useState<string>('sprint_all');
 
 
   const tdClasses = 'p-2 text-xs';
@@ -138,8 +141,25 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
     <div>
         {/* BOARD */}
        <div className='kanaban-board'>
-            {cid ?  
-                <EditSprints pid={cid} />
+            {cid && sprintsData ?
+                <>
+                {selectedNav === 'sprint_all' &&  <EditSprints pid={cid} />}
+                {selectedNav === 'timeline' &&  
+                <div><SprintTimelineTable sprints={sprintsData} /></div>
+                
+                }
+                {selectedNav === 'status' &&  
+                <div><SprintStatusChart sprints={sprintsData}/></div>
+                
+                }
+                {selectedNav === 'dashboard' &&  
+                <div>
+                    <SprintStatusChart sprints={sprintsData}/>
+                    <SprintTimelineTable sprints={sprintsData} />
+                </div>
+                
+                }
+                </>
                 :
                 <NoData />
             }
@@ -151,35 +171,83 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
                 
 
                 {/* ADD NEW SPRINT */}
-                <div onClick={()=>addUpdateForm()}
-                    className='group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
-                    border-r border-slate-400'
-                    >
-                    <span className='aspect-1/1 p-1 text-xl group-hover:scale-125 group-hover:text-primary 
-                        transition-transform duration-100 ease origin-center
-                    '><IoMdAdd/> </span>
-                    <span className='text-[11px] '>{t('sprint_add')}</span>
-                </div>
-                <div className='flex justify-end gap-4'>
-                    {/* UPDATE SPRINT */}
+                <div className='flex items-center gap-2'>
+
                     <div onClick={()=>addUpdateForm()}
-                        className='group flex flex-col justify-center items-center py-1 px-2 cursor-pointer '
+                        className='group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
+                        border-r border-slate-400'
                         >
                         <span className='aspect-1/1 p-1 text-xl group-hover:scale-125 group-hover:text-primary 
-                        transition-transform duration-100 ease origin-center
-                        '><FiEdit3/> </span>
+                            transition-transform duration-100 ease origin-center
+                            '><IoMdAdd/> </span>
+                        <span className='text-[11px] '>{t('sprint_add')}</span>
+                    </div>
+                    {selectedNav && 
+                        <div className='text-xl font-bold'>{t(selectedNav)}</div>
+                    }
+                </div>
+                <div className='flex justify-end gap-1'>
+                    {/* Dashboard */}
+                    <div onClick={()=>{selectedNav !== 'dashboard' && setSelectedNav('dashboard')}}
+                        className={`group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
+                            ${selectedNav && selectedNav === 'dashboard' ? 'bg-primary-light ' : ''} rounded-lg border-2 border-white`
+                         }
+                        >
+                        <span 
+                        className={`aspect-1/1 p-1 text-xl
+                            transition-transform duration-100 ease origin-center
+                            ${selectedNav && selectedNav !== 'dashboard' ? 'group-hover:scale-125 group-hover:text-primary' : ''}
+                        `}>
+                            <MdDashboard/> </span>
                         <span className='text-[11px]'>
-                            {t('sprint_update')}
+                            {t('dashboard')}
+                        </span>
+                    </div>
+                    {/* STATUS*/}
+                    <div onClick={()=>{selectedNav !== 'status' && setSelectedNav('status')}}
+                        className={`group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
+                            ${selectedNav && selectedNav === 'status' ? 'bg-primary-light ' : ''} rounded-lg border-2 border-white`
+                         }
+                        >
+                        <span 
+                        className={`aspect-1/1 p-1 text-xl
+                            transition-transform duration-100 ease origin-center
+                            ${selectedNav && selectedNav !== 'status' ? 'group-hover:scale-125 group-hover:text-primary' : ''}
+                        `}>
+                            <MdOutlineBarChart/> </span>
+                        <span className='text-[11px]'>
+                            {t('status')}
+                        </span>
+                    </div>
+                    {/* TIMELINE*/}
+                    <div onClick={()=>{selectedNav !== 'timeline' && setSelectedNav('timeline')}}
+                        className={`group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
+                            ${selectedNav && selectedNav === 'timeline' ? 'bg-primary-light ' : ''} rounded-lg border-2 border-white`
+                         }
+                        >
+                        <span 
+                        className={`aspect-1/1 p-1 text-xl
+                            transition-transform duration-100 ease origin-center
+                            ${selectedNav && selectedNav !== 'timeline' ? 'group-hover:scale-125 group-hover:text-primary' : ''}
+                        `}>
+                            <MdOutlineViewTimeline/> </span>
+                        <span className='text-[11px]'>
+                            {t('timeline')}
                         </span>
                     </div>
 
                     {/* ALL NEW SPRINT */}
-                    <div onClick={()=>addUpdateForm()}
-                        className='group flex flex-col justify-center items-center py-1 px-2 cursor-pointer bg-primary-light rounded-lg border-2 border-white'
+                    <div onClick={()=>{selectedNav !== 'sprint_all' && setSelectedNav('sprint_all')}}
+                        className={`group flex flex-col justify-center items-center py-1 px-2 cursor-pointer 
+                           ${selectedNav && selectedNav === 'sprint_all' ? 'bg-primary-light ' : ''} rounded-lg border-2 border-white`
+                        }
                         >
-                        <span className='aspect-1/1 p-1 text-xl group-hover:scale-125 group-hover:text-primary 
+                        <span 
+                        className={`aspect-1/1 p-1 text-xl
                             transition-transform duration-100 ease origin-center
-                        '><DiScrum/> </span>
+                            ${selectedNav && selectedNav !== 'sprint_all' ? 'group-hover:scale-125 group-hover:text-primary' : ''}
+                        `}>
+                            <DiScrum/> </span>
                         <span className='text-[11px] '>{t('sprint_all')}</span>
                     </div>
                 </div>

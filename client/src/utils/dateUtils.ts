@@ -1,5 +1,6 @@
 // src/utils/dateUtils.ts
 import { format, compareAsc } from 'date-fns';  // Optionally use date-fns or native JS Date
+import { WORK_START_HOUR, WORKING_DAYS, WORKING_HOURS_PER_DAY } from "../constants/calendar";
 
 /**
  * Format a date string to a specified format
@@ -83,3 +84,107 @@ export const isPastDate = (date: string): boolean => {
   
   return inputDate < today;
 };
+
+/**
+ * 
+ * Generate date Range
+ * @param data[] - {startDate, endData}
+ *  
+ * 
+ */
+
+export const generateDateRange = (dataA: {startDate:Date, endDate:Date}[]): Date[] => {
+  const validateData = dataA.filter(
+    (data) => data.startDate && data.endDate
+  );
+  console.log("Valid Sprints:", validateData); // Debug filtered sprints
+
+  if (validateData.length === 0) {
+    return [];
+  }
+
+  const minStartDate = Math.min(
+    ...validateData.map((data) => new Date(data.startDate!).getTime())
+  );
+  const maxEndDate = Math.max(
+    ...validateData.map((data) => new Date(data.endDate!).getTime())
+  );
+
+  const dates: Date[] = [];
+  let currentDate = minStartDate;
+
+  while (currentDate <= maxEndDate) {
+    dates.push(new Date(currentDate));
+    currentDate += 1000 * 60 * 60 * 24;
+  }
+
+  return dates;
+};
+/**
+ * Adds working hours to a given start date, skipping non-working days.
+ * @param startDate The date to start from
+ * @param hours The number of working hours to add
+ * @returns A new Date after the working hours have been added
+ */
+export const addWorkingHours = (startDate: Date, hours: number): Date => {
+  const date = new Date(startDate);
+  let remainingHours = hours;
+
+  while (remainingHours > 0) {
+    const day = date.getDay();
+
+    if (WORKING_DAYS.includes(day)) {
+      const hoursToAdd = Math.min(remainingHours, WORKING_HOURS_PER_DAY);
+      date.setHours(date.getHours() + hoursToAdd);
+      remainingHours -= hoursToAdd;
+    }
+
+    if (remainingHours > 0) {
+      date.setDate(date.getDate() + 1);
+      date.setHours(WORK_START_HOUR, 0, 0, 0);
+    }
+  }
+
+  return date;
+};
+/**
+ * Get expectedTime based on startDate and endDate(dueDate) skipping weekends
+ * @param startDate The date to start from
+ * @param endDate The date to start from
+ * @returns expectedTime in hours
+ */
+export const calculateWorkingHours = (startDate: Date, endDate: Date): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  let totalHours = 0;
+
+  // Ensure start is before end
+  if (start > end) return 0;
+
+  const current = new Date(start);
+
+  while (current <= end) {
+    const day = current.getDay();
+
+    if (WORKING_DAYS.includes(day)) {
+      const isSameDay = current.toDateString() === end.toDateString();
+
+      const startHour = current.getHours();
+      const endHour = isSameDay ? end.getHours() : WORK_START_HOUR + WORKING_HOURS_PER_DAY;
+
+      const workHours = Math.min(
+        Math.max(endHour - Math.max(startHour, WORK_START_HOUR), 0),
+        WORKING_HOURS_PER_DAY
+      );
+
+      totalHours += workHours;
+    }
+
+    current.setDate(current.getDate() + 1);
+    current.setHours(WORK_START_HOUR, 0, 0, 0);
+  }
+
+  return totalHours;
+};
+
+

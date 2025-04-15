@@ -11,11 +11,12 @@ import AddUpdateSprint from "./AddUpdateSprint";
 import { getRecordsWithFilters, sprintActions } from "../../../../hooks/dbHooks";
 import { format } from "date-fns";
 import { FaEllipsisH, FaTasks } from "react-icons/fa";
-import { MdAdd, MdClose, MdDelete, MdFormatListBulletedAdd, MdInfo, MdInfoOutline, MdPerson } from "react-icons/md";
+import { MdAdd, MdClose, MdDelete, MdFormatListBulletedAdd, MdInfo, MdInfoOutline, MdOutlineViewTimeline, MdPerson } from "react-icons/md";
 import { FiEdit, FiEdit2, FiEdit3 } from "react-icons/fi";
 import { ToggleBtnWithUpdate } from "../../../../components/forms";
 import Backlog from "./Backlog";
 import SprintTimeLine from "./SprintTimeline";
+import { calculateWorkingHours } from "../../../../utils/dateUtils";
 
 interface ArgsType {
   pid:string|ObjectId
@@ -33,7 +34,6 @@ const EditSprints: React.FC<ArgsType> = ({pid}) => {
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint", onClose:()=>closeSidePanel()})
   const [sprintsData, setSprintsData] = useState<ISprint[]>();
-  const [pageNav, setPageNav] = useState<{id:string, icon:React.ReactNode, label:string}>({id:'sprint', icon:<DiScrum/>, label:'sprint_all'});
 
   useEffect(()=>{
     getData();
@@ -258,14 +258,20 @@ const getData = async ()=>{
     setPopupData({...popupData, isOpen:false, content:'', title:'', yesFunction:()=>{}});
   }
 
+  const getSprintET = (sprint:ISprint)=>{
+   return  sprint.expectedTime ? sprint.expectedTime : 
+    sprint.startDate && sprint.endDate ? calculateWorkingHours(sprint.startDate, sprint.endDate)
+    : 0
+  }
+  const getTaskET = (task:Task)=>{
+   return  task.expectedTime ? task.expectedTime : 
+   task.startDate && task.dueDate ? calculateWorkingHours(task.startDate, task.dueDate)
+    : 0
+  }
 
   return (
     <div className="py-4 max-w-7xl mx-auto">
       {isLoader && <Loader type="full"/>}
-      {sprintsData && sprintsData.length > 0 && 
-        <SprintTimeLine sprints={sprintsData}/>
-      }
-
       {/* <h2 className="text-3xl font-bold text-center mb-8">Sprint Tasks</h2> */}
       <div className="flex justify-start items-start gap-8 overflow-x-auto pb-8 flex-col lg:flex-row">
         <div className="w-full bg-gray-100 p-2 rounded-lg lg:w-1/3 lg:min-w-[350px]" >
@@ -352,6 +358,12 @@ const getData = async ()=>{
                                   <span className="">{sprint.backlog.length}</span>
                                 : <>-</> }
                               </div>
+                              <CustomTooltip content={`${t('expectedTime_info')} <b>sprint</b>`}>
+                                <div className="flex flex-col items-center gap-x-1">
+                                    <span className=" text-slate-400">{t('expectedTime') }</span>
+                                  <span className="">{getSprintET(sprint)}</span>
+                                </div>
+                              </CustomTooltip>
                           </div>
                         </div>
                     </div>
@@ -423,7 +435,14 @@ const getData = async ()=>{
                                 <span className=" text-slate-400">{t('tasks')}</span>
                                 {task.endDate ? 
                                   <span className="">{format(task.endDate, 'dd.MM.yyyy')}</span>
-                                : <>-</> }
+                                  : <>-</> }
+                              </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-col items-center gap-x-1">
+                                <span className=" text-slate-400">{t('subtasks') }</span>
+                                <span className="">{
+                                  task.subtasks ? task.subtasks.length : 0
+                                  }</span>
                               </div>
                           </div>
                           <div className="flex gap-2 justify-between mt-1 border-t pt-1 ">
@@ -447,6 +466,13 @@ const getData = async ()=>{
                                   <span className="text-sm font-semibold">{task.subtasks ? task.subtasks.length : 0}</span>
                                 </CustomTooltip>
                               </div>
+                              <div className="border-r"></div>
+                              <div className="flex flex-row gap-x-1 justify-center items-center">
+                                <CustomTooltip content={`${t('expectedTime_info')} <b>sprint</b>`}>
+                                  <span className="text-primary text-sm">{t('expectedTime') }:</span>
+                                  <span className="text-sm">{getTaskET(task)}</span>
+                                </CustomTooltip>
+                              </div>
                           </div>
                         
                       </div>
@@ -457,7 +483,7 @@ const getData = async ()=>{
                             <MdClose /> 
                           </div>
                         </CustomTooltip>
-                        <div className="apsect-1/1 rounded-full p-1 text-slate-400 hover:bg-primary-light hover:text-primary cursor-pointer">
+                          <div className="apsect-1/1 rounded-full p-1 text-slate-400 hover:bg-primary-light hover:text-primary cursor-pointer">
                           <MdInfoOutline />
                         </div>
                       </div>
