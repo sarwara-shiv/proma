@@ -87,6 +87,7 @@ export interface BaseTask {
   dueDate?: Date;
   endDate?: Date;
   assignedDate?:Date;
+  assignedBy?:string;
   createdAt?: Date;
   updatedAt?: Date;
   expectedTime:number;

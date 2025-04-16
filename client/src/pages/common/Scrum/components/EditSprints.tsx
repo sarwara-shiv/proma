@@ -17,6 +17,7 @@ import { ToggleBtnWithUpdate } from "../../../../components/forms";
 import Backlog from "./Backlog";
 import SprintTimeLine from "./SprintTimeline";
 import { calculateWorkingHours } from "../../../../utils/dateUtils";
+import SprintTaskDetail from "./SprintTaskDetail";
 
 interface ArgsType {
   pid:string|ObjectId
@@ -55,6 +56,12 @@ const getData = async ()=>{
               path: 'backlog',
               populate: [
                   { path: 'responsiblePerson'},
+                  { path: 'assignedBy '},
+                  { path: 'subtasks',
+                    populate: [
+                      { path: 'subtasks'}
+                    ]
+                   }
               ]
           }
       ];
@@ -111,6 +118,19 @@ const getData = async ()=>{
         children:<AddUpdateSprint key={`${sprint._id}-update`} projectId={projectId} sprint={sprint}/>
     });
   }
+  // ADD UPDATE TASK
+  const getTaskDetail = (task:Task)=>{
+    if (lastSidePanelKey === `${task._id}-details`) {
+      closeSidePanel();
+      return;
+    }
+    setLastSidePanelKey(`${task._id}-details`);
+    setSpProps({...spProps, isOpen:true, title:`${task._cid}`, onClose:closeSprintSidePanel,
+        children:<SprintTaskDetail key={`${task._id}-update`} projectId={projectId} task={task}/>
+    });
+  }
+
+
   // ADD TASKS TO SPRINT
   const addTasksToSprint = (sprint:ISprint)=>{
     console.log(sprint, projectId);
@@ -276,7 +296,7 @@ const getData = async ()=>{
       <div className="flex justify-start items-start gap-8 overflow-x-auto pb-8 flex-col lg:flex-row">
         <div className="w-full bg-gray-100 p-2 rounded-lg lg:w-1/3 lg:min-w-[350px]" >
           <h3 className="text-left font-bold pb-1 border-b border-slate-300 ">{t('sprints')}</h3>
-          <div className="py-2 pt-4 flex flex-col gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 190px)'}}>
+          <div className="py-2 pt-4 flex flex-col px-2 gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 190px)'}}>
             {sprintsData && sprintsData.length > 0 ? 
             <>
               {sprintsData.map((sprint:ISprint, key:number)=>{
@@ -381,19 +401,17 @@ const getData = async ()=>{
         {/* SPRINT BACKLOG */}
         <div className="flex-1 bg-gray-100 p-2 rounded-lg shadow-lg w-full">
           <h3 className="text-left font-bold pb-1 border-b border-slate-300 ">{t('tasks')}</h3>
-          <div className="py-2 pt-4 flex flex-col gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 200px)'}}>
+          <div className="py-2 pt-4 px-2 flex flex-col gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 200px)'}}>
             {selectedSprint && selectedSprint.backlog.length > 0 ? 
             <>
               {selectedSprint.backlog.map((backlog, bkey)=>{
-                console.log('---------', bkey);
-                console.log(backlog);
                 const task:Task = backlog as unknown as Task;
                 const inRange = isWithinSprint(task, selectedSprint);
                 return (
                   <div key={`${bkey}-${task._id}`}>
                     <div className="bg-white box-shadow-sm flex flex-1 rounded-md flex-row gap-2">
                       <div className="flex-1 p-2">
-                        <div className="flex justify-between items-center border-b mb-1 pb-1 ">
+                        <div className="flex justify-between items-center border-b mb-1 pb-1">
                             <div className={`text-sm  font-bold ${task.status === 'completed' ? 'text-slate-300' : 'text-green-500 '}`}>{task._cid}</div>
                             {!inRange && 
                               <CustomTooltip content={t('outOfSprintRange_info')}>
@@ -432,18 +450,18 @@ const getData = async ()=>{
                               </div>
                               <div className="border-r"></div>
                               <div className="flex flex-col items-left gap-x-1">
-                                <span className=" text-slate-400">{t('tasks')}</span>
+                                <span className=" text-slate-400">{t('endDate')}</span>
                                 {task.endDate ? 
                                   <span className="">{format(task.endDate, 'dd.MM.yyyy')}</span>
                                   : <>-</> }
                               </div>
-                              <div className="border-r"></div>
+                              {/* <div className="border-r"></div>
                               <div className="flex flex-col items-center gap-x-1">
                                 <span className=" text-slate-400">{t('subtasks') }</span>
                                 <span className="">{
                                   task.subtasks ? task.subtasks.length : 0
                                   }</span>
-                              </div>
+                              </div> */}
                           </div>
                           <div className="flex gap-2 justify-between mt-1 border-t pt-1 ">
                               <div className="flex flex-row gap-x-1 justify-center items-center">
@@ -482,8 +500,8 @@ const getData = async ()=>{
                             className={`apsect-1/1 rounded-full p-1 text-red-300 hover:bg-red-100 hover:text-red-500`}>
                             <MdClose /> 
                           </div>
-                        </CustomTooltip>
-                          <div className="apsect-1/1 rounded-full p-1 text-slate-400 hover:bg-primary-light hover:text-primary cursor-pointer">
+                          </CustomTooltip>
+                            <div onClick={()=>getTaskDetail(task)} className="apsect-1/1 rounded-full p-1 text-slate-400 hover:bg-primary-light hover:text-primary cursor-pointer">
                           <MdInfoOutline />
                         </div>
                       </div>

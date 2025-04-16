@@ -24,6 +24,7 @@ import { DiScrum } from 'react-icons/di';
 import { MdDashboard, MdOutlineBarChart, MdOutlineViewTimeline } from 'react-icons/md';
 import SprintTimelineTable from './components/SprintTimelineTable';
 import SprintStatusChart from './components/SprintStatusChart';
+import { useAppContext } from '../../../context/AppContext';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -42,6 +43,7 @@ const pageNavData = [
 const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
+  const {setPageTitle} = useAppContext();
   const [lastSidePanelKey, setLastSidePanelKey] = useState<string|null>();
   const [projectId, setProjectId] = useState<ObjectId | string | null>(cid ? cid : id ? id : null);
   const [mainTasks, setMainTasks] = useState<MainTask[]>();
@@ -66,6 +68,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   //---------- table columns model end
 
   useEffect(()=>{
+    // setPageTitle('Sprint')
       if(!cid){
         cid = id;
       }
@@ -138,7 +141,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   }
 
   return (
-    <div>
+    <div className='min-h-dvh'>
         {/* BOARD */}
        <div className='kanaban-board'>
             {cid && sprintsData ?

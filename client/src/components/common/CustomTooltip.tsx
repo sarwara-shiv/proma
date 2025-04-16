@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 
 interface TooltipProps {
   content: React.ReactNode;
@@ -9,8 +10,8 @@ interface TooltipProps {
   maxHeight?: string;
   minHeight?: string;
   className?: string;
-  trigger?: 'hover' | 'click'; // NEW
-  showIcon?: boolean;          // NEW: only relevant in click mode
+  trigger?: 'hover' | 'click';
+  showIcon?: boolean;
 }
 
 const CustomTooltip: React.FC<TooltipProps> = ({
@@ -28,10 +29,8 @@ const CustomTooltip: React.FC<TooltipProps> = ({
   const [visible, setVisible] = useState(false);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-
   const [style, setStyle] = useState<React.CSSProperties>({});
 
-  // Position logic
   const updatePosition = () => {
     if (tooltipRef.current && wrapperRef.current) {
       const tooltip = tooltipRef.current;
@@ -68,12 +67,11 @@ const CustomTooltip: React.FC<TooltipProps> = ({
         minWidth,
         maxHeight,
         minHeight,
-        zIndex: 50,
+        zIndex: 9999,
       });
     }
   };
 
-  // Outside click handler
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -93,12 +91,10 @@ const CustomTooltip: React.FC<TooltipProps> = ({
     };
   }, [visible, trigger]);
 
-  // Reposition on show
   useEffect(() => {
     if (visible) updatePosition();
   }, [visible]);
 
-  // Hover events
   const hoverHandlers =
     trigger === 'hover'
       ? {
@@ -107,7 +103,6 @@ const CustomTooltip: React.FC<TooltipProps> = ({
         }
       : {};
 
-  // Click toggle
   const clickHandler =
     trigger === 'click'
       ? {
@@ -127,19 +122,21 @@ const CustomTooltip: React.FC<TooltipProps> = ({
         <span className="text-gray-500 text-xs select-none">ℹ️</span>
       )}
 
-      {visible && (
-       <div
-       ref={tooltipRef}
-       style={style}
-       className={`bg-primary-light border border-white shadow-md text-slate-500 text-xs px-2 py-1 rounded shadow-lg w-fit ${className}`}
-     >
-       {typeof content === 'string' ? (
-         <span dangerouslySetInnerHTML={{ __html: content }} />
-       ) : (
-         content
-       )}
-     </div>
-      )}
+      {visible &&
+        ReactDOM.createPortal(
+          <div
+            ref={tooltipRef}
+            style={style}
+            className={`bg-primary-light border border-white shadow-md text-slate-500 z-40 text-xs px-2 py-1 rounded shadow-lg w-fit ${className}`}
+          >
+            {typeof content === 'string' ? (
+              <span dangerouslySetInnerHTML={{ __html: content }} />
+            ) : (
+              content
+            )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

@@ -149,7 +149,6 @@ router.post("/remove-tasks", verifyToken, async (req, res) => {
 });
 
 // GET TASKS
-// REMOVE TASKS FROM SPRINT
 router.post("/get-tasks", verifyToken, async (req, res) => {
     const { id: sprintId, projectId } = req.body.data;
   
