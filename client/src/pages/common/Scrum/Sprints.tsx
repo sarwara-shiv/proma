@@ -141,7 +141,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   }
 
   return (
-    <div className='min-h-dvh'>
+    <div className=''>
         {/* BOARD */}
        <div className='kanaban-board'>
             {cid && sprintsData ?

@@ -8,6 +8,8 @@ interface ArgsType {
   name?: string;
   id?: string;
   initialState?: boolean;
+  yesColor?:string;
+  noColor?:string;
   label?:string;
   yesText?:React.ReactNode;
   yesValue?:string;
@@ -18,7 +20,8 @@ interface ArgsType {
 
 const ToggleSwitch: React.FC<ArgsType> = (args) => {
   const { initialState = false, type = 'status', id, value, name, onChange, label, yesText, noText, size='sm', 
-    yesValue = 'yes', noValue='no'
+    yesValue = 'yes', noValue='no',
+    yesColor="green", noColor="red",
   } = args;
   const [isChecked, setIsChecked] = useState(initialState);
 
@@ -46,20 +49,20 @@ const ToggleSwitch: React.FC<ArgsType> = (args) => {
           value={value} 
           className='absolute hidden'
           />
-          <label htmlFor={id || 'toggle'} className={`relative grid grid-cols-2 w-max bg-white rounded-md shadow-card border-2 border-white 
+          <label htmlFor={id || 'toggle'} className={`relative grid grid-cols-2 w-max bg-white rounded-md box-shadow border-2 border-white 
             ${isChecked ? 
-              `before:left-0 before:bg-green-100`
-              :`before:left-2/4 before:bg-red-100`}
+              `before:left-0 before:bg-${yesColor}-100`
+              :`before:left-2/4 before:bg-${noColor}-100`}
 
             before:w-2/4 before:top-0 before:bottom-0 before:absolute 
             before:transition-all before:duration-200 before:ease before:pointer-events-none before:z-0
             text-${size}
             
             `}>
-            <span className={`${isChecked ? `text-green-500`: 'shadow-light text-slate-400'}  
+            <span className={`${isChecked ? `text-${yesColor}-500`: 'shadow-light text-slate-400'}  
             cursor-pointer px-2 py-1 flex justify-center items-center transition-colors duration-200 ease relative z-1
             `}>{yesText}</span>
-            <span className={`${!isChecked ? `text-red-500`: 'shadow-light text-slate-400'} 
+            <span className={`${!isChecked ? `text-${noColor}-500`: 'shadow-light text-slate-400'} 
             cursor-pointer px-2 py-1 flex justify-center items-center transition-colors duration-200 ease relative z-1
             `}>{noText}</span>
           </label>

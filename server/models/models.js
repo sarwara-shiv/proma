@@ -732,7 +732,7 @@ const SprintSchema = new Schema({
   expectedTime:{type:Number, default:0},
   endDate: { type: Date, required: true },
   isActive: { type: Boolean, default: true }, // If sprint is active or finished
-  status:{type:String, enum:['active', 'completed', 'delayed' | 'upcoming'], default:'upcoming'},
+  status:{type:String, enum:['active', 'completed', 'delayed', 'upcoming'], default:'upcoming'},
   createdBy: { type: String, required: true }, // Creator (could be a manager, product owner, etc.)
   totalStoryPoints: { type: Number, default: 0 },
   completedStoryPoints: { type: Number, default: 0 },

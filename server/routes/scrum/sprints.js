@@ -32,18 +32,20 @@ router.post("/add-tasks", verifyToken, async (req, res) => {
             });
         }
 
-        // Attach sprintId to each task
-        await Task.updateMany(
-            { _id: { $in: tasks } },
-            { $set: { sprintId: id } }
-        );
-
          // Avoid adding duplicate task IDs to the backlog
          const uniqueIdsToAdd = tasks.filter(
             id => !sprint.backlog.includes(id.toString())
         );
 
+        console.log(1);
         sprint.backlog.push(...uniqueIdsToAdd);
+
+         // Attach sprintId to each task
+         await Task.updateMany(
+          { _id: { $in: tasks } },
+          { $set: { sprintId: id } }
+      );
+
         await sprint.save();
 
         const sprintTasks = await Task.find({
@@ -87,8 +89,8 @@ router.post("/add-tasks", verifyToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error fetching roles:", error);  
-        return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});
+        console.error("Error", error);  
+        return res.status(500).json({ status: "error", message: "Unable to add task", error, code:"unknown_error"});
     }
 });
 
