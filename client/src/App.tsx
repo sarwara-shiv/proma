@@ -7,6 +7,7 @@ import Unauthorised from "./pages/Unauthorised";
 import ResetPassword from "./pages/auth/ResetPassword";
 import './assets/styles/layout.css';
 import {useAuthContext } from "./context/AuthContext";
+import Messenger from "./pages/messenger/Messenger";
 function App() {
   const {t} = useTranslation("common");
   const {isAuthenticated, role, roles, user, loading} = useAuthContext();
@@ -23,6 +24,9 @@ function App() {
      <Router>
       <Routes>
           <Route path="/login" element={<Login />} />
+          {isAuthenticated && 
+            <Route path="/messenger" element={<Messenger/>} />
+          }
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           {isAdmin && (
