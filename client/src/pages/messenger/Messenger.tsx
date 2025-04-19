@@ -2,25 +2,30 @@ import { useTranslation } from "react-i18next";
 import { Logo } from "../../components/common";
 import { useAuthContext } from "../../context/AuthContext";
 import { useRef, useState, useEffect  } from "react";
-import { FaAngleDown, FaAngleUp } from "react-icons/fa";
+import { FaAngleDown, FaAngleUp, FaCheck, FaCheckDouble } from "react-icons/fa";
 import { format } from "date-fns";
 import ChatInputBox from "./components/ChatInputBox";
-
-interface IChat {
-    text:string,
-    date:Date
-}
+import ChatUsers from "./components/ChatUsers";
+import { ChatGroupType, MessageType } from "../../features/chat/chatTypes";
+import { User } from "@/interfaces";
 
 const Messenger = () => {
     const inputBoxHeight = 190;
     const { user } = useAuthContext();
     const {t} = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [chatData, setChatData] = useState<IChat[]>([]);
+    const [chatData, setChatData] = useState<MessageType[]>([]);
+    const [receiver, setReceiver] = useState<{user?:User, group?:ChatGroupType} | null>();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [message, setMessage] = useState<string>("");
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
-
+    useEffect(() => {
+      scrollToBottom();
+    }, [chatData]);
   
 
   return (
@@ -63,22 +68,7 @@ const Messenger = () => {
             </div>
             {/* Contacts Section */}
             <div className="flex-1 overflow-y-auto px-2 pt-0 pb-2 space-y-4 text-sm ">
-              {Array.from({ length: 20 }, (_, i) => (
-                <div key={i} className={`p-2 bg-white rounded hover:bg-gray-100 cursor-pointer flex justify-between items-center`}>
-                    <div className="flex justify-start flex-1 gap-x-2 items-center">
-                        <div className="w-8 h-8 border bg-primary-light rounded-full"></div>
-                        <div className="text-sm">
-                            Contact name {i+1}
-                            <div className="text-xs italic text truncate text-slate-400">
-                                some random text here
-                            </div>
-                        </div>
-                    </div>    
-                    <div className="aspect-1/1 h-4 min-w-4 flex justify-center items-center text-xs bg-primary text-white rounded-lg">
-                        2
-                    </div>
-                </div>
-              ))}
+              <ChatUsers setReceiver={setReceiver} setChatData={setChatData} receiver={receiver || null}/> 
             </div>
           </div>
 
@@ -87,12 +77,20 @@ const Messenger = () => {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
                     <div className="text-center text-gray-600 mt-8">
+                        {receiver && 
+                          <>
+                            {receiver.group && <p>Group: {receiver.group.name}</p>}
+                            {receiver.user && <p>User: {receiver.user.name}</p>}
+                          </>
+                        }
                         {chatData && chatData.length > 0 ? 
                             <div className="">
                                 {chatData.map((chat, idx)=>{
-                                   const cUser = (idx + 1) % 2 === 0; // is even
+                                  //  const cUser = (idx + 1) % 2 === 0; // is even
+                                  const senderId = chat.sender ? typeof chat.sender === 'string' ? chat.sender : (chat.sender as unknown as User)._id : null;
+                                   const cUser = senderId && senderId === user?._id.toString();
                                    return (
-                                    <div className={`w-full flex justify-${cUser ? 'end' : 'start'} my-4`}>
+                                    <div key={idx} className={`w-full flex justify-${cUser ? 'end' : 'start'} my-4`}>
                                         <div className={`shadow-md relative flex flex-col items-${cUser ? 'end rounded-l-md rounded-br-md bg-primary-light': 'start rounded-r-md rounded-bl-md bg-white'} justify-start p-2   max-w-[45%] right-0`}>
                                             {cUser 
                                             ? 
@@ -100,12 +98,18 @@ const Messenger = () => {
                                             : 
                                             <div className="absolute top-0 -left-2 w-0 h-0 border-t-[0px] border-b-[10px] border-r-[10px] border-t-transparent border-b-transparent border-r-white"></div> 
                                             }
-                                            <div className={`text-sm ${cUser ? 'text-end' : 'text-start'}`}>{chat.text}</div>
-                                            <div className="text-xs italic text-slate-400">{format(chat.date, 'dd.MM.yyy HH:ii')}</div>
+                                            <div className={`text-sm ${cUser ? 'text-end' : 'text-start'}`}>{chat.content}</div>
+                                            <div className="text-[10px] italic text-slate-400 flex items-center gap-2">
+                                              {chat.status === 'sent' && <FaCheck />}
+                                              {chat.status === 'delivered' && <FaCheckDouble />}
+                                              {chat.status === 'seen' && <FaCheckDouble className="text-primary"/>}
+                                              {chat.createdAt && format(chat.createdAt, 'dd.MM.yyy HH:ii')}
+                                            </div>
                                         </div>
                                     </div>
                                     )
                                 })}
+                                <div ref={messagesEndRef} />
                             </div>
 
                             :
@@ -116,7 +120,7 @@ const Messenger = () => {
 
                 {/* Input */}
                 <div className="border-t p-4 bg-white sticky bottom-0">
-                    <ChatInputBox setChatData={setChatData} chatData={chatData}/>
+                    <ChatInputBox setChatData={setChatData} chatData={chatData} receiver={receiver || null}/>
                 </div>
             </div>
 

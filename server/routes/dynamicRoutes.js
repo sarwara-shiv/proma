@@ -80,11 +80,11 @@ router.post('/tasks/assign', verifyToken, async (req, res) => {
   try{
     const originalRecord = await model.findById(id); 
     if (!originalRecord) {
-      return res.json({ status: "error", message: 'Record not found', code: "record_not_found" });
+      return res.json({ status: "error", message: 'Record not found', code: "record_not_found" }); 
     }
 
     if(originalRecord.responsiblePerson && data.responsiblePerson){
-       await updateUserWorkload([[originalRecord.responsiblePerson, -1], [data.responsiblePerson, 1]]);
+       await updateUserWorkload([[originalRecord.responsiblePerson, -1, originalRecord], [data.responsiblePerson, 1, , originalRecord]]);
     }
 
     const assignedBy = data.assignedBy;
@@ -230,7 +230,7 @@ router.post('/:resource/add', verifyToken, async (req, res) => {
        if ((resource === 'tasks' || resource ===  'maintasks') && savedRecord._id && savedRecord.responsiblePerson) {
         
         // updae user workload
-        await updateUserWorkload([[savedRecord.responsiblePerson, 1]]);
+        await updateUserWorkload([[savedRecord.responsiblePerson, 1, savedRecord]]);
 
         const assignedUserSocketId = onlineUsers.get(savedRecord.responsiblePerson.toString());         
         if (assignedUserSocketId) {
@@ -441,7 +441,7 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
     }
 
     if(deletedRecord.responsiblePerson){
-      await updateUserWorkload([[deletedRecord.responsiblePerson, -1]]);
+      await updateUserWorkload([[deletedRecord.responsiblePerson, -1, deletedRecord]]);
     }
      // Handle related updates
 

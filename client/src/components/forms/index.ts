@@ -9,4 +9,6 @@ export { default as UserRolesSelect } from './UserRolesSelect';
 export { default as UserSearchPopup } from './UserSearchPopup'; 
 export { default as RichTextArea } from './RichTextArea'; 
 export { default as SelectDateTime } from './SelectDateTime'; 
+export { default as ClickToEdit } from './ClickToEdit'; 
+export { default as ClickToEditNumber } from './ClickToEditNumber'; 
 export { default as ToggleBtnWithUpdate } from './ToggleBtnWithUpdate'; 

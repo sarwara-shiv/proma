@@ -20,13 +20,13 @@ import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
 import ColorPicker from '../../../../components/common/ColorPicker';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { CustomDropdown, MensionUserInput, SelectDateTime } from '../../../../components/forms';
+import { ClickToEditNumber, CustomDropdown, MensionUserInput, SelectDateTime } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
 import { sanitizeString } from '../../../../utils/commonUtils';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
-import { AssignedReason, AssignedType, Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
+import { AssignedReason, AssignedType, OStoryPoints, Priorities, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 import SidePanel from '../../../../components/common/SidePanel';
@@ -452,7 +452,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     }
   };
 
-  const handleTaskInput = (taskId:string|ObjectId, field:string, value:string | Date | null)=>{
+  const handleTaskInput = (taskId:string|ObjectId, field:string, value:number | string | Date | null)=>{
     if(taskId && field && value){
       const nData = {[field]:value};
       updateTask(taskId, nData);
@@ -708,14 +708,18 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                       </CustomContextMenu>
                     </th>
                     <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
-                    {/* <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
-                    >{t('task')}
-                    </th> */}
-                    <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`} colId={``} onMouseUp={getColWidth}>
-                         {t('task')}
-                    </ResizableTableHeader>
+                      {/* <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
+                      >{t('task')}
+                      </th> */}
+                      <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`} colId={``} onMouseUp={getColWidth}>
+                          {t('task')}
+                      </ResizableTableHeader>
                     <th className={`${thStyles}  w-[160px] `}
                     >{t('responsiblePerson')}</th>
+                    <th className={`${thStyles}  w-[80px] `}
+                    >{t('storyPoints')}</th>
+                    <th className={`${thStyles}  w-[70px] `}
+                    >{t('expectedTime')}</th>
                     <th className={`${thStyles} w-[120px] text-center`}>
                       {t('priority')}</th>
                     <th className={`${thStyles} text-center w-[120px]`}>{t('status')}</th>
@@ -925,6 +929,28 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                     </CustomContextMenu>
                                 </div>
                               </div>
+                            </td>
+                            <td className={`${tdStyles} text-center`}>
+                              <CustomDropdown selectedValue={
+                                  st.storyPoints != null
+                                    ? OStoryPoints.find(sp => sp._id === Number(st.storyPoints))?.name ?? ''
+                                    : ''
+                                }
+                              data={OStoryPoints} style='table'
+                                onChange={(rid, name, value, data)=>{console.log(value);
+                                  handleTaskInput(st._id ? st._id : '', 'storyPoints', parseInt(value))
+                                  }
+                                }
+                              />
+                            </td>
+                            <td className={`${tdStyles} text-center`}>
+                              <ClickToEditNumber value={st.expectedTime}  name='expectedTime'
+                                      onBlur={(value)=>{
+                                        console.log(value);
+                                        handleTaskInput(st._id ? st._id : '', 'expectedTime', value)
+                                      }
+                                    }
+                                />
                             </td>
                             <td className={`${tdStyles} ${getColorClasses(st.priority)} text-center`}>
                               <CustomDropdown selectedValue={st.priority} data={Priorities} style='table'

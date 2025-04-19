@@ -7,7 +7,7 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   roles: [{ type: Schema.Types.ObjectId, ref: 'UserRoles' }], 
-  groups: [{ type: Schema.Types.ObjectId, ref: 'UserGroups' }], 
+  groups: [{ type: Schema.Types.ObjectId, ref: 'UserGroups' }],  
   firma: { type: String, default:"self"}, 
   workLoad:{type:Number, default:0, required:true},
   permissions: {
@@ -35,17 +35,33 @@ UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-UserSchema.methods.updateWorkLoad = function (isAssigned) {
+// UserSchema.methods.updateWorkLoad = function (isAssigned) {
+//   if (isAssigned) {
+//     // Increase the work load when a task is assigned
+//     this.workLoad += 1;
+//   } else {
+//     // Decrease the work load when a task is removed
+//     if(this.workLoad > 0)
+//     this.workLoad -= 1;
+//   }
+//   return this.save(); // Save the user after updating the workload
+// };
+
+UserSchema.methods.updateWorkLoad = function (isAssigned, task) {
+  const storyPoints = task?.storyPoints ?? 1; // Default to 1 if not provided
+
   if (isAssigned) {
-    // Increase the work load when a task is assigned
-    this.workLoad += 1;
+    // Increase the workload by story points when a task is assigned
+    this.workLoad += storyPoints;
   } else {
-    // Decrease the work load when a task is removed
-    if(this.workLoad > 0)
-    this.workLoad -= 1;
+    // Decrease the workload by story points when a task is removed
+    this.workLoad -= storyPoints;
+    if (this.workLoad < 0) this.workLoad = 0; // Prevent negative workload
   }
+
   return this.save(); // Save the user after updating the workload
 };
+
 
 const UserModel = mongoose.model('User', UserSchema);
 

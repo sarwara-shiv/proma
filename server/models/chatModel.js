@@ -27,8 +27,12 @@ const MessageSchema = new mongoose.Schema({
             status: { type: String, enum: ['read', 'unread'], default: 'unread' }, // Track read/unread per user
         },
     ],
+    status:{type:String, enum:['sent', 'delivered', 'seen'], default:'sent'},
     replyTo: { type: Schema.Types.ObjectId, ref: 'Message', default: null }, // For replies to other messages
 }, { timestamps: true });
+
+
+
 
 const ChatGroup = mongoose.model('ChatGroup', ChatGroupSchema);
 const Message = mongoose.model('Message', MessageSchema);

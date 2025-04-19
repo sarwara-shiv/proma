@@ -1,5 +1,5 @@
 import { Server as socketIo } from 'socket.io';
-import { Message} from './models/models.js';
+import { Message, ChatGroup} from './models/models.js';
 import UserModel from './models/userModel.js'; 
 let io;
 let onlineUsers = new Map();
@@ -24,11 +24,42 @@ export const initializeSocket = (server, app) => {
             console.log(`🛑 Received event: ${event} with data:`, args);
         });
 
-        socket.on("user-connected", (userId) => {
+        socket.on("user-connected", async (userId) => {
             console.log("🎉 Received 'user-connected' event for userId:", userId);
 
-            onlineUsers.set(userId, socket.id);
-            console.log("📌 Online Users Map:", onlineUsers);
+            if(userId){
+                onlineUsers.set(userId, socket.id);
+                console.log("📌 Online Users Map:", onlineUsers);
+
+                try{
+                    // Get user's group IDs
+                    const groupIds = await userGroupsOf(userId); // This should return an array of ObjectIds
+
+                    // Count unread messages
+                    const unreadCount = await Message.countDocuments({
+                        $or: [
+                            { receiver: userId, 'readStatus.userId': userId, 'readStatus.status': 'unread' },
+                            {
+                                group: { $in: groupIds },
+                                'readStatus': {
+                                    $elemMatch: {
+                                        userId: userId,
+                                        status: 'unread'
+                                    }
+                                }
+                            }
+                        ]
+                    });
+                    if (unreadCount > 0) {
+                        console.log(`📨 User ${userId} has ${unreadCount} unread messages`);
+                        socket.emit("unread-messages", unreadCount);
+                    }
+                    
+                }catch(error){
+                    console.error(error);
+                }
+            }
+
         });
 
         /**
@@ -63,16 +94,18 @@ export const initializeSocket = (server, app) => {
         socket.on("private-message", async(receiverId, messageContent, senderId) => {
             console.log("private message", socket.id);
             const message = new Message({
-                content: messageContent,
+                content: messageContent, 
                 sender: senderId,
                 receiver: receiverId,
                 readStatus: [{ userId: receiverId, status: "unread" }], // Initially unread for the receiver
             });
-    
-            await message.save();
+            
+            const res = await message.save();
             const receiverSocketId = onlineUsers.get(receiverId);
+            console.log('----------------',res, '-------',receiverId,'=====', receiverSocketId,'######', onlineUsers);
             if (receiverSocketId) {
-                io.to(receiverSocketId).emit("receive-private-message", message);
+                console.log('------ emitting----',onlineUsers);
+                io.to(receiverSocketId).emit("receive-private-message", message); 
             }
             
         });
@@ -127,7 +160,7 @@ export const initializeSocket = (server, app) => {
         // Pin a message (Personal or Group Pin)
         socket.on('pin-message', async (messageId, userId, pinType) => {
             const message = await Message.findById(messageId);
-            const group = await Group.findOne({ members: userId, _id: message.group });
+            const group = await ChatGroup.findOne({ members: userId, _id: message.group });
 
             if (message) {
                 if (pinType === 'personal') {
@@ -195,5 +228,10 @@ export const initializeSocket = (server, app) => {
     console.log("🚀 Socket server initialized");
     return io;
 };
+
+const userGroupsOf = async (userId) => {
+    const groups = await ChatGroup.find({ members: userId }).select('_id');
+    return groups.map(g => g._id);
+  };
 
 export { io, onlineUsers };

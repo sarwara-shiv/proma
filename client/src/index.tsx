@@ -6,17 +6,21 @@ import App from './App';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { Provider } from 'react-redux'; 
+import { store } from './app/store'; 
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <SocketProvider>
-  <AuthProvider>
-  <AppProvider>
-    <App />
-    </AppProvider>
-  </AuthProvider>
-  </SocketProvider>
+  <Provider store={store}>
+    <SocketProvider>
+    <AuthProvider>
+    <AppProvider>
+      <App />
+      </AppProvider>
+    </AuthProvider>
+    </SocketProvider>
+  </Provider>
 );
 

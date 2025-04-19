@@ -171,29 +171,16 @@ const SubtasksTable:React.FC<ArgsType> = ({
                       <th className={`${thStyles} w-[120px] text-center`} >{t('dueDate')}</th>
                       <ResizableTableHeader initialWidth={223} classes={`${thStyles} w-[223px]`} colId={``}>
                          {t('note')}
-                    </ResizableTableHeader>
+                      </ResizableTableHeader>
                       {mainTaskData && mainTaskData.customFields && mainTaskData.customFields.map((cf, index)=>{
                         const width = (cf.type === 'status' || cf.type === 'dropdown' || cf.type === 'date' ) ? 'w-[120px]' : 'w-[200px]'  ;
                         return (
                           <ResizableTableHeader initialWidth={200} classes={`${thStyles} ${width} relative`} key={`th-${index}-${sanitizeString(cf.key)}`} colId={``} >
-                          {/* <th key={`th-${index}`} className={`${thStyles} ${width}`} > */}
                             <div
                               className='relative flex w-full h-full items-center justify-start group'
                             >
                               {cf.key}
-                              {/* <div 
-                              className='
-                                absolute right-0 opacity-0
-                                  transition-opacity duration-300
-                                  group-hover:opacity-100
-                              '
-                              >
-                                <DeleteSmallButton  onClick={()=>deleteCustomField(index, cf.key)} 
-                                  
-                                  />
-                              </div> */}
                             </div>
-                          {/* </th> */}
                           </ResizableTableHeader>
                         );
                       })}
@@ -331,7 +318,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                                       onDateChange={(rid, value, name)=>handleTaskInput(st._id ? st._id : '', 'dueDate', value)}
                               />
                           </td>
-                          <td className={`${tdStyles} text-xs`}>
+                          <td className={`${tdStyles} text-xs`} >
                               <ClickToEdit value={st.note || ''}  name='note'
                                       onBlur={(value)=>handleTaskInput(st._id ? st._id : '', 'note', value)}
                                     />

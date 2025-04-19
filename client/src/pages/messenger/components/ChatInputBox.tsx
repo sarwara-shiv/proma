@@ -1,15 +1,22 @@
+import { useAuthContext } from "../../../context/AuthContext";
+import { ChatGroupType, MessageType } from "../../../features/chat/chatTypes";
+import { User } from "@/interfaces";
 import { useEffect, useRef, useState } from "react";
+import { useSocket } from "../../../context/SocketContext";
 
 interface IChat {
     text:string,
     date:Date
 }
 interface ArgsType {
-    setChatData:React.Dispatch<React.SetStateAction<IChat[]>>;
-    chatData:IChat[];
+    setChatData:React.Dispatch<React.SetStateAction<MessageType[]>>;
+    receiver:{user?:User, group?:ChatGroupType} | null
+    chatData:MessageType[];
 }
 
-const ChatInputBox:React.FC<ArgsType> = ({setChatData, chatData})=>{
+const ChatInputBox:React.FC<ArgsType> = ({setChatData, chatData, receiver})=>{
+    const {user} = useAuthContext(); 
+    const socket = useSocket();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [message, setMessage] = useState<string>("");
     const inputBoxHeight = 190;
@@ -21,6 +28,30 @@ const ChatInputBox:React.FC<ArgsType> = ({setChatData, chatData})=>{
           textarea.style.height = `${Math.min(textarea.scrollHeight, inputBoxHeight)}px`;
         }
       }, [message]);
+
+      useEffect(() => {
+        if (!socket || !receiver) return;
+      
+        // Here you'd set up listeners if needed
+        return () => {
+          // Cleanup
+        };
+      }, [receiver]);
+
+      const sendMessageSocket = (messageContent: string) => {
+        console.log(socket);
+        if (!socket || !receiver || !user){
+          console.log('no socket or user');
+          return;
+        };
+      
+        if (receiver.user) {
+          socket.emit('private-message', receiver.user._id, messageContent, user._id);
+        } else if (receiver.group) {
+          const groupMembers:string[] = receiver.group.members; // optional if needed
+          socket.emit('group-message', receiver.group, messageContent, user._id, groupMembers);
+        }
+      };
     
       const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey; // metaKey is ⌘ on Mac
@@ -46,20 +77,31 @@ const ChatInputBox:React.FC<ArgsType> = ({setChatData, chatData})=>{
           } else {
             e.preventDefault(); // Block default Enter (newline)
             console.log("Sending:", message);
-            console.log(chatData);
-            if (message.trim()) {
-                const newMessage: IChat = {
-                  text: message.trim(),
-                  date: new Date(),
-                };
-                setChatData((prev) => [...prev, newMessage]);
-                setMessage("");
-            }
+            sendMessage(message);
     
             setMessage(""); // Clear input
           }
         }
       };
+    
+    // send message
+    const sendMessage = (message:string)=>{
+      if(receiver && user && message.trim()){
+         let newMessage:MessageType = {
+            content:message,
+            sender:user._id.toString(),
+            status:'sent',
+            likes:[],
+            pinned:'none',
+            readStatus:[],
+            createdAt:new Date()
+         } 
+
+            setChatData((prev) => [...prev, newMessage]);
+            sendMessageSocket(message);
+            setMessage("");
+      }
+    }
 
     return (
         <div className="flex items-end gap-2">

@@ -95,4 +95,24 @@ const AssignedType = [
     {_id: 'rework', name:'rework'},
 ]
 
-export {SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+/**
+ * 
+ * STORY POINTS MEANING
+ * 1. XS  - Very trivial task (like text change etc)
+ * 2. S   - Easy Task 
+ * 3. M   - Requires some thought, may be one component in api
+ * 5. L   - Multi step Task
+ * 8. XL  - Complex Task, new fetures, integration with multiple systems
+ * 13 XXL - Too big, should be broken down into smaller tasks or stories
+ * 
+ */
+const OStoryPoints = [
+    {_id: 1, name:'1 (XS)' },
+    {_id: 2, name:'2 (S)'},
+    {_id: 3, name:'3 (M)'},
+    {_id: 5, name:'5 (L)'},
+    {_id: 8, name:'8 (XL)'},
+    {_id: 13, name:'13 (XXL)'},
+]
+
+export {OStoryPoints, SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

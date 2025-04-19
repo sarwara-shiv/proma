@@ -61,7 +61,7 @@ const AdminSidebar: React.FC = () => {
     
         return () => {
           if (socket) {
-            socket.off('new-task-assigned');
+            socket.off('new-task-assigned'); 
           }
         };
       }, [socket]);

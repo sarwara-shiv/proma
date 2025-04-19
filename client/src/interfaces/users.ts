@@ -15,6 +15,7 @@ export interface User {
   permissions?: PermissionsMap; 
   createdAt?: Date;
   updatedAt?: Date;
+  workload?:number;
   isActive?:Boolean;
 }
 // User Interface
