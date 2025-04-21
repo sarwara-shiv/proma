@@ -6,12 +6,17 @@ import { FaAngleDown, FaRegHeart, FaRegStar, FaReply, FaStar } from "react-icons
 import { MdOutlinePushPin, MdPushPin } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useSocket } from "../../../context/SocketContext";
+
+// TODO
+// set pinned message and starred message to chat
+
 interface ArgsType{
+    setChatData: React.Dispatch<React.SetStateAction<MessageType[]>>;
     message:MessageType;
     user:DecodedToken | null;
 }
 
-const ChatMenu:React.FC<ArgsType> = ({message, user})=>{
+const ChatMenu:React.FC<ArgsType> = ({message, user, setChatData})=>{
     const {t} = useTranslation();
     const [isPinned, setIsPinned] = useState<boolean>(false);
     const [isStared, setIsStared] = useState<boolean>(false);
@@ -34,7 +39,26 @@ const ChatMenu:React.FC<ArgsType> = ({message, user})=>{
             const messageId = message._id;
             const userId = user._id;
             const pinType = message.group ? 'group' : 'personal';
-            socket.emit('pin-message', messageId, userId, pinType);
+            socket.emit('pin-message', messageId, userId, pinType,
+                (response:any)=>{
+                    console.log(response)
+                    if((response.status === 'success' || response.status === 'ok') && response.message){
+                        setChatData((prevChat) => {
+                            const index = prevChat.findIndex(msg => msg._id === response.message._id);
+                        
+                            if (index !== -1) {
+                              // Replace existing message
+                              const updatedChat = [...prevChat];
+                              updatedChat[index] = response.message;
+                              return updatedChat;
+                            } else {
+                              // Add new message
+                              return [...prevChat, response.message];
+                            }
+                          });
+                    }
+                }
+            );
             setIsPinned(true);
         }else{
             console.error('no sockiet');
@@ -45,7 +69,26 @@ const ChatMenu:React.FC<ArgsType> = ({message, user})=>{
             console.log(message,user);
             const messageId = message._id;
             const userId = user._id;
-            socket.emit('star-message', messageId, userId);
+            socket.emit('star-message', messageId, userId,
+                (response:any)=>{
+                    console.log(response)
+                  if((response.status === 'success' || response.status === 'ok') && response.message){
+                    setChatData((prevChat) => {
+                        const index = prevChat.findIndex(msg => msg._id === response.message._id);
+                    
+                        if (index !== -1) {
+                          // Replace existing message
+                          const updatedChat = [...prevChat];
+                          updatedChat[index] = response.message;
+                          return updatedChat;
+                        } else {
+                          // Add new message
+                          return [...prevChat, response.message];
+                        }
+                      });
+                  }
+                }
+            );
             setIsStared(true);
         }else{
             console.error('no sockiet');

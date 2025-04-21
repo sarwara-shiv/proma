@@ -338,6 +338,7 @@
     "storyPoints":"SP",
     "storyPoints_info":"<b>SP: </b> <i>Story Points</i> <br> - Difficuly level of Task",
     "todo":"TODO",
+    "noChat":"Chat has not been started yet with <span class='text-primary'><b>{{username}}</b></span>. <br><span class='text-xs'>Type a message to begin the conversation.</span>",
     "outOfSprintRange":"OOSR",
     "outOfSprintRange_info":"<b>OOSR</b> <i>Out of sprint range </i><br>Start & Due Date of Tasks does not match Start and Due Date of Sprint",
     "end_time":"Ended At",

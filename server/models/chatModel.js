@@ -20,7 +20,7 @@ const ReadSchema = new mongoose.Schema({
 const MessageSchema = new mongoose.Schema({
     content: { type: String, required: true },
     sender: { type: Schema.Types.ObjectId, ref: 'User' },
-    group: { type: Schema.Types.ObjectId, ref: 'Group', default: null },
+    group: { type: Schema.Types.ObjectId, ref: 'Group', default: null }, 
     receiver: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     updateAT: { type: Date, default: Date.now },
     likes: [LikesSchema], // Track users who liked the message

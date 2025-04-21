@@ -40,7 +40,12 @@ export interface IPinned {
   export interface ChatState {
     messages: MessageType[];
     unreadCount: number;
+    unreadMessages: UnreadCountMap;
     onlineUsers: string[];
     groups: string[];
   }
+  
+  export type UnreadCountMap = Record<string, number>;
+
+
   

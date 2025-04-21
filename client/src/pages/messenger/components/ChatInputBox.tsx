@@ -131,16 +131,36 @@ const ChatInputBox: React.FC<ArgsType> = ({ setChatData, chatData, receiver }) =
     if (!socket || !receiver || !user) return;
 
     if (receiver.user) {
-      socket.emit("private-message", receiver.user._id, messageContent, user._id);
+      const res = socket.emit("private-message", receiver.user._id, messageContent, user._id,
+        (response:{status:string, message?:MessageType, error?:string})=>{
+          if((response.status === 'success' || response.status === 'ok')  && response.message){
+              // TODO SET CHAT MESSAGE
+              console.log(response.message);
+              setChatData((prev) => [...prev, response.message as MessageType]);
+          }
+        }
+      );
+      console.log('----message to socket',res);
     } else if (receiver.group) {
       const groupMembers: string[] = receiver.group.members;
-      socket.emit("group-message", receiver.group, messageContent, user._id, groupMembers);
+      socket.emit("group-message", receiver.group, messageContent, user._id, groupMembers,
+        (response:{status:string, message?:MessageType, error?:string})=>{
+          if((response.status === 'success' || response.status === 'ok')  && response.message){
+              // TODO SET CHAT MESSAGE
+              setChatData((prev) => [...prev, response.message as MessageType]);
+          }
+          }
+      );
     }
   };
 
   const sendMessage = (rawHtml: string) => {
     const messageHtml = rawHtml;
     if (receiver && user && messageHtml.trim()) {
+      let rsUser = null;
+      if(receiver){
+        rsUser = receiver.user ? receiver.user._id : receiver.group ? receiver.group._id : null;
+      }
       const newMessage: MessageType = {
         content: messageHtml,
         sender: user._id.toString(),
@@ -150,7 +170,7 @@ const ChatInputBox: React.FC<ArgsType> = ({ setChatData, chatData, receiver }) =
         createdAt: new Date(),
       };
 
-      setChatData((prev) => [...prev, newMessage]);
+      // setChatData((prev) => [...prev, newMessage]);
       sendMessageSocket(messageHtml);
       setMessage("");
       if (editorRef.current) editorRef.current.innerHTML = "";

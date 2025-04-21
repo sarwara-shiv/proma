@@ -21,8 +21,45 @@ router.post("/users", verifyToken, async (req, res) => {
         const groups = await ChatGroup.find({ members: id })
             .populate("members", "_id name email username")
             .select("_id name description members");
+        // 3. Unread messages
+        const cUser = req.user._id;
+        console.log('**************',cUser);
+        const unreadMessages = {};
+        if(cUser){
+            const userId = cUser.toString();
+            const groupIds = await userGroupsOf(userId);
+            const messageData = await Message.find({
+                $or: [
+                {
+                    receiver: userId,
+                    'readStatus': {
+                    $elemMatch: {
+                        user: userId,
+                        status: 'unread',
+                    },
+                    },
+                },
+                {
+                    group: { $in: groupIds },
+                    'readStatus': {
+                    $elemMatch: {
+                        user: userId,
+                        status: 'unread',
+                    },
+                    },
+                },
+                ],
+            });
 
-        return res.json({ status: "success", message:'data found', code:"data found" , users, groups});
+            messageData.forEach((msg) => {
+                const key = msg.group ? msg.group.toString() : msg.sender.toString();
+                unreadMessages[key] = (unreadMessages[key] || 0) + 1;
+            });
+
+        }
+
+
+        return res.json({ status: "success", message:'data found', code:"data found" , users, groups, unreadMessages});
 
     } catch (error) {
         console.error("Error in /users:", error);
@@ -169,5 +206,10 @@ router.get("/messages", verifyToken, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+const userGroupsOf = async (userId) => {
+    const groups = await ChatGroup.find({ members: userId }).select('_id');
+    return groups.map(g => g._id);
+  };
 
 export { router as messengerRouter };

@@ -8,13 +8,17 @@ import { MessageType } from '../../../features/chat/chatTypes';
 import { ObjectId } from 'mongodb';
 import { useSocket } from "../../../context/SocketContext";
 
+// TODO
+// set like message to chat
+
 interface ArgsType{
+    setChatData: React.Dispatch<React.SetStateAction<MessageType[]>>;
     messageId:string|ObjectId,
     userId:string|ObjectId,
     chat?:MessageType
 }
 
-const ChatLike:React.FC<ArgsType> = ({messageId, userId, chat}) => {
+const ChatLike:React.FC<ArgsType> = ({messageId, userId, chat, setChatData}) => {
   const quickEmojis = ['👍','🖐️','😊', '❤️', '🔥'];
   const socket = useSocket();
   const [showReactionBox, setShowReactionBox] = useState(false);
@@ -36,7 +40,27 @@ const ChatLike:React.FC<ArgsType> = ({messageId, userId, chat}) => {
     console.log(userId)
     console.log(messageId)
     if (socket && userId && messageId) {
-        socket.emit('like-message', messageId, userId, emoji.native);
+        socket.emit('like-message', messageId, userId, emoji.native, 
+          (response:any)=>{
+            console.log(response)
+          if((response.status === 'success' || response.status === 'ok') && response.message){
+              // TODO SET CHAT MESSAGE
+              console.log(response.message);
+              setChatData((prevChat) => {
+                const index = prevChat.findIndex(msg => msg._id === response.message._id);
+            
+                if (index !== -1) {
+                  // Replace existing message
+                  const updatedChat = [...prevChat];
+                  updatedChat[index] = response.message;
+                  return updatedChat;
+                } else {
+                  // Add new message
+                  return [...prevChat, response.message];
+                }
+              });
+          }
+        });
     }else{
         console.log('no socket');
     }

@@ -3,6 +3,7 @@ import { store } from '../app/store';
 import {
   receiveMessage,
   setUnreadCount,
+  setUnreadMessages
 } from '../features/chat/chatSlice';
 import { MessageType } from '../features/chat/chatTypes';
 
@@ -21,11 +22,19 @@ export const initializeSocket = (userId: string) => {
       socket.emit('user-connected', userId);
     });
 
-    socket.on('unread-messages', (count: number) => {
-      store.dispatch(setUnreadCount(count));
+    // Listen for unread message count update for specific users/groups
+    socket.on('unread-messages', (count: number) => { 
+      store.dispatch(setUnreadCount(count)); // Set total unread count
     });
 
+    socket.on('unread-user-messages', (unreadMessages: { [key: string]: number }) => {
+      console.log('2............',unreadMessages); 
+      store.dispatch(setUnreadMessages(unreadMessages)); // Update unread messages map
+    });
+
+    // Handle receiving private, group, and admin messages
     socket.on('receive-private-message', (message: MessageType) => {
+      console.log(message);
       store.dispatch(receiveMessage(message));
     });
 

@@ -14,6 +14,7 @@ import { MdOutlineEventNote, MdOutlinePushPin, MdPushPin } from "react-icons/md"
 import ChatMenu from "./components/ChatMenu";
 import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
 import ChatLike from "./components/ChatLike";
+import { useSocket } from "../../context/SocketContext";
 
 
 const Messenger = () => {
@@ -27,10 +28,43 @@ const Messenger = () => {
     const [message, setMessage] = useState<string>("");
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const isFirstRender = useRef(true);
+    const socket = useSocket();
 
     const scrollToBottom = (smooth: boolean = true) => {
       messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+      markMessagesRead();
+
     };
+
+    const markMessagesRead = ()=>{
+      if (!chatData || !user || !socket || !receiver) return;
+
+        const unreadMessageIds = chatData
+        .filter((msg) => {
+          // Check if the message is for this receiver (private or group)
+          const isForThisChat = receiver.group
+            ? msg.group === receiver.group._id
+            : msg.sender === receiver.user?._id || msg.receiver === user._id.toString();
+    
+          // Check if the current user hasn't read it
+          const unreadForUser = msg.readStatus?.some(
+            (r) => r.user === user._id.toString() && r.status === 'unread'
+          );
+    
+          return isForThisChat && unreadForUser;
+        })
+        .map((msg) => msg._id); // Extract IDs
+    
+      if (unreadMessageIds.length > 0) {
+        socket.emit('mark-messages-read', unreadMessageIds, user._id, (response: any) => {
+          if (response?.status === 'ok') {
+            console.log('✅ Marked messages as read:', unreadMessageIds);
+          } else {
+            console.error('❌ Failed to mark messages as read');
+          }
+        });
+      }
+    }
 
 
     useEffect(() => {
@@ -38,6 +72,8 @@ const Messenger = () => {
       if (isFirstRender.current) {
         isFirstRender.current = false;
       }
+
+      console.log(chatData)
       
     }, [chatData]);
 
@@ -146,29 +182,12 @@ const Messenger = () => {
                 </div>
                 {/*  USERS SECTION */}
                 <div className="flex flex-col flex-1 w-full">
-                  {/* Menu Section */}
-                  {/* <div className="p-2 border-b">
-                    <button
-                      className="w-full text-left text-md font-bold flex justify-between items-center text-slate-800"
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    >
-                      {t('menu')}
-                      <span className="text-sm">{isMenuOpen ? <FaAngleUp /> : <FaAngleDown />}</span>
-                    </button>
-                    {isMenuOpen && (
-                      <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                        <li className="cursor-pointer hover:text-blue-500">Notes</li>
-                        <li className="cursor-pointer hover:text-blue-500">Favourites</li>
-                        <li className="cursor-pointer hover:text-blue-500">Settings</li>
-                      </ul>
-                    )}
-                  </div> */}
                   <div className="p-2 text-primary">
                       <h2 className="text-md font-bold text-slate-800">{t('users')}</h2>
                   </div>
                   {/* Contacts Section */}
                   <div className="flex-1 overflow-y-auto px-2 pt-0 pb-2 space-y-4 text-sm ">
-                    <ChatUsers setReceiver={setReceiver} setChatData={setChatData} receiver={receiver || null}/> 
+                    <ChatUsers setReceiver={setReceiver} setChatData={setChatData} receiver={receiver || null} chatData={chatData}/> 
                   </div>
                 </div>
             </div>
@@ -212,10 +231,10 @@ const Messenger = () => {
                                   justify-start px-2 py-1 max-w-[45%] right-0`}>
                                     {cUser && 
                                       <div className="absolute z-50 -left-6 opacity-0 group-hover:opacity-100">
-                                        <ChatLike messageId={chat._id || ''} userId={user?._id || ''} chat={chat}/> 
+                                        <ChatLike messageId={chat._id || ''} userId={user?._id || ''} chat={chat} setChatData={setChatData}/> 
                                       </div>
                                     }
-                                    <ChatMenu message={chat} user={user || null}/>
+                                    <ChatMenu message={chat} user={user || null} setChatData={setChatData}/>
                                     {cUser 
                                       ? <div className="absolute top-0 -right-2 w-0 h-0 border-t-[0px] border-b-[10px] border-l-[10px] border-t-transparent border-b-transparent border-l-primary-light"></div>
                                       : <div className="absolute top-0 -left-2 w-0 h-0 border-t-[0px] border-b-[10px] border-r-[10px] border-t-transparent border-b-transparent border-r-white"></div>
@@ -232,16 +251,26 @@ const Messenger = () => {
                                           <div className={` flex text-sm text-primary `} ><MdPushPin /></div>
                                       }
                                       {chat.createdAt && format(chat.createdAt, 'HH:mm')}
-                                      {chat.status === 'sent' && <IoCheckmarkSharp className="text-slate-700"/>}
-                                      {chat.status === 'delivered' && <IoCheckmarkDoneSharp className="text-slate-700"/>}
-                                      {chat.status === 'seen' && <IoCheckmarkDoneSharp className="text-primary"/>}
+                                      
+                                      {cUser && 
+                                      <>
+                                        {chat.readStatus?.some(
+                                          (rs) => rs.user === chat.receiver && rs.status === 'read'
+                                        ) ?  <IoCheckmarkDoneSharp className="text-primary" /> : 
+                                          <>
+                                          {chat.status === 'sent' && <IoCheckmarkSharp className="text-slate-700"/>}
+                                          {chat.status === 'delivered' && <IoCheckmarkDoneSharp className="text-slate-700"/>}
+                                          </>
+                                        }
+                                      </>
+                                      }
                                     </div>
                                     {chat.likes && chat.likes.length > 0 &&
                                       <div className="absolute -bottom-4">{getChatLikes(chat)} {hasUserLiked}</div>
                                     }
                                   {!cUser && 
                                       <div className="absolute z-50 transition-all duration-200 ease -right-0 opacity-0 group-hover:opacity-100 group-hover:-right-6">
-                                        <ChatLike messageId={chat._id || ''} userId={user?._id || ''} chat={chat}/> 
+                                        <ChatLike messageId={chat._id || ''} userId={user?._id || ''} chat={chat} setChatData={setChatData}/> 
                                       </div>
                                     }
                                 </div>
@@ -249,46 +278,14 @@ const Messenger = () => {
                             );
                           })}
                           <div ref={messagesEndRef} /> 
+                          
                         </div>
                       ))}
-
-                        {/* {chatData && chatData.length > 0 ? 
-                            <div className="">
-                                {chatData.map((chat, idx)=>{
-                                  //  const cUser = (idx + 1) % 2 === 0; // is even
-                                  const senderId = chat.sender ? typeof chat.sender === 'string' ? chat.sender : (chat.sender as unknown as User)._id : null;
-                                   const cUser = senderId && senderId === user?._id.toString();
-                                   return (
-                                    <div key={idx} className={`relative group w-full flex justify-${cUser ? 'end' : 'start'} my-4`}>
-                                       <ChatMenu message={chat} user={user || null}/>
-                                        <div className={`shadow-md relative flex flex-col 
-                                          items-${cUser ? 'end rounded-l-md rounded-br-md bg-primary-light': 'end rounded-r-md rounded-bl-md bg-white'} 
-                                          justify-start px-2 py-1   
-                                          max-w-[45%] right-0`
-                                          }>
-                                            {cUser 
-                                            ? 
-                                            <div className="absolute top-0 -right-2 w-0 h-0 border-t-[0px] border-b-[10px] border-l-[10px] border-t-transparent border-b-transparent border-l-primary-light"></div>
-                                            : 
-                                            <div className="absolute top-0 -left-2 w-0 h-0 border-t-[0px] border-b-[10px] border-r-[10px] border-t-transparent border-b-transparent border-r-white"></div> 
-                                            }
-                                            <div className={`w-full text-sm ${cUser ? 'text-end' : 'text-start'}`}>{chat.content}</div>
-                                            <div className="text-[10px] italic text-slate-400 flex pt-1 items-center gap-2">
-                                              {chat.createdAt && format(chat.createdAt, 'HH:ii')}
-                                              {chat.status === 'sent' && <IoCheckmarkSharp className="text-slate-700"/>}
-                                              {chat.status === 'delivered' && <IoCheckmarkDoneSharp className="text-slate-700"/>}
-                                              {chat.status === 'seen' && <IoCheckmarkDoneSharp className="text-primary"/>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    )
-                                })}
-                                <div ref={messagesEndRef} />
-                            </div>
-
-                            :
-                            <>Select a contact to start chatting</>
-                        } */}
+                      {!chatData || chatData.length <= 0 && 
+                      <div>
+                        <div className="" dangerouslySetInnerHTML={{__html: t('noChat', {username:receiver?.user?.name})}} />
+                      </div>
+                      }
                     </div>
                 </div>
 
