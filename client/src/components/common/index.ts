@@ -14,3 +14,4 @@ export { default as DigitalClock } from './DigitialClock';
 export { default as LeaveWarningPopup } from './LeaveWarningPopup';
 export { default as TimeElapsed } from './TimeElapsed';
 export { default as CustomTooltip } from './CustomTooltip';
+export { default as EmojiPicker } from './EmojiPicker';

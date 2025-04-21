@@ -9,6 +9,7 @@ import { useSocket } from "../../../context/SocketContext";
 import { ReactComponent as LogoIcon } from '../../../assets/images/svg/logo-icon.svg';
 import { MdClose, MdLogout, MdMenu } from "react-icons/md";
 import { Logo } from "../../../components/common";
+import { IoChatbubbles, IoChatbubblesOutline } from "react-icons/io5";
 
 const AdminSidebar: React.FC = () => {
     const {isSidebarOpen, setIsSidebarOpen} = useAppContext();
@@ -164,6 +165,29 @@ const AdminSidebar: React.FC = () => {
                 }
                 return null;
                 })}
+                <li key={'msgn'}>
+                    <div className="flex items-center justify-between p-1">
+                    <NavLink
+                            to={`/messenger`}
+                            className={({ isActive }) => {
+                            return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                            }}
+                        >
+                            {({ isActive }) => (
+                            <>
+                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white' : 'bg-primary-light'} p-1`}>
+                                <IoChatbubbles />
+                                </span>
+
+                                <div className="flex justify-between items-center flex-1">
+                                {t(`NAV.messenger`)}
+                                
+                                </div>
+                            </>
+                            )}
+                        </NavLink>
+                    </div>
+                </li>
             </ul>
             </div>
 

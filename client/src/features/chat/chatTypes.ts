@@ -1,7 +1,14 @@
 export interface ReadStatus {
-    userId: string;
+    user: string;
     status: 'read' | 'unread';
   }
+export interface ILikes {
+    user: string;
+    text: string;
+}
+export interface IPinned {
+    user: string;
+}
   
   export interface MessageType {
     _id?: string;
@@ -13,8 +20,9 @@ export interface ReadStatus {
     createdAt?: Date;
     updatedAt?: Date;
     status: 'sent' | 'delivered' | 'seen';
-    likes: string[];
-    pinned: 'none' | 'personal' | 'group';
+    likes?: ILikes[];
+    stars?: string[];
+    pinned?: {personal: string[], group:{ type: Boolean, default: false }};
     replyTo?: string;
   }
 

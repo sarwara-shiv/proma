@@ -102,7 +102,6 @@ export const initializeSocket = (server, app) => {
             
             const res = await message.save();
             const receiverSocketId = onlineUsers.get(receiverId);
-            console.log('----------------',res, '-------',receiverId,'=====', receiverSocketId,'######', onlineUsers);
             if (receiverSocketId) {
                 console.log('------ emitting----',onlineUsers);
                 io.to(receiverSocketId).emit("receive-private-message", message); 
@@ -145,41 +144,118 @@ export const initializeSocket = (server, app) => {
             io.emit('receive-admin-message', message); 
         });
 
-        // Like a message
-        socket.on('like-message', async (messageId, userId) => {
+        // Star or Unstar a message
+        socket.on('star-message', async (messageId, userId) => {
+            try {
             const message = await Message.findById(messageId);
-
-            // Prevent the same user from liking the same message more than once
-            if (message && !message.likes.includes(userId)) {
-                message.likes.push(userId);
-                await message.save();
-                io.emit('message-liked', messageId, userId);
+            if (!message) return;
+        
+            const index = message.stars.indexOf(userId);
+        
+            if (index === -1) {
+                // ⭐ Not starred yet → Star it
+                message.stars.push(userId);
+            } else {
+                // ❌ Already starred → Unstar it
+                message.stars.splice(index, 1);
+            }
+        
+            await message.save();
+        
+            // Notify clients
+            io.emit('message-stared', messageId, userId);
+            } catch (err) {
+            console.error("Error in star-message:", err);
             }
         });
+  
 
-        // Pin a message (Personal or Group Pin)
+        // Pin or Unpin a message (Personal or Group)
         socket.on('pin-message', async (messageId, userId, pinType) => {
+            try {
             const message = await Message.findById(messageId);
-            const group = await ChatGroup.findOne({ members: userId, _id: message.group });
-
-            if (message) {
-                if (pinType === 'personal') {
-                    message.pinned = 'personal';
-                    await message.save();
-                    socket.emit('message-pinned', messageId, pinType);
-                } else if (pinType === 'group' && group) {
-                    // Group-wide pin logic
-                    message.pinned = 'group';
-                    await message.save();
-
-                    // Add this message to the group's pinnedMessages array
-                    group.pinnedMessages.push(messageId);
-                    await group.save();
-
-                    io.to(message.group).emit('message-pinned', messageId, pinType); // Broadcast to group
+            if (!message) return;
+        
+            const isGroupMessage = !!message.group;
+        
+            // Ensure pinned structure exists
+            if (!message.pinned) {
+                message.pinned = { personal: [], group: false };
+            }
+        
+            // --- Personal Pin ---
+            if (pinType === 'personal' && !isGroupMessage) {
+                const index = message.pinned.personal.indexOf(userId);
+                if (index === -1) {
+                // Not pinned yet → Pin it
+                message.pinned.personal.push(userId);
+                } else {
+                // Already pinned → Unpin it
+                message.pinned.personal.splice(index, 1);
                 }
+                await message.save();
+                socket.emit('message-pinned', messageId, pinType);
+            }
+        
+            // --- Group Pin ---
+            if (pinType === 'group' && isGroupMessage) {
+                const group = await ChatGroup.findOne({ _id: message.group, members: userId });
+                if (!group) return;
+        
+                if (message.pinned.group === true) {
+                // Unpin it
+                message.pinned.group = false;
+                group.pinnedMessages = group.pinnedMessages.filter(
+                    (msgId) => msgId.toString() !== message._id.toString()
+                );
+                } else {
+                // Pin it
+                message.pinned.group = true;
+                if (!group.pinnedMessages.includes(message._id)) {
+                    group.pinnedMessages.push(message._id);
+                }
+                }
+        
+                await message.save();
+                await group.save();
+        
+                io.to(message.group.toString()).emit('message-pinned', messageId, pinType);
+            }
+            } catch (err) {
+            console.error("Error in pin-message:", err);
             }
         });
+  
+          
+
+        // Like a message (add or update a like on a message)
+        socket.on('like-message', async (messageId, userId, emoji) => {
+            try {
+            const message = await Message.findById(messageId);
+            if (!message) return;
+        
+            // Remove existing like from same user (if any)
+            message.likes = message.likes.filter(like => like.user.toString() !== userId);
+        
+            // Add new like
+            message.likes.push({ text: emoji, user: userId });
+            await message.save();
+        
+            // Emit to the sender only (if it's a personal message)
+            if (message.receiver) {
+                io.to(message.sender.toString()).emit('message-liked', messageId, userId, emoji);
+                io.to(message.receiver.toString()).emit('message-liked', messageId, userId, emoji);
+            }
+        
+            // Emit to the group if it's a group message
+            if (message.group) {
+                io.to(message.group.toString()).emit('message-liked', messageId, userId, emoji);
+            }
+            } catch (error) {
+            console.error("Error in like-message:", error);
+            }
+        });
+  
 
         // Reply to a message
         socket.on('reply-to-message', async (messageId, replyContent, userId) => {
@@ -202,7 +278,7 @@ export const initializeSocket = (server, app) => {
             const message = await Message.findById(messageId);
 
             // Find the read status for the specific user and update it to 'read'
-            const userStatus = message.readStatus.find(status => status.userId.toString() === userId.toString());
+            const userStatus = message.readStatus.find(status => status.user.toString() === userId.toString());
             if (userStatus && userStatus.status === 'unread') {
                 userStatus.status = 'read';
                 await message.save();
@@ -211,6 +287,15 @@ export const initializeSocket = (server, app) => {
                 io.emit('message-read', { messageId, userId, status: 'read' });
             }
         });
+
+        socket.on('mark-messages-read', async (messageIds, userId) => {
+            const update = await Message.updateMany(
+              { _id: { $in: messageIds }, 'readStatus.user': userId, 'readStatus.status': 'unread' },
+              { $set: { 'readStatus.$.status': 'read' } }
+            );
+          
+            io.emit('messages-read', { messageIds, userId });
+          });
 
 
         // logout user

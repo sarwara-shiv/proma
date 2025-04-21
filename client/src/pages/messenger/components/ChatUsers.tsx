@@ -31,10 +31,13 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver}) => {
     
         const handlePrivateMessage = (message: MessageType) => {
             console.log("📩 New private message received:", message);
-    
+            const audio = new Audio('/sounds/notification.wav');
+            
             if (receiver?.user && message.sender === receiver.user._id) {
                 setChatData((prev: MessageType[]) => [...prev, message]);
             } else {
+                audio.play().catch(err => console.warn("🔇 Unable to play sound:", err));
+                setChatData((prev: MessageType[]) => [...prev, message]);
                 setNewMessages((prev) => [
                     ...prev,
                     { senderId: message.sender, message, type:'user' },
@@ -83,6 +86,12 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver}) => {
                         users: response.users,
                         groups: response.groups
                     });
+
+                    if (response.users.length > 0) {
+                        handleSelect({ user: response.users[0] });
+                    } else if (response.groups.length > 0) {
+                        handleSelect({ group: response.groups[0] });
+                    }
                 }
                 setLoading(false);
             }
