@@ -4,6 +4,7 @@ import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from 'react-icon
 
 interface CustomTimePickerProps {
   value?: string;
+  defaultTime?:string;
   onChange: (value: string) => void;
   minTime?: string;
   maxTime?: string;
@@ -31,6 +32,7 @@ const from24To12 = (hour: number) => ({
 
 const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
   value,
+  defaultTime,
   onChange,
   minTime,
   maxTime,
@@ -74,7 +76,7 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
 
   useEffect(() => {
     // Set default value if no value is provided
-    const defaultValue = value || getCurrentTime();
+    const defaultValue = defaultTime || getCurrentTime();
     const [h, m] = defaultValue.split(':').map(Number);
     if (!is24Hour) {
       const { hour: h12, isAM } = from24To12(h);
@@ -121,38 +123,36 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
     }
 
     setError('');
-    onChange(formatted);
+    // onChange(formatted);
   };
 
-  const handleInputChange = (type: 'hour' | 'minute', value: string) => {
-    let cleaned = value.replace(/\D/g, '').slice(0, 2); // Only allow up to 2 digits
-    console.log(value);
-    // Allow "00" for hour or minute input
-    if (cleaned === '00') {
-      cleaned = '00';
+  useEffect(() => {
+    if (!popup) {
+      const h = is24Hour ? parseInt(hour) : from12To24(parseInt(hour) || 0, ampm === 'AM');
+      const m = parseInt(minute) || 0;
+      const formatted = `${pad(h)}:${pad(m)}`;
+      onChange(formatted);
     }
+  }, [hour, minute, ampm]);
+
+  const handleInputChange = (type: 'hour' | 'minute', value: string) => {
+    let cleaned = value.replace(/\D/g, '').slice(0, 2);
   
-    // Ensure hour is in the correct range
     if (type === 'hour') {
       if (is24Hour) {
-        // If 24-hour format, ensure hour is between 00-23
         cleaned = Math.min(23, Math.max(0, parseInt(cleaned) || 0)).toString();
       } else {
-        // If 12-hour format, ensure hour is between 01-12
         cleaned = Math.min(12, Math.max(1, parseInt(cleaned) || 1)).toString();
       }
-      console.log(value,': ', cleaned);  
-
-      if(value.length === 2 && value === "00") cleaned = "00";
-      if(value.length === 2 && parseInt(value) === parseInt(cleaned)) cleaned = value;
       setHour(cleaned);
-      if(value.length === 2) setTimeout(() => {minutesInputRef.current?.focus(); minutesInputRef.current?.select()}, 0);
+      if (value.length === 2) {
+        setTimeout(() => {
+          minutesInputRef.current?.focus();
+          minutesInputRef.current?.select();
+        }, 0);
+      }
     } else {
-      // Ensure minutes are between 00-59
       cleaned = Math.min(59, Math.max(0, parseInt(cleaned) || 0)).toString();
-      if(value.length === 2 && value === "00") cleaned = "00";
-      if(value.length === 2 && parseInt(value) === parseInt(cleaned)) cleaned = value;
-      // Allow "00" for minutes
       setMinute(cleaned);
     }
   };
@@ -200,6 +200,7 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       adjustTime(type, -1);
+      
     } else if (e.key === 'Enter') {
       validateAndSubmit();
       if (popup) setIsOpen(false);
@@ -290,14 +291,14 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({
       {isOpen && (
         <div className="absolute z-10 mt-1 p-3 bg-white border rounded shadow-md">
           {renderInputs()}
-          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+          {error && <div className="rounded-md shadow border border-red-500 fixed p-1 text-xs bg-white w-fit right-2 top-[100%] text-red-500 text-sm mt-2">{error}</div>}
         </div>
       )}
     </div>
   ) : (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} className='relative'>
       {renderInputs()}
-      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+      {error && <div className="rounded-md shadow border border-red-500 fixed p-1 text-xs bg-white w-fit right-2 top-[100%] text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 };

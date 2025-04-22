@@ -8,6 +8,7 @@ import { MdOutlineKeyboardArrowDown, MdPause } from "react-icons/md";
 import CloseDailyReport from "./CloseDailyReport";
 import { CustomPopupType, DailyReport } from "../../../interfaces";
 import CustomContextMenu from "../../../components/common/CustomContextMenu";
+import ReactDOM from "react-dom";
 
 
 const ToggleDailyReport = ()=>{
@@ -19,6 +20,7 @@ const ToggleDailyReport = ()=>{
     useEffect(()=>{
         if(!activeDailyReport){
             getActiveReport();
+
         }
     },[])
 
@@ -60,15 +62,15 @@ const ToggleDailyReport = ()=>{
     }
 
     // open popup
-    const openDailyReport = ()=>{
-        setCustomPopupData((res:CustomPopupType)=>{
-            return ({...res, isOpen:true, data:'', 
-            content:<>
-                <CloseDailyReport />   
-                </>
-            })
-        })
-    }
+    // const openDailyReport = ()=>{
+    //     setCustomPopupData((res:CustomPopupType)=>{
+    //         return ({...res, isOpen:true, data:'', 
+    //         content:<>
+    //             <CloseDailyReport />   
+    //             </>
+    //         })
+    //     })
+    // }
 
 
     // close popup
@@ -106,10 +108,18 @@ const ToggleDailyReport = ()=>{
 
     return (
         <div>
+            {isOldReport && ReactDOM.createPortal(
+                <div className="fixed w-dvw h-dvh flex justify-center items-center bg-white bg-opacity-50 top-0 left-0 z-50 p-2 d-none"> 
+                    <div className="w-full max-w-[500px] p-2 bg-primary-light">
+                        Hi
+                    </div>
+                </div>,
+                document.body
+            ) }
             <div className="toggle-report">
-                <div className="toggle-btn flex flex-wrap gap-1 py-0 px-1 items-center bg-primary-light rounded-full">
+                <div className={`toggle-btn flex flex-wrap gap-1 py-0 px-1 items-center ${isOldReport ? 'bg-red-200 shadow-lg shadow-red-300' : 'bg-primary-light '} rounded-full`}>
                     {activeDailyReport ?
-                    <div className="cursor-pointer hover:text-primary flex flex-row" >
+                    <div className={`cursor-pointer ${isOldReport ? 'text-red-500' : ' hover:text-primary'}  flex flex-row`} >
                     <CustomContextMenu showIcon={false} maxWidth={400} text={<>
                             {/* <DigitalClock /> */}
                             {activeDailyReport.status === 'paused' ? <><MdPause /> {t('paused')}</>: 
@@ -117,7 +127,7 @@ const ToggleDailyReport = ()=>{
                             }
                             <MdOutlineKeyboardArrowDown className="text-2xl"/>
                         </>}>
-                        <CloseDailyReport />
+                        <CloseDailyReport dataType={isOldReport ? 'oldReport' : 'default'} setIsOldReport={setIsOldReport}/>
                     </CustomContextMenu>
                 </div>
                     :

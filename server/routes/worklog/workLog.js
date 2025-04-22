@@ -50,6 +50,10 @@ router.post("/start", verifyToken, async (req, res) => {
             createNew = true;
         }
 
+        if(activeWorkLog && activeWorkLog.task.toString() !== task){
+            createNew = true;
+        }
+
         // Stop active work log if required
         if (stopOld && activeWorkLog) {
             activeWorkLog.status = 'completed';

@@ -80,7 +80,8 @@ router.post("/start", verifyToken, async (req, res) => {
 router.post("/stop", verifyToken, async (req, res) => {
     const { id, notes='', endDate= new Date(), startDate=null} = req.body.data; 
     try{
-
+        console.log(endDate);
+        console.log(startDate);
         if(!id){
             return res.json({ status: "error", message: 'ID not found', code: "missing_id" });
         }
@@ -95,14 +96,20 @@ router.post("/stop", verifyToken, async (req, res) => {
         dailyReport.status = 'closed';
         dailyReport.endDate = endDate; // Set the current date-time as end time
         dailyReport.notes = notes; // Update notes with data from request body (if provided)
-
         // Recalculate the duration based on the new endDate
-        const totalTimeMs = endDate.getTime() - new Date(dailyReport.startDate).getTime();
+
+        console.log('startDate: ', dailyReport.startDate);
+        console.log('endDate: ', endDate);
+
+        const totalTimeMs = new Date(endDate).getTime() - new Date(dailyReport.startDate).getTime();
+        console.log('------');
         const totalPausedMs = dailyReport.paused.reduce((acc, p) => {
           const start = new Date(p.startTime).getTime();
           const end = new Date(p.endTime || date).getTime();
           return acc + (end - start);
         }, 0);
+
+        console.log('------');
         dailyReport.totalDuration = Math.round((totalTimeMs - totalPausedMs) / (1000 * 60)); // Duration in minutes
 
         const workLog = await WorkLog.findOne({
@@ -113,7 +120,7 @@ router.post("/stop", verifyToken, async (req, res) => {
           if (workLog) {
             // Mark the work log as completed
             workLog.status = "completed";
-            workLog.endDate = date; // Set end date for the work log
+            workLog.endDate = endDate; // Set end date for the work log
             await workLog.save(); // Save the updated work log
           }
 
@@ -124,9 +131,10 @@ router.post("/stop", verifyToken, async (req, res) => {
          return res.status(200).json({ status: "success", message:'Daily Report Stopped', code:"report_stopped", data:'' });
         
     }catch(error){
+      console.log(error);
         return res.status(500).json({
             status: "error",
-            message: "Unknown error",
+            message: error,
             code: "unknown_error"
         });
     }
