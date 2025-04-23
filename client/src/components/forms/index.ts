@@ -12,3 +12,4 @@ export { default as SelectDateTime } from './SelectDateTime';
 export { default as ClickToEdit } from './ClickToEdit'; 
 export { default as ClickToEditNumber } from './ClickToEditNumber'; 
 export { default as ToggleBtnWithUpdate } from './ToggleBtnWithUpdate'; 
+export { default as SmartInput } from './SmartInput'; 

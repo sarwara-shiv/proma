@@ -14,6 +14,7 @@ import { logChanges } from '../utils/ChangeLog.js';
 // import { upsertToChroma, deleteFromChroma, searchInChroma } from '../pinecone/chromadb.js';
 // import { processTasksQuery } from '../openai/tasksSearch.js';
 import { processTasksQuery} from '../openai/tasksSearchTA.js';
+import { processTaskSchemaQuery} from '../openai/tasksSchemaSearch.js';
 import { updateUserWorkload } from '../utils/dbUtilFunctions.js';
 
 const router = express.Router();
@@ -782,7 +783,8 @@ router.post('/:resource/search', verifyToken, async (req, res) => {
   console.log(query);
   try {
     if(resource === 'tasks' || resource === "maintasks"){
-      const searchResults = await processTasksQuery(query);
+      // const searchResults = await processTasksQuery(query);
+      const searchResults = await processTaskSchemaQuery(query);
       console.log("-------------------");
       console.log("-------------------");
       console.log("-------------------");
@@ -794,6 +796,52 @@ router.post('/:resource/search', verifyToken, async (req, res) => {
   }
 
 })
+
+
+// search user by username
+// Search by name for a given model (resource) dynamically
+router.get('/:resource/search-by-name', async (req, res) => {
+  const { resource } = req.params;
+  const query = req.query.name;
+  const { role } = req.query; // Optional role filter
+  
+  // Dynamically get the model based on the resource
+  const model = getModel(resource); // Assuming getModel maps 'resource' to a model (like UserModel, TaskModel, etc.)
+  
+  console.log(resource);
+  if (query && model) {
+    try {
+      let filter = { name: { $regex: query, $options: 'i' } }; // Search filter for the name field
+      
+      // If the type is 'auth' (special case), apply the default role filter
+      if (resource === 'users') {
+        const clientRole = await UserRolesModel.findOne({ name: "client" });
+        if (!clientRole) {
+          return res.status(400).json({ status: "error", message: "Client role not found." });
+        }
+
+        // Default role filter for 'users' (if not 'auth')
+        if (!role || role.toLowerCase() !== "auth") {
+          filter.roles = { $nin: [clientRole._id] };
+        }
+      }
+
+      // Dynamically fetch the data from the model using the filter
+      const results = await model.find(filter).limit(10); // Limiting the results to 10
+
+      return res.json({
+        status: "success",
+        message: `${resource} found`,
+        code: `${resource}_found`,
+        data: results
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  } else {
+    return res.status(400).json({ message: 'Invalid query or model' });
+  }
+});
 
 
 

@@ -373,6 +373,28 @@ const searchUserByUsername = async(args:SearchByUsername)=>{
     return { status: "error", code: "invalid_data" };
   }
 }
+interface ISearchByName {
+  query:string,
+  type:'users' | 'tasks' | 'projects';
+}
+const searchByName = async(args:ISearchByName)=>{
+  const {query, type} = args;
+  if(query && type){
+    try{
+      const response = await axios.get(`${API_URL}/resource/${type === 'users' ? 'auth' : type}/search-users?name=${query}`, 
+        {
+          headers,
+          withCredentials: true 
+      });
+
+      return response.data;
+    }catch(error){
+      return { status: "error", code: "unknown_error", message:error, error };
+    }
+  }else{
+    return { status: "error", code: "invalid_data" };
+  }
+}
 
 // ------------------ WORKLOG
 // ------------------ 
@@ -558,6 +580,7 @@ export {
   stopWorkLog,
   updateWorkLog, 
   searchTasksAI,
+  searchByName,
   searchUserByUsername, 
   getRecords, 
   deleteRecordById, 

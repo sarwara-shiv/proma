@@ -12,7 +12,7 @@ import { IoPlay, IoPauseSharp } from "react-icons/io5";
 import { useAppContext } from '../../../../context/AppContext';
 import { filterTaskByProject } from '../../../../utils/tasksUtils';
 import MyTasksByProject from './MyTasksByProject';
-import { CustomInput, RichTextArea } from '../../../../components/forms';
+import { CustomInput, RichTextArea, SmartInput } from '../../../../components/forms';
 import { JSX } from 'react/jsx-runtime';
 import {useAuthContext } from '../../../../context/AuthContext';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
@@ -552,6 +552,7 @@ const AllMyTasks = () => {
     <div className='p-4'>
         {loader ? <Loader type='full'/>: 
         <>
+                <SmartInput onClick={(event)=>console.log(event)} />
             <div className='flex items-center'>
                 <CustomInput type='text' onChange={(event)=>setQueryString(event.target.value)} />
                 <CustomSmallButton type='search'  icon={<IoMdSearch/>} onClick={()=>searchTasks(queryString)}/>
