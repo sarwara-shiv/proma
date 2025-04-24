@@ -381,7 +381,7 @@ const searchByName = async(args:ISearchByName)=>{
   const {query, type} = args;
   if(query && type){
     try{
-      const response = await axios.get(`${API_URL}/resource/${type === 'users' ? 'auth' : type}/search-users?name=${query}`, 
+      const response = await axios.get(`${API_URL}/resource/${type === 'users' ? 'auth' : type}/search-by-name?name=${query}`, 
         {
           headers,
           withCredentials: true 

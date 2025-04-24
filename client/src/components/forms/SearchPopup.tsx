@@ -36,8 +36,8 @@ const SearchPopup: React.FC<ArgsType> = ({ query, onSelect, onClose, type="users
     }
   }, [query]);
 
-  return ReactDOM.createPortal(
-    <div className="absolute bg-white border border-gray-300 shadow-lg mt-2 p-2 z-10 top-[1.5rem] min-h-2"> 
+  return (
+    <div className="relative bg-white border border-gray-300 shadow-lg  p-2 z-10 top-0 min-h-2"> 
       <ul className="text-sm">
         {users.map((user) => (
           <li
@@ -52,9 +52,8 @@ const SearchPopup: React.FC<ArgsType> = ({ query, onSelect, onClose, type="users
           </li>
         ))}
       </ul>
-    </div>,
-    document.body // Here we use `document.body` to render the portal at the top level
-  );
+    </div>
+    )
 };
 
 export default SearchPopup;

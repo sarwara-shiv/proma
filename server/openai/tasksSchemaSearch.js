@@ -24,19 +24,26 @@ const taskSchemaFields = [
         You are an assistant that extracts structured data from user queries related to task management.
         Your task is to identify the type of request and extract key details about tasks or projects from the query.
         The query might include information about tasks assigned to specific users, their status, priority, or status other than particular status, user other than particular user etc.
-        
+        Note: Queries may include entities in the form NAME:(CID)—for example “PROMA:(PR100)” where “PROMA” is the project name and “PR100” is its _cid.  
+        Whenever you see NAME:(CID) for a project, emit:
+          "project": { "name": NAME, "_cid": CID }
+        Similarly for tasks and users:
+          "task":    { "name": NAME, "_cid": CID }
+          "user":    { "name": NAME, "_cid": CID }
+        Use the parenthesized value strictly as _cid and the text before the colon as name.
+
         The fields to be extracted are:
-        - reqType: 'get' | 'create' | 'update'  (based on action implied in query)
+        - reqType: 'get' | 'create' | 'update'  (based on action implied in query example: assign task to = update)
         - limit: number (optional, how many result to return)
         - intent: task-related query intent, including one of the following: 
           ['search_tasks', 'update_tasks', 'recent_tasks', 'completed_tasks', 'in_progress_tasks', 'todo_tasks', 'search_project', 'tasks_assigned', 'tasks_with_project', 'tasks_with_priority', 'rework_tasks']
         - user: string (optional, refers to the user field, e.g., "assignedTo")
-        - id: string (optional, refers to the task _id, e.g., "6702f910c130d21c3275d38f")
-        - cid: string (optional, refers to the task _cid field, e.g., "TA1019")
+        - id: string (optional, refers to the task, project or user _id, e.g., "6702f910c130d21c3275d38f")
+        - cid: string (optional, refers to the task, project or user _cid field, e.g., Task cid "TA1019", Project cid PR100 and User cid US100)
         - name: string (optional, refers to the task name field, e.g., "Kickoff page")
         - project: string (optional, refers to the project field)
         - taskType: string (optional, task type, e.g., "Task", "QaTask")
-        - status: string (optional, the task status options 'toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview', 'approved', if reqType is create then default is toDo)
+        - status: string (optional, the task status options 'toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview', 'approved', if reqType is create and status is missing then status is toDo )
         - priority: string (optional, referst to task priority like 'high', 'low', 'medium')
         - storyPoints: number (optional, this is difficulty level of the task and refers to task storyPoints options 1,2,3,5,8,13)
         - expectedTime: number (optional, This is expected time to finish the task and refers to task expectedTime in hours)
@@ -45,6 +52,23 @@ const taskSchemaFields = [
         - dateType: 'startDate' | 'endDate' | 'dueDate' (optional)
         - startDate, endDate, dueDate: ISO format dates (optional)
         
+        Note: query might include following for project  **PROMA:(PR100)**, where PROMA is project name and PR100 is project _cid, similarly for task and user. for query _cid is important.
+        create json only based on what values are provided do not assume values. 
+        example query: in task task Main Tasks (TA1078) change status to completed
+        wrong: {
+            "reqType": "update",
+            "intent": "update_tasks",
+            "cid": "TA1078",
+            "status": {"$eq": "inProgress"},
+            "updateFields": {"$set": {"status": "completed"}}
+        }
+        correct: {
+            "reqType": "update",
+            "intent": "update_tasks",
+            "cid": "TA1078",
+            "updateFields": {"$set": {"status": "completed"}}
+        }
+
         always match the field values to provided options above if not from these options then use default value or skip the field
         if there is status with not equal to intent then convert it to relevent object for example if status is not equal to completed then convert it to 
         status: {'$ne': 'completed'}. Do same for all other fields.
@@ -88,6 +112,7 @@ const taskSchemaFields = [
             "updateFields": {"$set": {"status": "inProgress", "priority": "low"}},
             "limit": 20
         }
+
         if multiple field updates then change accordingly. and put all update fields inside updateFields for example: "updateFields": {"$set": {"status": "inProgress", "priority": "low"}}.
         do not place in root json.
         get values from set of values provided above if not there then exclude field
@@ -376,7 +401,7 @@ async function processTaskSchemaQuery(userQuery) {
         console.error("Unknown intent detected");
         return {};
       }
-  
+      let summary = "";
       // Dynamically build the MongoDB query
       if (result.intent.includes("tasks")) {
         if (result.intent.includes("recent")) {
@@ -416,10 +441,52 @@ async function processTaskSchemaQuery(userQuery) {
           const today = new Date().toISOString().split("T")[0];
           mongoQuery.filter.dueDate = today;
         }
+        
+        switch (result.reqType) {
+          case "get":
+            summary = `I will retrieve up to ${mongoQuery.limit} ` +
+                      `task${mongoQuery.limit>1?"s":""}`;
+            if (Object.keys(mongoQuery.filter).length) {
+              const filters = Object.entries(mongoQuery.filter)
+                .map(([k,v])=>`${k} = ${JSON.stringify(v)}`)
+                .join(", ");
+              summary += ` where ${filters}`;
+            }
+            summary += ".";
+            break;
+      
+          case "update":
+            summary = `I will update task `;
+            if (result._cid) summary += `with CID ${result._cid} `;
+            else if (result._id) summary += `with ID ${result._id} `;
+            summary += "by setting ";
+            if(result.updateFields
+              && typeof result.updateFields === 'object'
+              && result.updateFields.$set
+              && typeof result.updateFields.$set === 'object'
+            ){
+              const sets = Object.entries(result.updateFields.$set)
+                .map(([k,v])=>`${k} to "${v}"`)
+                .join(" and ");
+                summary += sets + ".";
+            }
+            break;
+      
+          case "create":
+            summary = `I will create a new task`;
+            if (result.name) summary += ` named "${result.name}"`;
+            if (result.project) summary += ` in project "${result.project}"`;
+            summary += ".";
+            break;
+      
+          default:
+            summary = "Performing your requested operation.";
+        }
+
       }
   
       console.log("Generated MongoDB Query:", mongoQuery);
-      return mongoQuery;
+      return {summary, mongoQuery};
     } catch (error) {
       console.error("Error processing query:", error);
       return {};
