@@ -39,11 +39,11 @@ interface ExactDate {
 // Filters
 export interface NotEqualTo {
     type:'notEqualTo'; 
-    value?:string;  
+    value?:string|string[];  
 }
 
 export interface QueryFilters {
-    [key: string]: string | number | RangeFilter | boolean | ExactDate | NotEqualTo; 
+    [key: string]: string | number | RangeFilter | boolean | ExactDate | NotEqualTo | string[]; 
 }
 
 // -1 descending order, 1 ascending order

@@ -617,7 +617,10 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
     // Dynamically construct the query object based on filterData
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
-
+      if (Array.isArray(value)) {
+        // ✅ If value is an array (e.g., ["active", "pending"])
+        queryObj[key] = { $in: value };
+      }else 
       // If the value is an object, check if it's a range (e.g., { from: X, till: Y })
       if (typeof value === 'object' && value !== null) {
 
@@ -673,7 +676,14 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
 
         // not equal to
         if(value.type === 'notEqualTo'){
-          queryObj[key] = { $ne: value.value };
+          // queryObj[key] = { $ne: value.value };
+          if (Array.isArray(value.value)) {
+            // If value is an array => use $nin (Not In array)
+            queryObj[key] = { $nin: value.value };
+          } else {
+            // Single value => use $ne (Not Equal)
+            queryObj[key] = { $ne: value.value };
+          }
         }
 
         
@@ -857,6 +867,158 @@ router.get('/:resource/search-by-name', async (req, res) => {
     return res.status(400).json({ message: 'Invalid query or model' });
   }
 });
+
+/**
+ * 
+ * GET RECORD TOTALS
+ * 
+ */
+router.get('/:resource/get-totals', async (req, res) => {
+  const { resource } = req.params;
+  let filters = req.query || {}; // Get filters from query params
+
+  // Handle the `selectFields` if provided, otherwise set it to null
+  const selectFields = filters.selectFields ? filters.selectFields.split(',').join(' ') : null;
+
+  // Check if 'ids' field is present in filters (make it optional)
+  const fetchIds = filters.ids ? true : false;
+
+  // check if overdue 
+  let isOverdue = filters.overdue;
+
+  // Remove `selectFields` and `ids` from the filters to avoid them in the query object
+  delete filters.selectFields;
+  delete filters.ids;
+  delete filters.overdue;
+
+  const model = getModel(resource);
+
+  console.log(req.query);
+
+  if (!model) {
+    return res.status(500).json({ status: 'error', message: 'model not found', code: 'model_not_found' });
+  }
+
+  try {
+    const queryObj = {};
+
+    Object.keys(filters).forEach((key) => {
+      let value = filters[key];
+
+      try {
+        // Attempt to parse JSON if possible (for range or complex filters passed as stringified JSON)
+        value = JSON.parse(value);
+      } catch (e) {
+        // It's a simple string value, no problem
+      }
+      if (Array.isArray(value)) {
+        // ✅ If value is an array (e.g., ["active", "pending"])
+        queryObj[key] = { $in: value };
+      }else 
+      if (typeof value === 'object' && value !== null) {
+        // RANGE handling
+        if (value.from || value.till) {
+          if (value.type === 'date') {
+            queryObj[key] = {};
+
+            if (value.from) {
+              let fromDate = new Date(value.from);
+              if (value.format) {
+                fromDate = value.from ? moment(value.from, value.format).toDate() : null;
+              }
+              queryObj[key].$gte = fromDate;
+            }
+
+            if (value.till) {
+              let tillDate = new Date(value.till);
+              if (value.format) {
+                tillDate = value.till ? moment(value.till, value.format).toDate() : null;
+              }
+              queryObj[key].$lte = tillDate;
+            }
+          }
+
+          if (value.type === 'number') {
+            queryObj[key] = {};
+            if (value.from) {
+              queryObj[key].$gte = parseInt(value.from);
+            }
+            if (value.till) {
+              queryObj[key].$lte = parseInt(value.till);
+            }
+          }
+        }
+
+        // EXACT date
+        if (value.date) {
+          const format = value.format || 'DD.MM.YYYY';
+          const fromDate = moment(value.date, format).startOf('day').toDate();
+          const tillDate = moment(value.date, format).endOf('day').toDate();
+
+          queryObj[key] = { $gte: fromDate, $lte: tillDate };
+        }
+
+        // NOT EQUAL
+        if (value.type === 'notEqualTo') {
+          if (Array.isArray(value.value)) {
+            // If value is an array => use $nin (Not In array)
+            queryObj[key] = { $nin: value.value };
+          } else {
+            // Single value => use $ne (Not Equal)
+            queryObj[key] = { $ne: value.value };
+          }
+        }
+
+      } else {
+        if (value === 'empty') {
+          queryObj[key] = {
+            $exists: true,
+            $nin: [null, ""]
+          };
+        } else if (value === 'null') {
+          queryObj[key] = null;
+        } else {
+          queryObj[key] = value;
+        }
+      }
+    });
+
+    if (isOverdue) {
+      // If 'overdue' is a string and equals 'yes' or 'true'
+      if (typeof isOverdue === 'string' && (isOverdue === 'yes' || isOverdue === 'true')) {
+        const currentDate = new Date();
+        queryObj.dueDate = { $lt: currentDate }; // Filter for overdue tasks
+      } else if (typeof isOverdue === 'boolean' && isOverdue === true) {
+        const currentDate = new Date();
+        queryObj.dueDate = { $lt: currentDate }; // Filter for overdue tasks
+      } else {
+        // If the `overdue` filter doesn't match the condition, use it as a field key
+        queryObj[isOverdue] = true;  // For cases where `overdue` is another field name
+      }
+    }
+
+    const totalRecords = await model.countDocuments(queryObj);
+    let recordIds = [];
+    let fieldData = [];
+
+    if (selectFields) {
+      fieldData = await model.find(queryObj).select(selectFields).lean();
+      if(fetchIds) recordIds = fieldData.map(r => r._id);
+    } else {
+      const records = await model.find(queryObj).select('_id').lean();
+      if(fetchIds)recordIds = records.map(r => r._id);
+    }
+
+    return res.status(200).json({ status: 'success', message: 'found', totalRecords, recordIds, fieldData });
+
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message, code: 'server_error' });
+  }
+});
+
+
+
+
 
 
 

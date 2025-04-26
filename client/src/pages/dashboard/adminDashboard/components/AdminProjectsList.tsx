@@ -10,6 +10,7 @@ interface ArgsType {
 }
 const AdminProjectsList:React.FC<ArgsType> = ({isAdmin, isManager})=>{
     const [projectsData, setProjectsData] =  useState<Project[]>([]);
+    const [totalRunningProjects, setTotalRunningProjects] =  useState<number>();
 
     useEffect(()=>{
         getData();

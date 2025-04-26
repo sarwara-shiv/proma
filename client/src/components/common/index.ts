@@ -16,3 +16,4 @@ export { default as TimeElapsed } from './TimeElapsed';
 export { default as CustomTooltip } from './CustomTooltip';
 export { default as EmojiPicker } from './EmojiPicker';
 export { default as Pagination } from './Pagination';
+export { default as NumberCard } from './NumberCard';

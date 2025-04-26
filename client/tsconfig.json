@@ -21,7 +21,9 @@
     "jsx": "react-jsx",                  // Use the new JSX transform (for React 17+)
     "baseUrl": "src",                    // Set the base directory for module resolution
     "paths": {
-      "@/*": ["./*"]                     // Simplify imports by allowing "@" to refer to the "src" directory
+      "@/*": ["*"],  
+      "@/context/*": ["context/*"]
+                    
     },
     "typeRoots": [
       "./node_modules/@types",           // Default type definitions
@@ -29,9 +31,7 @@
       "./src/@types"                     // Custom types in the "src/@types" folder (optional)
     ]
   },
-  "include": [
-    "src"                                // Include everything under the "src" directory
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules"                       // Exclude the "node_modules" directory
   ]

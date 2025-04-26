@@ -86,6 +86,64 @@ const getRecordsWithLimit = async (args: GetRecorsWithLimit) => {
   }
 };
 
+/**
+ * 
+ * GET TOTAL RECORDS
+ * 
+ */
+interface IGetTotalRecords { 
+  type: string;
+  filters?: QueryFilters;
+  ids?:'true' | 'false';
+  overdue?:string;
+  selectFields?:string // comma sperated field names
+}
+
+const getTotalRecords = async (args: IGetTotalRecords) => {
+  const { type, filters = {}, selectFields, ids='true', overdue } = args;
+
+  if (type) {
+    try {
+      // Build query string from filters
+      const params = new URLSearchParams();
+
+      Object.keys(filters).forEach((key) => {
+        const value = filters[key as keyof typeof filters];
+
+        if (typeof value === 'object' && value !== null) {
+          params.append(key, JSON.stringify(value));  // Complex filters need to be stringified
+        } else {
+          params.append(key, value as any);  // Simple filters
+        }
+      });
+
+      if(selectFields){
+        params.append('selectFields', selectFields);
+      }
+      if(ids === 'true'){
+        params.append('ids', ids);
+      }
+      if(overdue){
+        params.append('overdue', overdue);
+      }
+
+      const endpoint = `${API_URL}/resource/${type === "users" ? "auth" : type}/get-totals?${params.toString()}`;
+
+      const response = await axios.get(endpoint, {
+        headers,
+        withCredentials: true 
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return { status: "error", code: "unknown_error" };
+    }
+  } else {
+    return { status: "error", code: "invalid_data" };
+  }
+};
+
 
 interface GetRecorsWithFilters{ 
   type:string;
@@ -592,5 +650,6 @@ export {
   adminResetPassword, 
   getRecordsWithLimit,
   getRecordWithID,
-  getRecordsWithFilters 
+  getRecordsWithFilters,
+  getTotalRecords 
 };

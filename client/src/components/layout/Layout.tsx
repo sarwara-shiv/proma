@@ -15,7 +15,7 @@ const Layout = () => {
     const {role} = useAuthContext();
     const {isSidebarOpen} = useAppContext()
     return (
-        <div className="layout h-screen flex flex-col">
+        <div className="layout  flex flex-col">
         {/* Header (Fixed Below Top Menu Bar) */}
         {role === 'admin' ? <AdminHeader /> : <UserHeader />}
         {/* Main Content Area */}
