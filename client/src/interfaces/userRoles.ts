@@ -14,3 +14,5 @@ import { PagePermission } from './types';
   type?: 'default' | 'created';
   permissions: PagePermission[];
 }
+
+export type IDefaultRoles = 'admin' | 'manager' | 'employee' | 'client' | 'scrumMaster' | 'teamLeader';

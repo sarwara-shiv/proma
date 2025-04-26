@@ -1,0 +1,7 @@
+{
+    "input": "find all completed tasks for shiv",
+    "intermediate": "Do you want me to find all completed tasks assigned to Shiv?",
+    "output": [
+      {"task": "Deploy server", "status": "completed", "assignee": "Shiv"}
+    ]
+  }

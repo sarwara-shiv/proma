@@ -36,14 +36,15 @@ const taskSchemaFields = [
         - reqType: 'get' | 'create' | 'update'  (based on action implied in query example: assign task to = update)
         - limit: number (optional, how many result to return)
         - intent: task-related query intent, including one of the following: 
-          ['search_tasks', 'update_tasks', 'recent_tasks', 'completed_tasks', 'in_progress_tasks', 'todo_tasks', 'search_project', 'tasks_assigned', 'tasks_with_project', 'tasks_with_priority', 'rework_tasks']
+          ['search_tasks', 'update_tasks', 'recent_tasks', 'completed_tasks', 'in_progress_tasks', 'todo_tasks', pending_tasks, blocked_tasks, onhold_tasks, 'search_project', 'tasks_assigned', 'tasks_with_project', 'tasks_with_priority', 'rework_tasks']
         - user: string (optional, refers to the user field, e.g., "assignedTo")
         - id: string (optional, refers to the task, project or user _id, e.g., "6702f910c130d21c3275d38f")
         - cid: string (optional, refers to the task, project or user _cid field, e.g., Task cid "TA1019", Project cid PR100 and User cid US100)
         - name: string (optional, refers to the task name field, e.g., "Kickoff page")
         - project: string (optional, refers to the project field)
         - taskType: string (optional, task type, e.g., "Task", "QaTask")
-        - status: string (optional, the task status options 'toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview', 'approved', if reqType is create and status is missing then status is toDo )
+        - status: string (optional, the task status options 'toDo', 'inProgress', 'completed', 'onHold','blocked', 'pendingReview', 'approved', if reqType is create and status is missing then status is toDo.
+        pending tasks means all tasks where status is not completed, pendingReview and approved )
         - priority: string (optional, referst to task priority like 'high', 'low', 'medium')
         - storyPoints: number (optional, this is difficulty level of the task and refers to task storyPoints options 1,2,3,5,8,13)
         - expectedTime: number (optional, This is expected time to finish the task and refers to task expectedTime in hours)
@@ -55,14 +56,7 @@ const taskSchemaFields = [
         Note: query might include following for project  **PROMA:(PR100)**, where PROMA is project name and PR100 is project _cid, similarly for task and user. for query _cid is important.
         create json only based on what values are provided do not assume values. 
         example query: in task task Main Tasks (TA1078) change status to completed
-        wrong: {
-            "reqType": "update",
-            "intent": "update_tasks",
-            "cid": "TA1078",
-            "status": {"$eq": "inProgress"},
-            "updateFields": {"$set": {"status": "completed"}}
-        }
-        correct: {
+        rsult: {
             "reqType": "update",
             "intent": "update_tasks",
             "cid": "TA1078",
@@ -77,14 +71,7 @@ const taskSchemaFields = [
         keep all update fields inside updateFields key
         example: 
         query: update task 6702f910c130d21c3275d38f where status is completed to inprogress
-        wrong resonse: {
-            "reqType": "update",
-            "intent": "update_tasks",
-            "id": "6702f910c130d21c3275d38f",
-            "status": {"$ne": "completed", "$set": "inProgress"},
-            "updateFields": {"$set": {"status": "inProgress"}}
-        }
-        right response: 
+        response: 
         {
             "reqType": "update",
             "intent": "update_tasks",
@@ -94,23 +81,43 @@ const taskSchemaFields = [
         }
         example 2: 
         query: update task 6702f910c130d21c3275d38f where status is completed to inprogress and priority to low get max 20 results
-        wrong result: {
+        result: {
             "reqType": "update",
             "intent": "update_tasks",
             "id": "6702f910c130d21c3275d38f",
             "status": {"$eq": "completed"},
-            "priority": {"$ne": null, "$set": "low"},
             "updateFields": {"$set": {"status": "inProgress", "priority": "low"}},
             "limit": 20
         }
+        example query: get all tasks which are overdue
+        result: {
+            "reqType": "get",
+            "intent": "overdue_tasks",
+            "dueDate": {"$lt":"new Date()"}
+        }
 
-        right result: {
-            "reqType": "update",
-            "intent": "update_tasks",
-            "id": "6702f910c130d21c3275d38f",
-            "status": {"$eq": "completed"},
-            "updateFields": {"$set": {"status": "inProgress", "priority": "low"}},
-            "limit": 20
+        example query: get all pending tasks
+        result:
+        {
+            "reqType": "get",
+            "intent": "pending_tasks",
+            "status": {"$nin": ["completed", "inReview", "approved"]}
+        }
+        example query: get all pending tasks assigned to shiv
+        result:
+        {
+            "reqType": "get",
+            "intent": "pending_tasks",
+            "assignedTo":{"$regex": "shiv"}
+            "status": {"$nin": ["completed", "inReview", "approved"]}
+        }
+        example query: get all pending tasks assigned to shiv:(US12051)
+        result:
+        {
+            "reqType": "get",
+            "intent": "pending_tasks",
+            "assignedTo":{"_cid": "US12051"}
+            "status": {"$nin": ["completed", "inReview", "approved"]}
         }
 
         if multiple field updates then change accordingly. and put all update fields inside updateFields for example: "updateFields": {"$set": {"status": "inProgress", "priority": "low"}}.
@@ -410,6 +417,7 @@ async function processTaskSchemaQuery(userQuery) {
         }
 
         if (result.reqType) mongoQuery.type = result.reqType;
+        if (result.intent) mongoQuery.intent = result.intent;
         if (result.limit) mongoQuery.limit = result.limit;
         if (result.status) mongoQuery.filter.status = result.status;
         if (result.name) mongoQuery.filter.name = result.name;
@@ -495,4 +503,4 @@ async function processTaskSchemaQuery(userQuery) {
   
 
 
-export {processTaskSchemaQuery }; 
+export {processTaskSchemaQuery };  

@@ -9,6 +9,13 @@ interface AuthContextType {
   user: DecodedToken | null;
   role: string | null;
   roles: UserRole[];
+  isAdmin:boolean;
+  isEmployee:boolean;
+  isClient:boolean;
+  isManager:boolean;
+  isScrumMaster:boolean;
+  isTeamLeader:boolean;
+  isCustomRole:boolean;
   isAuthenticated: boolean;
   permissions:PagePermission[] | []
   loading: boolean;
@@ -29,6 +36,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [roles, setRoles] = useState<UserRole[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [isManager, setIsManager] = useState<boolean>(false);
+    const [isEmployee, setIsEmployee] = useState<boolean>(false);
+    const [isClient, setIsClient] = useState<boolean>(false);
+    const [isScrumMaster, setIsScrumMaster] = useState<boolean>(false);
+    const [isTeamLeader, setIsTeamLeader] = useState<boolean>(false);
+    const [isCustomRole, setIsCustomRole] = useState<boolean>(false);
     const [permissions, setPermissions] = useState<PagePermission[] | []>([]);
 
     // Check authentication status on mount
@@ -43,6 +57,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setRole(userData.data.role);
                     setPermissions(userData.data.permissions);
                     setIsAuthenticated(true);
+
+                    // SET ROLES
+                    if(userData.data.roles && userData.data.roles.length > 0){
+                        setIsAdmin(userData.data.roles.some((role:UserRole) => role.name === 'admin'));
+                        setIsManager(userData.data.roles.some((role:UserRole) => role.name === 'manager'));
+                        setIsEmployee(userData.data.roles.some((role:UserRole) => role.name === 'employee'));
+                        setIsClient(userData.data.roles.some((role:UserRole) => role.name === 'client'));
+                        setIsScrumMaster(userData.data.roles.some((role:UserRole) => role.name === 'scrumMaster'));
+                        setIsTeamLeader(userData.data.roles.some((role:UserRole) => role.name === 'teamLeader'));
+                        if(!isAdmin && !isManager && !isEmployee && !isClient && !isScrumMaster && !isTeamLeader){
+                            setIsCustomRole(true);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -52,6 +79,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setRole(null);
                 setPermissions([]);
                 setIsAuthenticated(false);
+                setIsAdmin(false);
+                setIsManager(false);
+                setIsEmployee(false);
+                setIsClient(false);
+                setIsScrumMaster(false);
+                setIsTeamLeader(false);
+                setIsCustomRole(false);
             } finally {
                 setLoading(false); // Set loading state to false after data fetching is complete
             }
@@ -68,7 +102,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             role, 
             isAuthenticated, 
             roles, 
-            loading, 
+            loading,
+            isAdmin,
+            isClient,
+            isManager,
+            isCustomRole,
+            isEmployee,
+            isScrumMaster,
+            isTeamLeader, 
             setUser, 
             setRole, 
             setRoles, 

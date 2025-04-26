@@ -1,5 +1,5 @@
 import {FaUsers, FaUserTie} from 'react-icons/fa';
-import { MdOutlineInstallDesktop } from "react-icons/md";
+import { MdDashboard, MdOutlineInstallDesktop } from "react-icons/md";
 import { IconType } from 'react-icons';
 // Define the type for page actions
 export type PageAction = 'canView' | 'canCreate' | 'canUpdate' | 'canDelete';
@@ -27,6 +27,15 @@ export interface PageConfig {
 
 // Create an object to hold all your pages' configurations
 const PagesConfig: Record<string, PageConfig> = {
+  DASHBOARD: {
+    name: 'dashboard',
+    root:"dashboard",
+    displayName: 'Dashboard',
+    icon:MdDashboard,
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:1
+  },
   USERS: {
     name: 'users',
     root:"users",

@@ -14,6 +14,12 @@ export interface DeleteRelated{
   ids?:(string | ObjectId)[]
 }
 
+export interface IPagination{
+  totalRecords:number,
+  currentPage:number
+  totalPages:number,
+  onPageChange?:()=>void
+}
 
 export interface NavItem {
   link: string;

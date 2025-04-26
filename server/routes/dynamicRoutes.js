@@ -16,6 +16,7 @@ import { logChanges } from '../utils/ChangeLog.js';
 import { processTasksQuery} from '../openai/tasksSearchTA.js';
 import { processTaskSchemaQuery} from '../openai/tasksSchemaSearch.js';
 import { updateUserWorkload } from '../utils/dbUtilFunctions.js';
+import { fixTasksOverdueQuery } from '../utils/TaskAiUtils.js';
 
 const router = express.Router();
 
@@ -767,7 +768,7 @@ router.post('/:resource/getRecordsWithFilters', verifyToken, async (req, res) =>
 
 /**
  * 
- * search records
+ * search records 
  * 
  */
 router.post('/:resource/search', verifyToken, async (req, res) => {
@@ -778,16 +779,30 @@ router.post('/:resource/search', verifyToken, async (req, res) => {
   if (!model) {
     return res.json({ status: "error", message: 'Model not found', code: "invalid_resource" });
   }
-  console.log("-------------------");
-  console.log("-------------------");
+  console.log("---------- query ---------");
   console.log(query);
   try {
     if(resource === 'tasks' || resource === "maintasks"){
       // const searchResults = await processTasksQuery(query);
       const searchResults = await processTaskSchemaQuery(query);
-      console.log("-------------------");
-      console.log("-------------------");
-      console.log("-------------------");
+      if(searchResults && searchResults.type){
+        // GET TASKS
+        if(searchResults.type == 'get'){
+          if(searchResults.intent && searchResults.intent == 'overdue_tasks'){
+            // TODO - function to get overdue tasks
+            const data = await fixTasksOverdueQuery(searchResults);
+            console.log('----- fixed query: ', data);
+          }else{
+            // TODO - get tasks based on filters
+          }
+        }
+        // UPDATE TASKS
+        if(searchResults.type == 'update'){
+
+        }
+      }
+
+      console.log("----------- Result --------");
       console.log(searchResults);
       res.status(200).json({ status: 'success', matches: searchResults });
     }

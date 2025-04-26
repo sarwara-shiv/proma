@@ -11,12 +11,14 @@ import {
 import { FaSortAlphaDown, FaSortAlphaUp } from 'react-icons/fa';
 import { BsArrowsExpandVertical } from 'react-icons/bs';
 import { useTranslation } from 'react-i18next';
+import { IPagination } from '@/interfaces';
 
 interface TableProps {
   data: any[];
   columns: ColumnDef<any>[];
   pinnedColumns?:string[];
   fixWidthColumns?:string[];
+  paginationData?: IPagination
 }
 
 const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidthColumns }) => {
@@ -100,7 +102,7 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
   return (
     <div>
       {/* Search Field */}
-      <div className="sticky top-0 bg-white z-10 px-4 py-2 shadow-sm">
+      {/* <div className="sticky top-0 bg-white z-10 px-4 py-2 shadow-sm">
         <input
           type="text"
           value={globalFilter}
@@ -108,23 +110,23 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
           placeholder={`${t('search')}...`}
           className="p-2 border rounded w-full text-sm max-w-[200px] focus:outline-none"
         />
-      </div>
+      </div> */}
 
-      <div className="table-container relative overflow-x-auto py-4 relative">
+      <div className="table-container relative py-0 relative">
         <table className="table-auto border-collapse w-full table-fixed">
           <thead className="sticky top-0 bg-white z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               
               <tr key={headerGroup.id} 
-              className="border-b trgroup">
+              className="border-b trgroup z-10">
                 {headerGroup.headers.map((header, index) => {
                   const isPinned = pinnedColumns && pinnedColumns.includes(header.id) || false;
                   const fixWidth = fixWidthColumns && fixWidthColumns.includes(header.id) || false;
                   return (
                   <th
                     key={header.id}
-                    className={`p-2  text-xs font-normal group 
-                      bg-white
+                    className={`p-2  text-xs font-normal group  
+                      
                       ${header.column.getCanSort() ? 'cursor-pointer' : ''} 
                       `}
                     style={{
@@ -196,7 +198,7 @@ const DataTable: React.FC<TableProps> = ({ data, columns, pinnedColumns, fixWidt
                   return (
                   <td
                     key={cell.id}
-                    className={`px-2 py-1 ${isPinned ? 'group-even:bg-slate-100 bg-white ' : ''}
+                    className={`px-2 py-1 ${isPinned ? 'group-even:bg-slate-100 bg-white' : ''}
                     group-hover:bg-green-100
                     ${cell.column.columnDef.meta?.noStyles ? 'bg-white border-none' : ''}
                      ${

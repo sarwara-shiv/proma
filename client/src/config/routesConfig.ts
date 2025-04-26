@@ -9,6 +9,7 @@ interface RouteConfig {
 
 // Create an array to hold all your routes' configurations
 const routes: RouteConfig[] = [
+ 
   {
     path: '/users',
     element: "Users", 

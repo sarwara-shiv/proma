@@ -8,8 +8,8 @@ interface AppContextType {
   activeDailyReport: DailyReport | null;
   setActiveDailyReport: (dailyReport: DailyReport | null) => void;
 
-  pageTitle: string;
-  setPageTitle: (title: string) => void;
+  pageTitle: ReactNode;
+  setPageTitle: (title: ReactNode) => void;
   isSidebarOpen: boolean;
   isUserAuthenticated: boolean;
   setIsUserAuthenticated: (isAuthenticated: boolean) => void;
@@ -29,7 +29,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: ReactNode }) => {
     const storedWorkLog = localStorage.getItem("activeWorkLog");
     const storedDailyReport = localStorage.getItem("activeDailyReport");
-    const [pageTitle, setPageTitle] = useState<string>("Home");
+    const [pageTitle, setPageTitle] = useState<ReactNode>("Home");
     const [currentPage, setCurrentPage] = useState<string>("Dashboard");
     const [language, setLanguage] = useState<string>("en");
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);

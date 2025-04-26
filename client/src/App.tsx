@@ -20,7 +20,7 @@ function App() {
     return <div>Loading...</div>;
   }
   return (
-    <div className="App min-h-screen">
+    <div className="App min-h-screen flex justify-center bg-gray-100 ">
      <Router>
       <Routes>
           <Route path="/login" element={<Login />} />

@@ -32,7 +32,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <>
       {totalPages > 1 && 
-        <div className="pagination-controls flex flex-row gap-2 text-sm font-bold text-slate-500 p-2 justify-end my-3">
+        <div className="pagination-controls flex flex-row gap-2 text-sm font-bold text-slate-500 p-0 justify-end my-0">
           {/* First Page */}
           {/* <button className={`${commonClasses} ${currentPage === 1 ? 'bg-primary-light text-primary' : ''} text-lg`}
             onClick={() => onPageChange(1)}
@@ -94,7 +94,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             disabled={currentPage === totalPages}
           >
             <MdKeyboardDoubleArrowRight />
-          </button> */}
+          </button> */} 
         </div>
       }
     </>

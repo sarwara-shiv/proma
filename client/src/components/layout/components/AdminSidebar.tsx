@@ -97,10 +97,12 @@ const AdminSidebar: React.FC = () => {
     const sortedPages = Object.values(PagesConfig).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   return (
     <>
-    <aside className={`w-[200px] fixed left-0 top-2 px-2 pt-4 pb-8 bottom-0 flex flex-col transition-all ease duration-100 my-10 rounded-xl bg-primary-light justify-between
+    <aside className={`w-[200px] static left-0 top-2 px-2 pt-4 pb-8 bottom-0 flex flex-col transition-all ease duration-100 mb-10 
+    rounded-e-3xl 
+    bg-primary-light justify-between
     ${isSidebarOpen ? 'ml-[0px]' : 'ml-[-200px]'}
         `}>
-        <div className="flex flex-col max-h-full">
+        <div className="flex flex-col max-h-full relative h-full">
             {/* <div className=" mb-0 px-2">
             <div className="text-sm flex gap-2">
                 <span>
@@ -111,7 +113,7 @@ const AdminSidebar: React.FC = () => {
             </div> */}
             
             {/* Make the list scrollable */}
-            <div className="my-2 text-sm my-1 py-1 rounded-md flex-1 overflow-y-auto flex ">
+            <div className="my-2 text-sm my-1 py-1 rounded-md flex-1 overflow-y-auto flex">
             <ul className="space-y-1">
                 {sortedPages.map((page, index) => {
                 if (hasAccess(page)) {
@@ -192,7 +194,7 @@ const AdminSidebar: React.FC = () => {
             </div>
 
             {/* Fixed logout button at the bottom */}
-            <div className='absolute bottom-4 w-full left-0 right-0 text-sm justify-start mr-0 flex items-center gap-2 pl-5 mt-auto'>
+            <div className='absolute -bottom-5 w-full left-0 right-0 text-sm justify-start mr-0 flex items-center gap-2 pl-5 mt-auto'>
                 <MdLogout /> <LogoutButton type='link' />
             </div>
         </div>

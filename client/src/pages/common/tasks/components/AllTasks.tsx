@@ -1,28 +1,32 @@
 import DataTable from '../../../../components/table/DataTable';
-import { Loader } from '../../../../components/common';
+import { Loader, Pagination } from '../../../../components/common';
 import { getRecords, getRecordsWithFilters, getRecordsWithLimit } from '../../../../hooks/dbHooks';
-import { MainTask, OrderByFilter, QueryFilters, Task, User } from '@/interfaces';
+import { IPagination, MainTask, OrderByFilter, QueryFilters, Task, User } from '@/interfaces';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { compareDates, getDatesDifference } from '../../../../utils/dateUtils';
+import { useAppContext } from '../../../../context/AppContext';
 
-const pinnedColumns = ['_cid', 'name', 'actions_cell'];
+const pinnedColumns = ['_cid','actions_cell'];
 const fixedWidthColumns = ['actions_cell', '_cid'];
 
 const AllTasks = () => {
     const {t} = useTranslation();
+    const {pageTitle, setPageTitle} = useAppContext();
     const [records, setRecords] = useState<Task[]>();
+    const [paginationData, setPaginationData] = useState<IPagination>({currentPage:1, totalPages:1, totalRecords:0});
     const [loader, setLoader] = useState(true);
 
     useEffect(()=>{
         getData();
+        setPageTitle(<><b>Project</b> {t('tasks')}</>);
     },[]);
 
     // get all tasks
-    const getData = async()=>{
+    const getData = async(nextPage:number = 1)=>{
         setLoader(true);
         try{
             const populateFields=['_mid', 'responsiblePerson'];
@@ -34,10 +38,17 @@ const AllTasks = () => {
             const filters:QueryFilters = {
                 // level:1,
             }
-            const res = await getRecordsWithFilters({type:'tasks', limit:1000, orderBy, filters, pageNr:1, populateFields});
+            const res = await getRecordsWithFilters({type:'tasks', limit:60, orderBy, filters, pageNr:nextPage, populateFields});
             if(res){
                 if(res.status === 'success'){
+                    console.log(res.data);
                     setRecords(res.data);
+                    if(res.totalPages && res.currentPage && res.totalRecords){
+                        const totalPages = res.totalPages as number || 0;
+                        const totalRecords = res.totalRecords as number || 0;
+                        const currentPage = res.currentPage as number || 0;
+                        setPaginationData({...paginationData, totalPages, totalRecords, currentPage });
+                    }
                 }
             }
             setLoader(false);
@@ -244,9 +255,18 @@ const AllTasks = () => {
         {loader ? <Loader type='full'/>: 
         <>
             {records && records.length > 0 && 
-                <div className='card bg-white'>
+            <>
+                <div className='pagination mb-2'>
+                    <Pagination currentPage={paginationData?.currentPage || 1}  
+                        totalPages={paginationData?.totalPages || 1} 
+                        totalRecords={paginationData?.totalRecords || 1} 
+                        onPageChange={(e)=>getData(e)}
+                    />
+                </div>
+                <div className=' p-0 bg-white overflow-auto'  style={{maxHeight:"calc(100dvh - 250px)"}}>
                     <DataTable pinnedColumns={pinnedColumns} fixWidthColumns={fixedWidthColumns} data={records} columns={columns}/>
                 </div>
+            </>
             
             }
         

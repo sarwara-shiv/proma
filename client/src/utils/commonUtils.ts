@@ -1,3 +1,19 @@
+import { IDefaultRoles, UserRole } from "@/interfaces";
+
+export const getRole = (roles:UserRole[], role:IDefaultRoles | null = null)=>{
+  if(roles && !role){
+    if (roles.some(role => role.name === 'admin')) {
+      return 'admin';
+    } else if (roles.some(role => role.name === 'manager')) {
+      return 'manager';
+    } else {
+      return 'other'; // fallback to "other"
+    }
+  }
+  return false;
+}
+
+
 export const sanitizeString = (input: string): string => {
     // Step 1: Replace specific special characters
     const specialCharMap: { [key: string]: string } = {

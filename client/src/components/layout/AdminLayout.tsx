@@ -10,7 +10,7 @@ const AdminLayout = () => {
     const { t } = useTranslation();
     const {isSidebarOpen} = useAppContext();
     return (
-        <div className="layout h-screen flex flex-col">
+        <div className="rounded-lg relative layout h-screen flex flex-col max-w-[1600px] m-x-auto bg-white w-full">
         {/* Header (Fixed Below Top Menu Bar) */}
         <AdminHeader />
         {/* Main Content Area */}
@@ -23,7 +23,7 @@ const AdminLayout = () => {
             <AdminSidebar /> 
 
             {/* Main Content */}
-            <main className={`flex-1 pl-3 ml-64 mt-0 mb-0 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-[200px]" : "ml-[0px]"}`}> 
+            <main className={`flex-1 pl-3 ml-1 mt-0 mb-0 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-1" : "ml-[0px]"}`}> 
                 <div>
                     <Outlet />
                 </div>

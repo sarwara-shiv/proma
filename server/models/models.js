@@ -87,7 +87,7 @@ const TicketSchema = new Schema({
 
 
 // Close ticket when all tasks are completed
-TicketSchema.methods.checkCompletion = async function () {
+TicketSchema.methods.checkCompletion = async function () { 
   const ticket = this;
 
   try {
