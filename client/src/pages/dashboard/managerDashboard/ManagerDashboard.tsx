@@ -19,14 +19,16 @@ const ManagerDashboard:React.FC = ()=>{
     const [nav, setNav] = useState<NavType[]>([
         {_id:'settings', label:'settings', icon:<MdSettings />}
     ]);
-    return <div className='flex flex-row w-full h-full'>
-            <div className='w-full flex-1 p-4 h-full'>
-                <TasksOverview />
-            </div>
-            <div className='w-60 border-l p-4 h-full'>
-                <Headings text='Active users' type='section' />
-            </div>
-    </div>
+    return <div className='py-4 mx-auto h-full'>
+                    <div className=' flex h-full'>
+                        <div className='flex-1 min-w-0 p-4 h-full w-full'>
+                            <TasksOverview />
+                        </div>
+                        <div className='min-w-0 w-[200px] border-l p-4 h-full'>
+                            <Headings text='Active users' type='section' />
+                        </div>
+                    </div>
+                </div>
 }
 
 export default ManagerDashboard

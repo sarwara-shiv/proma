@@ -16,17 +16,20 @@ const Dashboard:React.FC = ()=>{
     const {t} = useTranslation();
     const {user, roles, isAdmin, isEmployee, isClient, isCustomRole, isManager, isScrumMaster, isTeamLeader} =useAuthContext();
     console.log(roles);
-    return <div className='h-full'>
-        {(isAdmin) && 
-            // <AdminDashboard />
-            <ManagerDashboard />
-        }
-        {isManager && 
-            <ManagerDashboard />
-        }
-        {(isEmployee || isCustomRole || isScrumMaster || isTeamLeader) && 
-            <EmployeeDashboard />
-        }
+    return <div className='page-wrap relative  max-w-full h-full'>
+
+
+                {(isAdmin) && 
+                    // <AdminDashboard />
+
+                    <ManagerDashboard />
+                }
+                {isManager && 
+                    <ManagerDashboard />
+                }
+                {(isEmployee || isCustomRole || isScrumMaster || isTeamLeader) && 
+                    <EmployeeDashboard />
+                }
         
     </div>
 }

@@ -29,6 +29,14 @@
     box-shadow: -10px 0px 20px -4px rgba(0,0,0,0.15);
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
 }
 
 .highlight{

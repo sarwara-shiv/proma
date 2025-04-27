@@ -110,8 +110,8 @@ const ToggleDailyReport = ()=>{
         <div>
             {isOldReport && ReactDOM.createPortal(
                 <div className="fixed w-dvw h-dvh flex justify-center items-center bg-white bg-opacity-50 top-0 left-0 z-50 p-2 d-none"> 
-                    <div className="w-full max-w-[500px] p-2 bg-primary-light">
-                        Hi
+                    <div className="w-fit max-w-[500px] p-2 bg-white flex justify-center rounded-lg box-shadow">
+                        <CloseDailyReport dataType={isOldReport ? 'oldReport' : 'default'} setIsOldReport={setIsOldReport}/>
                     </div>
                 </div>,
                 document.body

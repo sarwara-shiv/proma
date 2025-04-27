@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Headings, NumberCard } from "../../../../components/common"
+import { Headings, NumberCard,HorizontalScroll } from "../../../../components/common"
 import { useTranslation } from "react-i18next"
 import { MdPerson2 } from "react-icons/md"
 import { useAuthContext } from "../../../../context/AuthContext";
@@ -181,8 +181,8 @@ const TasksOverview = ()=>{
     }
 
 
-    return <div>
-        <div>
+    return (
+        <div className="w-full">
             <div className="flex gap-x-6 mb-4 font-bold text-lg text-slate-400 flex-wrap">
                 <div className="border-b-2 border-white hover:border-primary cursor-pointer transition-all ease">
                     <span className="font-semibold text">{t('projects')}: </span><span className="text-primary">{tProjects}</span>
@@ -197,17 +197,24 @@ const TasksOverview = ()=>{
             <div className="mb-2">
                 <Headings text={t('tasks')} type="section"/>
             </div>
-            <div className=' flex flex-wrap gap-x-4 w-full mb-7'>
-                <NumberCard title = {`${t('toDo')}`} value={tTasksTodo} icon={IoInformation} colors={getColorClasses('toDo')} minWidth={35} onClick={()=>handleTaskCardsClick('toDoTasks')}/>
-                <NumberCard title = {`${t('active')}`} value={tTasksActive} icon={IoInformation} colors={getColorClasses('active')} minWidth={35} onClick={()=>handleTaskCardsClick('activeTasks')}/>
-                <NumberCard title = {`${t('completed')}`} value={tTasksCompleted} icon={IoInformation} colors={getColorClasses('completed')} minWidth={35} onClick={()=>handleTaskCardsClick('completedTasks')}/>
-                <NumberCard title = {`${t('onHold')}`} value={tTasksHold} icon={IoInformation} colors={getColorClasses('onHold')} minWidth={35} onClick={()=>handleTaskCardsClick('onHoldTasks')}/>
-                <NumberCard title = {`${t('pendingReview')}`} value={tTasksReview} icon={IoInformation} colors={getColorClasses('pendingReview')} minWidth={35} onClick={()=>handleTaskCardsClick('pendingReviewTasks')}/>
-                <NumberCard title = {`${t('blocked')}`} value={tTasksBlocked} icon={IoInformation} colors={getColorClasses('toDo')} minWidth={35} onClick={()=>handleTaskCardsClick('blockedReviewTasks')}/>
-                <NumberCard title = {`${t('overdue')}`} value={tTasksDue} icon={IoInformation} colors={getColorClasses('danger')} minWidth={35} onClick={()=>handleTaskCardsClick('dueTasks')}/>
+            <div className=' flex flex-nowrap gap-x-4 w-full mb-7 '>
+                <HorizontalScroll >
+                    {/* <div className=' flex flex-nowrap gap-x-4 w-auto w-full'> */}
+                        <NumberCard title = {`${t('toDo')}`} value={tTasksTodo} icon={IoInformation} colors={getColorClasses('toDo')} onClick={()=>handleTaskCardsClick('toDoTasks')}/>
+                        <NumberCard title = {`${t('active')}`} value={tTasksActive} icon={IoInformation} colors={getColorClasses('active')} onClick={()=>handleTaskCardsClick('activeTasks')}/>
+                        <NumberCard title = {`${t('completed')}`} value={tTasksCompleted} icon={IoInformation} colors={getColorClasses('completed')} onClick={()=>handleTaskCardsClick('completedTasks')}/>
+                        <NumberCard title = {`${t('onHold')}`} value={tTasksHold} icon={IoInformation} colors={getColorClasses('onHold')} onClick={()=>handleTaskCardsClick('onHoldTasks')}/>
+                        <NumberCard title = {`${t('pendingReview')}`} value={tTasksReview} icon={IoInformation} colors={getColorClasses('pendingReview')}  onClick={()=>handleTaskCardsClick('pendingReviewTasks')}/>
+                        <NumberCard title = {`${t('blocked')}`} value={tTasksBlocked} icon={IoInformation} colors={getColorClasses('toDo')} onClick={()=>handleTaskCardsClick('blockedReviewTasks')}/>
+                        <NumberCard title = {`${t('overdue')}`} value={tTasksDue} icon={IoInformation} colors={getColorClasses('danger')} onClick={()=>handleTaskCardsClick('dueTasks')}/>
+                    {/* </div> */}
+                </HorizontalScroll>
+            </div>
+            <div>
+                
             </div>
         </div>
-    </div>
+    )
 }
 
 export default TasksOverview
