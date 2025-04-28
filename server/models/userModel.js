@@ -4,6 +4,10 @@ const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   _cid:{type:String},
   name: { type: String},
+  image:{
+    icon:{type:String, default:''},
+    full:{type:String, default:''}
+  },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   roles: [{ type: Schema.Types.ObjectId, ref: 'UserRoles' }], 

@@ -17,7 +17,9 @@ import { dailyReportRouter } from './routes/worklog/dailyReport.js';
 import { initializeSocket } from './socket.js';
 import { leadRoutes } from './routes/leadRoutes/leadRoutes.js';
 import { sprintRouter } from './routes/scrum/sprints.js';
+import { filesRouter } from './routes/filesRouter.js';
 import { dummyWorklogData, printIds } from './dummyData.js';
+import path from 'path';
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -26,6 +28,24 @@ const server = http.createServer(app); // Create HTTP server
 
 app.use(cookieParser());
 app.use(express.json());
+const imagesPath = path.join(process.cwd(), 'images');
+
+app.use('/images', (req, res, next) => {
+  const referer = req.get('Referer') || '';
+  const origin = req.get('Origin') || '';
+
+  const allowedReferers = [
+    process.env.CLIENT_URL, // example: http://localhost:3000
+  ];
+
+  const isAllowed = allowedReferers.some(url => referer.startsWith(url) || origin.startsWith(url));
+
+  if (!isAllowed) {
+    return res.status(403).send('Access Denied');
+  }
+
+  express.static(imagesPath)(req, res, next);
+});
 
 const allowedOrigins = [process.env.CLIENT_URL];
 const corsOptions = {
@@ -54,6 +74,7 @@ app.use("/leads", leadRoutes);
 app.use("/sprint", sprintRouter);
 app.use("/daily-report", dailyReportRouter);
 app.use("/messenger", messengerRouter);
+app.use("/files", filesRouter);
 
 // DB CONNECTION
 const mongoURI = process.env.DB_LOCAL_URL;

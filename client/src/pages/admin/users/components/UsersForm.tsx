@@ -13,6 +13,7 @@ import UserRolesSelect from '../../../../components/forms/UserRolesSelect';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import FormsTitle from '../../../../components/common/FormsTitle';
 import UserGroupsSelect from '../../../../components/forms/UserGroupsSelect';
+import { PhotoUploader } from '../../../../components/common';
 
 interface ArgsType {
   id?:string | null;
@@ -25,9 +26,10 @@ interface ArgsType {
 const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
-  const { name="", username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false } = data || {};
+  const { name="", username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false, image={}} = data || {};
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [formData, setFormData] = useState<User>({ name, username, password, email, roles, permissions, isActive, groups });
+  const [profileImage, setProfileImage] = useState<{icon:string, full:string}>(data && data.image ? data.image : {icon:'', full:''});
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [selectedRoleName, setSelectedRoleName] = useState<string>('');
@@ -98,9 +100,24 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
   return (
     <div className='content flex justify-center'>
       <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
+        {profileImage && profileImage.icon &&
+            <div className='mb-6'>
+              <img 
+                src={`${process.env.REACT_APP_API_URL}${profileImage.icon}`} 
+                alt="Uploaded Icon" 
+                className='w-[100px] rounded-full border-2 border-white box-shadow'
+              />
+            </div>
+          }
         <div className='flex flex-row justify-between align-center'>
           <FormsTitle text= { action==='update' ? t('updateUser') : t('newUser')} classes='mb-3'/> 
           <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
+        </div>
+        <div>
+          
+          {id && 
+            <PhotoUploader multiple={true} type='users' id={id} onUpload={(icon, full)=>setProfileImage({...profileImage, icon:icon[0], full:full[0]})}/>
+          }
         </div>
         <form onSubmit={(e) => submitForm(e)} className=''>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols- gap-2'>
@@ -178,7 +195,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
           type={alertData.type || 'info'} 
         />
 
-<FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
+        <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
         
       </div>
     </div>

@@ -14,6 +14,9 @@ console.log(JWT_TOKEN);
 const headers = {
   'Content-Type': 'application/json',
 }
+const headerImages = {
+  'Content-Type': 'multipart/form-data',
+}
 
 // GET ALL DATA
 interface GetRecordsArgs {
@@ -54,6 +57,58 @@ const getRecords = async (args: GetRecordsArgs) => {
     return { status: "error", code: "invalid_data" };
   }
 };
+
+
+// FILES ROUTER UPLOAD / DELETE IMAGE
+interface IHandleImages{
+  action:'delete' | 'upload';
+  type:string,
+  body:any;
+}
+const handleImageActions = async (args: IHandleImages) => {
+  const { action, body, type } = args;
+
+  if (action && body && type) {
+    try {
+      console.log(body);
+      let response;
+
+      // Perform upload action
+      if (action === 'upload') {
+        response = await axios.post(
+          `${API_URL}/files/images-upload`,
+          body, 
+          {
+            headers:headerImages,
+            withCredentials: true 
+          });
+      }
+
+      // Perform delete action
+      if (action === 'delete') {
+        response = await axios.delete(
+          `${API_URL}/files/images-delete`,
+          { 
+            data: { 
+              page: type === 'auth' ? 'users' : type, 
+              data: body 
+            },
+            headers:headerImages,
+            withCredentials: true 
+          }
+        );
+      }
+
+      return response ? response.data : { status: "success", code: "data added" };;
+
+    } catch (error) {
+      console.error(error);
+      return { status: "error", code: "server_error" };
+    }
+  } else {
+    return { status: "error", code: "invalid_args" };
+  }
+}
 
 // GET RECOREDS WITH LIMIT
 interface GetRecorsWithLimit{
@@ -285,9 +340,6 @@ interface AddUpdateRecords {
 const addUpdateRecords = async (args: AddUpdateRecords) => {
   const { type, body, action="add", id=null, checkDataBy=[], relatedUpdates=[] } = args;
   if (type) {
-    console.log(type);
-    console.log(action);
-    console.log(body);
     try {
       const response = await axios.post(`${API_URL}/resource/${type === "users" ? "auth" : type}/${action}`, 
         {
@@ -651,5 +703,6 @@ export {
   getRecordsWithLimit,
   getRecordWithID,
   getRecordsWithFilters,
-  getTotalRecords 
+  getTotalRecords,
+  handleImageActions 
 };

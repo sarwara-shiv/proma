@@ -53,6 +53,26 @@ const AllUsers = () => {
             }
         },
         {
+          header: `${t('image')}`,
+          accessorKey: 'image',
+          id:"image",
+            meta:{
+                style :{
+                textAlign:'center',
+                width:'60px'
+                }
+            },
+            cell:info=>{
+                const originalData = info.row.original; 
+                const icon = originalData?.image?.icon ? originalData?.image?.icon : null;
+                return(                 
+                    <span>{icon && 
+                        <img src={`${process.env.REACT_APP_API_URL}${icon}`} className='w-[30px] h-[30px] object-cover object-center rounded-full border border-white shadow'/>
+                    }</span>
+                )
+            }
+        },
+        {
           header: `${t('email')}`,
           accessorKey: 'email',
           id:"email",

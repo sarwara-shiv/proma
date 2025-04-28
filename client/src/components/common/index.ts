@@ -18,3 +18,4 @@ export { default as EmojiPicker } from './EmojiPicker';
 export { default as Pagination } from './Pagination';
 export { default as NumberCard } from './NumberCard';
 export { default as HorizontalScroll } from './HorizontalScroll';
+export { default as PhotoUploader } from './PhotoUploader';

@@ -21,7 +21,7 @@ const verifyToken = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
+    console.log(req.body);
     let { page } = req.body; // page should match one of the `Pages` entries
 
     if (!page && req.query.page) {

@@ -16,6 +16,7 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   workload?:number;
+  image?:{icon:string, full:string}
   isActive?:Boolean;
 }
 // User Interface
