@@ -681,7 +681,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                 </h1>
             </div>
             }
-            <div className='relative overflow-x-auto py-4'>
+            <div className='relative overflow-x-auto py-0 max-h-[calc(100dvh_-200px)]'>
             <DragDropContext onDragEnd={handleDrag}>
             <Droppable droppableId="droppable-rows">
               {(provided)=>(

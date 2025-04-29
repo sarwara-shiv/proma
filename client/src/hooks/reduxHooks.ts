@@ -23,9 +23,11 @@ interface IGetMessages{
     id:string|ObjectId
     receiverId?:string;
     groupId?:string;
+    limit?:number;
+    pageNr?:number
 }
 
-export const getChatMessages = async ({ id, receiverId, groupId }: IGetMessages) => {
+export const getChatMessages = async ({ id, receiverId, groupId, pageNr, limit }: IGetMessages) => {
     if (!id || (!receiverId && !groupId)) {
       return { status: "error", code: "invalid_data" };
     }
@@ -37,6 +39,13 @@ export const getChatMessages = async ({ id, receiverId, groupId }: IGetMessages)
         queryParams.append("receiverId", receiverId);
       } else if (groupId) {
         queryParams.append("groupId", groupId);
+      }
+
+      if(pageNr){
+        queryParams.append("pageNr", pageNr.toString());
+      }
+      if(limit){
+        queryParams.append("limit", limit.toString());
       }
   
       queryParams.append("userId", id.toString());

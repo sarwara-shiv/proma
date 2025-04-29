@@ -1,3 +1,4 @@
+import { MessageType } from "../features/chat/chatTypes";
 import { PermissionsMap } from "./types";
 import { UserRole } from './userRoles';
 
@@ -33,4 +34,8 @@ export interface UserWithRoles {
   createdAt?: Date;
   updatedAt?: Date;
   isActive?:Boolean;
+}
+
+export interface UserWithLastMessage extends User {
+  lastMessage?: MessageType;
 }

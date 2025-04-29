@@ -2,70 +2,117 @@ import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
 import { Message, ChatGroup } from '../../models/models.js';
 import UserModel from '../../models/userModel.js'; 
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
 /**
  * 📩 Get users & groups for chat
  * Expects: { data: { id: userId } } in body
+ * 
+ * TODO
+ * - get last message from user
+ * 
  */
 router.post("/users", verifyToken, async (req, res) => {
     const { id } = req.body.data;
-    console.log(id);
+    const currentUserId = req.user._id.toString(); // consistent variable name
+  
     try {
-        // 1. Get all users (optionally exclude current user)
-        const users = await UserModel.find({ _id: { $ne: id } })
-            .select("_id name email username"); // Customize as needed
-
-        // 2. Get groups current user is a part of
-        const groups = await ChatGroup.find({ members: id })
-            .populate("members", "_id name email username")
-            .select("_id name description members");
-        // 3. Unread messages
-        const cUser = req.user._id;
-        console.log('**************',cUser);
-        const unreadMessages = {};
-        if(cUser){
-            const userId = cUser.toString();
-            const groupIds = await userGroupsOf(userId);
-            const messageData = await Message.find({
-                $or: [
-                {
-                    receiver: userId,
-                    'readStatus': {
-                    $elemMatch: {
-                        user: userId,
-                        status: 'unread',
-                    },
-                    },
-                },
-                {
-                    group: { $in: groupIds },
-                    'readStatus': {
-                    $elemMatch: {
-                        user: userId,
-                        status: 'unread',
-                    },
-                    },
-                },
-                ],
-            });
-
-            messageData.forEach((msg) => {
-                const key = msg.group ? msg.group.toString() : msg.sender.toString();
-                unreadMessages[key] = (unreadMessages[key] || 0) + 1;
-            });
-
-        }
-
-
-        return res.json({ status: "success", message:'data found', code:"data found" , users, groups, unreadMessages});
-
+      // 1. Get all users except current
+      const users = await UserModel.find({ _id: { $ne: id } })
+        .select("_id name email username image")
+        .lean();
+  
+      const usersWithLastMessages = await Promise.all(
+        users.map(async (user) => {
+          const lastMessage = await Message.findOne({
+            $or: [
+              { sender: user._id, receiver: id },
+              { sender: id, receiver: user._id },
+            ],
+          })
+            .sort({ createdAt: -1 })
+            .select("_id content createdAt sender receiver")
+            .populate("sender", "_id name");
+  
+          return {
+            ...user,
+            lastMessage: lastMessage || null,
+          };
+        })
+      );
+  
+      // 2. Get groups the user is part of
+      const groups = await ChatGroup.find({ members: id })
+        .populate("members", "_id name email username image")
+        .select("_id name description members image")
+        .lean();
+  
+      const groupsWithLastMessage = await Promise.all(
+        groups.map(async (group) => {
+          const lastMessage = await Message.findOne({
+            group: group._id,
+          })
+            .sort({ createdAt: -1 })
+            .select("_id content createdAt group sender")
+            .populate("sender", "_id name");
+  
+          return {
+            ...group,
+            lastMessage: lastMessage || null,
+          };
+        })
+      );
+  
+      // 3. Unread messages
+      const unreadMessages = {};
+      const groupIds = await userGroupsOf(currentUserId);
+  
+      const messageData = await Message.find({
+        $or: [
+          {
+            receiver: currentUserId,
+            readStatus: {
+              $elemMatch: {
+                user: currentUserId,
+                status: "unread",
+              },
+            },
+          },
+          {
+            group: { $in: groupIds },
+            readStatus: {
+              $elemMatch: {
+                user: currentUserId,
+                status: "unread",
+              },
+            },
+          },
+        ],
+      });
+  
+      messageData.forEach((msg) => {
+        const key = msg.group ? msg.group.toString() : msg.sender.toString();
+        unreadMessages[key] = (unreadMessages[key] || 0) + 1;
+      });
+  
+      return res.json({
+        status: "success",
+        message: "data found",
+        code: "data_found",
+        users: usersWithLastMessages,
+        groups: groupsWithLastMessage,
+        unreadMessages,
+      });
     } catch (error) {
-        console.error("Error in /users:", error);
-        return res.status(500).json({ status: "error", message:'server error', code:"server_error" });
+      console.error("Error in /users:", error);
+      return res
+        .status(500)
+        .json({ status: "error", message: "server error", code: "server_error" });
     }
-});
+  });
+  
 
 router.post("/groups/create", verifyToken, async (req, res) => {
     const { name, description, members, userId } = req.body;
@@ -174,32 +221,53 @@ router.post("/message/send", verifyToken, async (req, res) => {
 
 // 🔹 Get messages (private or group)
 router.get("/messages", verifyToken, async (req, res) => {
-    const { userId, receiverId, groupId } = req.query;
+    let { userId, receiverId, groupId, pageNr=1, limit=0 } = req.query;
     console.log(req.query);
+
+    pageNr = parseInt(pageNr);
+    limit = parseInt(limit);
+    const skip = (pageNr - 1) * limit;
+
     try {
-        let messages = [];
+        let filter = {};
 
         if(!userId && (!receiverId || !groupId)){
             return res.status(400).json({ message: "Provide groupId or userId + receiverId", code:'invalid_data' });
         }
 
         if (groupId) {
-            messages = await Message.find({ group: groupId })
-                .sort({ createdAt: 1 })
-                .populate("sender", "_id name email");
+            filter = { group: groupId };
+            // query = await Message.find({ group: groupId })
+            //     .sort({ createdAt: 1 });
+                // .populate("sender", "_id name email image");
         } else if (userId && receiverId) {
-            messages = await Message.find({
+            filter =  {
                 $or: [
                     { sender: userId, receiver: receiverId },
                     { sender: receiverId, receiver: userId },
                 ],
-            }).sort({ createdAt: 1 })
-              .populate("sender", "_id name email");
+            }
+            // query = await Message.find({
+            //     $or: [
+            //         { sender: userId, receiver: receiverId },
+            //         { sender: receiverId, receiver: userId },
+            //     ],
+            // }).sort({ createdAt: 1 });
+            //   .populate("sender", "_id name email image");
         } else {
             return res.status(400).json({ message: "Provide groupId or userId + receiverId", code:'invalid_data'  });
         }
 
-        res.status(200).json({ status:"success", data:messages });
+        const totalRecords = await Message.countDocuments(filter);
+
+        const messages = await Message.find(filter)
+        .sort({ createdAt: 1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("sender", "_id name email image");
+
+
+        res.status(200).json({ status:"success", data:messages, currentPage:pageNr, limit, totalRecords });
 
     } catch (error) {
         console.error("Error getting messages:", error);

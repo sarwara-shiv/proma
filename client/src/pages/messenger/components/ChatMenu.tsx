@@ -22,7 +22,6 @@ const ChatMenu:React.FC<ArgsType> = ({message, user, setChatData})=>{
     const [isStared, setIsStared] = useState<boolean>(false);
     const socket = useSocket();
     useEffect(()=>{
-        console.log(message);
         if (message && user) {
             setIsPinned(
               (message.pinned?.group ? true : false )||

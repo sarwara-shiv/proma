@@ -1,4 +1,4 @@
-import { User } from "@/interfaces";
+import { User, UserWithLastMessage } from "@/interfaces";
 import { useAuthContext } from "../../../context/AuthContext";
 import { getChatMessages, getChatUsers } from "../../../hooks/reduxHooks";
 import { useEffect, useState } from "react";
@@ -7,15 +7,18 @@ import { useSocket } from "../../../context/SocketContext";
 import { RootState } from "../../../app/store";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUnreadMessagesFrom } from "../../../features/chat/chatSlice";
+import { ImageIcon } from "../../../components/common";
 
 interface ArgsType{
     setChatData:React.Dispatch<React.SetStateAction<MessageType[]>>;
     chatData:MessageType[];
+    page:number;
+    setPage:(page:number)=>void;
     setReceiver: (receiver: { user?: User; group?: ChatGroupType } | null) => void;
     receiver:{ user?: User; group?: ChatGroupType} | null
 }
 
-const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatData}) => {
+const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatData, page, setPage}) => {
     // const unreadMessages = useSelector((state: RootState) => state.chat.unreadMessages);
     // const unreadCount = useSelector((state: RootState) => state.chat.unreadCount);
     const socket = useSocket();
@@ -25,6 +28,7 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
         groups: []
     });
     const [loading, setLoading] = useState(true);
+    const [limit, setLimit] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
     const [newMessages, setNewMessages] = useState<{senderId:string, message:MessageType, type:'group'|'user' }[]>([]);
     const [unreadMessages, setUnreadMessages] = useState<Record<string, number>>({});
@@ -68,7 +72,6 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
         };
 
         const handleMessageLiked = (message:MessageType)=>{
-            console.log(message);
             if(message){
                 setChatData((prevChat) => {
                     const index = prevChat.findIndex(msg => msg._id === message._id);
@@ -105,7 +108,6 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
                           readStatus: updatedReadStatus,
                         };
                       }
-                      console.log(msg);
                       return msg;
                     })
                   );
@@ -128,20 +130,20 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
         };
     }, [socket, user, receiver, setChatData]);
 
+
+
     useEffect(() => {
         getUsersData();
     }, []);
     useEffect(() => {
-        console.log(unreadMessages)
+       
     }, [unreadMessages]);
 
     const getUsersData = async () => {
         try {
             
             if(user){
-                console.log(user);
                 const response = await getChatUsers({id:user._id})
-                
                 console.log(response);
                 if(response.status === 'success'){
                     setUsersData({
@@ -168,6 +170,16 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
         }
     };
 
+    // useEffect(()=>{
+    //     if(receiver){
+    //         handleSelect(receiver);
+    //     }else{
+    //         setPage(1);
+    //     }
+    // },[page])
+
+
+
     // GET MESSAGES
     const handleSelect = async (receiverData: { user?: User; group?: ChatGroupType }) => {
         if (!user || !socket) return;
@@ -175,12 +187,14 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
         setReceiver(receiverData);
 
         const rData = { receiverId: receiverData.user?._id, groupId: receiverData.group?._id };
-        const response = await getChatMessages({ id: user._id, ...rData });
+        const response = await getChatMessages({ id: user._id, ...rData, limit, pageNr:page });
 
         if (response.status === "success" && response.data) {
-            setChatData(response.data);
-
-
+            if(page > 1){
+                setChatData([...response.data, ...chatData]);
+            }else{
+                setChatData(response.data);
+            }
 
             // Extract message IDs that are unread
             const unreadMessageIds = response.data
@@ -224,18 +238,22 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
             {usersData.users.map((sUser: any) => {
                 // const unreadMessage = newMessages.filter((msg) => msg.senderId === sUser._id && msg.type === 'user').length;
                 const unreadMessage = unreadMessages[sUser._id] ?  unreadMessages[sUser._id] : 0;
+                const userLastMessage:UserWithLastMessage = sUser as unknown as UserWithLastMessage;
                 return (
                 <div key={sUser._id} className={`p-2 rounded 
                     ${receiver && receiver.user && receiver.user._id === sUser._id ? 'bg-primary-light ' : 'bg-white  hover:bg-gray-100 '} 
                     cursor-pointer flex justify-between items-center`}
-                onClick={()=>handleSelect({ user: sUser })}
                 >
                     <div className="flex justify-start flex-1 gap-x-2 items-center">
-                        <div className="w-8 h-8 border bg-primary-light rounded-full"></div>
-                        <div className="text-sm">
+                            {sUser.image && 
+                                <ImageIcon image={sUser.image} title={sUser.name} fullImageLink={true}/>
+                            }
+                        <div className="text-sm flex-1" onClick={()=>handleSelect({ user: sUser })}>
                             {sUser.name}
                             <div className="text-xs italic text truncate text-slate-400">
-                                {sUser._id}
+                                {userLastMessage.lastMessage && 
+                                    <span className="line-clamp-1">{userLastMessage.lastMessage.content}</span>
+                                }
                             </div>
                         </div>
                     </div>

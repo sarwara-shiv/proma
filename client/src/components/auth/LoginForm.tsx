@@ -51,9 +51,9 @@ const LoginForm: React.FC = () => {
       }
 
       if (userData.data.role === 'admin') {
-        navigate('/admin/mytasks');
+        navigate('/admin/dashboard');
       } else {
-        navigate('/user/mytasks');
+        navigate('/user/dashboard');
       }
     } catch (error) {
       console.error("Login failed:", error);

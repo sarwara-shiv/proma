@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { CustomTooltip, Logo } from "../../components/common";
+import { CustomTooltip, ImageIcon, Logo } from "../../components/common";
 import { useAuthContext } from "../../context/AuthContext";
 import { useRef, useState, useEffect  } from "react";
 import { FaAngleDown, FaAngleUp, FaCheck, FaCheckDouble, FaRegHeart, FaReply, FaStar } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import ChatInputBox from "./components/ChatInputBox";
 import ChatUsers from "./components/ChatUsers";
 import { ChatGroupType, MessageType } from "../../features/chat/chatTypes";
-import { User } from "@/interfaces";
+import { User, UserWithLastMessage } from "@/interfaces";
 import { NavLink } from "react-router-dom";
 import { IoMdHome } from "react-icons/io";
 import { MdOutlineEventNote, MdOutlinePushPin, MdPushPin } from "react-icons/md";
@@ -26,15 +26,39 @@ const Messenger = () => {
     const [receiver, setReceiver] = useState<{user?:User, group?:ChatGroupType} | null>();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [message, setMessage] = useState<string>("");
+    const [page, setPage] = useState<number>(0);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const isFirstRender = useRef(true);
     const socket = useSocket();
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const scrollToBottom = (smooth: boolean = true) => {
-      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
-      markMessagesRead();
+    // useEffect(() => {
+    //   const container = containerRef.current;
+    //   if (container) {
+    //     container.scrollTop = container.scrollHeight;
+    //   }
+    //   console.log('*******', page);
+    // }, [page===0]);
 
-    };
+
+    // useEffect(()=>{
+    //   const container = containerRef.current;
+    //   if(!container) return;
+    //   console.log(page);
+    //   const handleScroll = ()=>{
+    //     if(container.scrollTop <= 10){
+    //       const oldScrollHeight = container.scrollHeight;
+    //       console.log('---- run function here load more');
+    //       setPage(page+1);
+    //       const newScrollHeight = container.scrollHeight;
+    //         container.scrollTop = newScrollHeight - oldScrollHeight;
+    //     }
+    //   }
+
+    //   container.addEventListener('scroll', handleScroll);
+    //   return  ()=> container.removeEventListener('scroll', handleScroll);
+
+    // },[page])
 
     const markMessagesRead = ()=>{
       if (!chatData || !user || !socket || !receiver) return;
@@ -67,13 +91,18 @@ const Messenger = () => {
     }
 
 
+    const scrollToBottom = (smooth: boolean = true) => {
+      messagesEndRef.current?.scrollIntoView();
+      markMessagesRead();
+
+    };
+
     useEffect(() => {
       scrollToBottom(!isFirstRender.current);
       if (isFirstRender.current) {
         isFirstRender.current = false;
       }
-
-      console.log(chatData)
+      console.log(receiver);
       
     }, [chatData]);
 
@@ -187,7 +216,7 @@ const Messenger = () => {
                   </div>
                   {/* Contacts Section */}
                   <div className="flex-1 overflow-y-auto px-2 pt-0 pb-2 space-y-4 text-sm ">
-                    <ChatUsers setReceiver={setReceiver} setChatData={setChatData} receiver={receiver || null} chatData={chatData}/> 
+                    <ChatUsers setReceiver={setReceiver} setChatData={setChatData} receiver={receiver || null} chatData={chatData} page={page} setPage={setPage}/> 
                   </div>
                 </div>
             </div>
@@ -198,17 +227,23 @@ const Messenger = () => {
                 {/* Messages */}
                 {receiver && 
                     <div className={`w-full  bg-slate-100 border-b flex p-3 space-y-1 flex gap-2 text-sm`}>
-                        <div className="w-8 h-8 border bg-white rounded-full"></div>
-                        <div className="text-sm">
+                         {receiver.user?.image && receiver.user.name &&
+                                <ImageIcon image={receiver.user.image} size="md" title={receiver.user.name} fullImageLink={true}/>
+                              }
+                        <div className="text-sm flex-1">
                           {receiver.group && <p>{receiver.group.name}</p>}
                           {receiver.user && <p>{receiver.user.name}</p>}
-                          <div className="text-xs italic text truncate text-slate-400">
-                              
+                          <div className="text-xs italic text  text-slate-400">
+                              {(receiver.user as unknown as UserWithLastMessage).lastMessage &&
+                                <span className="line-clamp-1">
+                                  {(receiver.user as unknown as UserWithLastMessage).email}
+                                </span>
+                              }
                           </div>
                         </div>
                     </div>
                   }
-                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <div className="flex-1 overflow-y-auto p-4 space-y-2" ref={containerRef}>
                     <div className="text-center text-gray-600 mt-6">
                     {groupedMessages && Object.entries(groupedMessages).map(([date, messages]) => (
                         <div key={date}>
