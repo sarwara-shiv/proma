@@ -360,6 +360,44 @@ const addUpdateRecords = async (args: AddUpdateRecords) => {
 };
 
 // FORGOT PASSWORD
+interface IGetUsers {
+  orderby?:string,
+  order?:'asc' | 'desc';
+  online?:boolean;
+  client?:boolean;
+
+}
+const getUsers = async(args:IGetUsers) =>{
+  const {orderby="", order="desc", online=false, client=false} = args;
+
+  try{
+    const params = new URLSearchParams();
+    if(orderby){
+      params.append('orderby', orderby);
+    }
+    if(order){
+      params.append('order', order);
+    }
+    if(online){
+      params.append('online', online.toString());
+    }
+    if(client){
+      params.append('client', client.toString());
+    }
+      const response = await axios.post(`${API_URL}/auth/get?${params.toString()}`, 
+        {
+          page:'users'
+        },
+        {
+          headers,
+          withCredentials: true 
+      });
+    return response.data; 
+  }catch(error){
+    return { status: "error", code: "server_error" };
+  }
+}
+// FORGOT PASSWORD
 interface ForgotPassword {
   email: string;
 }
@@ -704,5 +742,6 @@ export {
   getRecordWithID,
   getRecordsWithFilters,
   getTotalRecords,
-  handleImageActions 
+  handleImageActions,
+  getUsers 
 };

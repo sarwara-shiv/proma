@@ -222,7 +222,6 @@ router.post("/message/send", verifyToken, async (req, res) => {
 // 🔹 Get messages (private or group)
 router.get("/messages", verifyToken, async (req, res) => {
     let { userId, receiverId, groupId, pageNr=1, limit=0 } = req.query;
-    console.log(req.query);
 
     pageNr = parseInt(pageNr);
     limit = parseInt(limit);

@@ -196,6 +196,7 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
             overflowY: menuRef.current && position.maxHeight < (menuRef.current.scrollHeight || 0) ? 'auto' : 'visible', // Safely handle scroll
           }}
         >
+          {isOpen}
           <DatePicker
             selected={dateValue}
             onChange={handleDateChange}
@@ -210,7 +211,7 @@ const CustomDateTimePicker2: React.FC<ArgsType> = ({
             showTimeSelect={showTimeSelect}
             timeIntervals={15}
             ref={datePickerRef} // Ref to control the DatePicker
-            className=" hidden absolute z-50 top-[-20px]" 
+            className=" hidden absolute z-50 top-[-30px]" 
           />
         </div>,
         document.body // Render into the body using a portal

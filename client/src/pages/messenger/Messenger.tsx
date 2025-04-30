@@ -32,6 +32,15 @@ const Messenger = () => {
     const socket = useSocket();
     const containerRef = useRef<HTMLDivElement | null>(null);
 
+    useEffect(()=>{
+      if(receiver && receiver.user){
+        console.log(receiver.user);
+        const lastMessage:MessageType | undefined = (receiver.user as unknown as UserWithLastMessage).lastMessage
+        console.log(lastMessage);
+      }
+      
+    }, [receiver])
+
     // useEffect(() => {
     //   const container = containerRef.current;
     //   if (container) {
@@ -173,7 +182,7 @@ const Messenger = () => {
               <div className="flex flex-col w-[35px] border-r py-4 gap-4 bg-slate-100">
                   <div className="flex items-center justify-center p-1">
                     <NavLink
-                      to={`/admin`}
+                      to={`/admin/dashboard`}
                       className={({ isActive }) => {
                         return `flex-1 rounded-sm text-lg flex transition-all ease items-center justify-center ${isActive ? "text-primary font-bold" : "text-gray-500 font-light hover:text-gray-800 hover:font-bold"}`;
                         }}
@@ -234,11 +243,14 @@ const Messenger = () => {
                           {receiver.group && <p>{receiver.group.name}</p>}
                           {receiver.user && <p>{receiver.user.name}</p>}
                           <div className="text-xs italic text  text-slate-400">
-                              {(receiver.user as unknown as UserWithLastMessage).lastMessage &&
                                 <span className="line-clamp-1">
-                                  {(receiver.user as unknown as UserWithLastMessage).email}
+                                  {(receiver.user as unknown as UserWithLastMessage).lastMessage ?
+                                    
+                                    <>{(receiver.user as unknown as UserWithLastMessage).lastMessage?.content}</> :
+                                    <>{receiver.user?.email}</>
+                                  }
                                 </span>
-                              }
+
                           </div>
                         </div>
                     </div>

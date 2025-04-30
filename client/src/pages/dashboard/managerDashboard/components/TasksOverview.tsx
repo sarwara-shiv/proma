@@ -8,6 +8,8 @@ import { notEqual } from "assert";
 import { QueryFilters } from "@/interfaces";
 import { IoInformation } from "react-icons/io5";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
+import TasksStatusPieChart from "./TasksStatusPieChart";
+import TasksStatusBarChart from "./TasksStatusBarChart";
 
 const TasksOverview = ()=>{
     const {t} = useTranslation();
@@ -23,7 +25,8 @@ const TasksOverview = ()=>{
     const [tTasksReview, setTTasksReview] = useState<number>(0); // inReview Tasks
     const [tTasksDue, setTTasksDue] = useState<number>(0); // total due tasks
     const [tTasksBlocked, setTTasksBlocked] = useState<number>(0); // total due tasks
-    const [idsData, setIdsData] = useState<Record<string, string[]>>({}) 
+    const [idsData, setIdsData] = useState<Record<string, string[]>>({});
+    const [pieChartData, setPieChartData] = useState({}); 
 
     useEffect(()=>{
         getData();
@@ -90,6 +93,7 @@ const TasksOverview = ()=>{
                     const activeTasks = await getTotalRecords({type:'tasks', filters:tFilters, ids:'true'});
                     if(activeTasks.totalRecords){
                         setTTasksActive(activeTasks.totalRecords);
+                        
                         if(activeTasks.recordIds) idsData.activeTasks = activeTasks.recordIds;
                     }
 
@@ -102,6 +106,7 @@ const TasksOverview = ()=>{
                     const completedTasks = await getTotalRecords({type:'tasks', filters:tCFilters, ids:'true'});
                     if(completedTasks.totalRecords){
                         setTTasksCompleted(completedTasks.totalRecords);
+                        setPieChartData({...pieChartData, completed:completedTasks.totalRecords});
                         if(completedTasks.recordIds) idsData.completedTasks = completedTasks.recordIds;
                     }
                     // onHOld tasks
@@ -113,6 +118,7 @@ const TasksOverview = ()=>{
                     const onHoldTasks = await getTotalRecords({type:'tasks', filters:tholdFilters, ids:'true'});
                     if(onHoldTasks.totalRecords){
                         setTTasksHold(onHoldTasks.totalRecords);
+                        setPieChartData({...pieChartData, onHold:onHoldTasks.totalRecords});
                         if(onHoldTasks.recordIds) idsData.onHoldTasks = onHoldTasks.recordIds;
                     }
                     // inReview tasks
@@ -124,6 +130,7 @@ const TasksOverview = ()=>{
                     const inReviewTasks = await getTotalRecords({type:'tasks', filters:treviewFilters, ids:'true'});
                     if(inReviewTasks.totalRecords){
                         setTTasksReview(inReviewTasks.totalRecords);
+                        setPieChartData({...pieChartData, pendingReview:inReviewTasks.totalRecords});
                         if(inReviewTasks.recordIds) idsData.pendingReviewTasks = inReviewTasks.recordIds;
                     }
                     // inReview tasks
@@ -135,6 +142,7 @@ const TasksOverview = ()=>{
                     const blockedTasks = await getTotalRecords({type:'tasks', filters:tblockedFilters, ids:'true'});
                     if(blockedTasks.totalRecords){
                         setTTasksBlocked(blockedTasks.totalRecords);
+                        setPieChartData({...pieChartData, blocked:blockedTasks.totalRecords});
                         if(blockedTasks.recordIds) idsData.blockedTasks = blockedTasks.recordIds;
                     }
                     // due tasks
@@ -145,6 +153,7 @@ const TasksOverview = ()=>{
                     const dueTasks = await getTotalRecords({type:'tasks', filters:tdueFilters, ids:'true', overdue:'true'});
                     if(dueTasks.totalRecords){
                         setTTasksDue(dueTasks.totalRecords);
+                        setPieChartData({...pieChartData, overDue:dueTasks.totalRecords});
                         if(dueTasks.recordIds) idsData.dueTasks = dueTasks.recordIds;
                     }
                     // todo tasks
@@ -156,6 +165,7 @@ const TasksOverview = ()=>{
                     const toDoTasks = await getTotalRecords({type:'tasks', filters:todoFilters, ids:'true', overdue:'true'});
                     if(toDoTasks.totalRecords){
                         setTTasksTodo(toDoTasks.totalRecords);
+                        setPieChartData({...pieChartData, toDo:toDoTasks.totalRecords});
                         if(toDoTasks.recordIds) idsData.toDoTasks = toDoTasks.recordIds;
                     }
                 }
@@ -210,8 +220,13 @@ const TasksOverview = ()=>{
                     {/* </div> */}
                 </HorizontalScroll>
             </div>
-            <div>
-                
+            <div className="flex flex-col md:flex-row flex-wrap gap-4">
+                <div className="flex-1 max-w-sm min-w-3xs">
+                    <TasksStatusPieChart data={{toDo:tTasksTodo, onHold:tTasksHold, completed:tTasksCompleted, blocked:tTasksBlocked, pendingReview:tTasksReview, overdue:tTasksDue, active:tTasksActive}}/> 
+                </div>
+                <div className="flex-1 max-w-sm min-w-3xs">
+                    <TasksStatusBarChart data={{toDo:tTasksTodo, onHold:tTasksHold, completed:tTasksCompleted, blocked:tTasksBlocked, pendingReview:tTasksReview, overdue:tTasksDue, active:tTasksActive}}/> 
+                </div>
             </div>
         </div>
     )

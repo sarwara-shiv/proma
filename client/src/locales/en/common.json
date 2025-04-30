@@ -337,7 +337,7 @@
     "expectedTime_info":"<b>ET: </b> <i>Expected Time</i> <br> - Expected Time to finish",
     "backlogs":"Backlogs",
     "storyPoints":"SP",
-    "storyPoints_info":"<b>SP: </b> <i>Story Points</i> <br> - Difficuly level of Task",
+    "storyPoints_info":"<b>SP: </b> <i>Story Points</i> <br> - Difficuly level of Task <br><b>1-(XS) </b>: Very trivial, <b>2-(S) </b>: Easy, <b>3-(M) </b>: Medium, <b>5-(L) </b>: Multi Step Task, <b>8-(XL) </b>: Complex Task, <b>13-(XXL) </b>: Too Big Task, ",
     "todo":"TODO",
     "noChat":"Chat has not been started yet with <span class='text-primary'><b>{{username}}</b></span>. <br><span class='text-xs'>Type a message to begin the conversation.</span>",
     "outOfSprintRange":"OOSR",

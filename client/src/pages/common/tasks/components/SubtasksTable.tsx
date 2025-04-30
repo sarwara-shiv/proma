@@ -148,10 +148,10 @@ const SubtasksTable:React.FC<ArgsType> = ({
         <DragDropContext onDragEnd={handleDrag}>
             <Droppable droppableId="droppable-rows">
               {(provided)=>(
-                <table className='w-full table-fixed'  {...provided.droppableProps} ref={provided.innerRef}>
+                <table className='w-full table-fixed border-none'  {...provided.droppableProps} ref={provided.innerRef}>
                     <thead>
                     <tr className='text-sm font-normal'>
-                      <th className='w-[20px] relative text-center sticky left-[26px] bg-white z-10'>
+                      <th className='w-[20px] relative text-center sticky left-[26px] bg-white z-10 px-0'>
                         <div className='w-[30px] absolute h-[1px] left-[-4px]
                           bg-green-200
                         '>
@@ -159,7 +159,7 @@ const SubtasksTable:React.FC<ArgsType> = ({
                         </div>
 
                       </th>
-                      <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[40px] z-10'></th>
+                      <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[40px] z-10 px-0'></th>
                       {/* <th className={`${thStyles} w-[200px]  sticky left-[43px] bg-white z-10`} >{t('subtask')}</th> */}
                         <ResizableTableHeader initialWidth={200} classes={`${thStyles} w-[200px]  sticky left-[43px] bg-white z-10`} colId={``} >
                           {t('subtask')}
@@ -370,8 +370,8 @@ const SubtasksTable:React.FC<ArgsType> = ({
                         {/* SUBTAKS L3 */}
                         {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
                               <tr>
-                                <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
-                                <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
+                                <td className='w-[20px] sticky left-0 z-2 bg-white px-0'></td>
+                                <td className='w-[3px] text-center sticky left-[20px] px-0 z-2 bg-white'>
                                   <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
                                 </td>
                                 <td className='py-4'

@@ -35,6 +35,7 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
 
     // SOCKET
     useEffect(() => {
+        console.log(socket);
         if (!socket || !user) {
             console.log('⛔ No socket or user');
             return;

@@ -186,21 +186,43 @@ router.post("/login", async (req, res) => {
 
 // GET
 router.post("/get", verifyToken, async (req, res) => {
-    console.log(req.user);  // Consider removing this in production
-    console.log(req.permissions);  // Consider removing this in production
+    let { orderby = "", order = "desc", online = "false", client } = req.query;
+
+    // Build filter
+    const filter = {};
+    if (online === "true") {
+        filter["isOnline"] = true;
+    }
+
+    // Build sort
+    const sort = {};
+    if (orderby) {
+        sort[orderby] = order === "desc" ? -1 : 1;
+    }
 
     try {
-        const data = await UserModel.find().populate('roles').populate('groups');
-        return res.json({ status: "success", data, code:"success", message:""}); 
+        const data = await UserModel.find(filter)
+            .sort(sort)
+            .populate("roles")
+            .populate("groups");
+
+        console.log(data);
+        return res.json({ status: "success", data, code: "success", message: "" });
     } catch (error) {
-        console.error("Error fetching roles:", error);  // Log error for debugging
-        return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});
+        console.error("Error fetching roles:", error);
+        return res.status(500).json({
+            status: "error",
+            message: "Could not fetch users",
+            error,
+            code: "unknown_error",
+        });
     }
 });
 
 
+
 // LOGOUT
-router.post("/logout", (req, res) => {
+router.post("/logout", async(req, res) => {
     // console.log(req);
     const token = req.cookies?.token; 
     const SECRET_KEY = process.env.SECRET_KEY;
@@ -211,6 +233,14 @@ router.post("/logout", (req, res) => {
     // Check if the user is connected to a socket and emit 'user-disconnected'
     const userId = decoded._id;  // Assuming you're storing the user in `req.user` after authentication
     if (userId && io) {
+        
+        try {
+            await UserModel.findByIdAndUpdate(userId, { isOnline: false, 'onlineTimestamp.endTime':new Date() });
+            console.log(`🔻 User ${userId} set to offline.`);
+        } catch (err) {
+            console.error(`⚠️ Failed to update isOnline for user ${userId}:`, err);
+        }
+
       io.emit("user-disconnected", userId.toString());  // Emit event to mark user as disconnected
       console.log(`User with ID ${userId} disconnected`);
     }

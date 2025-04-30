@@ -14,6 +14,8 @@ const UserSchema = new Schema({
   groups: [{ type: Schema.Types.ObjectId, ref: 'UserGroups' }],  
   firma: { type: String, default:"self"}, 
   workLoad:{type:Number, default:0, required:true},
+  isOnline:{type:Boolean, default:false},
+  onlineTimestamp:{startTime:{type:Date},endTime:{type:Date} },
   permissions: {
     type: Map,
     of: {

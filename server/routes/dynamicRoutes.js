@@ -790,7 +790,6 @@ router.post('/:resource/search', verifyToken, async (req, res) => {
     return res.json({ status: "error", message: 'Model not found', code: "invalid_resource" });
   }
   console.log("---------- query ---------");
-  console.log(query);
   try {
     if(resource === 'tasks' || resource === "maintasks"){
       // const searchResults = await processTasksQuery(query);
@@ -833,7 +832,6 @@ router.get('/:resource/search-by-name', async (req, res) => {
   // Dynamically get the model based on the resource
   const model = getModel(resource); // Assuming getModel maps 'resource' to a model (like UserModel, TaskModel, etc.)
   
-  console.log(resource);
   if (query && model) {
     try {
       let filter = { name: { $regex: query, $options: 'i' } }; // Search filter for the name field
@@ -892,8 +890,6 @@ router.get('/:resource/get-totals', async (req, res) => {
   delete filters.overdue;
 
   const model = getModel(resource);
-
-  console.log(req.query);
 
   if (!model) {
     return res.status(500).json({ status: 'error', message: 'model not found', code: 'model_not_found' });

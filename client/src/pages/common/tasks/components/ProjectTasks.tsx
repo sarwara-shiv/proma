@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 import { format } from 'date-fns';
 import path from 'path';
 import { useTranslation } from 'react-i18next';
-import { CustomAlert, CustomPopup, FlashPopup, Loader } from '../../../../components/common';
+import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
@@ -31,6 +31,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 import SidePanel from '../../../../components/common/SidePanel';
 import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
+import { MdInfo } from 'react-icons/md';
 
 interface ArgsType {
     cid?:string | null;
@@ -688,7 +689,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
               <table className='w-full table-fixed text-slate-600' {...provided.droppableProps} ref={provided.innerRef}>
                 <thead>
                   <tr key={'task-level-1'} className='text-sm font-normal'>
-                    <th className='w-[20px] sticky left-0 bg-white z-2'>
+                    <th className='w-[20px] sticky left-0 bg-white z-2 px-0'>
                       <CustomContextMenu >
                           <ul>
                             <li className='px-2 py-1 my-1 hover:bg-slate-100'>
@@ -707,7 +708,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                           </ul>
                       </CustomContextMenu>
                     </th>
-                    <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2'></th>
+                    <th className='w-[3px] bg-green-200 border border-green-200 sticky left-[20px] z-2 px-0'></th>
                       {/* <th className={`${thStyles} w-[223px] sticky left-[23px] bg-white z-2`}
                       >{t('task')}
                       </th> */}
@@ -931,17 +932,25 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                               </div>
                             </td>
                             <td className={`${tdStyles} text-center`}>
-                              <CustomDropdown selectedValue={
-                                  st.storyPoints != null
-                                    ? OStoryPoints.find(sp => sp._id === Number(st.storyPoints))?.name ?? ''
-                                    : ''
-                                }
-                              data={OStoryPoints} style='table'
-                                onChange={(rid, name, value, data)=>{console.log(value);
-                                  handleTaskInput(st._id ? st._id : '', 'storyPoints', parseInt(value))
+                              <div className='flex justify-between'>
+                                  
+                                <div className='flex-1'>
+                                    <CustomDropdown selectedValue={
+                                      st.storyPoints != null
+                                      ? OStoryPoints.find(sp => sp._id === Number(st.storyPoints))?.name ?? ''
+                                      : ''
+                                    }
+                                    data={OStoryPoints} style='table'
+                                    onChange={(rid, name, value, data)=>{console.log(value);
+                                      handleTaskInput(st._id ? st._id : '', 'storyPoints', parseInt(value))
+                                    }
                                   }
-                                }
-                              />
+                                  />
+                                </div>
+                                <CustomTooltip content={t('storyPoints_info')}>
+                                    <MdInfo />
+                                  </CustomTooltip>
+                              </div>
                             </td>
                             <td className={`${tdStyles} text-center`}>
                               <ClickToEditNumber value={st.expectedTime}  name='expectedTime'
@@ -1029,8 +1038,8 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                             {/* SUBTASKS */}
                             {subTasksCount?.find(d => d.taskId === tskID && d.isOpen === true) && 
                               <tr>
-                                <td className='w-[20px] sticky left-0 z-2 bg-white'></td>
-                                <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white'>
+                                <td className='w-[20px] sticky left-0 z-2 bg-white px-0'></td>
+                                <td className='w-[3px] text-center sticky left-[20px] z-2 bg-white px-0'>
                                   <div className='w-[2px] bg-green-200 top-0 h-full absolute'></div>
                                 </td>
                                 <td className='py-4'

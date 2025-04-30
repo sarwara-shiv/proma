@@ -4,6 +4,7 @@ import { MdPerson2, MdSettings } from 'react-icons/md';
 import { Headings } from '../../../components/common';
 import TasksOverview from './components/TasksOverview';
 import { useAuthContext } from '../../../context/AuthContext';
+import OnlineUsers from '../components/OnlineUsers';
 
 // TODO - project status change add reason 
 
@@ -25,7 +26,7 @@ const ManagerDashboard:React.FC = ()=>{
                             <TasksOverview />
                         </div>
                         <div className='min-w-0 w-[200px] border-l p-4 h-full'>
-                            <Headings text='Active users' type='section' />
+                            <OnlineUsers />
                         </div>
                     </div>
                 </div>

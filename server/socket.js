@@ -28,10 +28,17 @@ export const initializeSocket = (server, app) => {
             console.log("🎉 Received 'user-connected' event for userId:", userId);
 
             if(userId){
+
                 onlineUsers.set(userId, socket.id);
                 console.log("📌 Online Users Map:", onlineUsers);
 
                 try{
+                    const user = await UserModel.findById(userId);
+                    if(user){
+                        user.isOnline = true;
+                        user.onlineTimestamp.startTime = new Date();
+                        await user.save();
+                    }
                     // Get user's group IDs
                     const groupIds = await userGroupsOf(userId); // This should return an array of ObjectIds
 
@@ -390,14 +397,27 @@ export const initializeSocket = (server, app) => {
 
 
         // logout user
-        socket.on("user-disconnected", () => {
+        socket.on("user-disconnected", async() => {
             console.log("❌ User disconnected:", socket.id);
+            let disconnectedUserId = null;
             for (let [key, value] of onlineUsers) {
                 if (value === socket.id) {
+                    disconnectedUserId = key;
                     onlineUsers.delete(key);
+                    break;
                 }
             }
-            console.log("📌 Online Users After Disconnect:", onlineUsers);
+
+            if (disconnectedUserId) {
+                // Update isOnline status in DB
+                try {
+                    await UserModel.findByIdAndUpdate(disconnectedUserId, { isOnline: false });
+                    console.log(`🔻 User ${disconnectedUserId} set to offline.`);
+                } catch (err) {
+                    console.error(`⚠️ Failed to update isOnline for user ${disconnectedUserId}:`, err);
+                }
+            }
+            
         });
     });
 

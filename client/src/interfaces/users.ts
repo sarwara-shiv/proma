@@ -16,6 +16,8 @@ export interface User {
   permissions?: PermissionsMap; 
   createdAt?: Date;
   updatedAt?: Date;
+  isOnline?:boolean;
+  onlineTimestamp?:{startTime?:Date, endTime?:Date}
   workload?:number;
   image?:{icon:string, full:string}
   isActive?:Boolean;
