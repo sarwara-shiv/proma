@@ -174,7 +174,7 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
     setLoader(true);
     try{
           const populateFields = [
-            { path: '_pid' }, // Populate the project or parent task
+            { path: '_pid' },
             {
               path: 'subtasks',
               populate: [

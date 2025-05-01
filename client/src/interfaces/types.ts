@@ -444,6 +444,12 @@ export interface ISprint {
       tasks:Task[],
       project:Project
   }
+  export interface TasksByProjectMainTasks {
+      projectID: string,
+      tasks:Task[],
+      mainTasks:{mainTask:MainTask, tasks:Task[]}[]
+      project:Project
+  }
   
   
 

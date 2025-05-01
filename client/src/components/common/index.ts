@@ -20,3 +20,6 @@ export { default as NumberCard } from './NumberCard';
 export { default as HorizontalScroll } from './HorizontalScroll';
 export { default as PhotoUploader } from './PhotoUploader';
 export { default as ImageIcon } from './ImageIcon';
+export { default as SidePanel } from './SidePanel';
+export { default as DisplayTaskDetails } from './DisplayTaskDetails';
+export { default as ButtonMenu } from './ButtonMenu';

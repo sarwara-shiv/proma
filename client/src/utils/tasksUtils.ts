@@ -1,6 +1,6 @@
 // tasksUtils.ts
 
-import { MainTask, Project, Task, TasksByProject } from "../interfaces";
+import { MainTask, Project, Task, TasksByProject, TasksByProjectMainTasks } from "../interfaces";
 import { ObjectId } from "mongodb";
 
 /**
@@ -39,7 +39,7 @@ export const extractAllIds = (subtask: any, field='subtasks'): string[] => {
  */
 
 
-export const filterTaskByProject = (tasks: Task[]): { tasks: Task[], byProject: TasksByProject[] } => {
+export const filterTaskByProject = (tasks: Task[]): { tasks: Task[], byProject: TasksByProject[]} => {
   let byProject: TasksByProject[] = [];
 
   if (tasks && tasks.length > 0) {
@@ -76,6 +76,77 @@ export const filterTaskByProject = (tasks: Task[]): { tasks: Task[], byProject: 
 
   return { tasks, byProject }; // Always return an object
 };
+
+
+export const filterTaskByMainTasks= (
+  tasks: Task[]
+): {
+  tasks: Task[];
+  byProject: TasksByProject[];
+  result: TasksByProjectMainTasks[];
+} => {
+  const byProject: TasksByProject[] = [];
+  const result: TasksByProjectMainTasks[] = [];
+
+  if (tasks && tasks.length > 0) {
+    tasks.forEach((task: Task) => {
+      const mainTask = task._mid as unknown as MainTask | undefined;
+      const project = mainTask?._pid as Project | undefined;
+
+      if (mainTask && project) {
+        const projectID = project._id as unknown as string;
+
+        // --- byProject (flat grouping) ---
+        let byProjectEntry = byProject.find(p => p.projectID === projectID);
+        if (!byProjectEntry) {
+          byProjectEntry = {
+            projectID,
+            project,
+            tasks: [task],
+          };
+          byProject.push(byProjectEntry);
+        } else {
+          byProjectEntry.tasks.push(task);
+        }
+
+        // --- result (nested grouping with mainTasks) ---
+        let resultEntry = result.find(r => r.projectID === projectID);
+        if (!resultEntry) {
+          resultEntry = {
+            projectID,
+            project,
+            tasks: [task],
+            mainTasks: [
+              {
+                mainTask: mainTask,
+                tasks: [task],
+              },
+            ],
+          };
+          result.push(resultEntry);
+        } else {
+          resultEntry.tasks.push(task);
+
+          let mainTaskEntry = resultEntry.mainTasks.find(m => m.mainTask._id === mainTask._id);
+          if (!mainTaskEntry) {
+            mainTaskEntry = {
+              mainTask: mainTask,
+              tasks: [task],
+            };
+            resultEntry.mainTasks.push(mainTaskEntry);
+          } else {
+            mainTaskEntry.tasks.push(task);
+          }
+        }
+      }
+    });
+  }
+
+  return { tasks, byProject, result };
+};
+
+
+
 
 /**
  * 

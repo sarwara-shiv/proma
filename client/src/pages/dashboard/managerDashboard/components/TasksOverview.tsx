@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { Headings, NumberCard,HorizontalScroll } from "../../../../components/common"
+import { Headings, NumberCard,HorizontalScroll, SidePanel, NoData } from "../../../../components/common"
 import { useTranslation } from "react-i18next"
-import { MdPerson2 } from "react-icons/md"
 import { useAuthContext } from "../../../../context/AuthContext";
-import { getTotalRecords } from "../../../../hooks/dbHooks";
-import { notEqual } from "assert";
-import { QueryFilters } from "@/interfaces";
+import { getRecordWithID, getTotalRecords } from "../../../../hooks/dbHooks";
+import { QueryFilters, SidePanelProps, TasksByProjectMainTasks } from "@/interfaces";
 import { IoInformation } from "react-icons/io5";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
 import TasksStatusPieChart from "./TasksStatusPieChart";
 import TasksStatusBarChart from "./TasksStatusBarChart";
+import { filterTaskByMainTasks, filterTaskByProject } from "../../../../utils/tasksUtils";
+import TasksOverviewDetails from "./TasksOverviewDetails";
 
 const TasksOverview = ()=>{
     const {t} = useTranslation();
     const {user} = useAuthContext();
-    const [pIds, setPIds] = useState<string[]>([]); // project ids
+    const [pIds, setPIds] = useState<{pid:string, mid?:{mid?:string, tid?:string}[]}[]>([]); // project ids
     const [tProjects, setTProjects] = useState<number>(0); // total projects where user id exists in kickoff-> responsibilities->persons
     const [tMTasks, setTMTasks] = useState<number>(0); // total main tasks
     const [tTasks, setTTasks] = useState<number>(0); // total tasks
@@ -27,6 +27,7 @@ const TasksOverview = ()=>{
     const [tTasksBlocked, setTTasksBlocked] = useState<number>(0); // total due tasks
     const [idsData, setIdsData] = useState<Record<string, string[]>>({});
     const [pieChartData, setPieChartData] = useState({}); 
+    const [sidePanelProps, setSidePanelProps] = useState<SidePanelProps>({isOpen:false, children:<></>, title:''}); 
 
     useEffect(()=>{
         getData();
@@ -183,10 +184,47 @@ const TasksOverview = ()=>{
      * ON TASKS CARD CLICK
      * 
      */
-    const handleTaskCardsClick = (type:string) =>{
+    const handleTaskCardsClick = async(type:string) =>{
         console.log(type);
         if(type && idsData[type]){
             console.log(idsData[type]);
+            if(idsData[type].length <= 0){
+                setSidePanelProps({...sidePanelProps, isOpen:true, title:t(type), children:<>
+                   <NoData />
+                </>})
+            }else{
+                try{
+                    const populateFields = [
+                        {path:'_mid',
+                            populate:[
+                                {path:'_pid'}
+                            ]
+                        }, 
+                        {path: 'responsiblePerson'}, 
+                        {path: 'subtasks',
+                            populate:[
+                                {path:'subtasks'}
+                            ]
+                        }, 
+                    ];
+                    const ids = idsData[type];
+                    const res = await getRecordWithID({type:'tasks', id:ids, populateFields});
+                    if(res.data && res.data.length > 0){
+                        const result = filterTaskByMainTasks(res.data);
+                        console.log(result.result);
+                        if(result && result.result && result.result.length > 0){
+                            const resultTasks:TasksByProjectMainTasks[] = result.result;
+                            setSidePanelProps({...sidePanelProps, isOpen:true, title:t(type), 
+                                children:<TasksOverviewDetails tasks={resultTasks} />
+                            })
+                        }
+
+                    }
+                }catch(err){
+                    console.error(err);
+                }
+                
+            }
         }
     }
 
@@ -228,6 +266,13 @@ const TasksOverview = ()=>{
                     <TasksStatusBarChart data={{toDo:tTasksTodo, onHold:tTasksHold, completed:tTasksCompleted, blocked:tTasksBlocked, pendingReview:tTasksReview, overdue:tTasksDue, active:tTasksActive}}/> 
                 </div>
             </div>
+
+            <SidePanel 
+                isOpen={sidePanelProps.isOpen}
+                children={sidePanelProps.children}
+                title={sidePanelProps.title}
+                onClose={()=>setSidePanelProps({...sidePanelProps, isOpen:false, children:<></>, title:''})}
+            />
         </div>
     )
 }

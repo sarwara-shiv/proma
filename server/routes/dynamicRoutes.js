@@ -522,35 +522,34 @@ router.post('/:resource/getRecordsWithId', verifyToken, async (req, res) => {
     return res.json({ status: "error", message:'ID not found', code:"id_required" });
   }
 
-  try {
-    let records;
-    if(Array.isArray(id)){
-
-      records = await model.find({_id:{$in:id}});
-    }else{
-
-      // records = await model.findById(id);
-
-      let query = model.findById(id);
-
-      // Dynamically populate fields if provided
+    // Dynamically populate fields if provided
+    try {
+      let query;
+    
+      if (Array.isArray(id)) {
+        query = model.find({ _id: { $in: id } });
+      } else {
+        query = model.findById(id);
+      }
+    
+      // Apply population if needed
       if (populateFields && Array.isArray(populateFields)) {
         populateFields.forEach((field) => {
           query = query.populate(field);
         });
       }
-
-      records = await query;
+    
+      const records = await query.exec();
+    
+      if (!records || (Array.isArray(records) && records.length === 0)) {
+        return res.json({ status: "error", message: 'Record not found', code: "record_not_found" });
+      }
+    
+      return res.json({ status: "success", message: 'Record found', code: "record_found", data: records });
+    } catch (error) {
+      return res.json({ status: "error", message: 'Server error', code: "unknown_error", error });
     }
-    if (!records) {
-      // return res.status(404).json({ error: 'Record not found' });
-      return res.json({ status: "error", message:'Record not found', code:"record_not_found" });
-    }
-    // res.status(200).json({ message: 'Record deleted successfully' });
-    return res.json({ status: "success", message:'Record found', code:"record_found", data:records});
-  } catch (error) {
-    return res.json({ status: "error", message:'Server error', code:"unknown_error", error });
-  }
+    
 });
 
 
