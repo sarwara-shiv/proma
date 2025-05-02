@@ -1,7 +1,7 @@
-import { MdPerson } from "react-icons/md";
+import { MdKeyboardArrowDown, MdOutlineKeyboardArrowDown, MdPerson } from "react-icons/md";
 import { ISprint, Task, User } from "../../interfaces";
 import { ObjectId } from "mongodb";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { CustomTooltip } from "../../components/common";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
@@ -16,14 +16,36 @@ interface ArgsType {
 
 const DisplayTaskDetails: React.FC<ArgsType> = ({ projectId, onUpdate, task,title }) => {
   const { t } = useTranslation();
+  const [openTasks, setOpenTasks] = useState<string[]>([]);
   const [taskData] = useState<Task>(task);
+
+  useEffect(()=>{
+    
+  },[])
+  const handleOpenTasks = (taskId: string | undefined) => {
+    console.log(taskId);
+    if (taskId) {
+      setOpenTasks((prevTasks) => {
+        if (!prevTasks || prevTasks.length <= 0) return [taskId];
+  
+        if (prevTasks.includes(taskId)) {
+          return prevTasks.filter((item) => item !== taskId);
+        } else {
+          return [...prevTasks, taskId];
+        }
+      });
+    }
+  };
+
+  
 
   const renderTask = (task: Task, level = 0) => {
     const indent = level * 1.25; // control horizontal offset
     const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
 
     return (
-      <div key={task._id?.toString()} className={`relative `}>
+      <div key={task._id?.toString()} className={`relative `} >
+         
         {/* Vertical connector */}
         {level > 0 && (
           <div
@@ -35,6 +57,8 @@ const DisplayTaskDetails: React.FC<ArgsType> = ({ projectId, onUpdate, task,titl
             }}
           />
         )}
+
+       
 
         {/* Task Block */}
         <div
@@ -71,8 +95,8 @@ const DisplayTaskDetails: React.FC<ArgsType> = ({ projectId, onUpdate, task,titl
             </div>
             
           </div>
-
-          <h3 className="font-semibold text-lg">{task.name}</h3>
+ 
+          <h3 className="font-semibold text-slate-600 text-lg ">{task.name}</h3>
           {task.description && (
             <p
               className="text-xs"
@@ -110,13 +134,31 @@ const DisplayTaskDetails: React.FC<ArgsType> = ({ projectId, onUpdate, task,titl
               </div>
             </CustomTooltip>
           </div>
+        {level === 0 && hasSubtasks && (
+          <div
+            onClick={()=>handleOpenTasks(task._id?.toString())}
+            className="w-full flex justify-end cursor-pointer  underline my-2"
+            style={{
+              left: `${indent - 1.25}rem`,
+              top: 0,
+              bottom: 0,
+            }}
+          >
+            <span>{t('subtasks')} ({task.subtasks.length})</span>
+              <span className={`text-lg ${task._id && openTasks.includes(task._id.toString()) && 'rotate-180'} transition-all`}>
+                <MdKeyboardArrowDown />
+              </span>
+          </div>
+        )}
         </div>
         </div>
 
         {/* Recursively render subtasks */}
+        <div className={`${level === 0 && task._id && !openTasks.includes(task._id.toString()) ? 'hidden' : ''}`}>
         {hasSubtasks &&
           task.subtasks.map((sub: any) => renderTask(sub, level + 1))}
-      </div>
+          </div>
+          </div>
     );
   };
 

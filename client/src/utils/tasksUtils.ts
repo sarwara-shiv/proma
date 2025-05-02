@@ -1,6 +1,6 @@
 // tasksUtils.ts
 
-import { MainTask, Project, Task, TasksByProject, TasksByProjectMainTasks } from "../interfaces";
+import { MainTask, Project, Task, TasksByProject, TasksByProjectMainTasks, TaskStatus } from "../interfaces";
 import { ObjectId } from "mongodb";
 
 /**
@@ -145,6 +145,57 @@ export const filterTaskByMainTasks= (
   return { tasks, byProject, result };
 };
 
+/**
+ * 
+ * GET STORY POINTS
+ * @param tasks : tasks array
+ * 
+ */
+
+export const getTasksStoryPoints = (tasks:Task[])=>{
+  let result = {};
+  if(tasks && tasks.length > 0){
+    const totalTasks = tasks.length;
+
+    const totalStoryPoints = tasks.reduce((sum, task) => {
+      return sum + (typeof task.storyPoints === 'number' ? task.storyPoints : 0);
+    }, 0);
+
+    const defaultStatusTotals: Record<Task["status"], number> = {
+      toDo: 0,
+      inProgress: 0,
+      onHold: 0,
+      inReview: 0,
+      blocked: 0,
+      completed: 0,
+    };
+
+    const storyPointsByStatus = tasks.reduce((acc, task) => {
+      const points = typeof task.storyPoints === 'number' ? task.storyPoints : 0;
+      acc[task.status] += points;
+      return acc;
+    }, defaultStatusTotals);
+
+    const defaultTaskCountByStatus: Record<Task["status"], number> = {
+      toDo: 0,
+      inProgress: 0,
+      onHold: 0,
+      inReview: 0,
+      blocked: 0,
+      completed: 0,
+    };
+    
+    const countByStatus = tasks.reduce((acc, task) => {
+      acc[task.status] += 1;
+      return acc;
+    }, { ...defaultTaskCountByStatus });
+
+    result = {total:totalStoryPoints, ...storyPointsByStatus, countByStatus, totalTasks};
+  }
+
+
+  return result;
+}
 
 
 

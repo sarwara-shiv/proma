@@ -71,6 +71,34 @@ export const getDatesDifference = (date1: string | Date, date2: string | Date): 
 };
 
 
+/**
+ * 
+ * GET DATE DIFFERENCE IN DAYS
+ * 
+ */
+export function getDatesDifferenceInDays(fromDate: Date | string, toDate: Date | string = new Date()) {
+  const d1 = new Date(fromDate);
+  const d2 = new Date(toDate);
+
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
+
+  const diffInMs = d1.getTime() - d2.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  const status =
+    diffInDays > 0
+      ? `due`
+      : diffInDays < 0
+      ? `overdue`
+      : 'dueToday';
+
+  return {
+    days: diffInDays,
+    status,
+  };
+}
+
 
 
 /**

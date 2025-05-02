@@ -40,6 +40,7 @@ const initialValues: Project = {
   client:'',
   startDate: new Date(),
   endDate: new Date(), 
+  dueDate: new Date(), 
   documentation: [],
   personsInvolved: [],
   tasks: [],
@@ -193,6 +194,11 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
         console.log(noDate);
         saveDate = compareDates(date, oDate); // -1 means end date is less then startDate, 0 means equal so no save;
       }
+      if(name === 'dueDate' && oDate){
+        const noDate = formatDate(oDate);
+        console.log(noDate);
+        saveDate = compareDates(date, oDate); // -1 means end date is less then startDate, 0 means equal so no save;
+      }
       if(name === 'startDate' && oDate){
         const noDate = formatDate(oDate);
         console.log(noDate);
@@ -334,6 +340,15 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
                         label={t('startDate')}
                       />
                   </div>
+                  <div className="w-full">
+                    <CustomDateTimePicker
+                        selectedDate={formData.dueDate || null}
+                        onDateChange={handleDateChange}
+                        showTimeSelect={false}
+                        name="dueDate"
+                        label={t('dueDate')}
+                      />
+                </div>
                   <div className="w-full">
                     <CustomDateTimePicker
                         selectedDate={formData.endDate || null}

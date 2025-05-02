@@ -1,6 +1,7 @@
 // Define a mapping of statuses to Tailwind CSS classes
 export const statusClasses: { [key: string]: string } = {
     completed: 'bg-completed text-completed-dark',
+    due: 'bg-completed text-completed-dark',
   inProgress: 'bg-inProgress text-inProgress-dark',
   onHold: 'bg-onHold text-onHold-dark',
   cancelled: 'bg-cancelled text-cancelled-dark',
@@ -9,6 +10,9 @@ export const statusClasses: { [key: string]: string } = {
   pendingReview: 'bg-pendingReview text-pendingReview-dark',
   open: 'bg-open text-open-dark',
   closed: 'bg-closed text-closed-dark',
+  overDue: 'bg-danger text-danger-dark',
+  overdue: 'bg-danger text-danger-dark',
+  dueToday: 'bg-closed text-closed-dark',
   answered: 'bg-answered text-answered-dark',
   waiting: 'bg-waiting text-waiting-dark',
   notAnswered: 'bg-notAnswered text-notAnswered-dark',

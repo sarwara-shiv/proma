@@ -7,6 +7,7 @@ interface ArgsType {
 }
 const TasksOverviewDetails:React.FC<ArgsType> = ({tasks})=>{
     const [selectedNav, setSelectedNav] = useState<string>();
+    const [openTasks, setOpenTasks] = useState<string[]>([]);
     
 
     const nav:{_id:string, name:ReactNode}[] = useMemo(() => {
@@ -37,18 +38,18 @@ const TasksOverviewDetails:React.FC<ArgsType> = ({tasks})=>{
                     {tasks.map((project, pidx)=>{
                         return(
                             <div key={`project-${pidx}-${project.projectID}`} className={`projects p-2 mb-8 ${selectedNav && selectedNav !== project.projectID && 'hidden'}`}>
-                                <div className="font-bold text-lg mb-1 text-primary">{project.project.name}</div>
+                                <div className="font-bold text-xl mb-1 text-primary">{project.project.name}</div>
                                 {project.mainTasks && project.mainTasks.length > 0 ?
-                                    <div className="maintasks border p-2 mb-2 rounded-lg">
+                                    <div className="maintasks flex flex-col gap-y-2 mb-4 rounded-lg">
                                         {project.mainTasks.map((maintasks, midx)=>{
                                             return (
                                                 <div key={`maintask-${pidx}-${midx}`} className="mb-2">
-                                                    <div className="text-md font-bold text-gray-600">{maintasks.mainTask.name}</div>
+                                                    <div className="text-md px-2 border-t border-x rounded-tr-lg inline-block py-1 bg-slate-100 mt-3 font-bold text-gray-600">{maintasks.mainTask.name}</div>
                                                     {maintasks.tasks && maintasks.tasks.length > 0 ?
-                                                        <div className="tasks mb-1 text-sm">
+                                                        <div className="tasks mb-1 text-sm border p-2 rounded-b-lg">
                                                             {maintasks.tasks.map((task, tidx)=>{
                                                                 return (
-                                                                    <div className="mb-2 bg-gray-100 my-3 p-2 rounded-lg">
+                                                                    <div className="mb-2 bg-gray-100  my-3 p-2 rounded-lg">
                                                                         {/* {task.name} */}
                                                                         <DisplayTaskDetails task={task} projectId={''}/>
                                                                     </div>

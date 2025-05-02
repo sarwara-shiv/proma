@@ -364,9 +364,11 @@ export interface ISprint {
     priority: 'high' | 'medium' | 'low';
     customPriority?: string; // Refers to ProjectPriority objectId
     startDate: Date;
+    dueDate?: Date;
     endDate?: Date;
     projectType?:'inhouse' | 'client';
     kickoff?: Kickoff;
+    expectedTime?: number;
     client?: string | null;
     documentation?: string[]; // Array of Documentation objectIds
     personsInvolved: (string | ObjectId)[];

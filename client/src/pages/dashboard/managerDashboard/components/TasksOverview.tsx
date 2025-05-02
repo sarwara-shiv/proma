@@ -44,7 +44,6 @@ const TasksOverview = ()=>{
                 let pids:string[] = []; // project ids
                 let mids:string[] = [];  // main tasks ids
                 // get all Projects
-                console.log(user._id)
                 const filters: QueryFilters = {
                     "kickoff.responsibilities.persons": user._id.toString(),
                     "status": {
@@ -201,6 +200,7 @@ const TasksOverview = ()=>{
                             ]
                         }, 
                         {path: 'responsiblePerson'}, 
+                        {path: 'assignedBy'}, 
                         {path: 'subtasks',
                             populate:[
                                 {path:'subtasks'}

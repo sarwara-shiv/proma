@@ -23,3 +23,4 @@ export { default as ImageIcon } from './ImageIcon';
 export { default as SidePanel } from './SidePanel';
 export { default as DisplayTaskDetails } from './DisplayTaskDetails';
 export { default as ButtonMenu } from './ButtonMenu';
+export { default as FloatingBottomMenu } from './FloatingBottomMenu';

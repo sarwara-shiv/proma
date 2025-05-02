@@ -292,6 +292,36 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
               }
         },
         {
+            header: `${t('dueDate')}`,
+            accessorKey: 'dueDate',
+            id:"dueDate",
+            cell: ({ getValue, row }) => {
+              const dueDate = getValue() && getValue();
+              const date = getValue() ? format(new Date(getValue()), 'dd.MM.yyyy') : '';
+              const _id = row.original._id
+              return (
+                <div className={`flex relative w-full border-b bg-transparent`}>  
+                    <CustomDateTimePicker2 
+                        selectedDate={dueDate}
+                        onChange={handleDateChange}
+                        showTimeSelect={false}
+                        recordId={_id}
+                        name="dueDate"
+                        label=''
+                        style='table'
+                    />
+                  </div>
+
+              ); 
+            },
+              meta:{
+                  style :{
+                  textAlign:'center',
+                  width:'130px'
+                  }
+              }
+        },
+        {
             header: `${t('endDate')}`,
             accessorKey: 'endDate',
             id:"endDate",

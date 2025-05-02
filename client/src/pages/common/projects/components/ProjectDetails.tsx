@@ -132,6 +132,14 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                     </span>
                     </div>
                 }
+                {projectData.dueDate && 
+                  <div>
+                    <span className='text-slate-400 text-xs'>{t('dueDate')}: </span>
+                    <span className='text-sm text-slate'>
+                      {format(projectData.dueDate, 'dd.MM.yyyy')}
+                    </span>
+                    </div>
+                }
                 {projectData.endDate && 
                   <div>
                     <span className='text-slate-400 text-xs'>{t('endDate')}: </span>
