@@ -1,12 +1,13 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { MdPerson2, MdSettings } from 'react-icons/md';
+import { MdOutlineWebAsset, MdPerson2, MdSettings } from 'react-icons/md';
 import { FloatingBottomMenu, Headings } from '../../../components/common';
 import TasksOverview from './components/TasksOverview';
 import { useAuthContext } from '../../../context/AuthContext';
 import OnlineUsers from '../components/OnlineUsers';
 import ProjectsOverview from './components/ProjectsOverview';
 import { useAppContext } from '../../../context/AppContext';
+import { FaTasks } from 'react-icons/fa';
 
 // TODO - project status change add reason 
 
@@ -22,9 +23,9 @@ const ManagerDashboard:React.FC = ()=>{
     const {setPageTitle} = useAppContext();
     const [selectedNav, setSelectedNav] = useState<string>('tasks');
     const [nav, setNav] = useState<NavType[]>([
-        {_id:'tasks', label:'tasks', icon:<MdSettings />},
-        {_id:'projects', label:'projects', icon:<MdSettings />},
-        {_id:'settings', label:'settings', icon:<MdSettings />},
+        {_id:'tasks', label:t('tasks'), icon:<FaTasks />},
+        {_id:'projects', label:t('projects'), icon:<MdOutlineWebAsset />},
+        {_id:'settings', label:t('settings'), icon:<MdSettings />},
     ]);
 
     useEffect(()=>{

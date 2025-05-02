@@ -20,7 +20,8 @@ const FloatingBottomMenu:React.FC<ArgsType> = ({nav, onClick, selectedNav})=>{
                             <span 
                             className={`aspect-1/1 p-1 text-xl
                                 transition-transform duration-100 ease origin-center
-                                ${selectedNav && selectedNav !== item._id ? 'group-hover:scale-125 group-hover:text-primary' : ''}
+                                ${selectedNav && selectedNav === item._id && 'text-primary'}
+                                ${selectedNav && selectedNav !== item._id ? 'group-hover:scale-110 group-hover:text-primary' : ''}
                             `}>
                                 {item.icon && item.icon}
                             </span>
