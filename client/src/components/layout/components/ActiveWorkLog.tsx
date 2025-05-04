@@ -9,6 +9,7 @@ import { CustomAlert, CustomPopup } from '../../../components/common';
 import { format } from 'date-fns';
 import { workLogActions } from '../../../hooks/dbHooks';
 import { RichTextArea } from '../../../components/forms';
+import { IoTimerOutline } from 'react-icons/io5';
 
 const ActiveWorkLog = () => {
     const { t } = useTranslation();
@@ -133,10 +134,10 @@ const ActiveWorkLog = () => {
     return (
         <>
         {activeWorkLog && activeWorkLog.task &&
-            <div className='fixed bottom-10 right-8'>
+            <div className=''>
                 <div onClick={openTaskDetails} 
-                    className='cursor-pointer relative flex justify-center items-center p-1 bg-primary text-xs text-white rounded-sm shadow-md'>
-                    {(activeWorkLog.task as unknown as Task)._cid}
+                    className='cursor-pointer relative flex justify-center items-center px-2 py-1.5 gap-2 bg-primary text-xs text-white font-bold rounded-2xl shadow-md'>
+                    <IoTimerOutline className='text-lg'/> {(activeWorkLog.task as unknown as Task)._cid}
                 </div>
             </div>  
         }

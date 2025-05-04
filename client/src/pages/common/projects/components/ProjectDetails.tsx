@@ -9,6 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { NavLink, useParams } from 'react-router-dom';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import PieChartWithPaddingAngle from '../../../../components/charts/PieChartWithPaddingAngle';
+import ProjectProgress from './ProjectProgress';
+import { countSubtasksByStatus } from '../../../../utils/tasksUtils';
+import TasksStatusPieChart from '../../../../components/charts/TasksStatusPieChart';
 interface ArgsType {
     cid?:string | null;
     data?: Project; 
@@ -25,6 +28,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
     const [mainTasksStatus, setMainTasksStatus] = useState<{[key:string]:number}[]>([]);
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskStatus, setTasksStatus] = useState<{[key:string]:number}[]>([]);
+    const [tasksChartData, setTasksChartData] = useState<Record<string, number>>({});
     const [subtasks, setSubTasks] = useState<Task[]>([]);
     const [subtasksStatus, setSubtasksStatus] = useState<{[key:string]:number}[]>([]);
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
@@ -71,10 +75,12 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                 setProjectData(res.data);
                 if(res.data.mainTasks) {
                   setMainTasks(res.data.mainTasks);
+                  const chartData = countSubtasksByStatus(res.data.mainTasks);
+                  setTasksChartData(chartData);
+                  console.log(chartData);
                   // set tasks
-                  (res.data.mainTasks as unknown as MainTask[]).map((mt)=>{
-                    setTasks([...tasks, ...(mt.subtasks as unknown as Task[])])
-                  })
+                  const allSubtasks: Task[] = (res.data.mainTasks as unknown as MainTask[]).flatMap(mt => mt.subtasks as Task[]);
+                  setTasks(allSubtasks);
                 }
 
                 if(res.data.mainTasks.subtasks) setTasks(res.data.mainTasks.subtasks);
@@ -169,7 +175,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                   {getStatusData(projectData.status) && 
                     ((astatus) => {
                         return (
-                          <div className='flex items-center flex-cols bg-white gap-2 px-1 rounded-md shadow-card'>
+                          <div className='flex items-center flex-cols bg-white gap-2 px-1 rounded-md border'>
                             <span className='text-xs text-slate-400'>{t('status')}</span>
                             <div className={`text-xs rounded-sm  border-white border-1 
                                 px-1 py-1
@@ -186,7 +192,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
                   {getPrioritiesData(projectData.priority) && 
                     ((astatus) => {
                         return (
-                          <div className='flex items-center flex-cols gap-2 bg-white px-1 rounded-md shadow-card'>
+                          <div className='flex items-center flex-cols gap-2 bg-white px-1 rounded-md border'>
                             <span className=' text-xs text-slate-400'>{t('priority')}</span>
                             <div className={`text-xs rounded-sm  border-white border-1 
                                 px-1 py-1
@@ -207,31 +213,33 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             </div>
           </div>
           {/* Header details */}
-          <div className='flex flex-col sm:flex-row gap-3'>
+          <div className='flex flex-col sm:flex-row gap-6 mb-8'>
             {/* TASKS */}
-            <div className='card bg-green-100 border-2 border-white p-1 w-fit'>
-              <h2 className='text-green-400 font-bold text-sm mb-2'>{t('tasks')}</h2>
-              <div className='text-xs text-slate-500 flex flex-cols gap-2'>
-                  <span>{t('maintasks')}:</span>
-                  <span className='font-bold'>{mainTasks ? mainTasks.length : 0}</span>
+            <div className='bg-gray-100 rounded-md p-2 w-fit'>
+              <div className=''>
+                <div className='text-slate-500 font-bold text-sm flex justify-between'>
+                    <span>{t('maintasks')} / {t('milestones')} </span>
+                    <span className='font-bold'>{mainTasks ? mainTasks.length : 0}</span>
+                </div>
+                <div className='text-slate-500 font-bold text-sm flex justify-between'>
+                    <span>{t('tasks')}</span>
+                    <span className='font-bold'>{tasks ? tasks.length : 0}</span>
+                </div>
               </div>
-              <div className='text-xs text-slate-500 flex flex-cols gap-2'>
-                  <span>{t('tasks')}:</span>
-                  <span className='font-bold'>
-                    {
-                    tasks ? tasks.length : 0
-                    }
-                    </span>
+              <div className='relative '>
+                {/* <PieChartWithPaddingAngle data={mainTasks}/> */}
+                <TasksStatusPieChart data={tasksChartData}/>
               </div>
-              <div className='relative w-[250px]'>
-                <PieChartWithPaddingAngle data={mainTasks}/>
-              </div>
+            </div>
+
+            <div className='flex-1 max-w-sm bg-gray-100 rounded-md p-2'>
+              <ProjectProgress project={projectData} showCount={false}/>
             </div>
 
           </div>
 
           {/* Description */}
-          <div className='card bg-white'>
+          <div className='card- bg-white p-2 rounded-md mb-6'>
               <div className='text-left mb-3'>
                 <PageTitel text={`${t('description')}`} color='slate-300'  size='2xl'/>
               </div>
@@ -244,7 +252,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
           </div>
 
           {/* Custom fields */}
-          <div className='card bg-white'>
+          <div className='card- '>
               <div className='text-left mb-3'>
                 <PageTitel text={`${t('otherDetails')}`} color='slate-300'  size='2xl'/>
               </div>

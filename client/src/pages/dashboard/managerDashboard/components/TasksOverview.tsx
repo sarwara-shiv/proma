@@ -6,8 +6,8 @@ import { getRecordWithID, getTotalRecords } from "../../../../hooks/dbHooks";
 import { QueryFilters, SidePanelProps, TasksByProjectMainTasks } from "@/interfaces";
 import { IoInformation } from "react-icons/io5";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
-import TasksStatusPieChart from "./TasksStatusPieChart";
-import TasksStatusBarChart from "./TasksStatusBarChart";
+import TasksStatusPieChart from "../../../../components/charts/TasksStatusPieChart";
+import TasksStatusBarChart from "../../../../components/charts/TasksStatusBarChart";
 import { filterTaskByMainTasks, filterTaskByProject } from "../../../../utils/tasksUtils";
 import TasksOverviewDetails from "./TasksOverviewDetails";
 

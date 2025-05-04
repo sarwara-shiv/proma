@@ -1,3 +1,4 @@
+import { getColorClasses } from "../../mapping/ColorClasses";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Rectangle, Cell, Text } from "recharts";
@@ -5,15 +6,16 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Rectangle, C
 interface ArgsType {
   data: Record<string, number>;
 }
-type TaskStatusKey = 'toDo' | 'completed' | 'onHold' | 'pendingReview' | 'blocked' | 'overdue' | 'active';
+type TaskStatusKey = 'toDo' | 'completed' | 'inProgress' | 'onHold' | 'pendingReview' | 'blocked' | 'overdue' | 'active';
 const COLORS_CLASSES:Record<TaskStatusKey, string> = {
-  toDo: "#dfdfdf", // light indigo
-  completed: "#b1ffcc", // light red
-  onHold: "#fef3c7", // light yellow
-  pendingReview: "#fef9c3", // light greenish
-  active: "#d1fae5", // light greenish
-  blocked: "#dfdfdf", // light gray
-  overdue: "#fee2e2", // light red
+  toDo: "#60A5FA", // gray
+  completed: "#34D399", // green 
+  active: "#FBBF24",  // 
+  onHold: "#A78BFA", 
+  inProgress: "#F87171", 
+  pendingReview: "#F472B6", 
+  blocked: "#38BDF8", 
+  overdue: "#FDBA74", 
 };
 
 const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
@@ -47,7 +49,7 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
         y={y}
         dy={10}
         textAnchor="end"
-        transform={`rotate(-20, ${x}, ${y})`}
+        transform={`rotate(-11, ${x}, ${y})`}
         fontSize={10}
         fill="#4B5563" // Tailwind gray-700
       >
@@ -63,6 +65,7 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
       "completed",
       "onHold",
       "pendingReview",
+      "inProgress",
       "blocked",
       "overdue",
       "active",
@@ -89,7 +92,7 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
           }}
         >
           <p className="text-gray-600 font-medium text-sm">{t(label)}</p>
-          <p className="text-indigo-600 font-semibold">
+          <p className="text-primary font-semibold">
             {payload[0].value}
           </p>
         </div>
@@ -100,8 +103,11 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
   };
 
   return (
-    <div className="w-full h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+    <div className="w-full min-h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+
+      <div className="w-full h-[300px] pb-6">
       {chartData.length > 0 ? (
+      
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <XAxis dataKey="name" 
@@ -123,6 +129,25 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
       ) : (
         <span className="text-gray-500">{t("noData") || "No Data"}</span>
       )}
+      </div>
+      {Object.entries(chartData).length > 0 && 
+        <div className="flex flex-row flex-wrap text-xs gap-2 ">
+        {Object.entries(chartData).map(([key, entry]) => {
+          console.log(entry);
+          return (
+              <div key={key} className="flex flex-row gap-2 justify-start items-center rounded-md p-1 border">
+                  <div className="flex gap-2">
+                      <div className={`w-4 h-4 border-2 border-white shadow`}
+                        style={{backgroundColor:COLORS_CLASSES[entry.key] || '#A5B4FC'}}
+                      ></div>
+                      <div>{t(entry.name)}</div>
+                  </div>
+                  <div className="font-bold">({entry.value})</div>
+              </div>
+          )}
+          )}
+        </div>
+      }
     </div>
   );
 };

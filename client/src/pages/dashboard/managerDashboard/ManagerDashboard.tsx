@@ -8,6 +8,7 @@ import OnlineUsers from '../components/OnlineUsers';
 import ProjectsOverview from './components/ProjectsOverview';
 import { useAppContext } from '../../../context/AppContext';
 import { FaTasks } from 'react-icons/fa';
+import { IoTimerOutline } from 'react-icons/io5';
 
 // TODO - project status change add reason 
 
@@ -25,6 +26,7 @@ const ManagerDashboard:React.FC = ()=>{
     const [nav, setNav] = useState<NavType[]>([
         {_id:'tasks', label:t('tasks'), icon:<FaTasks />},
         {_id:'projects', label:t('projects'), icon:<MdOutlineWebAsset />},
+        {_id:'worklog', label:t('worklog'), icon:<IoTimerOutline />},
         {_id:'settings', label:t('settings'), icon:<MdSettings />},
     ]);
 

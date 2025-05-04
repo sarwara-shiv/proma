@@ -299,8 +299,8 @@ const BaseTaskSchema = new Schema({
   customPriority: { type: Schema.Types.ObjectId, ref: 'TaskPriority' },  // Custom priority reference
   status: { type: String, enum: predefinedTaskStatuses, default: 'toDo' },
   assignNote: { type: String},
-  difficultyLevel: { type: String, enum:['easy','medium','high'], default:'medium'},
-  sprintId:{type:String},
+  difficultyLevel: { type: String, enum:['easy','medium','high'], default:'medium'}, // not in use
+  sprintId:{type:String, ref:'Sprint'},
   storyPoints:{type:Number, enum:[1,2,3,5,8,13], default:2}, // 
   customStatus: { type: Schema.Types.ObjectId, ref: 'TaskStatus' },  // Custom status reference
   responsiblePerson: { type: Schema.Types.ObjectId, ref: 'User'},
@@ -311,6 +311,7 @@ const BaseTaskSchema = new Schema({
   requiresApproval: { type: Boolean, default: true },
   approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected', null], default: null },
   approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  dependencies:[{tasks:{type:String, ref:'Task'}}],
   approvedAt: { type: Date },
   approver: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectedReason: { type: String },
@@ -325,6 +326,12 @@ const BaseTaskSchema = new Schema({
     assignedBy:{ type: Schema.Types.ObjectId, ref: 'User'},
     reason:{type:String, enum:taskAssignReasons,default:'todo'},
     timestamp:{type:Date, default:Date.now}
+  }],
+  sprintHistory:[{
+    sprintId:{type:String, ref:'Sprint'},
+    assignedOn:{type:Date},
+    removedOn:{type:Date},
+    statusAtRemoval:{type:String, enum: predefinedTaskStatuses,}
   }],
   dependencies: [{
     type: Schema.Types.ObjectId,

@@ -26,28 +26,34 @@ const PieChartWithPaddingAngle: React.FC<PieChartWithPaddingAngleProps> = ({ dat
   const pieData = preprocessData(data);
 
   return (
-    // ResponsiveContainer wraps the PieChart and makes it responsive
-    <ResponsiveContainer width={250} height={250}>
-      <PieChart>
-        <Pie
-          data={pieData}
-          dataKey="value"
-          nameKey="name"
-          cx="50%" // X position
-          cy="50%" // Y position
-          outerRadius={70} // Radius of the pie
-          fill="#8884d8"
-          paddingAngle={5} // Padding between slices
-          label // Adds labels to each slice
-        >
-          {pieData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
+    <div className="w-full  p-2 bg-gray-100 rounded-xl">
+
+      <div className="w-full h-[300px] ">
+      
+      {/* // ResponsiveContainer wraps the PieChart and makes it responsive */}
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%" // X position
+              cy="50%" // Y position
+              outerRadius={70} // Radius of the pie
+              fill="#8884d8"
+              paddingAngle={5} // Padding between slices
+              label // Adds labels to each slice
+            >
+              {pieData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };
 

@@ -7,6 +7,7 @@ import { useAppContext } from '../../../context/AppContext';
 import {useAuthContext } from '../../../context/AuthContext';
 import LogoutButton from '../../../components/auth/LogoutButton';
 import ToggleDailyReport from '../../../components/specific/dailyReport/ToggleDailyReport';
+import ActiveWorkLog from './ActiveWorkLog';
 
 const AdminHeader = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
@@ -62,10 +63,11 @@ const AdminHeader = () => {
                 <div>
                     <ToggleDailyReport />
                 </div>
-                <span>
+                <ActiveWorkLog />
+                <div>
                     <span className="text-primary font-bold">{t('hello')} </span>
                     {user?.username && <>{user.username}</>}
-                </span> 
+                </div> 
             </div>
             {/* <div className="container  min-w-full flex items-center justify-between px-2">
                 <div className="left-nav flex items-center space-x-2">

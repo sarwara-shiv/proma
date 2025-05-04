@@ -66,6 +66,12 @@ const TaskStatuses = [
     {_id: 'pendingReview', name:'In Review', color:'pendingReview'},
     {_id: 'completed', name:'Completed', color:'completed'},
 ]
+const TaskStatusesEmployee = [
+    {_id: 'toDo', name:'TODO', color:'toDo'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'onHold', name:'On Hold', color:'onHold'},
+    {_id: 'pendingReview', name:'In Review', color:'pendingReview'},
+]
 const Priorities = [
     {_id: 'high', name:'High', color:'high'},
     {_id: 'medium', name:'Medium', color:'medium'},
@@ -115,4 +121,4 @@ const OStoryPoints = [
     {_id: 13, name:'13 (XXL)'},
 ]
 
-export {OStoryPoints, SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {TaskStatusesEmployee, OStoryPoints, SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

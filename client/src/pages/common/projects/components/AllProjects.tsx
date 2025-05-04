@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import Loader from '../../../../components/common/Loader';
 import DataTable from '../../../../components/table/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
-import { IoCreateOutline, IoDocumentAttach, IoEllipsisVertical, IoLockClosed } from "react-icons/io5";
+import { IoDocumentAttach} from "react-icons/io5";
 import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { DiScrum } from "react-icons/di";
 
@@ -11,26 +11,22 @@ import { MdRocketLaunch } from "react-icons/md";
 
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit, getRecordsWithFilters } from '../../../../hooks/dbHooks';
+import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithFilters } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
-import ToggleBtnCell from '../../../../components/table/ToggleBtnCell';
 import { User } from '@/interfaces/users';
-import { UserRole } from '@/interfaces/userRoles';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import { AlertPopupType, FlashPopupType, NavItem, OrderByFilter, PaginationProps, Project, QueryFilters } from '@/interfaces';
 import { getUsers } from '../../../../hooks/getRecords';
 import { ObjectId } from 'mongodb';
-import SubNavigationCell from '../../../../components/table/SubNavigationCell';
 import { ProjectStatuses, Priorities } from '../../../../config/predefinedDataConfig';
 import { CustomDropdown } from '../../../../components/forms';
-import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import Pagination from '../../../../components/common/Pagination';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
-import { getValue } from '@testing-library/user-event/dist/utils';
+import { DaysLeft } from '../../../../components/common';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -67,8 +63,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
         {
           header: '',
           id:"actions_cell",
-          cell: ({ getValue, row }) => { 
-            const cid = getValue() && getValue();
+          cell: ({ row }) => { 
             const _id = row.original._id ? row.original._id as unknown as string : '';
             return (
                 <div>
@@ -166,14 +161,33 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           header: `${t('name')}`,
           accessorKey: 'name',
           id:"name",
-          cell:({getValue, row})=>{ 
+          cell:({getValue, row})=>{
             return (
                 <NavLink
                 to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
                 className="flex underline justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
                 >
-                {getValue()}
+                {getValue()} 
             </NavLink>
+            )
+          },
+            meta:{
+                style :{
+                textAlign:'left',
+                }
+            }
+        },
+        {
+          header: `${t('dueDays')}`,
+          id:"dueDays",
+          cell:({getValue, row})=>{
+            const dueDate = row.original.dueDate || null;
+            return (
+                <div
+                className="flex justify-between items-center text-xs gap-1 whitespace-normal break-words"
+                >
+                {dueDate ? <DaysLeft dueDate={dueDate} type='short' /> : '-'}
+                </div>
             )
           },
             meta:{

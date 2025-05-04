@@ -197,7 +197,34 @@ export const getTasksStoryPoints = (tasks:Task[])=>{
   return result;
 }
 
+/**
+ * 
+ * GET TASKS COUNT BY STATUS FROM PROJECT MAIN TASKS
+ * 
+ * @param MainTasks : main tasks array
+ * 
+ * 
+ */
 
+export const countSubtasksByStatus = (milestones: MainTask[]) => {
+  type Status = 'toDo' | 'inProgress' | 'onHold' | 'inReview' | 'blocked' | 'completed';
+
+  const ALL_STATUSES: Status[] = ['toDo', 'inProgress', 'onHold', 'inReview', 'blocked', 'completed'];
+
+  const statusCount: Record<Status, number> = Object.fromEntries(
+    ALL_STATUSES.map(status => [status, 0])
+  ) as Record<Status, number>;
+
+  milestones.forEach(milestone => {
+    milestone.subtasks?.forEach(subtask => {
+      if (ALL_STATUSES.includes(subtask.status)) {
+        statusCount[subtask.status] += 1;
+      }
+    });
+  });
+
+  return statusCount;
+};
 
 /**
  * 

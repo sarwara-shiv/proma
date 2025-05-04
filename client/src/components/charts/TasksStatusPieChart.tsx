@@ -1,3 +1,4 @@
+import { getColorClasses } from "../../mapping/ColorClasses";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, ResponsiveContainer,Rectangle 
@@ -10,23 +11,17 @@ interface ArgsType {
   data: Record<string, number>;
 }
 
-type TaskStatusKey = 'toDo' | 'completed' | 'onHold' | 'pendingReview' | 'blocked' | 'overdue' | 'active';
-const COLORS = [
-    "#A5B4FC", // light indigo
-    "#6EE7B7", // light green
-    "#FCD34D", // soft yellow
-    "#FCA5A5", // light red
-    "#93C5FD", // light blue
-    "#DDD6FE", // lavender
-  ];
+type TaskStatusKey = 'toDo' | 'completed' | 'onHold' | 'inProgress' | 'pendingReview' | 'blocked' | 'overdue' | 'active';
+
   const COLORS_CLASSES:Record<TaskStatusKey, string> = {
-    toDo: "#A5B4FC", // light indigo
-    completed: "#b1ffcc", // light red
-    active: "#d1fae5", // light red
-    onHold: "#fef3c7", // light yellow
-    pendingReview: "#fef9c3", // light greenish
-    blocked: "#dfdfdf", // light gray
-    overdue: "#fee2e2", // light red
+    toDo: "#60A5FA", // gray
+    completed: "#34D399", // green 
+    active: "#FBBF24",  // 
+    onHold: "#A78BFA", 
+    inProgress: "#F87171", 
+    pendingReview: "#F472B6", 
+    blocked: "#38BDF8", 
+    overdue: "#FDBA74", 
   };
 const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
   const { t } = useTranslation();
@@ -38,6 +33,7 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
       "completed",
       "onHold",
       "pendingReview",
+      "inProgress",
       "blocked",
       "overdue",
       "active",
@@ -64,7 +60,7 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
           }}
         >
           <p className="text-gray-600 font-medium text-sm">{t(label)}</p>
-          <p className="text-indigo-600 font-semibold">
+          <p className="text-primary font-semibold">
             {payload[0].value}
           </p>
         </div>
@@ -75,7 +71,8 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
   };
 
   return (
-    <div className="w-full h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+    <div className="w-full min-h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+      <div className="w-full h-[300px] pb-6">
       {chartData.length > 0 ? (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -88,22 +85,24 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
                 outerRadius={100}
                 fill="#4f46e5"
                 labelLine={true}
-                label={({ name, cx, cy, midAngle, innerRadius, outerRadius  }) => {
-                    const RADIAN = Math.PI / 180;
-                    const radius = outerRadius +20;  // Adjust position to stay inside the slice
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                    return(<text
-                        x={x}
-                        y={y}
-                    textAnchor="middle"
-                    fill="#000000" // Custom color for the label text
-                    fontSize="12px"
-                    fontWeight="bold"
-                >
-                    {name}
-                </text>)}
-              }
+                label
+
+              //   label={({ name, cx, cy, midAngle, innerRadius, outerRadius, value  }) => {
+              //       const RADIAN = Math.PI / 180;
+              //       const radius = outerRadius +20;  // Adjust position to stay inside the slice
+              //       const x = cx + radius * Math.cos(-midAngle * RADIAN);
+              //       const y = cy + radius * Math.sin(-midAngle * RADIAN);
+              //       return(<text 
+              //           x={x}
+              //           y={y}
+              //       textAnchor="middle"
+              //       fill="#000000" // Custom color for the label text
+              //       fontSize="8px"
+              //       fontWeight="bold"
+              //   >
+                    
+              //   </text>)}
+              // }
             >
             {chartData.map((entry, index) => (
                 <Cell key={index} fill={COLORS_CLASSES[entry.key] || '#A5B4FC'} />
@@ -118,6 +117,27 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
       ) : (
         <span className="text-gray-500">{t("noData") || "No Data"}</span>
       )}
+      </div>
+
+      {Object.entries(chartData).length > 0 && 
+        <div className="flex flex-row flex-wrap text-xs gap-2 ">
+        {Object.entries(chartData).map(([key, entry]) => {
+          console.log(entry);
+          return (
+              <div key={key} className="flex flex-row gap-2 justify-start items-center rounded-md p-1 border">
+                  <div className="flex gap-2">
+                  <div className={`w-4 h-4 border-2 border-white shadow`}
+                        style={{backgroundColor:COLORS_CLASSES[entry.key] || '#A5B4FC'}}
+                      ></div>
+                      <div>{t(entry.name)}</div>
+                  </div>
+                  <div className="font-bold">({entry.value})</div>
+              </div>
+          )}
+          )}
+        </div>
+      }
+
     </div>
   );
 };

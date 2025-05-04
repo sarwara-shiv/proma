@@ -1,20 +1,28 @@
 import { getRecordsWithFilters, getRecordsWithLimit, getRecordWithID } from "../../../../hooks/dbHooks";
-import { DecodedToken, Kickoff, MainTask, OrderByFilter, Project, QueryFilters, Task, User } from "@/interfaces";
+import { AlertPopupType, DecodedToken, Kickoff, MainTask, OrderByFilter, Project, QueryFilters, SidePanelProps, Task, User } from "@/interfaces";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { getTasksStoryPoints } from "../../../../utils/tasksUtils";
-import { CustomTooltip, ImageIcon } from "../../../../components/common";
+import { CustomAlert, CustomTooltip, DaysLeft, ImageIcon, SidePanel } from "../../../../components/common";
 import { getDatesDifferenceInDays } from "../../../../utils/dateUtils";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdArrowBack } from "react-icons/md";
+import { useAuthContext } from "../../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import ProjectTeam from "../../components/ProjectTeam";
+import ProjectProgress from "../../../../pages/common/projects/components/ProjectProgress";
 
 interface ArgsType{
     user:DecodedToken | null;
 }
 const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
     const {t} = useTranslation();
+    const navigate = useNavigate();
+    const {isAdmin} = useAuthContext()
     const [projects, setProjects] = useState<Project[]>([]);
+    const [alertProps, setAlertProps] = useState<AlertPopupType>({isOpen:false, title:'', content:''});
+    const [panelProps, setPanelProps] = useState<SidePanelProps>({isOpen:false, title:'', children:''});
     const [page, setPage] = useState<number>(1);
 
     useEffect(()=>{
@@ -51,7 +59,8 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                             }
                         ]
                     }, 
-                    {path:'kickoff.responsibilities.persons'}
+                    {path:'kickoff.responsibilities.persons'},
+                    {path:'kickoff.responsibilities.role'}
                 ];
 
                 const res = await getRecordsWithFilters({
@@ -69,82 +78,6 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
             }
         }
     }
-
-    /**
-     * 
-     * PROJECT PROGRESS
-     * @param mainTasks 
-     * 
-     */
-    const getProgress = (mainTasks:MainTask[])=>{
-        if(mainTasks && mainTasks.length > 0){
-            const tasks: Task[] = mainTasks.flatMap(task => task.subtasks ?? []);
-
-            if(tasks && tasks.length > 0){
-                const sp:Record<string, number> = getTasksStoryPoints(tasks);
-                if(sp && Object.keys(sp).length > 0){
-                    console.log(sp);
-                    const totalStoryPoints = sp.total || 0;
-                    const completed = sp.completed || 0;
-                    const totalTasks = tasks.length;
-                    const countByStatus:Record<string, number> = sp.countByStatus as unknown as Record<string, number>;
-
-                    let progress = 0;
-                    let progressPercent = 0;
-                    if(totalStoryPoints && completed){
-                        progress = (completed / totalStoryPoints) * 100;
-                        progressPercent = Number(progress.toFixed(2));
-                        console.log('---- progress %',progressPercent);
-                    }
-                    return <div className="w-full py-2">
-                            <div className="pb-1 text-sm font-bold text-slate-500 flex justify-between">
-                                {t('progress')}
-                            </div>
-                            <div className="relative w-full h-[6px] bg-slate-200 rounded-lg">
-                                <div
-                                    className="absolute left-0 top-0 h-full bg-green-400 rounded-lg"
-                                    style={{ width: `${progressPercent}%` }}
-                                ></div>
-                            </div>
-                            <div className="flex justify-end text-sm font-bold text-slate-600">
-                                {progressPercent}%
-                            </div>
-                            <div className="my-2 flex-col text-xs text-slate-600">
-                                <CustomTooltip content={t('storyPoints_info')}>
-                                    <div className="text-sm font-bold text-slate-500 ">{t('storyPoints_full')}</div>
-                                </CustomTooltip>
-                                <div className="flex  gap-2">
-                                    <span>{t('total')}: </span><span>{totalStoryPoints}</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span>{t('completed')}: </span><span>{completed}</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col text-xs gap-2 py-2 bg-gray-100 p-2 rounded-lg my-2 ">
-                                {Object.entries(countByStatus).map(([status, count]) => (
-                                    <div key={status} className="flex flex-row gap-2 justify-between items-center">
-                                        <div className="flex gap-2">
-                                            <div className={`w-4 h-4 border-2 border-white shadow ${getColorClasses(status)}`}></div>
-                                            <div>{t(status)}</div>
-                                        </div>
-                                        <div>{count}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-
-                }else{
-                    return false;
-                }
-            }
-        }else{
-            return false;
-        }
-
-        return false;
-    }
-
 
     /**
      * 
@@ -198,7 +131,8 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                                 </div>
                             ))}
                             </div>
-                        <span className="text-lg w-8 h-8 flex justify-center items-center hover:bg-primary-light hover:text-primary rounded-full p-1 bg-slate-100 cursor-pointer">
+                        <span onClick={()=>showTeamAlert(kickOff)}
+                        className="text-lg w-8 h-8 flex justify-center items-center hover:bg-primary-light hover:text-primary rounded-full p-1 bg-slate-100 cursor-pointer">
                             <MdAdd />
                         </span>
                         
@@ -208,29 +142,63 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
         return false;
     }
 
+    // SHOW TEAM
+    const showTeamAlert = (kickOff:Kickoff) =>{
+        if(kickOff && kickOff.responsibilities && kickOff.responsibilities.length > 0 ){
+            setPanelProps({...alertProps, isOpen:true, title:t('responsiblities'), 
+                children:<ProjectTeam responsibilities={kickOff.responsibilities} />
+            })
+        }
+    }
+
+    // NAVIGATION
+    const navigateTo = (_id:string | object, type:'projects'= 'projects') =>{
+        let link = isAdmin ? '/admin' : '/users';
+        if(_id && type){
+
+            if(type === 'projects'){
+                link += `/projects/view/${_id}`;
+            }
+
+            navigate(link);
+        }
+    }
+
     return (
-        <div className="w-full">
+        <div className="w-full mb-6">
             {projects && projects.length > 0 ? 
                 <div className="flex gap-6 flex-wrap">
                     {projects.map((project, pidx)=>{
                         return (
                             <div key={`${pidx}-${project._id}`} className="flex-1 card min-w-2xs max-w-sm box-shadow rounded-lg p-4 flex flex-col">
-                                <div className="flex justify-between gap-2 text-sm items-center  pb-1 flex-wrap">
-                                    <span className="font-bold text-slate-500">{project._cid}</span>
+                                <div className="flex justify-between gap-2 text-sm items-center  pb-1 flex-wrap mb-2">
+                                    <div className="group flex items-center cursor-pointer pr-4" onClick={()=>navigateTo(project._id || '')}>
+                                        <div className="absolute opacity-0 transition-all text-primary translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"><MdArrowBack /></div>
+                                        <span className="font-bold text-slate-500 transition-all hover:translate-x-3.5">{project._cid}</span>
+                                    </div>
                                     <div className="flex justify-end text-xs gap-2">
                                         {project.projectType && 
                                             <span className=" bg-primary-light p-1 rounded-md text-xs">{t(project.projectType)}</span>
                                         }
-                                        <span className={`p-1 rounded-md text-xs ${getColorClasses(project.status)}`}>{t(project.status)}</span>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-4">
+                                    <div className="flex items-center flex-cols bg-white gap-2  rounded-md border">
+                                        <span className="text-xs text-slate-400 px-1">{t('status')}</span>
+                                        <span className={`p-1 rounded-md text-xs ${getColorClasses(project.status)}`}>{t(project.status)}</span> 
+                                    </div>
+                                    <div className="flex items-center flex-cols bg-white gap-2 rounded-md border">
+                                        <span className="text-xs text-slate-400 px-1">{t('priority')}</span>
                                         <span className={`p-1 rounded-md text-xs ${getColorClasses(project.priority)}`}>{t(project.priority)}</span>
                                     </div>
+
                                 </div>
                                 <div className="text-center my-4 bg-gray-100 rounded-md py-2">
                                     <div className="flex justify-center gap-2 items-center">
-                                        <span className="font-bold text-slate-700">{project.name}</span>
+                                        <span className="font-bold text-lg text-slate-700">{project.name}</span>
                                     </div>
                                     {project.description && 
-                                        <div className="text-xs text-center">
+                                        <div className="text-xs text-center line-clamp-1 text-slate-500">
                                             <span dangerouslySetInnerHTML={{__html:project.description}}/>
                                         </div>
                                     }
@@ -244,7 +212,7 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
 
                                         {project.dueDate && 
                                             <div className="flex rounded-md bg-white items-center gap-1">
-                                                {getDaysLeft(project.dueDate, new Date())}
+                                                <DaysLeft dueDate={project.dueDate} />
                                             </div>
                                         }
                                     </div>
@@ -253,7 +221,8 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                                 {/* STORY POINTS */}
                                 {project.mainTasks && 
                                     <div className="">
-                                        {getProgress(project.mainTasks as unknown as MainTask[])}
+                                        {/* {getProgress(project.mainTasks as unknown as MainTask[])} */}
+                                        <ProjectProgress project={project}/>
                                     </div>
                                 }
 
@@ -278,6 +247,19 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                     
                 </div>
             }
+
+            <CustomAlert 
+                isOpen={alertProps.isOpen}
+                title={alertProps.title}
+                content={alertProps.content}
+                onClose={()=>{setAlertProps({...alertProps, isOpen:false, title:'', content:''})}}
+            />
+            <SidePanel 
+             isOpen={panelProps.isOpen}
+             title={panelProps.title}
+             children={panelProps.children}
+             onClose={()=>{setPanelProps({...panelProps, isOpen:false, title:'', children:''})}}
+            />
         </div>
     )
 }

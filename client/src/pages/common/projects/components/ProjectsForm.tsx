@@ -280,7 +280,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
           <FormsTitle text=  { action==='update' ? t('updateProject') : t('newProject')} classes='mb-3'/> 
         </div> */}
         <form onSubmit={(e) => submitForm(e)} className=''>
-          <div className='card bg-white'>
+          <div className='card bg-white mb-8'>
             <div className='fields-wrap grid grid-cols-[1fr_auto] gap-4 mb-6'>
               <div className='w-full'>
                 <input name='name' type='text' placeholder={t('FORMS.projectName')} value={formData.name} required 
@@ -330,7 +330,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
               </div>
             </div>
             </div>
-          <div className='card bg-white grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2'>
+          <div className='card bg-white grid grid-cols-1 sm:grid-cols-1  md:grid-cols-2  lg:grid-cols-4 gap-2 mb-8'>
                   <div className="w-full">
                     <CustomDateTimePicker
                         selectedDate={formData.startDate}
@@ -369,7 +369,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
                   />
                 </div>
             </div>
-          <div className='card bg-white fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2'>
+          <div className='card bg-white fields-wrap grid grid-cols-1 md:grid-cols-1 gap-2 mb-4'>
             <div className="mb-4">
                 {/* <CustomInput type='textarea' name='description' onChange={handleInputs} label={`${t('description')}`} /> */}
                 <RichTextArea onChange={handleRichText} name='description' label={`${t('description')}`} defaultValue={formData.description}/>

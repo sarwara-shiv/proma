@@ -4,7 +4,7 @@ import AdminHeader from './components/AdminHeader';
 import AdminSidebar from './components/AdminSidebar';
 import Footer from './components/AdminFooter';
 import { useAppContext } from '../../context/AppContext';
-import ActiveWorkLog from './components/ActiveWorkLog';
+import { PageNavigate } from '../common';
 
 const AdminLayout = () => {
     const { t } = useTranslation();
@@ -25,11 +25,12 @@ const AdminLayout = () => {
             {/* Main Content */}
             <main className={`flex-1 pl-3 ml-1 mt-0 mb-0 overflow-x-hidden overflow-y-auto transition-all ease duration-100 ${isSidebarOpen ? "ml-1" : "ml-[0px]"}`}> 
                 <div className='min-h-[calc(100dvh_-70px)] h-[calc(100dvh_-_70px)]'>
+                    <PageNavigate />
                     <Outlet />
                 </div>
             </main>
         </div>
-        <ActiveWorkLog />
+        
         {/* Footer (Fixed at Bottom) */}
         {/* <Footer/> */}
         </div>
