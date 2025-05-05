@@ -18,7 +18,7 @@ const DaysLeft:React.FC<ArgsType> = ({startDate = new Date(), dueDate, type='ful
             {result.status !== 'dueToday' ? 
                 <div className={`${getColorClasses(result.status)} ${type === 'short' ? 'text-xs bg-transparent shadow-none' : ''} flex gap-1 px-2 px-1 rounded-xl items-center shadow`}>
                        {type === 'full' && <div>{t(result.status)}</div>}
-                        <span className="text-md font-bold">{result.days}</span> <span>{Math.abs(result.days)> 1 ? <>{t('days')}</> : <>{t('day')}</>}</span>
+                        <span className="text-md font-bold">{result.days}</span> {type === 'full' && <span>{Math.abs(result.days)> 1 ? <>{t('days')}</> : <>{t('day')}</>}</span>}
                     </div>
                 :
                 <div className={`${getColorClasses(result.status)}`}>

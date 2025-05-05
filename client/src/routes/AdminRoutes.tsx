@@ -14,6 +14,7 @@ import MainTasks from '../pages/common/tasks/MainTasks';
 import Documentation from '../pages/common/documentation/Documentation';
 import WorkLog from '../pages/common/myTasks/components/WorkLog';
 import Dashboard from '../pages/dashboard/Dashboard';
+import Layout from '../components/layout/Layout';
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
@@ -34,7 +35,7 @@ console.log(routes);
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<AdminLayout />}>
+      <Route path="/" element={<Layout />}>
       {routes.map(({ path, element, params,access }) => {
           const Component = routeComponents[element];
           if (!Component) {

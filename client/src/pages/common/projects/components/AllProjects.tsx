@@ -193,6 +193,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
             meta:{
                 style :{
                 textAlign:'left',
+                width:'80px'
                 }
             }
         },

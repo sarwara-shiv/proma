@@ -129,7 +129,7 @@ const ChatUsers:React.FC<ArgsType> = ({setChatData, setReceiver, receiver, chatD
             socket.off("messages-read", handleMessagesRead);
             socket.off("message-liked", handleMessageLiked);
         };
-    }, [socket, user, receiver, setChatData]);
+    }, [socket, user, receiver]);
 
 
 

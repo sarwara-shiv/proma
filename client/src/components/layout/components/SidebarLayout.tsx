@@ -1,8 +1,3 @@
-/**
- * 
- * NOT IN USE
- * 
- */
 import PagesConfig, { PageConfig, UserPagesConfig } from "../../../config/pagesConfig";
 import { useAppContext } from "../../../context/AppContext";
 import React, { useEffect, useState } from "react";
@@ -21,7 +16,7 @@ const pConfig = {
     "user":UserPagesConfig
 }
 
-const AdminSidebar: React.FC = () => {
+const SidebarLayout: React.FC = () => {
     const {isSidebarOpen, setIsSidebarOpen} = useAppContext();
     const {user, roles, permissions, isAdmin, slug} = useAuthContext();
     const [navPages, setNavPages] = useState<Record<string, PageConfig>>({});
@@ -33,6 +28,7 @@ const AdminSidebar: React.FC = () => {
     useEffect(()=>{
         if(isAdmin){
             setNavPages(PagesConfig);
+            console.log('------admin ',PagesConfig);
         }
         if(!isAdmin){
             setNavPages(UserPagesConfig);
@@ -153,21 +149,58 @@ const AdminSidebar: React.FC = () => {
                         </NavLink>
 
                         {page.subMenu && Object.keys(page.subMenu).length > 0 && (
-                            <button
-                            className="ml-2 flex items-center justify-center w-8 h-4 text-gray-700 hover:text-primary rounded-lg"
-                            onClick={() => handleToggleSubMenu(page.name)}
-                            >
-                            <svg
-                                className={`w-4 h-4 transition-transform duration-200 ${openSubMenu === page.name ? "rotate-180" : "rotate-0"}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                            </button>
+                            <>
+                                <button
+                                className="ml-2 flex items-center justify-center w-8 h-4 text-gray-700 hover:text-primary rounded-lg"
+                                onClick={() => handleToggleSubMenu(page.name)}
+                                >
+                                <svg
+                                    className={`w-4 h-4 transition-transform duration-200 ${openSubMenu === page.name ? "rotate-180" : "rotate-0"}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                </button>
+                                <div className="absolute left-100">
+                                {page.subMenu && Object.entries(page.subMenu).map((obj, idx)=>{
+                                    console.log(obj[1]);
+                                    const data = obj[1];
+                                    return (
+                                        <div key={idx}>
+                                           <NavLink
+                                                to={`/${slug}/${page.root}/${data.root}`}
+                                                className={({ isActive }) => {
+                                                return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                                                }}
+                                                onClick={() => handleNewTasks(page)}
+                                            >
+                                                {({ isActive }) => (
+                                                <>
+                                                    <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white' : 'bg-primary-light'} p-1`}>
+                                                    {data.icon ? <data.icon /> : <LogoIcon className="text-gray-400" />}
+                                                    </span>
+
+                                                    <div className="flex justify-between items-center flex-1">
+                                                    {t(`NAV.${data.name}`)}
+                                                    {newTasks > 0 && page.name === 'mytasks' && 
+                                                        <span className="right-0 p-[2px] bg-primary rounded-md h-3 flex justify-center items-center text-[10px] aspect-[1/1] text-white font-bold">
+                                                        {newTasks}
+                                                        </span>
+                                                    }
+                                                    </div>
+                                                </>
+                                                )}
+                                            </NavLink>
+                                        </div>
+                                    )
+                                }) }
+                                </div>
+                            </>
                         )}
+
                         </div>
                     </li>
                     );
@@ -210,4 +243,4 @@ const AdminSidebar: React.FC = () => {
   );
 };
 
-export default AdminSidebar;
+export default SidebarLayout;

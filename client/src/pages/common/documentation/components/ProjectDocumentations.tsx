@@ -9,9 +9,10 @@ import DocumentationNav from './DocumentationNav';
 import { MdClose, MdMenu } from 'react-icons/md';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
+    navItems?:NavItem[]
 }
 
-const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems}) => {
+const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const {action, id} = useParams();
     const {t} = useTranslation();
     const [loader, setLoader] = useState(true);
@@ -23,7 +24,7 @@ const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems}) => {
     const [activeDocData, setActiveDocData] = useState<Documentation | null>(null);
 
 
-    const navItems: NavItem[] = [
+    const pnavItems: NavItem[] = [
         { link: `projects`, title: "projects_all" },
         { link: `documentation/add/${id}`, title: "documentation_add" },
         { link: `documentation/update/${id}`, title: "documentation_update" },

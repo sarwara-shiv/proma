@@ -19,9 +19,10 @@ import { useSocket } from "../../context/SocketContext";
 
 const Messenger = () => {
     const inputBoxHeight = 190;
-    const { user } = useAuthContext();
+    const { user, isAdmin } = useAuthContext();
     const {t} = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [slug, setSlug] = useState<string>(isAdmin ? 'admin' : 'user');
     const [chatData, setChatData] = useState<MessageType[]>([]);
     const [receiver, setReceiver] = useState<{user?:User, group?:ChatGroupType} | null>();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -182,7 +183,7 @@ const Messenger = () => {
               <div className="flex flex-col w-[35px] border-r py-4 gap-4 bg-slate-100">
                   <div className="flex items-center justify-center p-1">
                     <NavLink
-                      to={`/admin/dashboard`}
+                      to={`/${slug}/dashboard`}
                       className={({ isActive }) => {
                         return `flex-1 rounded-sm text-lg flex transition-all ease items-center justify-center ${isActive ? "text-primary font-bold" : "text-gray-500 font-light hover:text-gray-800 hover:font-bold"}`;
                         }}

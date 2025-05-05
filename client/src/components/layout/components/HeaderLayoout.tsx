@@ -1,8 +1,4 @@
-/**
- * 
- * NOT IN USE
- * 
- */
+
 import Logo from '../../common/Logo';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -12,7 +8,7 @@ import {useAuthContext } from '../../../context/AuthContext';
 import ToggleDailyReport from '../../../components/specific/dailyReport/ToggleDailyReport';
 import ActiveWorkLog from './ActiveWorkLog';
 
-const AdminHeader = () => {
+const HeaderLayout = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
     const { t } = useTranslation();
     const {user} = useAuthContext();
@@ -44,7 +40,7 @@ const AdminHeader = () => {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [setIsSidebarOpen]); // Empty dependency array ensures this runs on mount
+    }, [setIsSidebarOpen]); 
     return (
         <header className="text-gray-900 w-full px-4 py-1 mb-2 w-full top-1 left-0 right-0 z-30 flex justify-between ">
             <div className="text-lg font-semibold flex justify-start gap-2 items-center">
@@ -76,4 +72,4 @@ const AdminHeader = () => {
     )
 }
 
-export default AdminHeader
+export default HeaderLayout

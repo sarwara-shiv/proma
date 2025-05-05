@@ -37,7 +37,7 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems}) =>
 
   console.log(useLocation)
     useEffect(()=>{
-      setSubNavItems && setSubNavItems(subNavItems);
+      // setSubNavItems && setSubNavItems(subNavItems);
     }, []);
 
   return (

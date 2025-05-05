@@ -30,6 +30,8 @@ interface ArgsType {
     action?:"add" | "update";
     data?: Project; 
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
+    navItems?:NavItem[];
+
     checkDataBy?:string[];
 }
 
@@ -73,7 +75,7 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
         cid = id;
       }
       getData();
-      setSubNavItems && setSubNavItems(navItems);
+    //   setSubNavItems && setSubNavItems(navItems);
   }, []);
 
   useEffect(()=>{

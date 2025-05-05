@@ -1,3 +1,8 @@
+/**
+ * 
+ * NOT IN USE
+ * 
+ */
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AdminHeader from './components/AdminHeader';

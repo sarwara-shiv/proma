@@ -12,6 +12,7 @@ interface AuthContextType {
   isAdmin:boolean;
   isEmployee:boolean;
   isClient:boolean;
+  slug:string;
   isManager:boolean;
   isScrumMaster:boolean;
   isTeamLeader:boolean;
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<DecodedToken | null>(null);
     const [role, setRole] = useState<string | null>(null);
+    const [slug, setSlug] = useState<string>('users');
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [roles, setRoles] = useState<UserRole[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -69,7 +71,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                         if(!isAdmin && !isManager && !isEmployee && !isClient && !isScrumMaster && !isTeamLeader){
                             setIsCustomRole(true);
                         }
+
+                        if(userData.data.roles.some((role:UserRole) => role.name === 'admin')){
+                            setSlug('admin');
+                        }
+                        if(userData.data.roles.some((role:UserRole) => role.name === 'client')){
+                            setSlug('client');
+                        }
                     }
+
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -98,7 +108,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return (
         <AuthContext.Provider value={{ 
             permissions, 
-            user, 
+            user,
+            slug, 
             role, 
             isAuthenticated, 
             roles, 

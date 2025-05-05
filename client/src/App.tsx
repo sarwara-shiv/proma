@@ -10,11 +10,7 @@ import {useAuthContext } from "./context/AuthContext";
 import Messenger from "./pages/messenger/Messenger";
 function App() {
   const {t} = useTranslation("common");
-  const {isAuthenticated, role, roles, user, loading} = useAuthContext();
-  console.log(user);
-  const isAdmin = roles?.some(role => role.name.toLowerCase() === 'admin');
-  console.log(isAdmin);
-  console.log(isAuthenticated);
+  const {isAuthenticated, role, roles, user, loading, isAdmin, isManager} = useAuthContext();
    // If the app is loading user data, show a loading spinner or some placeholder
    if (loading) {
     return <div>Loading...</div>;
@@ -29,10 +25,10 @@ function App() {
           }
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          {isAdmin && (
+          {(isAdmin || isManager) && (
               <Route path="/admin/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/unauthorized" />} />
           )}
-          {!isAdmin && (
+          {!isAdmin && !isManager && (
               <Route path="/user/*" element={isAuthenticated ? <UserRoutes /> : <Navigate to="/unauthorized" />} />
           )}
           <Route path="/unauthorized" element={<Unauthorised />} />

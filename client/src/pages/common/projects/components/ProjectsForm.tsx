@@ -22,7 +22,8 @@ import { useParams } from 'react-router-dom';
 import { PageTitel } from '../../../../components/common';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import MentionUserInput from '../../../../components/forms/MensionUserInput';
-import { IoMdClose } from 'react-icons/io';
+import { IoMdAdd, IoMdClose } from 'react-icons/io';
+import { useAppContext } from '../../../../context/AppContext';
 
 interface ArgsType {
   cid?:string | null;
@@ -63,7 +64,8 @@ const checkDataBy: string[] = ['name'];
 const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, navItems }) => {
   const {t} = useTranslation();
   const {id} = useParams();
-  const {user} = useAuthContext();
+  const {setPageTitle} = useAppContext();
+  const {user, slug} = useAuthContext();
   const [projectId, setProjectId] = useState<string|ObjectId>(id ? id : '');
   const [emptyValues, setEmptyValues] = useState<Project>(initialValues);
   const [client, setClient] = useState<User | 'self' | null>();
@@ -72,11 +74,12 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [editCField, setEditCField] = useState<DynamicCustomField>({}) 
 
-
   useEffect(()=>{
+
     setSubNavItems(navItems);
     if(action === 'add'){
       setFormData(emptyValues);
+      setPageTitle(t('projects'))
     }else{
       getData();
     }

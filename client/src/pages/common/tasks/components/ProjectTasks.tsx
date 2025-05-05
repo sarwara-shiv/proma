@@ -41,6 +41,7 @@ interface ArgsType {
     action?:"add" | "update";
     data?: Project; 
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
+    navItems?:NavItem[];
     checkDataBy?:string[];
 }
 
@@ -65,7 +66,7 @@ interface SubTasksCount{
 
 
 
-const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid}) => {
+const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSubNavItems, mtid, navItems}) => {
   const {id} = useParams();
   const {user} = useAuthContext();
   const {t} = useTranslation();
@@ -93,11 +94,11 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   const tdClasses = 'p-2 text-xs';
 
 
-  const navItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
-    { link: `projects/tasks/${cid || id}`, title: "tasks" },
-  ];
+  // const navItems: NavItem[] = [
+  //   { link: "projects", title: "projects_all" },
+  //   { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
+  //   { link: `projects/tasks/${cid || id}`, title: "tasks" },
+  // ];
 
   useEffect(()=>{
       if(!cid){

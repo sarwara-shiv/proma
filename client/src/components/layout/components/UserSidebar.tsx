@@ -1,12 +1,22 @@
+/**
+ * 
+ * NOT IN USE
+ * 
+ */
 import { useAppContext } from "../../../context/AppContext";
 import React, { useEffect, useState } from "react";
 import LogoutButton from "../../../components/auth/LogoutButton";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { UserPagesConfig, UserPageConfig } from "../../../config/userPagesConfig";
+import PagesConfig, { UserPagesConfig, PageConfig } from "../../../config/pagesConfig";
 import {useAuthContext } from "../../../context/AuthContext";
 import { useSocket } from "../../../context/SocketContext";
 import { ReactComponent as LogoIcon } from '../../../assets/images/svg/logo-icon.svg';
+
+const pConfig = {
+    "admin" :PagesConfig,
+    "user":UserPagesConfig
+}
 
 const UserSidebar: React.FC = () => {
     const {isSidebarOpen} = useAppContext();
@@ -39,14 +49,14 @@ const UserSidebar: React.FC = () => {
         };
       }, [socket]);
 
-      const handleNewTasks = async(page:UserPageConfig)=>{
+      const handleNewTasks = async(page:PageConfig)=>{
         if(page && page.name === 'mytasks'){
             setNewTasks((prev:number)=>{return 0})
         }
       }
 
     // Check user permissions
-    const hasAccess = (page: UserPageConfig): boolean => {
+    const hasAccess = (page: PageConfig): boolean => {
         console.log(permissions);
         if (permissions) {
             const hasPermission =  permissions.some(permission => 
@@ -64,16 +74,14 @@ const UserSidebar: React.FC = () => {
         setOpenSubMenu(openSubMenu === title ? null : title);
     };
 
-    const navStyles = 'p-1 text-gray-500 hover:bg-primary-light rounded-xs hover:text-gray-800 hover:font-bold hover:bg-primary-light transition-all ease';
     // Sort pages by sortOrder
     const sortedPages = Object.values(UserPagesConfig).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   return (
-    <aside className={`w-[200px] fixed left-0 top-11 px-2 pt-4 py-8 bottom-4 flexflex-col transition-all ease duration-100 bg-white
+    <aside className={`w-[200px] static left-0 top-2 px-2 pt-4 pb-8 bottom-0 flex flex-col transition-all ease duration-100 mb-10 
+        rounded-e-3xl 
+        bg-primary-light justify-between
         ${isSidebarOpen ? 'ml-[0px]' : 'ml-[-200px]'}
-    `}>
-      {/* <div className="mb-2 text-lg font-bold">
-        Menu
-      </div> */}
+            `}>
       <div className="my-2 text-sm  my-1 py-1 bg-white rounded-md">
         <ul className="space-y-2">
             {sortedPages.map((page, index) => {
@@ -126,14 +134,12 @@ const UserSidebar: React.FC = () => {
                 }
                 return null;
             })}
-
-            {/* <li><LogoutButton /></li> */}
         </ul>
       </div>
       
       {/* The second div will take the remaining space and scroll if content overflows */}
       <div className="flex-1 overflow-y-auto text-sm bg-white">
-       
+           
       </div>
     </aside>
   );

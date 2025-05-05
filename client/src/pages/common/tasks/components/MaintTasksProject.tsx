@@ -23,13 +23,14 @@ interface ArgsType {
     action?:"add" | "update";
     data?: Project; 
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
+    navItems?:NavItem[];
     checkDataBy?:string[];
 }
 
 const pinnedColumns = ['name'];
 const fixedWidthColumns = ['startDate', 'dueDate', 'endDate', 'action'];
 
-const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
+const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems, navItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
   const [projectData, setProjectData] = useState<Project>();
@@ -43,11 +44,11 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
   const tdClasses = 'p-2 text-xs';
 
 
-  const navItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
-    { link: `projects/tasks/${cid || id}`, title: "tasks" },
-  ];
+  // const navItems: NavItem[] = [
+  //   { link: "projects", title: "projects_all" },
+  //   { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
+  //   { link: `projects/tasks/${cid || id}`, title: "tasks" },
+  // ];
 
   const onDelete = (delData:any)=>{
     if(delData.status === "success"){ 
@@ -329,7 +330,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         cid = id;
       }
       getData();
-      setSubNavItems && setSubNavItems(navItems);
+      // setSubNavItems && setSubNavItems(navItems);
   }, []);
 
   useEffect(()=>{

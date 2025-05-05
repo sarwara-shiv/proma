@@ -11,6 +11,8 @@
         "documentation_add":"Add Documentation",
         "documentation_update":"Update Documentation",
         "documentation_delete":"Delete Documentation",
+        "sprints":"Sprints",
+        "kickOff":"Kick-Off",
         "roles_all":"Roles",
         "roles_add":"Add Roles",
         "roles_update":"Add Roles",

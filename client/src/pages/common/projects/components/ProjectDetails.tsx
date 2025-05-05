@@ -1,5 +1,5 @@
 import { Priorities, ProjectStatuses } from '../../../../config/predefinedDataConfig';
-import { Loader, PageTitel } from '../../../../components/common';
+import { FloatingBottomMenu, Loader, PageTitel } from '../../../../components/common';
 import { getRecordWithID } from '../../../../hooks/dbHooks';
 import {useAuthContext } from '../../../../context/AuthContext';
 import { AlertPopupType, DynamicCustomField, FlashPopupType, MainTask, NavItem, Project, Task, User } from '@/interfaces';
@@ -12,6 +12,12 @@ import PieChartWithPaddingAngle from '../../../../components/charts/PieChartWith
 import ProjectProgress from './ProjectProgress';
 import { countSubtasksByStatus } from '../../../../utils/tasksUtils';
 import TasksStatusPieChart from '../../../../components/charts/TasksStatusPieChart';
+import { IoMdAdd } from 'react-icons/io';
+import { MdEdit, MdOutlineModeEdit, MdRocketLaunch } from 'react-icons/md';
+import { FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { DiScrum } from 'react-icons/di';
+import { IoDocumentAttach } from 'react-icons/io5';
+import { useAppContext } from '../../../../context/AppContext';
 interface ArgsType {
     cid?:string | null;
     data?: Project; 
@@ -20,8 +26,9 @@ interface ArgsType {
   }
 const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems}) => {
     const { t } = useTranslation();
-    const {user} = useAuthContext();
+    const {isAdmin, slug} = useAuthContext();
     const {id} = useParams();
+    const {setPageTitle} = useAppContext();
     const [projectData, setProjectData] = useState<Project>();
     const [loading, setLoading] = useState<boolean>(false);
     const [mainTasks, setMainTasks] = useState<MainTask[]>([]);
@@ -34,18 +41,30 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
+    const PnavItems: NavItem[] = [
+      { link: `/${slug}/projects/update/${id}`, title: "projects_update", icon:<FaPencilAlt />},
+      { link: `/${slug}/projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
+      { link: `/${slug}/projects/kickoff/${id}`, title: "maintasks", icon:<MdRocketLaunch />},
+      { link: `/${slug}/projects/sprints/${id}`, title: "maintasks", icon:<DiScrum />},
+      { link: `/${slug}/projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
+      { link: `/${slug}/projects/add`, title: "projects_add", icon:<IoMdAdd />},
+    ];
+
     useEffect(()=>{
         setSubNavItems(navItems);
         getRecords();
     },[])
     
+    
 
     const subNav:{_id:string, label:string, icon?:React.ReactNode, path:string}[] = [
-      {_id:'tasks', label:'tasks', icon:'', path:`maintasks`},
-      {_id:'kickoff', label:'kickoff', icon:'', path:`kickoff`},
-      {_id:'documentation', label:'documentation', icon:'', path:`documentation`},
-      {_id:'report', label:'report', icon:'', path:`report`}
+      {_id:'tasks', label:t('tasks'), icon:'', path:`maintasks`},
+      {_id:'kickoff', label:t('kickOff'), icon:'', path:`kickoff`},
+      {_id:'documentation', label:t('documentation'), icon:'', path:`documentation`},
+      {_id:'report', label:t('report'), icon:'', path:`report`}
     ]
+
+   
 
 
     const getRecords = async()=>{
@@ -73,6 +92,9 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             const res = await getRecordWithID({id:id, populateFields, type:'projects'});
             if(res.status === 'success' && res.data){
                 setProjectData(res.data);
+                if(res.data.name){
+                  setPageTitle(<div className='gap-1'><span className='text-sm text-sm font-normal pr-1'>{t('project')}</span><span className='max-w-[20px]'>{res.data.name}</span></div>);
+                }
                 if(res.data.mainTasks) {
                   setMainTasks(res.data.mainTasks);
                   const chartData = countSubtasksByStatus(res.data.mainTasks);
@@ -313,6 +335,8 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
           </div>
         </div>
       }
+
+      <FloatingBottomMenu nav={subNav} onClick={(value)=>console.log(value)}/>
     </div>
   )
 }
