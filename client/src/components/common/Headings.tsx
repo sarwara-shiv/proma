@@ -7,9 +7,9 @@ interface ArgsType{
 }
 const Headings: React.FC<ArgsType> = ({ text,size="base", classes="", type='default' }) => {
   return (
-    <h2 className={`text-${size} ${type === 'section' ? 'text-lg font-bold text-slate-700 ': 'text-slate-300 ' }${classes}`}>
+    <div className={`text-${size} ${type === 'section' ? 'text-lg font-bold text-slate-700 ': 'text-slate-300 ' }${classes}`}>
       {text}
-    </h2>
+    </div>
   )
 }
 

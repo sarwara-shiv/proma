@@ -51,12 +51,12 @@
 
   /* Table Header (th) */
   th {
-    @apply text-sm text-primary p-1;  /* Using Tailwind classes */
+    @apply text-sm text-primary p-4;  /* Using Tailwind classes */
   }
 
   /* Table Data (td) */
   td {
-    @apply text-xs p-1;  /* Example: base font size and padding */
+    @apply text-xs p-4;  /* Example: base font size and padding */
   }
 }
 
