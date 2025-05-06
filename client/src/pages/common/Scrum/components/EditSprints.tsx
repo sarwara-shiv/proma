@@ -30,7 +30,7 @@ const EditSprints: React.FC<ArgsType> = ({pid}) => {
   const {t} = useTranslation();
   const [isLoader, setIsLoader] = useState<boolean>(false);
   const [selectedSprint, setSelectedSprint] = useState<ISprint>();
-  const [projectId, setProjectId] = useState<string|ObjectId>(pid);
+  const [projectId, setProjectId] = useState<string|ObjectId>(pid ? pid : id ? id : '');
   const [lastSidePanelKey, setLastSidePanelKey] = useState<string|null>();
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [popupData, setPopupData] = useState<CustomPopupType>({ isOpen: false, content: "", title: "", yesFunction:()=>{} });

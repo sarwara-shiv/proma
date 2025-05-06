@@ -31,7 +31,6 @@ interface ArgsType {
     data?: Project; 
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
     navItems?:NavItem[];
-
     checkDataBy?:string[];
 }
 
@@ -70,13 +69,14 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   //---------- table columns model end
 
   useEffect(()=>{
-    // setPageTitle('Sprint')
       if(!cid){
         cid = id;
-      }
+    }
+        cid && setProjectId(cid);
+      console.log(cid);
+      console.log(selectedNav);
       getData();
-    //   setSubNavItems && setSubNavItems(navItems);
-  }, []);
+  }, [projectId]);
 
   useEffect(()=>{
       getData();
@@ -113,7 +113,10 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
             console.log(res);
 
             if(res.status === 'success' && res.data){
+                console.log(res.data);
                 setSprintsData(res.data);
+                console.log(cid);
+                console.log(selectedNav);
             }
 
         }
@@ -146,28 +149,21 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
     <div className=''>
         {/* BOARD */}
        <div className='kanaban-board'>
-            {cid && sprintsData ?
+        {projectId && sprintsData && sprintsData.length > 0 ? (
+            <>
+                {selectedNav === 'sprint_all' &&  <EditSprints pid={projectId} />}
+                {selectedNav === 'timeline' && <SprintTimelineTable sprints={sprintsData} />}
+                {selectedNav === 'status' && <SprintStatusChart sprints={sprintsData} />}
+                {selectedNav === 'dashboard' && (
                 <>
-                {selectedNav === 'sprint_all' &&  <EditSprints pid={cid} />}
-                {selectedNav === 'timeline' &&  
-                <div><SprintTimelineTable sprints={sprintsData} /></div>
-                
-                }
-                {selectedNav === 'status' &&  
-                <div><SprintStatusChart sprints={sprintsData}/></div>
-                
-                }
-                {selectedNav === 'dashboard' &&  
-                <div>
-                    <SprintStatusChart sprints={sprintsData}/>
+                    <SprintStatusChart sprints={sprintsData} />
                     <SprintTimelineTable sprints={sprintsData} />
-                </div>
-                
-                }
                 </>
-                :
-                <NoData />
-            }
+                )}
+            </>
+            ) : (
+            <NoData />
+            )}
         </div> 
 
         {/* NAVIGATION */}

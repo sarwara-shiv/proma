@@ -20,6 +20,12 @@ interface AuthContextType {
   isAuthenticated: boolean;
   permissions:PagePermission[] | []
   loading: boolean;
+  setIsEmployee:React.Dispatch<React.SetStateAction<boolean | false>>,
+  setIsManager:React.Dispatch<React.SetStateAction<boolean | false>>,
+  setIsScrumMaster:React.Dispatch<React.SetStateAction<boolean | false>>,
+  setIsTeamLeader:React.Dispatch<React.SetStateAction<boolean | false>>,
+  setIsAdmin:React.Dispatch<React.SetStateAction<boolean | false>>,
+  setIsClient:React.Dispatch<React.SetStateAction<boolean | false>>,
   setUser: React.Dispatch<React.SetStateAction<DecodedToken | null>>;
   setRole: React.Dispatch<React.SetStateAction<string | null>>;
   setRoles: React.Dispatch<React.SetStateAction<UserRole[]>>;
@@ -120,7 +126,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isCustomRole,
             isEmployee,
             isScrumMaster,
-            isTeamLeader, 
+            isTeamLeader,
+            setIsEmployee,
+            setIsManager,
+            setIsScrumMaster,
+            setIsTeamLeader,
+            setIsAdmin,
+            setIsClient, 
             setUser, 
             setRole, 
             setRoles, 

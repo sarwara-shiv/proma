@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import PageTitel from './PageTitel';
 import { IoMdAdd } from 'react-icons/io';
 import { MdClose, MdMenu } from 'react-icons/md';
+import { useAuthContext } from '../../context/AuthContext';
 
 interface NavItem {
   link: string;
@@ -23,6 +24,7 @@ interface PageSubmenuProps {
 const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, action }) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const {slug} = useAuthContext()
   const [navOpen, setNavOpen] = useState(false);
   const currentPath = location.pathname.replace(`${basePath}/`, '');
 
@@ -81,7 +83,7 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
                 {navItems.map((item, index) => (
                   <NavLink
                     key={index}
-                    to={`${item.link}`}
+                    to={`/${slug}/${item.link}`}
                     className={({ isActive }) =>
                       `flex items-center me-2 gap-1 p-2 rounded-t-md mb-0 hover:bg-primary-light border-b-2 border-transparent ${isActive 
                         ? "text-primary  border-primary hover:bg-transparent" 

@@ -9,8 +9,8 @@ import DocumentationsForm from './components/DocumentationsForm';
 import ProjectDocumentations from './components/ProjectDocumentations';
 import { useAppContext } from '../../../context/AppContext';
 const pnavItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: "documentation", title: "documentation_all", icon:<IoMdAdd />},
+    { link: "/projects", title: "projects_all" },
+    { link: "/documentation", title: "documentation_all", icon:<IoMdAdd />},
 ];
 interface ArgsType{
     navItems?:NavItem[];

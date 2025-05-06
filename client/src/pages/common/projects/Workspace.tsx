@@ -33,8 +33,8 @@ const Project = () => {
   const location = useLocation();
   const { data, objectId } = location.state || {}; 
   const navItems: NavItem[] = [
-    { link: `/${slug}/projects`, title: "projects_all" },
-    { link: `/${slug}/projects/add`, title: "projects_add", icon:<IoMdAdd />},
+    { link: `projects`, title: "projects_all" },
+    { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
     // { link: "projects/report", title: "projects_report", icon:<IoMdAdd />},
   ];
   
@@ -44,13 +44,13 @@ const Project = () => {
   const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
 
   const PnavItems: NavItem[] = [
-    { link: `/${slug}/projects/view/${id}`, title: "view", icon:<FaEye />},
-    { link: `/${slug}/projects/update/${id}`, title: "update", icon:<FaPencilAlt />},
-    { link: `/${slug}/projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
-    { link: `/${slug}/projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
-    { link: `/${slug}/projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
-    { link: `/${slug}/projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
-    { link: `/${slug}/projects/add`, title: "projects_add", icon:<IoMdAdd />},
+    { link: `projects/view/${id}`, title: "view", icon:<FaEye />},
+    { link: `projects/update/${id}`, title: "update", icon:<FaPencilAlt />},
+    { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
+    { link: `projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
+    { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
+    { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
+    { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
   ];
 
   // console.log(action);

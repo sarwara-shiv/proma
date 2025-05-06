@@ -9,7 +9,7 @@ import {useAuthContext } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 
 const LoginForm: React.FC = () => {
-  const { setUser, setRole, setRoles, setIsAuthenticated, setPermissions } = useAuthContext(); // Use setUser from context
+  const { setUser, setRole, setRoles, setIsAuthenticated, setPermissions, setIsAdmin, setIsClient } = useAuthContext(); // Use setUser from context
   const [data, setData] = useState({ email: "", password: "" });
   const { t } = useTranslation("common");
   const navigate = useNavigate();
@@ -49,8 +49,10 @@ const LoginForm: React.FC = () => {
       if(socket){
         socket.emit('user-connected', userData.data._id);
       }
-
+      console.log(userData.data);
       if (userData.data.role === 'admin') {
+        console.log('admin');
+        setIsAdmin(true);
         navigate('/admin/dashboard');
       } else {
         navigate('/user/dashboard');
