@@ -65,7 +65,7 @@ const UserBarChart: React.FC<UserBarChartProps> = ({ users }) => {
     }
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomChartTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const user = payload[0].payload; // Access the data for the hovered bar
       return (
@@ -90,6 +90,10 @@ const UserBarChart: React.FC<UserBarChartProps> = ({ users }) => {
     }, 0);
     return longestLabel;
   };
+
+  const barHeight = 40; // Height per bar (adjust based on visual preference)
+const padding = 60; // Extra padding for labels and spacing
+const chartHeight = users.length * barHeight + padding;
 
   const yAxisWidth = useMemo(() => getMaxLabelWidth()*4, [userChartData]);
   console.log(yAxisWidth)
@@ -126,12 +130,9 @@ const UserBarChart: React.FC<UserBarChartProps> = ({ users }) => {
   };
 
   return (
-    <Card sx={{ boxShadow: 3, borderRadius: 2, mt: 3 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Users' Total Time
-        </Typography>
-        <ResponsiveContainer width="100%" height={400}>
+    <div className="w-full min-h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+      <div className="w-full h-auto pb-6">
+        <ResponsiveContainer width="100%" height={chartHeight}>
           <BarChart
             layout="vertical" // Vertical bar chart
             data={userChartData}
@@ -149,18 +150,7 @@ const UserBarChart: React.FC<UserBarChartProps> = ({ users }) => {
               width={yAxisWidth} // Increased width to accommodate extra space for custom tick
               tick={<CustomTick />} // Use the CustomTick component to render Y-axis labels
             />
-            <Tooltip content={<CustomTooltip />} />
-            {/* <Tooltip
-              formatter={(value: number, name: string, props: any) => {
-                // Ensure props.payload is not undefined and contains valid data
-                // console.log(props);
-                if (props.payload && props.payload) {
-                  const user = props.payload;
-                  return [`${user.timeFormatted}`]
-                }
-                return "No data"; // Default fallback
-              }}
-            /> */}
+            <Tooltip content={<CustomChartTooltip />} />
             <Bar dataKey="totalMinutes" barSize={10}>
               {userChartData.map((user, index) => (
                 <Cell key={`cell-${index}`} fill={user.color} />
@@ -168,8 +158,8 @@ const UserBarChart: React.FC<UserBarChartProps> = ({ users }) => {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    </div>
+    </div>
   );
 };
 

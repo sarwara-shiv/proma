@@ -66,7 +66,7 @@ const AllUsers = () => {
                 const originalData = info.row.original; 
                 const icon = originalData?.image?.icon ? originalData?.image?.icon : null;
                 return(                 
-                    <span>{icon && 
+                    <span className='flex justify-center'>{icon && 
                         <img src={`${process.env.REACT_APP_API_URL}${icon}`} className='w-[30px] h-[30px] object-cover object-center rounded-full border border-white shadow'/>
                     }</span>
                 )

@@ -86,23 +86,6 @@ const TasksStatusPieChart: React.FC<ArgsType> = ({ data }) => {
                 fill="#4f46e5"
                 labelLine={true}
                 label
-
-              //   label={({ name, cx, cy, midAngle, innerRadius, outerRadius, value  }) => {
-              //       const RADIAN = Math.PI / 180;
-              //       const radius = outerRadius +20;  // Adjust position to stay inside the slice
-              //       const x = cx + radius * Math.cos(-midAngle * RADIAN);
-              //       const y = cy + radius * Math.sin(-midAngle * RADIAN);
-              //       return(<text 
-              //           x={x}
-              //           y={y}
-              //       textAnchor="middle"
-              //       fill="#000000" // Custom color for the label text
-              //       fontSize="8px"
-              //       fontWeight="bold"
-              //   >
-                    
-              //   </text>)}
-              // }
             >
             {chartData.map((entry, index) => (
                 <Cell key={index} fill={COLORS_CLASSES[entry.key] || '#A5B4FC'} />

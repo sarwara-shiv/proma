@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
-import { WorkLog, DailyReport,Task } from '../../models/models.js'; 
+import { WorkLog, DailyReport,Task, Project } from '../../models/models.js'; 
 import { generateUniqueId } from '../../utils/idGenerator.js';
 import { sortReportByProjects, sortReportByUsers, sortReportByTasks } from '../../utils/utilFunctions.js';
 import { parseDateRange } from '../../utils/DateUtil.js';
@@ -1048,7 +1048,7 @@ router.post('/projectReport', verifyToken, async (req, res) => {
 
     try {
         let aggregatePipeline = [];
-
+        let project = null;
         // Match worklogs by project and status
         let matchStage = {
             status: 'completed'
@@ -1056,6 +1056,14 @@ router.post('/projectReport', verifyToken, async (req, res) => {
 
         if (projectId) {
             matchStage.project = new ObjectId(projectId);  // Filter by project if provided
+            project = await Project.findById(projectId).populate('createdBy')
+            .populate('client').populate({
+                path: 'mainTasks',
+                populate: {
+                  path: 'subtasks',
+                  populate: { path: 'assignedTo' } // if subtasks have another ref field
+                }
+              });
         }
 
         aggregatePipeline.push({ $match: matchStage });
@@ -1212,10 +1220,11 @@ router.post('/projectReport', verifyToken, async (req, res) => {
                 workingProjectTime,  // Working days, hours, minutes
                 users,
                 tasks,
+                project,
                 timePeriod: {
                     startDate: projectData.firstStartDate,
                     endDate: projectData.lastEndDate
-                }
+                },
             };
         });
 

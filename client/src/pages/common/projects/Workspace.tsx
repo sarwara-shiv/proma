@@ -21,7 +21,7 @@ import { useAuthContext } from '../../../context/AuthContext';
 import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { MdRocketLaunch } from 'react-icons/md';
 import { DiScrum } from 'react-icons/di';
-import { IoDocumentAttach } from 'react-icons/io5';
+import { IoBarChartSharp, IoDocumentAttach } from 'react-icons/io5';
 
 
 
@@ -49,6 +49,7 @@ const Project = () => {
     { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
     { link: `projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
     { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
+    { link: `projects/report/${id}`, title: "report", icon:<IoBarChartSharp />}, 
     { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
     { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
   ];

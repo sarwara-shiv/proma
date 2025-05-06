@@ -1,6 +1,8 @@
 import React from "react";
 import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer, Legend } from "recharts";
 import { Card, CardContent, Typography } from "@mui/material";
+import { t } from "i18next";
+import { CustomTooltip } from "../common";
 
 // Define TypeScript types
 interface UserData {
@@ -44,15 +46,15 @@ const UserPieChart: React.FC<UserPieChartProps> = ({ users }) => {
   // Calculate total time spent in hours for percentage calculation
   const totalTimeInHours = userChartData.reduce((acc, user) => acc + user.time, 0);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomChartTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const user = payload[0].payload; // Access the data for the hovered slice
       return (
         <div style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '5px', boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)' }}>
-          <p style={{ fontWeight: 'bold', fontSize: '16px', color: '#333' }}>
+          <p style={{ fontWeight: 'bold', fontSize: '12px', color: '#333' }}>
             {user.name}
           </p>
-          <p style={{ fontSize: '12px', color: '#555' }}>
+          <p style={{ fontSize: '10px', color: '#555' }}>
             {user.timeFormatted}
           </p>
         </div>
@@ -62,12 +64,38 @@ const UserPieChart: React.FC<UserPieChartProps> = ({ users }) => {
   };
 
   return (
-    <Card sx={{ boxShadow: 3, borderRadius: 2, mt: 3 }}>
+    <div className="w-full min-h-[350px] p-2 mb-2 bg-gray-100 rounded-xl">
+      <div className="w-full h-[300px] pb-6">
+      <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+                data={userChartData}
+                dataKey={"time"}
+                nameKey={"name"}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#4f46e5"
+                labelLine={false}
+                label
+            >
+            {userChartData.map((user, index) => (
+                <Cell key={`cell-${index}`} fill={user.color} />
+              ))}
+            </Pie>
+            <Tooltip
+                content={<CustomChartTooltip />}
+                cursor={false}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+
+    {/* <Card sx={{ boxShadow: 3, borderRadius: 2, mt: 3 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
           Users' Total Time (Pie Chart)
         </Typography>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width={300} height={300}>
           <PieChart>
             <Pie
               data={userChartData}
@@ -88,7 +116,29 @@ const UserPieChart: React.FC<UserPieChartProps> = ({ users }) => {
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
-    </Card>
+    </Card> */}
+    </div>
+    {Object.entries(userChartData).length > 0 && 
+        <div className="flex flex-row flex-wrap text-xs gap-2 ">
+        {Object.entries(userChartData).map(([key, entry]) => {
+          console.log(entry);
+          return (
+              <div key={key} className="flex flex-row gap-2 justify-start items-center rounded-md p-1 border">
+                  <div className="flex gap-2">
+                    <CustomTooltip content={entry.timeFormatted} >
+                      <div className={`w-4 h-4 border-2 border-white shadow`}
+                            style={{backgroundColor:entry.color}}
+                      ></div>
+                      <div>{t(entry.name)}</div>
+                    </CustomTooltip>
+                      </div>
+                  {/* <div className="font-bold">({entry.timeFormatted})</div> */}
+                </div>
+          )}
+          )}
+        </div>
+      }
+    </div>
   );
 };
 

@@ -12,6 +12,7 @@
         "documentation_update":"Update Documentation",
         "documentation_delete":"Delete Documentation",
         "sprints":"Sprints",
+        "report":"Report",
         "kickOff":"Kick-Off",
         "roles_all":"Roles",
         "roles_add":"Add Roles",
