@@ -35,7 +35,7 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
     const {t} = useTranslation();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
-    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:50, totalPages:0})
+    const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:2, totalPages:0})
     const [recordType, setRecordType] = useState<string>('maintasks');
     const [popupContent, setPopupContent] = useState({content:"", title:"", isOpen:false});
     const [data, setData] = useState<MainTask[]>();
@@ -424,18 +424,23 @@ const MainTasksAll:React.FC<ArgsType> = ({setSubNavItems}) => {
             ) : (
                 <div className='data-wrap'>
                     {data && data.length > 0 ? (
-                        <div className='relative bg-white p-4 rounded-md overflow-y-auto w-full'>
-                            <DataTable columns={columns} data={data} pinnedColumns={pinnedColumns}
+                      <>
+                      <div className='pagination mb-2'>
+                          <Pagination
+                                  currentPage={paginationData.currentPage} 
+                                  totalPages={paginationData.totalPages} 
+                                  onPageChange={handlePageChange} 
+                                  totalRecords={paginationData.totalRecords}
+                                  /> 
+                      </div>
+                       <div className='card bg-white'>
+                          <div className='p-0 overflow-auto'  style={{maxHeight:"calc(100dvh - 250px)"}}>
+                          <DataTable columns={columns} data={data} pinnedColumns={pinnedColumns}
                                 fixWidthColumns={fixedWidthColumns}
-                            />
-                            <Pagination
-                                currentPage={paginationData.currentPage} 
-                                totalPages={paginationData.totalPages} 
-                                onPageChange={handlePageChange} 
-                                totalRecords={paginationData.totalRecords}
-                            /> 
-                                
-                        </div>
+                                />
+                          </div>
+                      </div>
+                    </>
                         
                     ) : (
                         <p>{t('noData')}</p>

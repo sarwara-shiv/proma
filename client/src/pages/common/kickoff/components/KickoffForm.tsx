@@ -241,19 +241,17 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
             {formData &&
                 <>
                 <div className='w-full mt-4 mb-8 rounded-md px-3 pb-4 shadow-card bg-white'>
-                    <div className='text-slate-600 text-sm flex items-center justify-start py-2'>
-                        <div>
-                            <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
-                        </div>
-                        <div className=''> 
-                            <span className='mx-2'> | </span>
-                            <i className='text-slate-400'>{t(`createdAt`)}: </i> 
-                            {formData.createdAt && format(new Date(formData.createdAt), 'dd.MM.yyyy')}
-                        </div>
-                    </div>
+                    
                     <div className='flex justify-between gap-2'>
-                        <div className='text-primary text-2xl md:text-3xl font-bold'>
-                            {formData.name}
+                        <div className='text-slate-600 text-sm flex items-center justify-start py-2'>
+                            <div>
+                                <i className='text-slate-400'>{t(`createdBy`)}: </i> {createdBy && createdBy.name}
+                            </div>
+                            <div className=''> 
+                                <span className='mx-2'> | </span>
+                                <i className='text-slate-400'>{t(`createdAt`)}: </i> 
+                                {formData.createdAt && format(new Date(formData.createdAt), 'dd.MM.yyyy')}
+                            </div>
                         </div>
                         <div className='w-[150px]'>
                         <CustomDropdown 

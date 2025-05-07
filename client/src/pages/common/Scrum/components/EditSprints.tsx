@@ -1,31 +1,28 @@
-import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Loader, NoData, ToggleSwitch } from "../../../../components/common";
+import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Headings, Loader, NoData} from "../../../../components/common";
 import SidePanel from "../../../../components/common/SidePanel";
 import { AlertPopupType, CustomPopupType, FlashPopupType, ISprint, OrderByFilter, QueryFilters, SidePanelProps,Task, User } from "../../../../interfaces";
 import { ObjectId } from "mongodb";
-import React, { useEffect, useRef, useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { DiScrum } from "react-icons/di";
 import AddUpdateSprint from "./AddUpdateSprint";
 import { getRecordsWithFilters, sprintActions } from "../../../../hooks/dbHooks";
 import { format } from "date-fns";
-import { FaEllipsisH, FaTasks } from "react-icons/fa";
-import { MdAdd, MdClose, MdDelete, MdFormatListBulletedAdd, MdInfo, MdInfoOutline, MdOutlineViewTimeline, MdPerson } from "react-icons/md";
-import { FiEdit, FiEdit2, FiEdit3 } from "react-icons/fi";
-import { CustomDropdown, ToggleBtnWithUpdate } from "../../../../components/forms";
+import { MdDelete, MdFormatListBulletedAdd, MdInfoOutline} from "react-icons/md";
+import { FiEdit3 } from "react-icons/fi";
+import { ToggleBtnWithUpdate } from "../../../../components/forms";
 import Backlog from "./Backlog";
-import SprintTimeLine from "./SprintTimeline";
 import { calculateWorkingHours } from "../../../../utils/dateUtils";
 import SprintTaskDetail from "./SprintTaskDetail";
 import TasksKanaban from "./TasksKanaban";
 import TasksList from "./TasksList";
 
 interface ArgsType {
-  pid:string|ObjectId
+  pid:string|ObjectId,
+  taskView?:string
 }
 
-const EditSprints: React.FC<ArgsType> = ({pid}) => {
+const EditSprints: React.FC<ArgsType> = ({pid, taskView = "list"}) => {
   const {id} = useParams();
   const {t} = useTranslation();
   const [isLoader, setIsLoader] = useState<boolean>(false);
@@ -37,11 +34,16 @@ const EditSprints: React.FC<ArgsType> = ({pid}) => {
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint", onClose:()=>closeSidePanel()})
   const [sprintsData, setSprintsData] = useState<ISprint[]>();
-  const [tasksView, setTasksView] = useState<string>('list');
+  const [tasksView, setTasksView] = useState<string>(taskView || 'list');
 
   useEffect(()=>{
     getData();
 }, []);
+  useEffect(()=>{
+    if(taskView){
+      setTasksView(taskView);
+    }
+}, [taskView]);
 
 useEffect(() => {
   if (sprintsData && sprintsData.length > 0 && !selectedSprint) {
@@ -302,12 +304,12 @@ const getData = async ()=>{
   }
 
   return (
-    <div className="py-4 max-w-7xl mx-auto">
+    <div className="py-4 mx-auto">
       {isLoader && <Loader type="full"/>}
       {/* <h2 className="text-3xl font-bold text-center mb-8">Sprint Tasks</h2> */}
       <div className="flex justify-start items-start gap-8 overflow-x-auto pb-8 flex-col lg:flex-row">
         <div className="w-full bg-gray-100 p-2 rounded-lg lg:w-1/3 lg:min-w-[350px]" >
-          <h3 className="text-left font-bold pb-1 border-b border-slate-300 ">{t('sprints')}</h3>
+          <Headings text={t('sprints')} type="h4"/>
           <div className="py-2 pt-4 flex flex-col px-2 gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 190px)'}}>
             {sprintsData && sprintsData.length > 0 ? 
             <>
@@ -412,22 +414,17 @@ const getData = async ()=>{
 
         {selectedSprint &&
           <div className="w-full">
-            <div>
-              <ToggleSwitch size="sm" noValue="kanaban" yesValue="list" yesText={t('list')} noText={'kanaban'} initialState={tasksView !== 'kanaban'}
-              onChange={(isChecked, value)=>{value && (value ==='list' || value === 'kanaban') && setTasksView(value)}}
-              yesColor="green" noColor="green"
-              />
-            </div>
+            
             {/*  TASKS CANABAN */}
             {tasksView === 'kanaban' && 
-              <div className="flex-1 p-2 rounded-lg w-auto">
+              <div className="flex-1 p-2 border rounded-lg w-auto">
                   <TasksKanaban sprint={selectedSprint} setSelectedSprint={setSelectedSprint} getTaskDetail={getTaskDetail} removeTaskAlert={removeTaskAlert}/>
               </div>
             }
               
             {/* SPRINT BACKLOG */}
             {tasksView === 'list' && 
-              <div className="flex-1 p-2 rounded-lg  w-full max-w-[650px]"> 
+              <div className="flex-1 rounded-lg  w-full max-w-[650px]"> 
                 <TasksList sprint={selectedSprint} setSelectedSprint={setSelectedSprint} getTaskDetail={getTaskDetail} removeTaskAlert={removeTaskAlert}/>
               </div>
             }

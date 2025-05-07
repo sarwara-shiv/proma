@@ -24,6 +24,7 @@ import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import MentionUserInput from '../../../../components/forms/MensionUserInput';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
 import { useAppContext } from '../../../../context/AppContext';
+import { FaEye, FaPencilAlt } from 'react-icons/fa';
 
 interface ArgsType {
   cid?:string | null;
@@ -72,11 +73,18 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
   const [formData, setFormData] = useState<Project>(initialValues);
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
-  const [editCField, setEditCField] = useState<DynamicCustomField>({}) 
+  const [editCField, setEditCField] = useState<DynamicCustomField>({});
+  
+  let PnavItems: NavItem[] = [
+    { link: `projects`, title: "projects", icon:<FaPencilAlt />},
+  ];
 
   useEffect(()=>{
+    if(id){
+      PnavItems = [...PnavItems,  { link: `projects/view/${id}`, title: "projects", icon:<FaEye />}, { link: `projects/update/${id}`, title: "projects_update", icon:<FaPencilAlt />}]
+    }
 
-    setSubNavItems(navItems);
+    setSubNavItems(PnavItems);
     if(action === 'add'){
       setFormData(emptyValues);
       setPageTitle(t('projects'))

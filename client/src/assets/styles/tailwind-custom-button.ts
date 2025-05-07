@@ -24,7 +24,7 @@ const customButtonPlugin = (plugin: PluginAPI) => {
     '.btn-outline': {
       backgroundColor: 'transparent',
       color: plugin.theme('colors.primary'),
-      border: '2px solid',
+      border: '1px solid',
       borderColor: plugin.theme('colors.primary'),
       '&:hover': {
         backgroundColor: plugin.theme('colors.primary'),

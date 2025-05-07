@@ -1,5 +1,5 @@
 import { calculateWorkingHours } from "../../../../utils/dateUtils";
-import { CustomTooltip } from "../../../../components/common";
+import { CustomTooltip, Headings } from "../../../../components/common";
 import { addUpdateRecords } from "../../../../hooks/dbHooks";
 import { ISprint, Task, User } from "../../../../interfaces";
 import React, { useState, useEffect } from "react";
@@ -152,7 +152,7 @@ const TasksKanaban: React.FC<ArgsType> = ({ sprint, setSelectedSprint, getTaskDe
 
   return (
     <div className="w-auto mx-auto">
-      <h3 className="text-left font-bold pb-1 border-b border-slate-300">{t("tasks")}</h3>
+      <Headings text={t('tasks')} type="h4"/>
       <div className="flex justify-start items-start gap-4 pb-8">
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex justify-between space-x-8 flex-1 w-auto">

@@ -1,15 +1,15 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, NavItem, Project, User } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, MainTask, NavItem, PaginationProps, Project, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom';
-import MainTaskForm from './MainTaskForm';
+import MainTaskForm from '../../tasks/components/MainTaskForm';
 import { ObjectId } from 'mongodb';
 import { endOfDay, format } from 'date-fns';
 import path from 'path';
 import { useTranslation } from 'react-i18next';
 import { FaAd, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
-import { CustomAlert, FlashPopup } from '../../../../components/common';
+import { CustomAlert, FlashPopup, Headings } from '../../../../components/common';
 import { ColumnDef } from '@tanstack/react-table';
 import { CustomDropdown } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
@@ -18,6 +18,7 @@ import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePi
 import DataTable from '../../../../components/table/DataTable';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { DeleteById } from '../../../../components/actions';
+import { Pagination } from '@mui/material';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -37,18 +38,9 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
   const [projectId, setProjectId] = useState<ObjectId | string | null>(cid ? cid : id ? id : null);
   const [mainTasks, setMainTasks] = useState<MainTask[]>();
   const [editTask, setEditTask] = useState<MainTask | null>();
+  const [paginationData, setPaginationData] = useState<PaginationProps>({currentPage:1,totalRecords:0, limit:5, totalPages:0})
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
-
-
-  const tdClasses = 'p-2 text-xs';
-
-
-  // const navItems: NavItem[] = [
-  //   { link: "projects", title: "projects_all" },
-  //   { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
-  //   { link: `projects/tasks/${cid || id}`, title: "tasks" },
-  // ];
 
   const onDelete = (delData:any)=>{
     if(delData.status === "success"){ 
@@ -433,26 +425,38 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
     <div>
       {projectData && 
       <div>
-        <header className='flex justify-between items-center'>
-          <h1 className='text-lg text-primary font-bold'>{projectData.name}</h1>
-          <div className='flex justify-center items-center btn btn-outline text-sm p-2'
+        <div className='flex justify-between items-center'>
+          <Headings text={projectData.name} type='h1'/>
+          <div className='flex justify-end mb-4'>
+          <div className="flex justify-center items-center text-md p-2  hover:bg-primary-light hover:text-primary rounded-sm cursor-pointer transition-all"
             onClick={()=>addUpdateMainTask(projectId, 'add', null)}
-          >
-            <IoMdAdd /> {t('NAV.maintasks_add')}
+            >
+              <IoMdAdd /> {t('NAV.maintasks_add')}
+            </div>
           </div>
-        </header>
+
+        </div>
         <div className='main'>
-          <div className='my-4 mb-7 card bg-white'>
-            {projectData?.mainTasks && 
-              <DataTable columns={columns} data={projectData.mainTasks} 
-                pinnedColumns={pinnedColumns}
-                fixWidthColumns={fixedWidthColumns}
-              />
-            }
-          </div>
-          {/* <div>
-            <MainTaskForm pid={projectId} onChange={updateMainTasks} action={editTask ? 'update' : 'add'} mainTask={editTask} mainTasks={data && data.mainTasks as unknown as MainTask[] || []}/>
-          </div> */}
+        {projectData?.mainTasks && 
+          <>
+            <div className='pagination mb-2'>
+                {/* <Pagination
+                        currentPage={paginationData.currentPage} 
+                        totalPages={paginationData.totalPages} 
+                        onPageChange={handlePageChange} 
+                        totalRecords={paginationData.totalRecords}
+                        />  */}
+            </div>
+              <div className='card bg-white'>
+                <div className='p-0 overflow-auto'  style={{maxHeight:"calc(100dvh - 250px)"}}>
+                <DataTable columns={columns} data={projectData.mainTasks} 
+                    pinnedColumns={pinnedColumns}
+                    fixWidthColumns={fixedWidthColumns}
+                  />
+                </div>
+            </div>
+          </>
+          }
         </div>
       </div>
       }

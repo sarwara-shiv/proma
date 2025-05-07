@@ -1,5 +1,4 @@
-import { PageSubmenu } from '../../../components/common';
-import { MainTask, NavItem } from '@/interfaces';
+import { NavItem } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { IoMdAdd } from 'react-icons/io';
@@ -20,12 +19,9 @@ const Documentation:React.FC<ArgsType> = ({navItems}) => {
     const {action, id} = useParams();
     const { t } = useTranslation();
     const location = useLocation();
-    const { data, objectId, pid } = location.state || {}; 
-    // const [pageTitle, setPageTitle] = useState("documentation");
     const {pathname} = location;
-    const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
     const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems || pnavItems);
-    const {pageTitle, setPageTitle} = useAppContext();
+    const {setPageTitle} = useAppContext();
     useEffect(()=>{
       setPageTitle(t('documentation'))
     },[]);
@@ -37,6 +33,7 @@ const Documentation:React.FC<ArgsType> = ({navItems}) => {
             <div className='content-wrap relative'>
                 {action && 
                     action === 'add' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
+                    action === 'update' && id ? <DocumentationsForm setSubNavItems={setSubNavItems}/>:
                     action === 'view' && id ? <ProjectDocumentations setSubNavItems={setSubNavItems}/>:  
                     <DocumentationsAll  setSubNavItems={setSubNavItems}/>
                 }

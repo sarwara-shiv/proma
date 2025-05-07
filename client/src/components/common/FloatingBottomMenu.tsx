@@ -7,7 +7,7 @@ interface ArgsType{
 }
 const FloatingBottomMenu:React.FC<ArgsType> = ({nav, onClick, selectedNav})=>{
     return (
-        <div className='sticky bottom-4 right-4 pr-1 mt-10 '>
+        <div className='sticky bottom-4 right-4 pr-1 mt-10 max-w-5xl m-auto'>
             <div className='flex justify-center items-center mb-2 bg-white rounded-md box-shadow gap-2'>
                 {nav && nav.length > 0 && nav.map((item, idx)=>{return (
                     <div key={`${idx}-${item._id}`} className='flex justify-end gap-1'>

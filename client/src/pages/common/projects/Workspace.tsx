@@ -10,7 +10,7 @@ import ProjectDetails from './components/ProjectDetails';
 import { IoMdAdd } from 'react-icons/io';
 import PageSubmenu from '../../../components/common/PageSubmenu';
 import KickoffForm from '../kickoff/components/KickoffForm';
-import MainTasksProject from '../tasks/components/MaintTasksProject';
+import MainTasksProject from './components/MaintTasksProject';
 import ProjectDocumentations from '../documentation/components/ProjectDocumentations';
 import DocumentationsForm from '../documentation/components/DocumentationsForm';
 import Documentation from '../documentation/Documentation';
@@ -44,14 +44,12 @@ const Project = () => {
   const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
 
   const PnavItems: NavItem[] = [
-    { link: `projects/view/${id}`, title: "view", icon:<FaEye />},
-    { link: `projects/update/${id}`, title: "update", icon:<FaPencilAlt />},
+    { link: `projects/view/${id}`, title: "project", icon:<FaEye />},
     { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
     { link: `projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
     { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
     { link: `projects/report/${id}`, title: "report", icon:<IoBarChartSharp />}, 
     { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
-    { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
   ];
 
   // console.log(action);
@@ -71,7 +69,7 @@ const Project = () => {
               action ==="update" ? <ProjectsForm cid={objectId as string}  action='update' setSubNavItems={setSubNavItems} navItems={PnavItems}/> : 
               action ==="maintasks" ? <MainTasksProject  data={data} cid={objectId as string} setSubNavItems={setSubNavItems} navItems={PnavItems}/> : 
               action ==="sprints" ? <Sprints  data={data} cid={objectId as string} setSubNavItems={setSubNavItems} /> : 
-              action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems} /> : 
+              action ==="kickoff" ? <Kickoff  data={data} cid={objectId as string} setSubNavItems={setSubNavItems} navItems={navItems}/> : 
               action ==="kickoff-update" ? <KickoffForm  data={data} cid={objectId as string} setSubNavItems={setSubNavItems}/> : 
               action=== "view" && id ? <ProjectDetails setSubNavItems={setSubNavItems} cid={id} data={data} navItems={PnavItems} />  :
               action=== "documentation" && id ? <ProjectDocumentations setSubNavItems={setSubNavItems} navItems={PnavItems}/>  :

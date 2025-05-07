@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import '../../../../assets/styles/documentation.css'
 import { useParams } from 'react-router-dom';
 import DocumentationNav from './DocumentationNav';
-import { MdClose, MdMenu } from 'react-icons/md';
+import { MdClose, MdEdit, MdMenu } from 'react-icons/md';
 interface ArgsType{
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>;
     navItems?:NavItem[]
@@ -32,7 +32,11 @@ const ProjectDocumentations:React.FC<ArgsType> = ({setSubNavItems, navItems}) =>
 
       useEffect(()=>{
         getRecords();
-        setSubNavItems && setSubNavItems(navItems);
+        if(navItems){
+          console.log(id);
+          navItems = [...navItems, { link: `documentation/update/${id}`, title: "documentation_update", icon:< MdEdit/> }]
+          setSubNavItems && setSubNavItems(navItems);
+        }
       },[])
 
       const getRecords = async () => {

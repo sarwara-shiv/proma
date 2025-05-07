@@ -1,5 +1,5 @@
 import { calculateWorkingHours } from "../../../../utils/dateUtils";
-import { CustomTooltip, NoData } from "../../../../components/common";
+import { CustomTooltip, Headings, NoData } from "../../../../components/common";
 import { addUpdateRecords } from "../../../../hooks/dbHooks";
 import { ISprint, Task, User } from "../../../../interfaces";
 import React, { useState, useEffect } from "react";
@@ -82,7 +82,7 @@ const TasksList: React.FC<ArgsType> = ({ sprint, setSelectedSprint, getTaskDetai
   return (
     <div>
          <div className="flex-1 bg-gray-100 p-2 rounded-lg w-full">
-          <h3 className="text-left font-bold pb-1 border-b border-slate-300 ">{t('tasks')}</h3>
+          <Headings text={t('tasks')} type="h4"/>
           <div className="py-2 pt-4 px-2 flex flex-col gap-5 overflow-y-auto" style={{maxHeight:'calc(90dvh - 260px)'}}>
             {sprint && sprint.backlog.length > 0 ? 
             <>

@@ -7,18 +7,13 @@ import { useTranslation } from "react-i18next";
 import {useAuthContext } from "../../../context/AuthContext";
 import { useSocket } from "../../../context/SocketContext";
 import { ReactComponent as LogoIcon } from '../../../assets/images/svg/logo-icon.svg';
-import { MdLogout } from "react-icons/md";
+import {MdLogout } from "react-icons/md";
 import { IoChatbubbles } from "react-icons/io5";
-
-
-const pConfig = {
-    "admin" :PagesConfig,
-    "user":UserPagesConfig
-}
+import { FiMinus, FiPlus } from "react-icons/fi";
 
 const SidebarLayout: React.FC = () => {
     const {isSidebarOpen, setIsSidebarOpen} = useAppContext();
-    const {user, roles, permissions, isAdmin, slug} = useAuthContext();
+    const {permissions, isAdmin, slug} = useAuthContext();
     const [navPages, setNavPages] = useState<Record<string, PageConfig>>({});
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const [newTasks, setNewTasks] = useState<number>(0);
@@ -28,13 +23,11 @@ const SidebarLayout: React.FC = () => {
     useEffect(()=>{
         if(isAdmin){
             setNavPages(PagesConfig);
-            console.log('------admin ',PagesConfig);
         }
         if(!isAdmin){
             setNavPages(UserPagesConfig);
-            console.log(UserPagesConfig);
         }
-    }, [])
+    }, [isAdmin])
 
     useEffect(() => {
         // Function to check screen width and adjust sidebar state
@@ -102,8 +95,8 @@ const SidebarLayout: React.FC = () => {
     };
 
     const handleToggleSubMenu = (title: string) => {
-        setOpenSubMenu(openSubMenu === title ? null : title);
-    };
+        setOpenSubMenu(prev => (prev === title ? null : title));
+      };
 
     // Sort pages by sortOrder
     const sortedPages = Object.values(navPages).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
@@ -111,13 +104,14 @@ const SidebarLayout: React.FC = () => {
     <>
     <aside className={`w-[200px] static left-0 top-2 px-2 pt-4 pb-8 bottom-0 flex flex-col transition-all ease duration-100 mb-10 
     rounded-e-3xl 
-    bg-primary-light justify-between
+    justify-between
+    bg-primary-light 
     ${isSidebarOpen ? 'ml-[0px]' : 'ml-[-200px]'}
         `}>
         <div className="flex flex-col max-h-full relative h-full">
             {/* Make the list scrollable */}
             <div className="my-2 text-sm my-1 py-1 rounded-md flex-1 overflow-y-auto flex">
-            <ul className="space-y-1">
+            <ul className="space-y-1 w-full ">
                 {sortedPages.map((page, index) => {
                 if (hasAccess(page)) {
                     return (
@@ -147,49 +141,40 @@ const SidebarLayout: React.FC = () => {
                             </>
                             )}
                         </NavLink>
-
                         {page.subMenu && Object.keys(page.subMenu).length > 0 && (
-                            <>
-                                <button
-                                className="ml-2 flex items-center justify-center w-8 h-4 text-gray-700 hover:text-primary rounded-lg"
+    
+                            <button
+                                className="ml-2 flex items-center justify-center text-gray-700 hover:bg-white rounded-full p-1"
                                 onClick={() => handleToggleSubMenu(page.name)}
                                 >
-                                <svg
-                                    className={`w-4 h-4 transition-transform duration-200 ${openSubMenu === page.name ? "rotate-180" : "rotate-0"}`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                                </button>
-                                <div className="absolute left-100">
+                                {openSubMenu === page.name ? <FiMinus />: <FiPlus />}
+                            </button>
+                            
+                        )}
+                       </div>
+
+
+                        {page.subMenu && Object.keys(page.subMenu).length > 0 && (
+                            <div className={`ml-4 border-l  border-slate-400 overflow-hidden transition-all ${openSubMenu === page.name ? 'h-auto' : 'h-0'}`}>
+                                <div className="flex-1 left-100">
                                 {page.subMenu && Object.entries(page.subMenu).map((obj, idx)=>{
-                                    console.log(obj[1]);
                                     const data = obj[1];
                                     return (
                                         <div key={idx}>
                                            <NavLink
                                                 to={`/${slug}/${page.root}/${data.root}`}
                                                 className={({ isActive }) => {
-                                                return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                                                return `flex-1 rounded-sm p-1 text-xs flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
                                                 }}
-                                                onClick={() => handleNewTasks(page)}
                                             >
                                                 {({ isActive }) => (
                                                 <>
-                                                    <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white' : 'bg-primary-light'} p-1`}>
+                                                    <span className={`icon w-[20px] h-[20px] rounded-full ${isActive ? 'text-primary' : 'bg-primary-light'} p-1`}>
                                                     {data.icon ? <data.icon /> : <LogoIcon className="text-gray-400" />}
                                                     </span>
 
                                                     <div className="flex justify-between items-center flex-1">
-                                                    {t(`NAV.${data.name}`)}
-                                                    {newTasks > 0 && page.name === 'mytasks' && 
-                                                        <span className="right-0 p-[2px] bg-primary rounded-md h-3 flex justify-center items-center text-[10px] aspect-[1/1] text-white font-bold">
-                                                        {newTasks}
-                                                        </span>
-                                                    }
+                                                        {t(`${data.name}`)}
                                                     </div>
                                                 </>
                                                 )}
@@ -198,10 +183,8 @@ const SidebarLayout: React.FC = () => {
                                     )
                                 }) }
                                 </div>
-                            </>
+                            </div>
                         )}
-
-                        </div>
                     </li>
                     );
                 }

@@ -1,30 +1,18 @@
-import { addUpdateRecords, getRecordsWithFilters, getRecordWithID } from '../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, ISprint, MainTask, NavItem, Project, QueryFilters, SidePanelProps, Task, User } from '@/interfaces';
-import React, { useEffect, useMemo, useState } from 'react'
-import { NavLink, useParams } from 'react-router-dom';
+import { getRecordsWithFilters} from '../../../hooks/dbHooks';
+import { AlertPopupType, FlashPopupType, ISprint, NavItem, Project, QueryFilters, SidePanelProps} from '@/interfaces';
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom';
 import { ObjectId } from 'mongodb';
-import { endOfDay, format } from 'date-fns';
-import path from 'path';
 import { useTranslation } from 'react-i18next';
-import { FaAd, FaEdit, FaPencilAlt, FaTasks } from 'react-icons/fa';
-import { IoMdAdd, IoMdClose } from 'react-icons/io';
-import { CustomAlert, CustomTooltip, FlashPopup, NoData } from '../../../components/common';
-import { CustomDropdown } from '../../../components/forms';
-import { getColorClasses } from '../../../mapping/ColorClasses';
-import { TaskStatuses } from '../../../config/predefinedDataConfig';
-import CustomDateTimePicker2 from '../../../components/forms/CustomDateTimePicker';
-import DataTable from '../../../components/table/DataTable';
-import CustomContextMenu from '../../../components/common/CustomContextMenu';
-import { DeleteById } from '../../../components/actions';
+import { IoMdAdd } from 'react-icons/io';
+import { CustomAlert, FlashPopup, Headings, NoData, ToggleSwitch } from '../../../components/common';
 import EditSprints from './components/EditSprints';
 import SidePanel from '../../../components/common/SidePanel';
 import AddUpdateSprint from './components/AddUpdateSprint';
-import { FiEdit, FiEdit3 } from "react-icons/fi";
 import { DiScrum } from 'react-icons/di';
 import { MdDashboard, MdOutlineBarChart, MdOutlineViewTimeline } from 'react-icons/md';
 import SprintTimelineTable from './components/SprintTimelineTable';
 import SprintStatusChart from './components/SprintStatusChart';
-import { useAppContext } from '../../../context/AppContext';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -34,60 +22,35 @@ interface ArgsType {
     checkDataBy?:string[];
 }
 
-const pinnedColumns = ['name'];
-const fixedWidthColumns = ['startDate', 'dueDate', 'endDate', 'action'];
-
-const pageNavData = [
-    {id:'sprint_manage', icon:<DiScrum/>, label:'sprint_manage', },
-]
-
 const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
-  const {setPageTitle} = useAppContext();
   const [lastSidePanelKey, setLastSidePanelKey] = useState<string|null>();
+  const [projectData, setProjectData] = useState<Project |null>(data || null);
   const [projectId, setProjectId] = useState<ObjectId | string | null>(cid ? cid : id ? id : null);
-  const [mainTasks, setMainTasks] = useState<MainTask[]>();
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [spProps, setSpProps] = useState<SidePanelProps>({isOpen:false, title:"AddTasks", children:"Add New Sprint"})
   const [sprintsData, setSprintsData] = useState<ISprint[]>([]);
   const [selectedNav, setSelectedNav] = useState<string>('sprint_all');
-
-
-  const tdClasses = 'p-2 text-xs';
-
-
-  const navItems: NavItem[] = [
-    { link: "projects", title: "projects_all" },
-    { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
-    { link: `projects/tasks/${cid || id}`, title: "tasks" },
-  ];
-
-
-
+  const [taskView, setTaskView] = useState<string>('list');
   //---------- table columns model end
 
   useEffect(()=>{
-      if(!cid){
+    if(!cid){
         cid = id;
     }
-        cid && setProjectId(cid);
-      console.log(cid);
-      console.log(selectedNav);
+    cid && setProjectId(cid);
+    console.log(projectData);
       getData();
   }, [projectId]);
-
-  useEffect(()=>{
-      getData();
-  }, [mainTasks]);
-
 
 
 // GET SPRINTS
   const getData = async ()=>{
     try{
         const populateFields = [
+            {path:'_pid'},
             { 
                 path: 'backlog',
                 populate: [
@@ -113,10 +76,10 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
             console.log(res);
 
             if(res.status === 'success' && res.data){
-                console.log(res.data);
                 setSprintsData(res.data);
-                console.log(cid);
-                console.log(selectedNav);
+                if(res.data.length >0){
+                    setProjectData(res.data[0]._pid);
+                }
             }
 
         }
@@ -145,13 +108,24 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
     setSpProps({...spProps, isOpen:false, children:''});
   }
 
+
+
   return (
     <div className=''>
+         <div className={`flex ${projectData ? 'justify-between' : 'justify-end'} items-center mb-4`}>
+                {projectData && 
+                <Headings text={projectData.name} type='h1'/>
+                }
+            <ToggleSwitch type='yesno' noText={t('list')} yesText={t('kanaban')} yesColor='green' noColor='green'
+                onChange={(value)=>{value ? setTaskView('kanaban') : setTaskView('list')}}
+            />
+
+        </div>
         {/* BOARD */}
        <div className='kanaban-board'>
         {projectId && sprintsData && sprintsData.length > 0 ? (
             <>
-                {selectedNav === 'sprint_all' &&  <EditSprints pid={projectId} />}
+                {selectedNav === 'sprint_all' &&  <EditSprints pid={projectId} taskView={taskView}/>}
                 {selectedNav === 'timeline' && <SprintTimelineTable sprints={sprintsData} />}
                 {selectedNav === 'status' && <SprintStatusChart sprints={sprintsData} />}
                 {selectedNav === 'dashboard' && (
@@ -167,10 +141,8 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
         </div> 
 
         {/* NAVIGATION */}
-         <div className='sticky bottom-4 right-4 pr-1 mt-10 '>
+         <div className='sticky bottom-4 right-4 pr-1 mt-10 max-w-5xl m-auto'>
             <div className='flex justify-between items-center mb-2 bg-white rounded-md box-shadow gap-2'>
-                
-
                 {/* ADD NEW SPRINT */}
                 <div className='flex items-center gap-2'>
 

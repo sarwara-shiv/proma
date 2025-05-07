@@ -27,6 +27,7 @@ import Pagination from '../../../../components/common/Pagination';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import { DaysLeft } from '../../../../components/common';
+import { useAppContext } from '../../../../context/AppContext';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -38,6 +39,7 @@ const fixedWidthColumns = ['actions_cell', 'startDate', 'endDate', 'createdAt', 
 
 const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     const {t} = useTranslation();
+    const {setPageTitle} = useAppContext();
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
     const [data, setData] = useState<Project[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -53,6 +55,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
     useEffect(()=>{
         setSubNavItems(navItems)
         getRecords();
+        setPageTitle(t('projects'));
     },[])
 
     useEffect(() => {

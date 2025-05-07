@@ -263,8 +263,10 @@ const AllTasks = () => {
                         onPageChange={(e)=>getData(e)}
                     />
                 </div>
-                <div className=' p-0 bg-white overflow-auto'  style={{maxHeight:"calc(100dvh - 250px)"}}>
-                    <DataTable pinnedColumns={pinnedColumns} fixWidthColumns={fixedWidthColumns} data={records} columns={columns}/>
+                <div className='card bg-white'>
+                    <div className='p-0 overflow-auto'  style={{maxHeight:"calc(100dvh - 250px)"}}>
+                        <DataTable pinnedColumns={pinnedColumns} fixWidthColumns={fixedWidthColumns} data={records} columns={columns}/>
+                    </div>
                 </div>
             </>
             

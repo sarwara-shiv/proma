@@ -59,10 +59,10 @@ const ToggleSwitch: React.FC<ArgsType> = (args) => {
             text-${size}
             
             `}>
-            <span className={`${isChecked ? `text-${yesColor}-500`: 'shadow-light text-slate-400'}  
+            <span className={`${isChecked ? `text-${yesColor}-500 bg-${yesColor}-100`: 'shadow-light text-slate-400'}  
             cursor-pointer px-2 py-1 flex justify-center items-center transition-colors duration-200 ease relative z-1
             `}>{yesText}</span>
-            <span className={`${!isChecked ? `text-${noColor}-500`: 'shadow-light text-slate-400'} 
+            <span className={`${!isChecked ? `text-${noColor}-500 bg-${noColor}-100`: 'shadow-light text-slate-400'} 
             cursor-pointer px-2 py-1 flex justify-center items-center transition-colors duration-200 ease relative z-1
             `}>{noText}</span>
           </label>

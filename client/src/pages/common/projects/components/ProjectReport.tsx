@@ -8,7 +8,7 @@ import { workLogActions } from "../../../../hooks/dbHooks";
 import UserBarChart from "../../../../components/charts/UserBarChart";
 import UserPieChart from "../../../../components/charts/UserPieChart";
 import { format } from "date-fns";
-import { DaysLeft } from "../../../../components/common";
+import { DaysLeft, Headings } from "../../../../components/common";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
 import ProjectProgress from "./ProjectProgress";
 import { FaEye, FaPencilAlt, FaTasks } from "react-icons/fa";
@@ -57,7 +57,6 @@ const ProjectReport:React.FC<ArgsType> = ({setSubNavItems})=>{
         { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
         { link: `projects/report/${id}`, title: "report", icon:<IoBarChartSharp />}, 
         { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
-        { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
       ];
 
     useEffect(()=>{
@@ -89,7 +88,7 @@ const ProjectReport:React.FC<ArgsType> = ({setSubNavItems})=>{
             {reportData && 
             <div>
                 <div>
-                    <div className="text-slate-600 mb-2 text-2xl font-bold">{reportData.projectId.name}</div>
+                    <Headings text={reportData.projectId.name} type="h1" />
                 </div>
                 {reportData.project && 
                 <div className="flex justify-between flex-wrap">

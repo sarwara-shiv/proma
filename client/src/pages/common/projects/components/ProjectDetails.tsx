@@ -1,5 +1,5 @@
 import { Priorities, ProjectStatuses } from '../../../../config/predefinedDataConfig';
-import { FloatingBottomMenu, Loader, PageTitel } from '../../../../components/common';
+import { FloatingBottomMenu, Headings, Loader, PageTitel } from '../../../../components/common';
 import { getRecordWithID } from '../../../../hooks/dbHooks';
 import {useAuthContext } from '../../../../context/AuthContext';
 import { AlertPopupType, DynamicCustomField, FlashPopupType, MainTask, NavItem, Project, Task, User } from '@/interfaces';
@@ -42,16 +42,20 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
     const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
     const PnavItems: NavItem[] = [
-      { link: `/${slug}/projects/update/${id}`, title: "projects_update", icon:<FaPencilAlt />},
-      { link: `/${slug}/projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
-      { link: `/${slug}/projects/kickoff/${id}`, title: "maintasks", icon:<MdRocketLaunch />},
-      { link: `/${slug}/projects/sprints/${id}`, title: "maintasks", icon:<DiScrum />},
-      { link: `/${slug}/projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
-      { link: `/${slug}/projects/add`, title: "projects_add", icon:<IoMdAdd />},
+      { link: `projects/update/${id}`, title: "projects_update", icon:<FaPencilAlt />},
+      { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
+      { link: `projects/kickoff/${id}`, title: "maintasks", icon:<MdRocketLaunch />},
+      { link: `projects/sprints/${id}`, title: "maintasks", icon:<DiScrum />},
+      { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
+      { link: `projects/add`, title: "projects_add", icon:<IoMdAdd />},
     ];
 
     useEffect(()=>{
+      if(navItems){
+        navItems = [...navItems]
         setSubNavItems(navItems);
+      }
+      setPageTitle(t('project'));
         getRecords();
     },[])
     
@@ -92,9 +96,6 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
             const res = await getRecordWithID({id:id, populateFields, type:'projects'});
             if(res.status === 'success' && res.data){
                 setProjectData(res.data);
-                if(res.data.name){
-                  setPageTitle(<div className='gap-1'><span className='text-sm text-sm font-normal pr-1'>{t('project')}</span><span className='max-w-[20px]'>{res.data.name}</span></div>);
-                }
                 if(res.data.mainTasks) {
                   setMainTasks(res.data.mainTasks);
                   const chartData = countSubtasksByStatus(res.data.mainTasks);
@@ -189,8 +190,7 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
               <div className='flex justify-between w-full'>
         
                 <div>
-               
-                <h1 className='text-2xl text-primary font-bold'>{projectData.name}</h1>
+                  <Headings text={projectData.name} type='h1'/>
                 </div>
                 <div className='flex justify-cols gap-3'>
 

@@ -1,5 +1,5 @@
 import {FaUsers, FaUserTie} from 'react-icons/fa';
-import { MdAdb, MdAdd, MdDashboard, MdOutlineInstallDesktop } from "react-icons/md";
+import { MdAdd, MdDashboard, MdOutlineInstallDesktop } from "react-icons/md";
 import { IconType } from 'react-icons';
 // Define the type for page actions
 export type PageAction = 'canView' | 'canCreate' | 'canUpdate' | 'canDelete';
@@ -43,17 +43,17 @@ const PagesConfig: Record<string, PageConfig> = {
     icon:FaUsers,
     access:['admin', 'manager'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
-    // subMenu:{
-    //   USERS_ADD: {
-    //     name: 'addNew',
-    //     root:"add",
-    //     displayName: 'Users Add',
-    //     icon:MdAdd,
-    //     access:['admin', 'manager'],
-    //     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
-    //     sortOrder:1
-    //   }
-    // },
+    subMenu:{
+      USERS_ADD: {
+        name: 'add',
+        root:"register",
+        displayName: 'Users Add',
+        icon:MdAdd,
+        access:['admin', 'manager'],
+        actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+        sortOrder:1
+      }
+    },
     sortOrder:2
   },
   USER_ROLES: {
@@ -63,6 +63,17 @@ const PagesConfig: Record<string, PageConfig> = {
     displayName: 'User Roles',
     access:['admin', 'manager'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    subMenu:{
+      USERS_ROLES_ADD: {
+        name: 'add',
+        root:"add",
+        displayName: 'Roles Add',
+        icon:MdAdd,
+        access:['admin', 'manager'],
+        actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+        sortOrder:1
+      }
+    },
     sortOrder:1
   },
   PROJECTS: {
@@ -72,6 +83,17 @@ const PagesConfig: Record<string, PageConfig> = {
     icon:MdOutlineInstallDesktop,
     access:['all'],
     actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    subMenu:{
+      USERS_ROLES_ADD: {
+        name: 'add',
+        root:"add",
+        displayName: 'Project Add',
+        icon:MdAdd,
+        access:['admin', 'manager'],
+        actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+        sortOrder:1
+      }
+    },
     sortOrder:4
   },
   USER_GROUPS: {

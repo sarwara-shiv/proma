@@ -1,11 +1,10 @@
 import { addUpdateRecords, assignTasks, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, BaseTask, CustomPopupType, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, RichTextEditorProps, SidePanelProps, Task, User } from '@/interfaces';
-import React, { useEffect, useRef, useState } from 'react'
+import { AlertPopupType, CustomPopupType, DeleteRelated, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, SidePanelProps, Task, User } from '@/interfaces';
+import React, { useEffect,  useState } from 'react'
 import { useParams } from 'react-router-dom';
-import MainTaskForm from './MainTaskForm';
+
 import { ObjectId } from 'mongodb';
-import { format } from 'date-fns';
-import path from 'path';
+
 import { useTranslation } from 'react-i18next';
 import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
@@ -18,10 +17,8 @@ import { FaAngleRight, FaPlusSquare, FaUserCircle } from 'react-icons/fa';
 import SubtasksTable from './SubtasksTable';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import { extractAllIds } from '../../../../utils/tasksUtils';
-import ColorPicker from '../../../../components/common/ColorPicker';
-import { IoEllipsisVerticalSharp } from 'react-icons/io5';
+
 import { ClickToEditNumber, CustomDropdown, MensionUserInput, SelectDateTime } from '../../../../components/forms';
-import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import ClickToEdit from '../../../../components/forms/ClickToEdit';
 import { sanitizeString } from '../../../../utils/commonUtils';
@@ -48,12 +45,6 @@ interface ArgsType {
 
 let DeleteRelatedUpdates:RelatedUpdates[]= [{
  collection:'maintasks',
- field:'subtasks',
- type:'array',
- ids:[]
-}]
-let DeleteRelatedUpdatesTasks:RelatedUpdates[]= [{
- collection:'tasks',
  field:'subtasks',
  type:'array',
  ids:[]
@@ -90,15 +81,6 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
 
   const thStyles = 'text-xs font-semibold p-1 text-left text-primary border border-slate-200';
   const tdStyles = 'text-xs font-normal p-1 text-left  border border-slate-200';
-
-  const tdClasses = 'p-2 text-xs';
-
-
-  // const navItems: NavItem[] = [
-  //   { link: "projects", title: "projects_all" },
-  //   { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
-  //   { link: `projects/tasks/${cid || id}`, title: "tasks" },
-  // ];
 
   useEffect(()=>{
       if(!cid){
