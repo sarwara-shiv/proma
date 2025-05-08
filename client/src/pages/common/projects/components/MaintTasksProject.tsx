@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 import { endOfDay, format } from 'date-fns';
 import path from 'path';
 import { useTranslation } from 'react-i18next';
-import { FaAd, FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { FaAd, FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
 import { CustomAlert, FlashPopup, Headings } from '../../../../components/common';
 import { ColumnDef } from '@tanstack/react-table';
@@ -19,6 +19,9 @@ import DataTable from '../../../../components/table/DataTable';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { DeleteById } from '../../../../components/actions';
 import { Pagination } from '@mui/material';
+import { MdRocketLaunch } from 'react-icons/md';
+import { DiScrum } from 'react-icons/di';
+import { IoBarChartSharp, IoDocumentAttach } from 'react-icons/io5';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -42,6 +45,21 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
 
+  const PnavItems: NavItem[] = [
+    { link: `projects/view/${id}`, title: "project", icon:<FaEye />},
+    { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
+    { link: `projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
+    { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
+    { link: `projects/report/${id}`, title: "report", icon:<IoBarChartSharp />}, 
+    { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
+  ];
+
+  useEffect(()=>{
+    if(setSubNavItems){
+      setSubNavItems(PnavItems);
+    }
+  },[])
+
   const onDelete = (delData:any)=>{
     if(delData.status === "success"){ 
       getData();
@@ -55,7 +73,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
     {
       header: '',
       id:"actions_cell",
-      cell: ({ getValue, row }) => { 
+      cell: ({ getValue, row  }) => { 
         const cid = getValue() && getValue();
         const _id = row.original._id ? row.original._id as unknown as string : '';
         const _pid = row.original._pid ?  row.original._pid : null;

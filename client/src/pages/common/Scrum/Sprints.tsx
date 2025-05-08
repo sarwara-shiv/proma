@@ -10,9 +10,11 @@ import EditSprints from './components/EditSprints';
 import SidePanel from '../../../components/common/SidePanel';
 import AddUpdateSprint from './components/AddUpdateSprint';
 import { DiScrum } from 'react-icons/di';
-import { MdDashboard, MdOutlineBarChart, MdOutlineViewTimeline } from 'react-icons/md';
+import { MdDashboard, MdOutlineBarChart, MdOutlineViewTimeline, MdRocketLaunch } from 'react-icons/md';
 import SprintTimelineTable from './components/SprintTimelineTable';
 import SprintStatusChart from './components/SprintStatusChart';
+import { FaEye, FaTasks } from 'react-icons/fa';
+import { IoBarChartSharp, IoDocumentAttach } from 'react-icons/io5';
 interface ArgsType {
     cid?:string | null;
     action?:"add" | "update";
@@ -35,13 +37,21 @@ const Sprints:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], se
   const [selectedNav, setSelectedNav] = useState<string>('sprint_all');
   const [taskView, setTaskView] = useState<string>('list');
   //---------- table columns model end
+  const subNavItems: NavItem[] = [
+    { link: `projects/view/${id}`, title: "project", icon:<FaEye />},
+    { link: `projects/maintasks/${id}`, title: "maintasks", icon:<FaTasks />},
+    { link: `projects/kickoff/${id}`, title: "kickOff", icon:<MdRocketLaunch />},
+    { link: `projects/sprints/${id}`, title: "sprints", icon:<DiScrum />}, 
+    { link: `projects/report/${id}`, title: "report", icon:<IoBarChartSharp />}, 
+    { link: `projects/documentation/${id}`, title: "documentation", icon:<IoDocumentAttach />},
+  ];
 
   useEffect(()=>{
     if(!cid){
         cid = id;
     }
     cid && setProjectId(cid);
-    console.log(projectData);
+    setSubNavItems && setSubNavItems(subNavItems);
       getData();
   }, [projectId]);
 

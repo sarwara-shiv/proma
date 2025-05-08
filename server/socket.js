@@ -24,6 +24,7 @@ export const initializeSocket = (server, app) => {
             console.log(`🛑 Received event: ${event} with data:`, args);
         });
 
+
         socket.on("user-connected", async (userId) => {
             console.log("🎉 Received 'user-connected' event for userId:", userId);
 

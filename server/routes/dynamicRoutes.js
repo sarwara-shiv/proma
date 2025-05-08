@@ -162,7 +162,7 @@ router.post('/tasks/assign', verifyToken, async (req, res) => {
 })
 
 
-//add update general records
+//add  general records
 router.post('/:resource/add', verifyToken, async (req, res) => {
   const { resource } = req.params;
   const model = getModel(resource);  // Retrieve the model based on the resource
@@ -330,7 +330,7 @@ router.post('/:resource/update', verifyToken, async (req, res) => {
 
 
       // Log changes
-      if(resource === 'tasks' || resource === "maintasks"){
+      if(resource === 'tasks' || resource === "maintasks" || "projects"){
         await logChanges(resource, id, data, originalRecord, req.user._id);  
       }
 
@@ -434,7 +434,6 @@ router.post('/:resource/delete', verifyToken, async (req, res) => {
     }
     
     deletedRecord = await model.findByIdAndDelete(id);
-    console.log('******', deletedRecord);
 
 
     if (!deletedRecord) {

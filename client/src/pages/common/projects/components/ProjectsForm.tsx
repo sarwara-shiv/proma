@@ -76,12 +76,13 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
   const [editCField, setEditCField] = useState<DynamicCustomField>({});
   
   let PnavItems: NavItem[] = [
-    { link: `projects`, title: "projects", icon:<FaPencilAlt />},
+   
   ];
 
   useEffect(()=>{
     if(id){
-      PnavItems = [...PnavItems,  { link: `projects/view/${id}`, title: "projects", icon:<FaEye />}, { link: `projects/update/${id}`, title: "projects_update", icon:<FaPencilAlt />}]
+      setProjectId(id);
+      PnavItems = [...PnavItems,  { link: `projects/view/${id}`, title: "project", icon:<FaEye />}]
     }
 
     setSubNavItems(PnavItems);
@@ -145,7 +146,7 @@ const ProjectsForm:React.FC<ArgsType> = ({ action = "add", cid, setSubNavItems, 
         body = {...body, createdBy}; 
       }
 
-      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id:cid, body:{ ...body}}); 
+      const response = await addUpdateRecords({type: "projects", checkDataBy:checkDataBy, action, id:id, body:{ ...body}}); 
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;

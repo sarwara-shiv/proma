@@ -7,15 +7,31 @@ import { useAppContext } from '../../../context/AppContext';
 import {useAuthContext } from '../../../context/AuthContext';
 import ToggleDailyReport from '../../../components/specific/dailyReport/ToggleDailyReport';
 import ActiveWorkLog from './ActiveWorkLog';
+import { useSocket } from "../../../context/SocketContext";
 
 const HeaderLayout = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
     const { t } = useTranslation();
     const {user} = useAuthContext();
+    const socket = useSocket();
     // Function to toggle sidebar for small screens
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+
+    useEffect(() => {
+        if(socket){
+            socket.on('send-notification', (payload) => {
+                console.log('🔔 Notification received:', payload);
+                // Optionally show toast, update UI, or route based on `payload.link`
+            });
+        }
+        return () => {
+            if (socket) {
+              socket.off('new-task-assigned'); 
+            }
+          };
+      }, []);
 
     // Adjust sidebar state based on screen size
     useEffect(() => {

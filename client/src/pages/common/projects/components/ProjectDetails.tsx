@@ -14,7 +14,7 @@ import { countSubtasksByStatus } from '../../../../utils/tasksUtils';
 import TasksStatusPieChart from '../../../../components/charts/TasksStatusPieChart';
 import { IoMdAdd } from 'react-icons/io';
 import { MdEdit, MdOutlineModeEdit, MdRocketLaunch } from 'react-icons/md';
-import { FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { FaPencilAlt, FaRegEdit, FaTasks } from 'react-icons/fa';
 import { DiScrum } from 'react-icons/di';
 import { IoDocumentAttach } from 'react-icons/io5';
 import { useAppContext } from '../../../../context/AppContext';
@@ -142,6 +142,17 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
       {loading && <Loader type='full'/>}
       {projectData && 
         <div>
+          <div className={`flex justify-end items-center mb-0`}>
+                  <NavLink
+                            to={`/${slug}/projects/update/${id}`}
+                            className={({ isActive }) => {
+                            return `flex justify-center items-center text-md p-2  hover:bg-primary-light hover:text-primary rounded-sm cursor-pointer transition-all`;
+                            }}
+                        >
+
+                  <span className='flex justify-center items-center gap-2'><FaRegEdit /> {t('update')}</span>
+                  </NavLink>
+            </div>
           <div className='p-3 mb-3  text-slate-500'>
             <div className=''>
             {projectData.client && typeof projectData.client === 'object' && 

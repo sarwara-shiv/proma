@@ -154,11 +154,6 @@ router.post("/login", async (req, res) => {
         if (!io) {
             console.log("Socket not connected");
         } else {
-            console.log("Socket connected");
-            console.log(`*** Emitting user-connected event for userId: ${user._id}`);
-            console.log(user._id.toString());
-            console.log("🔥 io.sockets:", io.sockets.sockets.size);
-            console.log("🔥 io.sockets:", onlineUsers);
 
             // Find the socket ID for the user
             const assignedUserSocketId = onlineUsers.get(user._id.toString());
@@ -206,7 +201,6 @@ router.post("/get", verifyToken, async (req, res) => {
             .populate("roles")
             .populate("groups");
 
-        console.log(data);
         return res.json({ status: "success", data, code: "success", message: "" });
     } catch (error) {
         console.error("Error fetching roles:", error);
@@ -393,8 +387,7 @@ router.post('/reset-password/:token', async(req,res)=>{
 // admin reset password
 router.post('/admin-reset-password', verifyToken, async(req,res)=>{
     const {id, password} =req.body;
-    console.log(password);
-    console.log(id);
+
     try{
         const user = await UserModel.findOne({_id:id});
         if(!user){

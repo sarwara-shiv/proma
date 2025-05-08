@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
-import { CustomAlert, FlashPopup, FormButton, PageTitel } from '../../../../components/common';
+import { CustomAlert, FlashPopup, FormButton, Headings, PageTitel } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { IoRemove } from 'react-icons/io5';
 import DragAndDropList from '../../../../components/forms/DragAndDropList';
 import KickoffResponsibilities from './KickoffResponsibilities';
 import KickoffMilestones from './KickoffMilestones';
@@ -12,16 +11,13 @@ import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { useParams } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import DraggableTable from '../../../../components/table/DraggableTable';
-import { ColumnDef } from '@tanstack/react-table';
 import { ObjectId } from 'mongodb';
-import CustomSmallButton from '../../../../components/common/CustomSmallButton';
 import ApprovalForm from './ApprovalForm';
 import MentionUserInput from '../../../../components/forms/MensionUserInput';
 import { ApprovalStatus } from '../../../../config/predefinedDataConfig';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
+import { MdRocketLaunch } from 'react-icons/md';
 
 interface ArgsType {
     cid?: string | null;
@@ -65,18 +61,22 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
     const tdClasses = 'border-b border-slate-100';
 
     const subNavItems: NavItem[] = [
-        { link: "projects", title: "projects_all" },
-        { link: `projects/kickoff/${cid || id}`, title: "kickoff" },
       ];
 
     // Load data when the component mounts
     useEffect(() => {
+        
     }, [kickoffData]);
     
     useEffect(()=>{
         setProjectId(cid ? cid : id ? id : '');
         getData();
-        setSubNavItems && setSubNavItems(subNavItems);
+        if(id || cid){
+            setSubNavItems && setSubNavItems([...subNavItems,
+                { link: `projects/view/${cid || id}`, title: "project" },
+                { link: `projects/kickoff/${cid || id}`, title: "kickoff", icon:<MdRocketLaunch /> }
+            ]);
+        }
     }, [])
 
     const getData = async ()=>{
@@ -275,7 +275,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className=' rounded-md'>
                         <div className='text-left mb-3'>
-                            <PageTitel text={`${t('FORMS.timeline')}`} color='slate-300'  size='2xl'/>
+                            <Headings text={`${t('FORMS.timeline')}`} type='h3' />
                         </div>
 
                         <div className='grid grid-cols-2 gap-2 rounded-md '>
@@ -304,7 +304,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
 
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className='text-left mb-3'>
-                        <PageTitel text={`${t('FORMS.context')}`} color='slate-300' size='2xl' />
+                        <Headings text={`${t('FORMS.context')}`}  type='h3' />
                     </div>
                     <div className='rounded-md'>
                         <CustomInput type='textarea' name='contenxt' value={kickoffData.context}
@@ -316,12 +316,12 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 {/* Project OBJECTIVES */}
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className='text-left mb-3'>
-                        <PageTitel text={`${t('FORMS.objectives')}`} color='slate-300' size='2xl' />
+                        <Headings text={`${t('FORMS.objectives')}`}  type='h3' />
                     </div>
                     <div className='grid grid-cols-1 md:grid-cols-2'>
                         <div className='p-2 text-left rounded-md md:border-r'> 
                             <div className='block mb-3'>
-                                <PageTitel text={`${t('FORMS.projectGoals')}`} color='slate-700' size='md' />
+                                <Headings text={`${t('FORMS.projectGoals')}`}  type='h5' />
                             </div>
                             {kickoffData.goals && kickoffData.goals.length > 0 ? (
                                 <>
@@ -341,7 +341,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                         
                         <div className='p-2 text-left rounded-md'>
                             <div className='block mb-3'>
-                                <PageTitel text={`${t('FORMS.keyDeliverables')}`} color='slate-700' size='md' />
+                                <Headings text={`${t('FORMS.keyDeliverables')}`}  type='h5' />
                             </div>
                             {kickoffData.keyDeliverables && kickoffData.keyDeliverables.length > 0 ? (
                                 <>
@@ -362,12 +362,12 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 </div>
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>       
                     <div className='text-left'>
-                        <PageTitel text={`${t('FORMS.projectScope')}`} color='slate-300' size='2xl'   />
+                        <Headings text={`${t('FORMS.projectScope')}`}  type='h3' />
                     </div>
                     <div className='grid grid-cols-1 md:grid-cols-2'>
                         <div className='p-2 text-left md:border-r'>
                             <div className='block mb-3'>
-                                <PageTitel text={`${t('FORMS.inScope')}`} color='slate-700' size='md'  />
+                                <Headings text={`${t('FORMS.inScope')}`}  type='h5' />
                             </div>
                             {kickoffData.inScope && kickoffData.inScope.length > 0 ? (
                                 <>
@@ -386,7 +386,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                         </div>
                         <div className='p-2 text-leftrounded-md'>
                             <div className='block mb-3'>
-                                <PageTitel text={`${t('FORMS.outOfScope')}`} color='slate-700' size='md'  />
+                                <Headings text={`${t('FORMS.outOfScope')}`}  type='h5' />
                             </div>
                             {kickoffData.outOfScope && kickoffData.outOfScope.length > 0 ? (
                                 <>
@@ -409,7 +409,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 {/* Project milestones */}
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className='block mb-3'>
-                        <PageTitel text={`${t('FORMS.projectMilestones')}`} color='slate-300' size='2xl'  />
+                        <Headings text={`${t('FORMS.projectMilestones')}`}  type='h3' />
                     </div>
                     {kickoffData.milestones && kickoffData.milestones.length > 0 ? 
                         <></> : <p className='pb-4 pt-1 text-slate-300  italic'>{t('empty')}</p>
@@ -426,7 +426,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                     {/* Project responsibilities */}
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className='block mb-3'>
-                        <PageTitel text={`${t('FORMS.kickoffResponsibilities')}`} color='slate-300' size='2xl'  />
+                        <Headings text={`${t('FORMS.kickoffResponsibilities')}`}  type='h3' />
                     </div>
                     <div className=''>
                         <KickoffResponsibilities selectedValues={kickoffData.responsibilities || []} onChange={handleResponsibilites}/>
@@ -437,7 +437,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                     {/* Project approval by */}
                 <div className='w-full mt-4 mb-8 rounded-md p-4 pb-4 shadow-card bg-white'>
                     <div className='block mb-3'>
-                        <PageTitel text={`${t('FORMS.approvalFrom')}`} color='slate-300' size='2xl'  />
+                        <Headings text={`${t('FORMS.approvalFrom')}`}  type='h3' />
                     </div>
                     <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 '>
                         {kickoffData.approval && kickoffData.approval.length > 0 && kickoffData.approval.map((ad, ai)=>{
@@ -487,7 +487,7 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                 </>
             }
 
-          <div className="mt-6 text-right fixed bottom-2 flex right-2">
+          <div className="mt-6 text-right sticky bottom-2 flex right-2">
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} 
               disable = {!verifyData()}
             />

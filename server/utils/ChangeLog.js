@@ -1,5 +1,6 @@
 // Import the ChangeLog model using ES6 syntax
 import { ChangeLog } from '../models/models.js';
+import { notifyUsers } from './socketUtil.js';
 
 /**
  * TODO
@@ -11,7 +12,7 @@ import { ChangeLog } from '../models/models.js';
 
 // Utility function for deep comparison
 const isEqual = (obj1, obj2) => {
-  if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
+  if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) { 
     return obj1 === obj2;
   }
 
@@ -66,7 +67,7 @@ export const logChanges = async (collectionName, documentId, newChanges, origina
     return;
   }
 
-  // console.log("🚀 Logging Changes:", changesLog);
+  console.log("🚀 Logging Changes:", changesLog);
 
   const logEntry = new ChangeLog({
     collectionName,
@@ -77,6 +78,14 @@ export const logChanges = async (collectionName, documentId, newChanges, origina
 
   try {
     await logEntry.save();
+    notifyUsers({
+      message:'something has changed',
+      changes:changesLog,
+      receivers:[],
+      type:collectionName,
+      id:documentId
+    })
+
     // console.log("✅ Change log saved successfully.");
   } catch (error) {
     console.error("❌ Error saving change log:", error);

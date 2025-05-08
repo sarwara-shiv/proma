@@ -7,9 +7,32 @@ import FormButton from "../common/FormButton";
 import FormsTitle from "../common/FormsTitle";
 import {useAuthContext } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
+import { UserRole } from "@/interfaces";
 
 const LoginForm: React.FC = () => {
-  const { setUser, setRole, setRoles, setIsAuthenticated, setPermissions, setIsAdmin, setIsClient } = useAuthContext(); // Use setUser from context
+  const { 
+    setUser, 
+    setRole, 
+    setRoles, 
+    setIsAuthenticated, 
+    setPermissions, 
+    setIsAdmin, 
+    setIsClient, 
+    setIsManager, 
+    setIsEmployee, 
+    setIsScrumMaster,
+    setIsTeamLeader,
+    setIsCustomRole,
+    setSlug,
+    isAdmin, 
+    isManager,
+    isEmployee,
+    isClient,
+    isAuthenticated,
+    isCustomRole,
+    isScrumMaster,
+    isTeamLeader,
+   } = useAuthContext(); // Use setUser from context
   const [data, setData] = useState({ email: "", password: "" });
   const { t } = useTranslation("common");
   const navigate = useNavigate();
@@ -30,7 +53,7 @@ const LoginForm: React.FC = () => {
 
       // Cleanup listener on unmount
       return () => {
-        socket.off('user-connected');
+        socket.off('user-connected'); 
       };
     }
   }, [socket]);
@@ -45,6 +68,34 @@ const LoginForm: React.FC = () => {
       setRoles(userData.data.roles);
       setPermissions(userData.data.permissions);
       setIsAuthenticated(true);
+      if (userData.data) {
+        setUser(userData.data); // Set user info
+        setRoles(userData.data.roles);
+        setRole(userData.data.role);
+        setPermissions(userData.data.permissions);
+        setIsAuthenticated(true);
+
+        // SET ROLES
+        if(userData.data.roles && userData.data.roles.length > 0){
+            setIsAdmin(userData.data.roles.some((role:UserRole) => role.name === 'admin'));
+            setIsManager(userData.data.roles.some((role:UserRole) => role.name === 'manager'));
+            setIsEmployee(userData.data.roles.some((role:UserRole) => role.name === 'employee'));
+            setIsClient(userData.data.roles.some((role:UserRole) => role.name === 'client'));
+            setIsScrumMaster(userData.data.roles.some((role:UserRole) => role.name === 'scrumMaster'));
+            setIsTeamLeader(userData.data.roles.some((role:UserRole) => role.name === 'teamLeader'));
+            if(!isAdmin && !isManager && !isEmployee && !isClient && !isScrumMaster && !isTeamLeader){
+                setIsCustomRole(true);
+            }
+
+            if(userData.data.roles.some((role:UserRole) => role.name === 'admin')){
+                setSlug('admin');
+            }
+            if(userData.data.roles.some((role:UserRole) => role.name === 'client')){
+                setSlug('client');
+            }
+        }
+
+    }
 
       if(socket){
         socket.emit('user-connected', userData.data._id);
