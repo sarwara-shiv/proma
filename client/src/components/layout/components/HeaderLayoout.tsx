@@ -12,6 +12,7 @@ import { FlashPopupType, INotification } from '@/interfaces';
 import { FlashPopup } from '../../../components/common';
 import { FaBell } from 'react-icons/fa';
 import HeaderNotifications from './HeaderNotification';
+import BurgerToX from '../../../components/common/BurgerToX';
 
 const HeaderLayout = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
@@ -70,12 +71,14 @@ const HeaderLayout = () => {
             <div className="text-lg font-semibold flex justify-start gap-2 items-center">
                 <button
                     onClick={toggleSidebar}
-                    className={`mt-0 text-parimary-dark w-[30px] flex justify-center items-center py-0 text-3xl bg-white
+                    className={`mt-0 text-parimary-dark  flex justify-center items-center py-0 text-3xl bg-white
                         rounded-sm hover:bg-primary-dark hover:text-white transition-colors duration-200 font-800
                         `}
                 >
-                    {isSidebarOpen ? <MdClose /> : <MdMenu /> }
+                    {/* {isSidebarOpen ? <MdClose /> : <MdMenu /> } */}
+                    
                 </button>
+                <BurgerToX initialState={isSidebarOpen} size={35} onClick={()=>setIsSidebarOpen(!isSidebarOpen)}/>
                 <Logo />
 
                 <div className='border-l-2 border-slate-400 ml-2 pl-4 font-bold text-2xl text-slate-700'>

@@ -55,7 +55,7 @@ const HeaderNotifications:React.FC<ArgsType> = ({notifications})=>{
                     p-4 bg-white 
                     max-h-[300px]
                     transition-all
-                    duration-700
+                    duration-[0.3s]
                     ${isNotOpen ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none translate-y-2'}
                 `}>
                     {notifications && notifications.length > 0 ?

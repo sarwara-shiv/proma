@@ -72,58 +72,58 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
                 <div>
                      <div>
                         <CustomContextMenu >
-                                <ul>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                <ul className='flex flex-col gap-2 py-2 px-2 text-slate-500'>
+                                    <li className='px-1  hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`view/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('view')}`}
-                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 flex justify-between items-center text-xs gap-1  cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('view')}<FaEye /> 
                                         </NavLink>
                                     </li> 
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li className='px-1 hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`update/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title="update"
-                                            className="text-xs flex justify-between hover:text-green-700/50 cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 text-xs flex justify-between cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('update')} <FaPencilAlt />
                                         </NavLink>
                                     </li> 
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li className='px-1 hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`kickoff/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('kickOff')}`}
-                                            className="flex justify-between items-center text-xs gap-1 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 flex justify-between items-center text-xs gap-1  cursor-pointer whitespace-normal break-words"
                                             >
                                                 {t('kickoff')}<MdRocketLaunch /> 
                                         </NavLink>
                                     </li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li className='px-1 hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`maintasks/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('maintasks')}`}
-                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 flex justify-between items-center text-xs gap-1  cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('tasks')}<FaTasks /> 
                                         </NavLink>
                                     </li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li className='px-1 hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`sprints/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('sprints')}`}
-                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 flex justify-between items-center text-xs gap-1  cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('sprints')}<DiScrum /> 
                                         </NavLink>
                                     </li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li className='px-1 hover:bg-primary-light hover:text-primary'>
                                         <NavLink
                                             to={`documentation/${row.original._id}`} state={{objectId:row.original._id, data:row.original}} title={`${t('documentation')}`}
-                                            className="flex justify-between items-center text-xs gap-1  hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                                            className="p-0.5 flex justify-between items-center text-xs gap-1 cursor-pointer whitespace-normal break-words"
                                             >
                                             {t('documentation')}<IoDocumentAttach />
                                         </NavLink>
                                     </li>
                                    
-                                    <li><div className='border-b pt-1 mb-1 px-1 '></div></li>
-                                    <li className='px-1 py-1 my-1 hover:bg-slate-100'>
+                                    <li><div className='border-b  px-1 '></div></li>
+                                    <li className='px-1 '>
                                         <DeleteById text={t('delete')} data={{id:_id, type:recordType, page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
                                     </li>
                                 </ul>
