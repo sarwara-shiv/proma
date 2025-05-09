@@ -9,6 +9,7 @@ import ProjectsOverview from './components/ProjectsOverview';
 import { useAppContext } from '../../../context/AppContext';
 import { FaTasks } from 'react-icons/fa';
 import { IoTimerOutline } from 'react-icons/io5';
+import UsersWorklogs from './components/UsersWorklogs';
 
 // TODO - project status change add reason 
 
@@ -22,11 +23,11 @@ const ManagerDashboard:React.FC = ()=>{
     const {t} = useTranslation();
     const {user, roles, isAdmin, isEmployee, isClient, isCustomRole, isManager, isScrumMaster, isTeamLeader} =useAuthContext();
     const {setPageTitle} = useAppContext();
-    const [selectedNav, setSelectedNav] = useState<string>('tasks');
+    const [selectedNav, setSelectedNav] = useState<string>('projects');
     const [nav, setNav] = useState<NavType[]>([
-        {_id:'tasks', label:t('tasks'), icon:<FaTasks />},
         {_id:'projects', label:t('projects'), icon:<MdOutlineWebAsset />},
-        {_id:'worklog', label:t('worklog'), icon:<IoTimerOutline />},
+        {_id:'tasks', label:t('tasks'), icon:<FaTasks />},
+        {_id:'worklogs', label:t('worklog'), icon:<IoTimerOutline />},
         {_id:'settings', label:t('settings'), icon:<MdSettings />},
     ]);
 
@@ -44,6 +45,9 @@ const ManagerDashboard:React.FC = ()=>{
                     }
                     {selectedNav === 'projects' && 
                         <ProjectsOverview user={user}/>
+                    }
+                    {selectedNav === 'worklogs' && 
+                        <UsersWorklogs user={user}/>
                     }
                 </div>
                 <div className='min-w-0 w-[200px] border-l p-4 h-full'>

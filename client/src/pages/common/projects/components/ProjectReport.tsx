@@ -174,42 +174,48 @@ const ProjectReport:React.FC<ArgsType> = ({setSubNavItems})=>{
                     </div>
                     } */}
                     <div className="bg-white card">
-                        <div className="text-slate-600 mb-2 text-lg font-semibold">{t('report')} {t('timeline')}</div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="mb-2">
+                            <Headings text={`${t('users')} ${t('timeline')}` } type="h4" />
+                        </div>
+                        <div className="flex gap-4 flex-wrap text-slate-500">
                             <div className="flex flex-col justify-center items-start">
                                 <span className="text-xs text-slate-400">{t('startDate')} </span>
-                                <span>{format(reportData.timePeriod.startDate, 'dd.MMM.yyyy')}</span>
+                                <span className="text-sm font-semibold">{format(reportData.timePeriod.startDate, 'dd.MMM.yyyy')}</span>
                             </div>
                         
                             <div className="flex flex-col justify-center items-start">
                                 <span className="text-xs text-slate-400">{t('endDate')} </span>
-                                <span>{format(reportData.timePeriod.endDate, 'dd.MMM.yyyy')}</span>
+                                <span className="text-sm font-semibold">{format(reportData.timePeriod.endDate, 'dd.MMM.yyyy')}</span>
                             </div>
                         </div>
                     </div>
                     <div className="bg-white card">
-                        <div className="text-slate-600 mb-2 text-lg font-semibold">{t('tasks')} {t('timeline')}</div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="mb-2">
+                            <Headings text={`${t('tasks')} ${t('timeline')}` } type="h4" />
+                        </div>
+                        <div className="flex gap-4 flex-wrap text-slate-500">
                             <div className="flex flex-col justify-center items-left">
                                 <span className="text-xs text-slate-400">{t('total_hours')}</span>
-                                <span className="text-sm bold">{Math.floor(reportData.totalDuration/60)}</span>
+                                <span className="text-sm font-bold">{Math.floor(reportData.totalDuration/60)}</span>
                             </div>
                             <div className="flex flex-col justify-center items-left">
                                 <span className="text-xs text-slate-400">{t('days')}</span>
-                                <span className="text-sm bold">{reportData.projectTime.days}</span>
+                                <span className="text-sm font-bold">{reportData.projectTime.days}</span>
                             </div>
                             <div className="flex flex-col justify-center items-left">
                                 <span className="text-xs text-slate-400">{t('hours')}</span>
-                                <span className="text-sm bold">{reportData.projectTime.hours}</span>
+                                <span className="text-sm font-bold">{reportData.projectTime.hours}</span>
                             </div>
                             <div className="flex flex-col justify-center items-center">
                                 <span className="text-xs text-slate-400">{t('minutes')}</span>
-                                <span className="text-sm bold">{reportData.projectTime.minutes}</span>
+                                <span className="text-sm font-semibold">{reportData.projectTime.minutes}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+                
 
+               
                 {/* Users */}
                 {reportData.users && reportData.users.length > 0 && 
                 <>
@@ -226,43 +232,52 @@ const ProjectReport:React.FC<ArgsType> = ({setSubNavItems})=>{
                             </div>
                         }
                     </div>
-                    <div className="mb-8 card bg-white p-4">
-                        <div className="text-lg text-slate-500 font-bold">{t('users')}</div>
-                        <table className="table-auto border-collapse w-full table-fixed custom-table">
-                            <thead>
-                                <tr>
-                                    <th className="text-left w-12 py-4">{t('srnr')}</th>
-                                    <th className="text-left py-4">{t('name')}</th>
-                                    <th className="text-right py-4">{t('duration')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {reportData.users.map((data,key)=>{
-                                    return (
-                                        <tr key={key}>
-                                            <td className="text-left">{key + 1}</td>
-                                            <td className="text-left">
-                                                {data.userName}
-                                            </td>
-                                            <td className="text-right">
-                                                <div className="flex gap-3 text-gray-400 justify-end">
-                                                    <span><span className="font-bold text-gray-800">{data.time.days}</span>{t('D')}</span>
-                                                    <span><span className="font-bold text-gray-800">{data.time.hours}</span>{t('H')}</span>
-                                                    <span><span className="font-bold text-gray-800">{data.time.minutes}</span>{t('M')}</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                   
                     </>
+                }
+                <div className="flex flex-column lg:flex-row gap-6 mb-8">
+                {reportData.users && reportData.users.length > 0 && 
+                
+                    <div className="card bg-white p-4 ">
+                        <Headings text={t('users')} type="h4" />
+                        <div className="max-h-[500px] overflow-y-auto">
+
+                            <table className="table-auto border-collapse w-full table-fixed custom-table p-2">
+                                <thead>
+                                    <tr>
+                                        <th className="text-left w-12 py-4">{t('srnr')}</th>
+                                        <th className="text-left py-4">{t('name')}</th>
+                                        <th className="text-right py-4">{t('duration')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {reportData.users.map((data,key)=>{
+                                        return (
+                                            <tr key={key}>
+                                                <td className="text-left">{key + 1}</td>
+                                                <td className="text-left">
+                                                    {data.userName}
+                                                </td>
+                                                <td className="text-right">
+                                                    <div className="flex gap-3 text-gray-400 justify-end">
+                                                        <span><span className="font-bold text-gray-800">{data.time.days}</span>{t('D')}</span>
+                                                        <span><span className="font-bold text-gray-800">{data.time.hours}</span>{t('H')}</span>
+                                                        <span><span className="font-bold text-gray-800">{data.time.minutes}</span>{t('M')}</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 }
                 {/* TASKS */}
                 {reportData.tasks && reportData.tasks.length > 0 &&
-                    <div className="mb-8 card bg-white p-4">
-                        <div className="text-lg text-slate-500 font-bold">{t('tasks')}</div>
+                    <div className="card bg-white p-4">
+                        <Headings text={t('tasks')} type="h4" />
+                        <div className="max-h-[500px] overflow-y-auto">
                         <table className="table-auto border-collapse w-full table-fixed custom-table p-2">
                             <thead>
                                 <tr>
@@ -292,7 +307,9 @@ const ProjectReport:React.FC<ArgsType> = ({setSubNavItems})=>{
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 }
+                 </div>
 
             </div>
             }

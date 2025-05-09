@@ -322,6 +322,7 @@
     "initial":"Intial",
     "rework":"Rework",
     "feedback":"Based on Feedback",
+    "noNewNotification":"No New Notifications",
     "errors":"Has Errors",
     "missingRequirements":"Requirments are not completed",
     "clientFeedback":"Client Feedback",

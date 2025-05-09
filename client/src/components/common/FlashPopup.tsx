@@ -25,10 +25,10 @@ const FlashPopup: React.FC<FlashPopupType> = ({
 
   // Define position classes
   const positionClasses = {
-    'top-right': 'top-4 right-4',
-    'bottom-right': 'bottom-4 right-4',
-    'top-left': 'top-4 left-4',
-    'bottom-left': 'bottom-4 left-4',
+    'top-right': 'top-9 right-4',
+    'bottom-right': 'bottom-9 right-4',
+    'top-left': 'top-9 left-4',
+    'bottom-left': 'bottom-9 left-4',
   };
 
   const typeClasses = {
@@ -40,12 +40,12 @@ const FlashPopup: React.FC<FlashPopupType> = ({
   }
 
   return (
-    <div className={`fixed ${positionClasses[position]} bg-gray-900 bg-opacity-0 flex items-center justify-center z-50`}>
-      <div className="bg-white p-2 rounded-lg shadow-lg text-center max-w-sm mx-auto">
-        <div className="absolute top-[-0.45rem] right-[0rem] text-gray-600 hover:text-gray-800 focus:outline-none cursor-pointer bg-white text-red-500 rounded-full text-sm"  onClick={onClose}>
+    <div className={`fixed ${positionClasses[position]} bg-white bg-opacity-0 flex items-center justify-center z-50`}>
+      <div className="bg-white p-5 rounded-lg card bg-white text-center max-w-sm mx-auto flex items-start gap-4">
+        <p className={`${typeClasses[type]}  text-sm`}>{message}</p>
+        <div className="bg-red-100 text-gray-600 hover:text-gray-800 focus:outline-none cursor-pointer text-red-500 rounded-full text-md p-0.5"  onClick={onClose}>
             <MdClose />
         </div>
-        <p className={`${typeClasses[type]}  text-sm`}>{message}</p>
       </div>
     </div>
   );

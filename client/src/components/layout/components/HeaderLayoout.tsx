@@ -1,19 +1,25 @@
 
 import Logo from '../../common/Logo';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MdClose, MdMenu } from 'react-icons/md';
 import { useAppContext } from '../../../context/AppContext';
 import {useAuthContext } from '../../../context/AuthContext';
 import ToggleDailyReport from '../../../components/specific/dailyReport/ToggleDailyReport';
 import ActiveWorkLog from './ActiveWorkLog';
 import { useSocket } from "../../../context/SocketContext";
+import { FlashPopupType, INotification } from '@/interfaces';
+import { FlashPopup } from '../../../components/common';
+import { FaBell } from 'react-icons/fa';
+import HeaderNotifications from './HeaderNotification';
 
 const HeaderLayout = () => {
     const { isSidebarOpen, setIsSidebarOpen, pageTitle } = useAppContext();
     const { t } = useTranslation();
     const {user} = useAuthContext();
     const socket = useSocket();
+    const [notifications, setNotifications] = useState<INotification[]>([]);
+    const [fpProps, setFpProps] = useState<FlashPopupType>({isOpen:false,type:"info", position:'top-right', message:''})
     // Function to toggle sidebar for small screens
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -21,8 +27,10 @@ const HeaderLayout = () => {
 
     useEffect(() => {
         if(socket){
-            socket.on('send-notification', (payload) => {
+            socket.on('send-notification', (payload:INotification) => {
                 console.log('🔔 Notification received:', payload);
+                setNotifications([...notifications, payload]);
+                // setFpProps({...fpProps, isOpen:true, message:`🔔 ${payload.message}`});
                 // Optionally show toast, update UI, or route based on `payload.link`
             });
         }
@@ -74,6 +82,8 @@ const HeaderLayout = () => {
                     {pageTitle}
                 </div>
             </div>
+            
+
             <div className="text-sm flex gap-4 items-center">
                 <div>
                     <ToggleDailyReport />
@@ -83,7 +93,15 @@ const HeaderLayout = () => {
                     <span className="text-primary font-bold">{t('hello')} </span>
                     {user?.username && <>{user.username}</>}
                 </div> 
+                <HeaderNotifications notifications={notifications}/>
             </div>
+            <FlashPopup 
+                isOpen={fpProps.isOpen}
+                message={fpProps.message}
+                type={fpProps.type}
+                position={fpProps.position}
+                onClose={()=>{setFpProps({...fpProps, isOpen:false})}}
+            />
         </header>
     )
 }

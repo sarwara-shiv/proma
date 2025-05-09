@@ -144,10 +144,16 @@ const SidebarLayout: React.FC = () => {
                         {page.subMenu && Object.keys(page.subMenu).length > 0 && (
     
                             <button
-                                className="ml-2 flex items-center justify-center text-gray-700 hover:bg-white rounded-full p-1"
+                                className="ml-2 group flex text-sm items-center justify-center text-gray-700 hover:bg-white rounded-full p-0.5"
                                 onClick={() => handleToggleSubMenu(page.name)}
                                 >
-                                {openSubMenu === page.name ? <FiMinus />: <FiPlus />}
+                                <span
+                                    className={`${
+                                        openSubMenu === page.name ? 'rotate-45' : 'rotate-0'
+                                    } transform transition-all duration-300 inline-block `}
+                                    >
+                                    <FiPlus />
+                                </span>
                             </button>
                             
                         )}

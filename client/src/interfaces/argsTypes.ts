@@ -50,4 +50,12 @@ export interface QueryFilters {
 export interface OrderByFilter {
     [key: string]: 1 | -1 | 'asc' | 'desc' | 'ASC' | 'DESC'
 }
+
+export interface INotification {
+    type:string, 
+    message:string, 
+    link:string, 
+    timestamp:Date, 
+    changedFields:string[]
+}
   

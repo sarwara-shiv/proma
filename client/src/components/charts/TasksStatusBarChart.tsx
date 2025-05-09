@@ -133,7 +133,6 @@ const TasksStatusBarChart: React.FC<ArgsType> = ({ data }) => {
       {Object.entries(chartData).length > 0 && 
         <div className="flex flex-row flex-wrap text-xs gap-2 ">
         {Object.entries(chartData).map(([key, entry]) => {
-          console.log(entry);
           return (
               <div key={key} className="flex flex-row gap-2 justify-start items-center rounded-md p-1 border">
                   <div className="flex gap-2">

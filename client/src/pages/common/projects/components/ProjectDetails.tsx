@@ -323,31 +323,6 @@ const ProjectDetails:React.FC<ArgsType> = ({cid,data, navItems, setSubNavItems})
 
         
       }
-
-      {subNav && subNav.length > 0 && 
-        <div className='sticky bottom-4 right-4 pr-1 mt-10'>
-          <div className='w-full flex justify-center items-center bg-white shadow-card p-2 rounded-md gap-4'>
-            {subNav.map((item, index)=>{
-              return(
-                <NavLink
-                  to={`${window.location.pathname.replace("view", item.path)}`}
-                    className={({ isActive }) =>
-                        `bg-primary-light px-2 py-1 text-sm rounded-md text-primary shadow-md 
-                      cursor-pointer
-                      hover:shadow-sm hover:bg-primary hover:text-primary-light
-                      transition-all duration-200 ease`
-                    }
-                >
-
-                      {item.label}
-                  </NavLink>
-              )
-            })}
-          </div>
-        </div>
-      }
-
-      <FloatingBottomMenu nav={subNav} onClick={(value)=>console.log(value)}/>
     </div>
   )
 }

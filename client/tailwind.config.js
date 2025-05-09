@@ -1,6 +1,7 @@
 import shadows from '@mui/material/styles/shadows';
 import customButtonPlugin from './src/assets/styles/tailwind-custom-button';
 import customStyles from './src/assets/styles/tailwind-custom-styles';
+import { keyframes } from '@emotion/react';
 module.exports = {
   content: [
     "./index.html",
@@ -113,7 +114,25 @@ module.exports = {
       boxShadow:{
         card:'0px 2px 12px -2px rgba(0,0,0,0.1)',
         ligh:'0px 2px 8px -2px rgba(0,0,0,0.1)',
-      }
+      },
+      keyframes:{
+        ring: {
+          '0%': { transform: 'rotate(0deg)' },
+          '10%': { transform: 'rotate(15deg)' },
+          '20%': { transform: 'rotate(-10deg)' },
+          '30%': { transform: 'rotate(15deg)' },
+          '40%': { transform: 'rotate(-5deg)' },
+          '50%': { transform: 'rotate(5deg)' },
+          '60%': { transform: 'rotate(-2deg)' },
+          '70%': { transform: 'rotate(2deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+      },
+      animation: {
+        'ring': 'ring 1s ease-in-out 1',
+        'ring-infinite': 'ring 1s ease-in-out infinite',
+        'ring-slow': 'ring 2s ease-in-out infinite',
+      },
     },
   },
   plugins: [
@@ -127,6 +146,25 @@ module.exports = {
           // Add all other colors you need...
         },
       });
-    },  
+    },
+    function ({ addUtilities }) {
+      const delays = {
+        '.delay-0': { 'animation-delay': '0s' },
+        '.delay-1': { 'animation-delay': '1s' },
+        '.delay-2': { 'animation-delay': '2s' },
+        '.delay-3': { 'animation-delay': '3s' },
+        '.delay-5': { 'animation-delay': '5s' },
+      }
+
+      const iterations = {
+        '.repeat-once': { 'animation-iteration-count': '1' },
+        '.repeat-infinite': { 'animation-iteration-count': 'infinite' },
+        '.repeat-2': { 'animation-iteration-count': '2' },
+        '.repeat-3': { 'animation-iteration-count': '3' },
+      }
+
+      addUtilities(delays, ['responsive'])
+      addUtilities(iterations, ['responsive'])
+    },
   ], 
 }
