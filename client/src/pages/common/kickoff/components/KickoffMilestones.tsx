@@ -1,6 +1,6 @@
 import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
-import { Milestone } from '@/interfaces';
+import { MainTask, Milestone } from '@/interfaces';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
@@ -12,6 +12,7 @@ interface ArgsType {
   milestones: Milestone[] | [];
   name: string;
   title?: string;
+  mainTasks?:MainTask[]
   onChange: (name: string, value: Milestone[]) => void;
 }
 
@@ -22,7 +23,7 @@ const mileStoneEmpty:Milestone={
     status: 'notStarted',
 }
 
-const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange, title }) => {
+const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange, title, mainTasks }) => {
   const { t } = useTranslation();
   const [milestoneValue, setMilestoneValue] = useState<Milestone[]>(milestones);
 

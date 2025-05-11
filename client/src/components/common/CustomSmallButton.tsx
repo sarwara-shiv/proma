@@ -40,7 +40,7 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
         align-center
         justify-center
         ${disable ? 'pointer-events-none opacity-50' : ''}
-        font-${size} 
+        text-${size} 
         ${sizeClass}
         ${colorClass}
       `} onClick={onClick}>
@@ -56,7 +56,7 @@ const CustomSmallButton:React.FC<ArgsType> = ({type, icon, text,onClick, size='m
         </>
         }
         </span>
-        {text && <span className='text ml-2'>{text}</span>}
+        {text && <span className={`text`}>{text}</span>}
       </div>
 
       :

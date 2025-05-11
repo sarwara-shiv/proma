@@ -35,12 +35,12 @@ const CustomAlert: React.FC<AlertPopupType> = ({ isOpen, onClose, title, content
 
   return (
     <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4`}>
-      <div className={`bg-white p-2 rounded shadow-lg min-w-[300px] max-w-${type === 'form' ? '[700px]' : 'sm'} `} ref={popupRef}>
-        <div className="relative flex justify-between items-center border-b mb-2">
+      <div className={`relative bg-white p-6 rounded shadow-lg min-w-sm max-w-${type === 'form' ? 'xl' : 'sm'} `} ref={popupRef}>
+        <div className=" flex justify-between items-center mb-2">
           <h2 className={`font-semibold ${typeClasses[type]}`}>
             {title ? title : type === 'error' ? 'Error' : type === 'success' ? 'Success' : type === 'warning' ? 'Warning' : 'Info'}
             </h2>
-          <div className={`absolute top-[-0.75rem] right-[-0.45rem] text-gray-600 hover:text-gray-800 focus:outline-none cursor-pointer bg-white text-red-500 rounded-full text-${type === 'form' ? 'lg' : 'md'}`}  onClick={onClose}>
+          <div className={`cursor-pointer absolute top-1 right-1 aspect-squre rounded-full p-1  text-xl text-gray-500 hover:bg-red-100 hover:text-red-700`}  onClick={onClose}>
             <IoClose />
         </div>
         </div>

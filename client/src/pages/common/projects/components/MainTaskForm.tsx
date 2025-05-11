@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import MentionUserInput from '../../../../components/forms/MensionUserInput';
 import { TaskCategory, TaskStatuses } from '../../../../config/predefinedDataConfig';
 import CustomSmallButton from '../../../../components/common/CustomSmallButton';
-import { format } from 'date-fns';
 import { CustomAlert, FlashPopup } from '../../../../components/common';
 import {useAuthContext } from '../../../../context/AuthContext';
 
@@ -16,6 +15,7 @@ interface ArgsType{
     pid:ObjectId | string;
     mainTasks?:MainTask[];
     milestones?:Milestone[];
+    defaultMilestone?:Milestone;
     mainTask?:MainTask | null;
     action?: 'add' | 'update';
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>
@@ -28,10 +28,11 @@ const navItems: NavItem[] = [
   ];
   
 
-const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems, milestones}) => {
+const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems, milestones, defaultMilestone=null}) => {
     const {t} = useTranslation();
     const {user} = useAuthContext();
     const [mainTasksData, setMainTasksData] = useState<MainTask[]>();
+    const [selectedMilestone, setSelectedMilestone] = useState<Milestone>();
     const [userGroupsData, setUserGroupsData] = useState<UserGroup[]>();
     const [projectMilestones, setProjectMilestones] = useState<Milestone[]>();
     const [currentMainTask, setCurrentMainTask] = useState<MainTask>();
@@ -57,6 +58,10 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
         if(milestones) setProjectMilestones(milestones);
         setSubNavItems && setSubNavItems(navItems);
         if(mainTasks) setMainTasksData(mainTasks)
+        if(defaultMilestone) {
+            emptyMainTask['milestone'] = defaultMilestone._id;
+            setSelectedMilestone(defaultMilestone);
+        }
         if(mainTask){
             action = 'update';
             setCurrentMainTask(mainTask);
@@ -193,18 +198,17 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
     <div className='
         card bg-white
     '>
-        <div className={`fields grid gap-2 
-            grid-cols-1  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4`
+        <div className={`fields flex gap-4 flex-wrap`
         }
         >
-            <div className=''>
+            <div className='min-w-sm w-full'>
                 <CustomInput name='name' type='text'
                 value={currentMainTask?.name}
                 onChange={(e)=>updateCurrentTask('name', e.target.value)} 
                 label={t('FORMS.name')}
                 />
             </div>
-            <div className='grid gap-2 grid-cols-2'>
+            <div className='grid gap-2 grid-cols-2 flex-1'>
                 <div>
                     <CustomDateTimePicker selectedDate={currentMainTask?.startDate || null} name='startDate'
                     label={t('FORMS.startDate')}
@@ -223,7 +227,7 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
                     onChange={(recordId, value, name)=>updateCurrentTask('endDate', value)} />
                 </div>
             } */}
-            <div className=''>
+            <div className='flex-1'>
                 {userGroupsData && 
                     <CustomDropdown data={TaskCategory}  
                     selectedValue={currentMainTask?.category}
@@ -232,7 +236,7 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
                 }
             </div>
             {milestones && 
-                <div className=''>
+                <div className='flex-1'>
                         <CustomDropdown data={milestones}  
                         selectedValue={currentMainTask?.milestone}
                         label={t('FORMS.milestones')}
@@ -240,14 +244,20 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
                 </div>
             }
             
+            {/* {selectedMilestone && 
+                <div className=''>
+                    {selectedMilestone.name}
+                </div>
+            } */}
+            
            
-            <div className=''>
+            <div className='flex-1'>
                 <h4>
                     <span className='text-sm text-gray-300'>
                         {t('FORMS.responsiblePerson')} : 
                     </span>
                     {responsiblePerson && 
-                        <span>{responsiblePerson.name}</span>
+                        <span className='text-primary font-bold'>{responsiblePerson.name}</span>
                     }
                 </h4>
                 <MentionUserInput type='users' inputType='text' data={{}} 

@@ -1,5 +1,5 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, Milestone, NavItem, PaginationProps, Project, User } from '@/interfaces';
+import { AlertPopupType, DeleteRelated, FlashPopupType, MainTask, Milestone, NavItem, PaginationProps, Project, RelatedUpdates, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
@@ -17,7 +17,7 @@ import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePi
 import DataTable from '../../../../components/table/DataTable';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import { DeleteById } from '../../../../components/actions';
-import { Pagination } from '@mui/material';
+import { extractAllIds } from '../../../../utils/tasksUtils';
 import { MdRocketLaunch } from 'react-icons/md';
 import { DiScrum } from 'react-icons/di';
 import { IoBarChartSharp, IoDocumentAttach } from 'react-icons/io5';
@@ -76,6 +76,19 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
       cell: ({ getValue, row }) => { 
         const _id = row.original._id ? row.original._id as unknown as string : '';
         const _pid = row.original._pid ?  row.original._pid : null;
+        const ids = extractAllIds(row.original);
+        let deleteRelated:DeleteRelated[];
+        let relatedUpdates:RelatedUpdates[]= [{
+          collection:'projects',
+          field:'mainTasks',
+          type:'array',
+          ids:[_id]
+        }]
+        console.log(row.original.name,' : ', relatedUpdates);
+        const deleteText = <div>
+          Do you really want to delelete Main Task <span className='font-bold text-primary'>{row.original.name}</span>?<br/>
+          <span className='text-red-400 italic text-xs'>This will also delete {row.original.subtasks?.length} tasks and their subtasks </span>
+        </div>
         return (
             <div>
                  <div>
@@ -108,7 +121,11 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
                                     </div>
                                   </li>
                                 <li className='px-1 py-1 my-1 hover:bg-slate-100'>
-                                  <DeleteById text={t('delete')} data={{id:_id, type:'maintasks', page:"projects"}} content={`Delte Project: ${row.original.name}`} onYes={onDelete}/>
+                                  <DeleteById text={t('delete')} relatedUpdates={relatedUpdates}
+                                  deleteRelated={
+                                    ids && ids.length >0 ?  deleteRelated=[{collection:'tasks', ids:ids}] : []
+                                  }
+                                  data={{id:_id, type:'maintasks', page:"projects"}} content={deleteText} onYes={onDelete}/>
                                 </li>
                             </ul>
                         </CustomContextMenu>
@@ -419,7 +436,20 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
                 path: 'mainTasks',
                 populate: [
                   { path: 'createdBy' },
-                  { path: 'responsiblePerson' }
+                  { path: 'responsiblePerson' },
+                  {
+                    path: 'subtasks',
+                    populate: [
+                      {
+                        path: 'subtasks',
+                        populate: [
+                          {
+                            path: 'subtasks',
+                          },
+                        ],
+                      },
+                    ],
+                  },
                 ]
               }
           ]

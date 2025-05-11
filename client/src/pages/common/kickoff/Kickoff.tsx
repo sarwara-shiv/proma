@@ -70,7 +70,7 @@ const Kickoff:React.FC<ArgsType> = ({cid, data, checkDataBy, setSubNavItems, nav
     <>
       <div className={`flex ${projectData ? 'justify-between' : 'justify-end'} items-center mb-4`}>
         {projectData && 
-          <Headings text={projectData.name} type='h1'/>
+          <Headings text={<>{projectData.name} <span className='font-normal text-sm'>{projectData._cid}</span></>} type='h1'/>
         }
           <div className="flex justify-center items-center text-md p-2  hover:bg-primary-light hover:text-primary rounded-sm cursor-pointer transition-all"
             onClick={() => setPageType(pageType === 'view' ? 'update' : 'view')}

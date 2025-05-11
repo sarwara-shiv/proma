@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import ConfirmPopup from '../common/CustomPopup';
 import { IoRemove, IoTrash } from 'react-icons/io5';
 import { deleteRecordById } from '../../hooks/dbHooks';
@@ -9,7 +9,7 @@ interface ArgsType{
     data:{id:string, type:string, page:string},
     popupData?:any;
     title?:string;
-    content?:string;
+    content?:ReactNode;
     style?: 'default' | 'fill';
     icon?:'bin' | 'close' | 'minus';
     onYes?:(data:any)=>void;

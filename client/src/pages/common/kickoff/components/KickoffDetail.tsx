@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, Milestone, NavItem, Project, User, UserGroup } from '@/interfaces';
-import { CustomAlert, FlashPopup, Headings, PageTitel } from '../../../../components/common';
+import React, { act, useEffect, useState } from 'react';
+import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, MainTask, Milestone, NavItem, Project, User, UserGroup } from '@/interfaces';
+import { CustomAlert, CustomIconButton, CustomSmallButton, FlashPopup, Headings, PageTitel } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { CustomDropdown } from '../../../../components/forms';
@@ -14,6 +14,7 @@ import { FaEye, FaTasks } from 'react-icons/fa';
 import { MdOutlineEdit, MdRocketLaunch } from 'react-icons/md';
 import { DiScrum } from 'react-icons/di';
 import { IoBarChartSharp, IoDocumentAttach } from 'react-icons/io5';
+import MainTaskForm from '../../projects/components/MainTaskForm';
 
 interface ArgsType {
     cid?: string | null;
@@ -44,6 +45,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const {id} = useParams();
     const [createdBy, setCreatedBy] = useState<User>();
     const [projectData, setProjectData] = useState<Project>();
+    const [mainTasks, setMainTasks] = useState<MainTask[]>();
     const [kickoffData, setKickoffData] = useState<Kickoff>(kickoffDataInitial);
     const [responsibilities, setResponsibilities] = useState<KickoffResponsibility[]>([]);
     const [alertData, setAlertData] = useState<AlertPopupType>({isOpen:false, content:"", type:"info", title:""}); 
@@ -81,6 +83,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
     const getData = async ()=>{
         try{
             const populateFields = [
+                {path:'mainTasks'},
                 {path: 'kickoff.responsibilities.role'},
                 {path: 'kickoff.responsibilities.persons'},
                 {path: 'kickoff.approval.user'},
@@ -91,6 +94,9 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                     if(res.data.kickoff) setResponsibilities(res.data.kickoff.responsibilities);
                     if (res.data.kickoff) {
                         setKickoffData(res.data.kickoff);
+                    }
+                    if(res.data.mainTasks){
+                        setMainTasks(res.data.mainTasks);
                     }
                     setProjectData(res.data);
                     data = {...res.data}
@@ -159,6 +165,18 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
             onChange={(recordId, name, value, data) => changeMilestone(index, value as Milestone['status'])}
           />
         })
+    }
+
+    const addMainTask = (defaultMilestone:Milestone, action:"add"|"remove"="add")=>{
+        if(!defaultMilestone || !projectData || !projectData._id) return null;
+
+        if(action === 'add'){
+            setAlertData({...alertData, isOpen:true, 
+                title:<span>Add <span className='text-primary'>{t('mainTask')}</span> to Milestone: <span className='text-primary'>{defaultMilestone.name}</span></span>
+                , type:"form",
+                content: <MainTaskForm action='add' pid={projectData?._id} defaultMilestone={defaultMilestone} />
+            });
+        }
     }
 
     const changeMilestone = async (index:number, value:Milestone['status'])=>{
@@ -307,167 +325,147 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
             {projectData &&
                 <>  
                     {/* APPROVAL FIELDS */}
-                    {kickoffData && kickoffData.approval && kickoffData.approval.length > 0 &&  
-                    <div className='card- mb-6 bg-white'>
-                        <div className='mb-3'>
-                        <Headings text={`${t('needApprovalFrom')}`} type='h3' />
-                        </div>
-                        <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 '>
-                            {kickoffData.approval.map((ad, ai)=>{
-                                const auser = ad.user as unknown as User;
-                                const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
-                                const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
-                                return (
-                                    <div key={`kodap-${ai}`} className={`
-                                        my-1 p-2  rounded-md  border
-                                         ${user && user._id as unknown as string === auser._id ? 'border-green-200  bg-white' : 'border bg-gray-100'}
-                                    `}>
-                                        <div  className='
-                                            flex justify-between 
-                                        '>
-                                            <div className='flex-1 font-semibold mb-2'>
-                                                <div>{auser.name}</div>
-                                            </div>
-                                                <div >
-                                                {user && user._id as unknown as string === auser._id ? 
-                                                <div className={`w-[100px] text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}` }>
-                                                    <CustomDropdown 
-                                                        style='table'
-                                                        data={ApprovalStatus}
-                                                        selectedValue={ad.status}
-                                                        onChange={(rid, name, value, data)=>saveApproval(ai, value)}
-                                                    />
-                                                    </div>
-                                                : 
-                                                <>
-                                                    <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
-                                                        text-xs flex justify-center items-center rounded-sm 
-                                                    `}
-                                                    >
-                                                        {astatus ? astatus.name : ''}
-                                                    </div>
-                                                </>}
-                                                
-                                            </div>
-                                            
-                                        </div>
-                                        {user && user._id as unknown as string === auser._id ?
-                                            <div className='flex'>
-                                                
-                                                <RichTextArea 
-                                                height='70'
-                                                textSize='xs'
-                                                label={t('FORMS.note')}
-                                                    defaultValue={ad.note || ''}
-                                                    onChange={(name, value)=>handleApprovalNoteChange(ai, value, 'note')}
-                                                />
-                                                {noteEdited[ai] && (
-                                                    <div className='flex justify-center items-end pl-0.5'>
+                    {kickoffData &&  
+                    <>
+                        <div className='card flex flex-col p-4 gap-2 mb-8'>
+                            <div className='flex justify-between'>
 
-                                                        <button onClick={() => saveApproval(ai, noteValues[ai], 'note')} 
-                                                        className=' flex p-1 bg-primary-light rounded-full hover:bg-primary hover:text-white transition-all'>
-                                                            <MdOutlineEdit />
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            :
-                                            <div className='pt-1.5'>
-                                                <label className="text-gray-400 flex items-center text-sm">{t('FORMS.note')}</label>
-                                                <div
-                                                dangerouslySetInnerHTML={{ __html: ad.note || '' }}
-                                                className="p-2 border border-gray-300 rounded text-xs text-red-600  min-h-[70px]"
-                                                />
-                                            </div>
-                                        }
-                                    </div>
-                                )
-                            })}
-                        </div>
-                        </div>
-                    }
-                    {/* Project Details */}
-                    <div className='mb-6 py-2'>
-                    <table className='card- bg-white w-full text-sm mb-6'>
-                        <tbody>
-                            <tr className='border-1 border-slate-100 text-left'>
-                                <th colSpan={2} className='p-2'>
-                                    <div className='flex justify-between items-start'>
-                                        <Headings text={`${t('projectDetails')} (${projectData._cid})`}  type='h3' />
-                                        {getStatusData(kickoffData) && 
+                                <div className='flex justify-left gap-3'>
+                                    {kickoffData.startDate && 
+                                    <div>
+                                        <span className='text-slate-400 text-xs'>{t('startDate')}: </span>
+                                        <span className='text-sm text-slate'>
+                                            {format(kickoffData.startDate, 'dd.MM.yyyy')}
+                                        </span>
+                                        </div>
+                                    }
+                                    {kickoffData.endDate && 
+                                    <div>
+                                        <span className='text-slate-400 text-xs'>{t('endDate')}: </span>
+                                        <span className='text-sm text-slate'>
+                                        {format(kickoffData.endDate, 'dd.MM.yyyy')}
+                                        </span>
+                                        </div>
+                                    }
+                                </div>
+
+                                    {getStatusData(kickoffData) && 
                                         ((astatus) => {
                                             return (
-                                                <div className={`text-xs rounded-sm  border-white border-1 
+                                                <div className={`text-xs rounded-md  border-white border-1 
                                                     px-1 py-1
                                                      ${astatus && astatus.color ? getColorClasses(astatus.color) : ''} 
-                                                        text-xs flex justify-center items-center rounded-sm 
+                                                        text-xs flex justify-center items-center rounded-md 
                                                     `}>
                                                       {astatus && astatus.name}  
                                                 </div>
                                             );
                                         })(getStatusData(kickoffData))
                                     }
-
-
-                                    </div>
-                                </th>
-                            </tr>
-                            <tr className='border-1 border-slate-100'>
-                                <th className='max-w-[200px] text-left text-slate-400 bg-gray-100- p-2 border border-slate-300 text-sm'>{t('project')}</th>
-                                <td className='border border-slate-300 p-2 text-2xl font-bold text-slate-800'>{projectData.name}</td>
-                            </tr>
-
-                            <tr>
-                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('startDate')}</th>
-                                <td className='border border-slate-300 p-2'>
-                                    {kickoffData.startDate ? format(new Date(kickoffData.startDate), 'dd.MM.yyyy') : '-'}
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('endDate')}</th>
-                                <td className='border border-slate-300 p-2'>
-                                    {kickoffData.endDate ? format(new Date(kickoffData.endDate), 'dd.MM.yyyy') : '-'}
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('createdBy')}</th>
-                                <td className='border border-slate-300 p-2'>{createdBy && createdBy.name}</td>
-                            </tr>
-                            <tr>
-                                <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('description')}</th>
-                            </tr>
-                            <tr>
-                                <td colSpan = {2} className='border border-slate-300 p-2'>
-                                <div className='text-sm px-2 mb-2 text-slate-500' 
-                                    dangerouslySetInnerHTML={{__html: projectData.description || ''}}>
+                            </div>
+                            <div>
+                                <div>
+                                    <Headings text={t('context')} type='h4' />
                                 </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th colSpan = {2} className='max-w-[200px]  text-left bg-gray-100 p-2 border border-slate-300 text-sm'>{t('context')}</th>
-                            </tr>
-                            <tr>
-                                <td colSpan = {2} className='border border-slate-300 p-2'>
-                                <div className='text-sm px-2 mb-2 text-slate-500' 
+                                <div className='text-sm text-slate-500' 
                                     dangerouslySetInnerHTML={{__html:kickoffData?.context || ''}}>
                                 </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    </div>
+                            </div>
+                        </div>
+                        {kickoffData && kickoffData.approval && kickoffData.approval.length > 0 &&  
+                            <div className='card- mb-8 bg-white'>
+                                <div className='mb-3'>
+                                    <Headings text={`${t('needApprovalFrom')}`} type='h3' />
+                                </div>
+                                <div className='grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                    {kickoffData.approval.map((ad, ai)=>{
+                                        const auser = ad.user as unknown as User;
+                                        const statusexists = ApprovalStatus.filter((d)=>d._id === ad.status)
+                                        const astatus:{_id:string, name:string, color?:string} | null = statusexists ? statusexists[0] : null
+                                        return (
+                                            <div key={`kodap-${ai}`} className={`
+                                                my-1 p-4  rounded-md  card bg-yellow-50 mb-0
+                                                ${user && user._id as unknown as string === auser._id ? 'border-green-200  bg-white' : 'border bg-gray-100'}
+                                            `}>
+                                                <div  className='
+                                                    flex justify-between 
+                                                '>
+                                                    <div className='flex-1 font-semibold mb-2'>
+                                                        <div>{auser.name}</div>
+                                                    </div>
+                                                        <div >
+                                                        {user && user._id as unknown as string === auser._id ? 
+                                                        <div className={`w-[100px] text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}` }>
+                                                            <CustomDropdown 
+                                                                style='table'
+                                                                data={ApprovalStatus}
+                                                                selectedValue={ad.status}
+                                                                onChange={(rid, name, value, data)=>saveApproval(ai, value)}
+                                                            />
+                                                            </div>
+                                                        : 
+                                                        <>
+                                                            <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                                                text-xs flex justify-center items-center rounded-sm 
+                                                            `}
+                                                            >
+                                                                {astatus ? astatus.name : ''}
+                                                            </div>
+                                                        </>}
+                                                        
+                                                    </div>
+                                                    
+                                                </div>
+                                                {user && user._id as unknown as string === auser._id ?
+                                                    <div className='flex'>
+                                                        
+                                                        <RichTextArea 
+                                                        height='70'
+                                                        textSize='xs'
+                                                        label={t('FORMS.note')}
+                                                            defaultValue={ad.note || ''}
+                                                            onChange={(name, value)=>handleApprovalNoteChange(ai, value, 'note')}
+                                                        />
+                                                        {noteEdited[ai] && (
+                                                            <div className='flex justify-center items-end pl-0.5'>
+
+                                                                <button onClick={() => saveApproval(ai, noteValues[ai], 'note')} 
+                                                                className=' flex p-1 bg-primary-light rounded-full hover:bg-primary hover:text-white transition-all'>
+                                                                    <MdOutlineEdit />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    :
+                                                    <div className='pt-1.5'>
+                                                        <label className="text-gray-400 flex items-center text-sm">{t('FORMS.note')}</label>
+                                                        <div
+                                                        dangerouslySetInnerHTML={{ __html: ad.note || '' }}
+                                                        className="p-2 border border-gray-300 rounded text-xs text-red-600  min-h-[70px]"
+                                                        />
+                                                    </div>
+                                                }
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                            
+                            </div>
+
+                        }
+                    </>
+                    }
 
                     {/* Objectives */}
                     <div className='bg-white mb-6'>
                     <div className='text-left mb-2'>
-                        <Headings text={`${t('projectObjectives')}`}  type='h3' />
+                        <Headings text={`${t('objectives')}`}  type='h3' />
                     </div>
                     <div 
                         className='grid grid-cols-1 lg:grid-cols-2 pb-4 gap-8'
                     >
-                        <div className='border p-2 rounded-md lg:border-r'>
+                        <div className=' p-4 rounded-md card mb-0'>
                             <Headings text={`${t('projectGoals')}`}  type='h5' />
                             <ul >
                                 {kickoffData.goals ? kickoffData.goals.map((goal,index)=>{
@@ -482,7 +480,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             }
                             </ul>
                         </div>
-                        <div className='bg-white p-2 rounded-md border'>
+                        <div className='bg-white p-4 rounded-md card mb-0'>
                             <Headings text={`${t('projectDeliverables')}`}  type='h5' />
                             <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.keyDeliverables ? kickoffData.keyDeliverables.map((item,index)=>{
@@ -508,7 +506,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                     <div 
                         className='grid grid-cols-1 lg:grid-cols-2 pb-4 gap-8'
                     >
-                        <div className='bg-white border p-2 rounded-md '>
+                        <div className='bg-white card p-4 rounded-md mb-0'>
                             <Headings text={`${t('inScope')}`}  type='h5' classes='border-b'/>
                             <ul className='p-2'>
                                 {kickoffData.inScope ? kickoffData.inScope.map((item,index)=>{
@@ -523,7 +521,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                             }
                             </ul>
                         </div>
-                        <div className='bg-white p-2 rounded-md border'>
+                        <div className='bg-white p-4 rounded-md card mb-0'>
                             <Headings text={`${t('outOfScope')}`}  type='h5' classes='border-b'/>
                             <ul className='bg-white p-2 rounded-md'>
                                 {kickoffData.outOfScope ? kickoffData.outOfScope.map((item,index)=>{
@@ -546,36 +544,68 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                         <div className='text-left mb-2'>
                             <Headings text={`${t('projectMilestones')}`}  type='h3' />
                         </div>
-                        <ul className='bg-white rounded-md'>
+                        <ul className='bg-white rounded-md flex flex-col gap-4'>
                         {kickoffData.milestones && kickoffData.milestones.map((item, index)=>{
+                            const kMT = mainTasks && mainTasks.length > 0 && mainTasks.filter((mt)=>mt.milestone?.toString() === item._id?.toString());
                             return (
                                 <li key={`kdm-${index}`}
-                                className='
-                                grid
-                                grid-cols-1 md:grid-cols-2
-                                p-2
-                                border
-                                mb-3
-                                rounded-md
-                                '
+                                    className='
+                                    mb-3 p-4 card mb-0
+                                    rounded-md'
                                 >
-                                  
-                                <div className='mb-1 pb-1'>
-                                    <span className='px-2 px-1 text-md font-semibold text-slate-600'>{item.name}</span>
-                                    <span className='ml-2'>
-                                        <i className='text-slate-400 text-xs'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
-                                    </span>
-                                </div>
-                                <div className='flex justify-end'>
-                                    <span onClick={()=>toggleMilestoneStatus(index, item )}
-                                        className={`cursor-pointer flex items-center justify-center ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
-                                    >
-                                        {/* <i className='text-slate-400'>{t('status')}: </i>  */}
-                                        {t(`${item.status}`)}</span>
-                                </div>
-                                <div className='text-xs px-2 mb-2 text-slate-500' 
-                                    dangerouslySetInnerHTML={{__html: item.description || ''}}>
-                                </div>
+                                    <div className=''>
+                                        <div className='flex justify-between'>
+
+                                            <div className='mb-1 pb-1'>
+                                                <span className='text-md font-semibold text-slate-600'>{item.name}</span>
+                                                <span className='ml-2'>
+                                                    <i className='text-slate-400 text-xs'>{t('dueDate')}: </i> {item.dueDate ? format(new Date(item.dueDate), 'dd.MM.yyyy'): ''}
+                                                </span>
+                                            </div>
+                                            <div className='flex justify-end'>
+                                                <span onClick={()=>toggleMilestoneStatus(index, item )}
+                                                    className={`cursor-pointer flex items-center justify-center ml-2 text-xs py-1 px-2 rounded-md ${getColorClasses(item.status)}`}
+                                                    >
+                                                    {/* <i className='text-slate-400'>{t('status')}: </i>  */}
+                                                    {t(`${item.status}`)}</span>
+                                            </div>
+                                        </div>
+                                        {item.description  && 
+                                            <div className='text-xs px-2 mb-2 text-slate-500' 
+                                                dangerouslySetInnerHTML={{__html: item.description || ''}}>
+                                            </div>
+                                        }
+                                    </div>
+                                    {kMT && kMT.length > 0 &&
+                                        <div className='bg-gray-100 p-2 mt-2 rounded-md'>
+                                            <div className='mb-1'>
+                                                <Headings text={t('maintasks')} type='h5'/>
+                                            </div>
+                                            <div className='flex flex-col gap-1'>
+                                                {kMT.map((mtdata, midx)=>{
+                                                    return (
+                                                        <div key={midx} className={`flex gap-2 justify-between text-sm mb-1 items-center bg-slate-100 pb-1 pt-2
+                                                            ${midx !== 0 && 'border-t'}
+                                                        `}>
+                                                            <div className='flex gap-2'>
+                                                                <div className='font-semibold'>{mtdata.name}</div>
+                                                                <div className='h-4 border-r border-slate-400'></div>
+                                                                <div className={``}>
+                                                                    <span className='text-xs text-slate-400'>{t('subtasks')}: </span>   
+                                                                    <span className='text-md font-bold'>{mtdata.subtasks?.length}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div className={`text-xs ${getColorClasses(mtdata.status)} py-0.5 px-1 rounded-md shadow`}>{mtdata.status}</div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div className='flex justify-end py-2'>
+                                        <CustomSmallButton text={`${t('add')} ${t('task')}`} size='sm' type='add' onClick={()=>addMainTask(item)}/>
+                                    </div>
                                 </li>
                             )
                         }
@@ -590,7 +620,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                         <div className='mb-3 text-left '>
                             <Headings text={`${t('projectResponsibilities')}`}  type='h3' />
                         </div>
-                        <ul className='rounded-md'>
+                        <ul className='rounded-md flex flex-col gap-4'>
                             {responsibilities && responsibilities.map((item,index)=>{
                                 const role:UserGroup = item.role as unknown as UserGroup; 
                                 const persons:User[] = item.persons as unknown as User[]; 
@@ -598,7 +628,7 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                 const details = item.details;
                                 return (
                                     <li key={`prespo-${index}`} className='
-                                        p-2 my-3  border rounded-md 
+                                        p-4 my-3  card rounded-md mb-0
                                     '>
                                         <div>
                                             <span 

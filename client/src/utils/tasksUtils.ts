@@ -23,8 +23,6 @@ export const extractAllIds = (subtask: any, field='subtasks'): string[] => {
         ids = [...ids, ...extractAllIds(nestedSubtask)];
       });
     }
-
-  
     return ids;
 };
 

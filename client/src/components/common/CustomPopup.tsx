@@ -31,10 +31,10 @@ const ConfirmPopup: React.FC<CustomPopupType> = ({ isOpen, onClose, title, conte
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[999999999]">
-      <div className="bg-white p-2 rounded shadow-lg max-w-sm w-full">
-        <div className="flex justify-between items-center border-b pb-2 mb-2">
+      <div className="bg-white p-6 rounded shadow-lg max-w-lg w-full min-w-sm relative">
+        <div className="flex justify-between items-center border-b- pb-2 mb-2">
           <h2 className="font-semibold text-md">{title}</h2>
-          <button onClick={onCloseClick} className="text-gray-500 hover:text-gray-700"> 
+          <button onClick={onCloseClick} className="absolute top-1 right-1 aspect-squre rounded-full p-1  text-xl text-gray-500 hover:bg-red-100 hover:text-red-700"> 
             <IoClose />
           </button>
         </div>
