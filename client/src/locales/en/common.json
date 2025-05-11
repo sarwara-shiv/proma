@@ -85,6 +85,7 @@
         "keyDeliverables":"Deliverables",
         "projectScope":"Scope",
         "projectMilestones":"Milestones",
+        "milestones":"Milestones",
         "dueDate":"Due Date",
         "scope":"Scope",
         "inScope":"In Scope",

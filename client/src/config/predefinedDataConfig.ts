@@ -66,6 +66,15 @@ const TaskStatuses = [
     {_id: 'pendingReview', name:'In Review', color:'pendingReview'},
     {_id: 'completed', name:'Completed', color:'completed'},
 ]
+const MainTaskStatuses = [
+    {_id: 'draft', name:'Draft', color:'toDo'},
+    {_id: 'toDo', name:'TODO', color:'toDo'},
+    {_id: 'inProgress', name:'In Progress', color:'inProgress'},
+    {_id: 'onHold', name:'On Hold', color:'onHold'},
+    {_id: 'blocked', name:'Blocked', color:'blocked'},
+    {_id: 'pendingReview', name:'In Review', color:'pendingReview'},
+    {_id: 'completed', name:'Completed', color:'completed'},
+]
 const TaskStatusesEmployee = [
     {_id: 'toDo', name:'TODO', color:'toDo'},
     {_id: 'inProgress', name:'In Progress', color:'inProgress'},
@@ -121,4 +130,4 @@ const OStoryPoints = [
     {_id: 13, name:'13 (XXL)'},
 ]
 
-export {TaskStatusesEmployee, OStoryPoints, SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}
+export {MainTaskStatuses, TaskStatusesEmployee, OStoryPoints, SprintStatus, AssignedReason, AssignedType, dailyReportTasksStatus, KickoffStatus, ApprovalStatus, DynamicFieldsTypes, milestoneStatuses, ProjectType, ProjectStatuses, TaskStatuses, Priorities, TicketStatuses, QuestionsStatuses, TaskCategory}

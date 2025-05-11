@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { IoMdAdd } from 'react-icons/io';
 import { useLocation, useParams } from 'react-router-dom';
 import MainTasksAll from './components/MainTasksAll';
-import MainTaskForm from './components/MainTaskForm';
+import MainTaskForm from '../projects/components/MainTaskForm';
 import Tasks from './components/Tasks';
 import { useAppContext } from '../../../context/AppContext';
 const navItems: NavItem[] = [

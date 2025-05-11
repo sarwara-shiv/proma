@@ -4,10 +4,8 @@ import { Milestone } from '@/interfaces';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { IoRemove } from 'react-icons/io5';
 import { milestoneStatuses } from '../../../../config/predefinedDataConfig';
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
-import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
 import RichTextArea from '../../../../components/forms/RichTextArea';
 
 interface ArgsType {
@@ -122,10 +120,11 @@ const KickoffMilestones: React.FC<ArgsType> = ({ milestones = [], name, onChange
           </div>
     
           <div className='absolute ml-4 flex flex-cols gap-2 top-4 right-1 bg-white' >
-                <DeleteSmallButton onClick={() => handleRemove(index)} position='relative'/>
+                {/* <DeleteSmallButton onClick={() => handleRemove(index)} position='relative' /> */}
                 {!(editingIndex !== null && editingIndex === index) && 
                 <CustomSmallButton onClick={() => handleEdit(index)} type='update' position='relative' right={1}/> 
-                }
+              }
+              <CustomSmallButton onClick={() => handleRemove(index)} type='remove' position='relative' right={1}/> 
               </div>
         </div>
       ))}

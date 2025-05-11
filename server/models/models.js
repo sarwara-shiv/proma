@@ -491,6 +491,7 @@ const TaskSchema = BaseTaskSchema.discriminator('Task', new Schema({
 const MainTaskSchema = new Schema({
   _pid:{type:String, ref:'Project'}, // Project ObjectId
   name:{type:String, required:true},
+  milestone:{type:Schema.Types.ObjectId, required:false},
   category:{type:String, required:true}, 
   startDate: { type: Date},
   dueDate: { type: Date},
@@ -502,7 +503,7 @@ const MainTaskSchema = new Schema({
   customFields: [DynamicFieldSchema],
   status: {
     type: String,
-    enum: ['toDo', 'inProgress', 'completed', 'blocked', 'pendingReview'],
+    enum: ['draft','toDo', 'inProgress', 'completed', 'blocked', 'pendingReview'],
     default: 'toDo'
   },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User'},

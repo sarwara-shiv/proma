@@ -271,6 +271,7 @@ export interface ISprint {
   export interface MainTask{
     _id?:ObjectId;
     _pid?:string;
+    milestone?:string;
     name:string;
     category:string;
     startDate?:Date | null;
@@ -281,7 +282,7 @@ export interface ISprint {
     sortOrder?:number;
     customFields?: DynamicField[];
     subtasks?:Task[];
-    status: 'toDo' | 'inProgress' | 'completed' | 'onHold' | 'blocked' | 'pendingReview';
+    status: 'draft'|'toDo' | 'inProgress' | 'completed' | 'onHold' | 'blocked' | 'pendingReview';
     createdBy?:ObjectId,
     assignedBy?:ObjectId,
     assignedDate?:Date,
@@ -296,6 +297,7 @@ export interface ISprint {
   }
 
   export interface Milestone{
+    _id?:string;
     name:string,
     dueDate:Date | null,
     description?:string,

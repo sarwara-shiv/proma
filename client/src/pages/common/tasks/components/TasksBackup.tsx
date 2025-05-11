@@ -2,7 +2,7 @@ import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
 import { AlertPopupType, BaseTask, DynamicField, FlashPopupType, MainTask, NavItem, Project, RelatedUpdates, Task, User } from '@/interfaces';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
-import MainTaskForm from './MainTaskForm';
+import MainTaskForm from '../../projects/components/MainTaskForm';
 import { ObjectId } from 'mongodb';
 import { format } from 'date-fns';
 import path from 'path';

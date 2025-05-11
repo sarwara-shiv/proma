@@ -1,19 +1,18 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, NavItem, PaginationProps, Project, User } from '@/interfaces';
+import { AlertPopupType, FlashPopupType, MainTask, Milestone, NavItem, PaginationProps, Project, User } from '@/interfaces';
 import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom';
-import MainTaskForm from '../../tasks/components/MainTaskForm';
+import MainTaskForm from './MainTaskForm';
 import { ObjectId } from 'mongodb';
-import { endOfDay, format } from 'date-fns';
-import path from 'path';
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { FaAd, FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
-import { IoMdAdd, IoMdClose } from 'react-icons/io';
+import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
+import { IoMdAdd} from 'react-icons/io';
 import { CustomAlert, FlashPopup, Headings } from '../../../../components/common';
 import { ColumnDef } from '@tanstack/react-table';
 import { CustomDropdown } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
-import { TaskStatuses } from '../../../../config/predefinedDataConfig';
+import { TaskStatuses,MainTaskStatuses } from '../../../../config/predefinedDataConfig';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import DataTable from '../../../../components/table/DataTable';
 import CustomContextMenu from '../../../../components/common/CustomContextMenu';
@@ -31,13 +30,14 @@ interface ArgsType {
     checkDataBy?:string[];
 }
 
-const pinnedColumns = ['name'];
-const fixedWidthColumns = ['startDate', 'dueDate', 'endDate', 'action'];
+const pinnedColumns = ['actions_cell', 'name'];
+const fixedWidthColumns = ['actions_cell', 'startDate', 'dueDate', 'endDate', 'action'];
 
 const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['name'], setSubNavItems, navItems}) => {
   const {id} = useParams();
   const {t} = useTranslation();
   const [projectData, setProjectData] = useState<Project>();
+  const [milestones, setMilestones] = useState<Milestone[]>();
   const [projectId, setProjectId] = useState<ObjectId | string | null>(cid ? cid : id ? id : null);
   const [mainTasks, setMainTasks] = useState<MainTask[]>();
   const [editTask, setEditTask] = useState<MainTask | null>();
@@ -73,8 +73,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
     {
       header: '',
       id:"actions_cell",
-      cell: ({ getValue, row  }) => { 
-        const cid = getValue() && getValue();
+      cell: ({ getValue, row }) => { 
         const _id = row.original._id ? row.original._id as unknown as string : '';
         const _pid = row.original._pid ?  row.original._pid : null;
         return (
@@ -136,6 +135,37 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         }
     },
     {
+      header: `${t('milestones')}`,
+      accessorKey: 'milestone',
+      id:"milestone",
+      cell:({getValue, row})=>{
+        const milestone = getValue() ? getValue() : null;
+        const _id = row.original._id ? row.original._id as unknown as string : '';
+        const milestoneObj = milestone && milestones ? milestones.find((data)=>data._id?.toString() === milestone ): null;
+        const milestoneName = milestoneObj ? milestoneObj.name : '-';
+        return(
+          <div>
+            {milestones  && 
+               <CustomDropdown 
+                data={milestones} 
+                label={''} 
+                style='table'
+                    name='milestone'
+                onChange={handleDataChange} 
+                selectedValue={milestone} recordId={_id} 
+              />
+            }
+            {/* {milestoneName} */}
+          </div>
+        )
+      },
+        meta:{
+            style :{
+            textAlign:'left',
+            }
+        }
+    },
+    {
       header: `${t('status')}`,
       accessorKey: 'status',
       id:"status",
@@ -146,7 +176,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
             <div className={`flex justify-center items-center ${getColorClasses(status)} text-center text-[10px]`}>  
                 <div className='w-full rounded-sm'>
                     <CustomDropdown 
-                            data={TaskStatuses} 
+                            data={MainTaskStatuses} 
                         label={''} 
                         style='table'
                             name='status'
@@ -400,6 +430,11 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
 
               if(res.status === 'success' && res.data){
                   setProjectData(res.data);
+                  console.log(res.data);
+                  if(res.data.kickoff && res.data.kickoff.milestones){
+                    setMilestones(res.data.kickoff.milestones);
+                    console.log(res.data.kickoff.milestones);
+                  }
                   data = {...res.data}
                   // setMainTasks(data?.mainTasks ? data.mainTasks as unknown as MainTask[] : [])
               }
@@ -421,16 +456,18 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
 
   const addUpdateMainTask = (pid:string | ObjectId | null, action:string, taskData:MainTask | null)=>{
     if(pid){
-        if(action === 'add'){
-            setAlertData({...alertData, isOpen:true, type:'form', title:`${t("add")}`,
-                content:<MainTaskForm action='add'  onChange={updateMainTasks} pid={pid}
-                mainTasks={data && data.mainTasks as unknown as MainTask[] || []}
-                />
-            })
-        }
-        if(action === 'update' && taskData){
+      const projectMilestones:Milestone[] = milestones ? milestones : projectData && projectData.kickoff?.milestones ? projectData.kickoff.milestones : [];
+      if(action === 'add'){
+        setAlertData({...alertData, isOpen:true, type:'form', title:`${t("add")}`,
+        content:<MainTaskForm action='add'  onChange={updateMainTasks} pid={pid} milestones={projectMilestones}
+        mainTasks={data && data.mainTasks as unknown as MainTask[] || []}
+        />
+      })
+    }
+    
+    if(action === 'update' && taskData){
             setAlertData({...alertData, isOpen:true, type:'form',title:<>{t("update")} <span className='text-primary'>{taskData.name}</span></>,
-                content:<MainTaskForm action='update'  onChange={updateMainTasks} pid={pid}
+                content:<MainTaskForm action='update'  onChange={updateMainTasks} pid={pid} milestones={projectMilestones}
                 mainTask={taskData}
                 mainTasks={data && data.mainTasks as unknown as MainTask[] || []}
                 />

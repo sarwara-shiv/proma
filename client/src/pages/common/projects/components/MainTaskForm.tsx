@@ -1,7 +1,7 @@
 import CustomDateTimePicker from '../../../../components/forms/CustomDatePicker';
 import { CustomDropdown, CustomInput } from '../../../../components/forms';
 import { addUpdateRecords, getRecords } from '../../../../hooks/dbHooks';
-import { AlertPopupType, FlashPopupType, MainTask, NavItem, RelatedUpdates, User, UserGroup } from '@/interfaces'
+import { AlertPopupType, FlashPopupType, MainTask, Milestone, NavItem, RelatedUpdates, User, UserGroup } from '@/interfaces'
 import { ObjectId } from 'mongodb';
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import {useAuthContext } from '../../../../context/AuthContext';
 interface ArgsType{
     pid:ObjectId | string;
     mainTasks?:MainTask[];
+    milestones?:Milestone[];
     mainTask?:MainTask | null;
     action?: 'add' | 'update';
     setSubNavItems?: React.Dispatch<React.SetStateAction<any>>
@@ -27,11 +28,12 @@ const navItems: NavItem[] = [
   ];
   
 
-const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems}) => {
+const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, action='add', setSubNavItems, milestones}) => {
     const {t} = useTranslation();
     const {user} = useAuthContext();
     const [mainTasksData, setMainTasksData] = useState<MainTask[]>();
     const [userGroupsData, setUserGroupsData] = useState<UserGroup[]>();
+    const [projectMilestones, setProjectMilestones] = useState<Milestone[]>();
     const [currentMainTask, setCurrentMainTask] = useState<MainTask>();
     const [responsiblePerson, setResponsiblePerson] = useState<User | null>();
     const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
@@ -47,11 +49,12 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
         responsiblePerson:null,
         note:[],
         subtasks:[],
-        status:'toDo'
+        status:'draft'
     }
 
 
     useEffect(()=>{
+        if(milestones) setProjectMilestones(milestones);
         setSubNavItems && setSubNavItems(navItems);
         if(mainTasks) setMainTasksData(mainTasks)
         if(mainTask){
@@ -228,6 +231,14 @@ const MainTaskForm:React.FC<ArgsType> = ({mainTasks, onChange, pid, mainTask, ac
                     onChange={(recordId, name, value, data)=>updateCurrentTask('category', value)}/>
                 }
             </div>
+            {milestones && 
+                <div className=''>
+                        <CustomDropdown data={milestones}  
+                        selectedValue={currentMainTask?.milestone}
+                        label={t('FORMS.milestones')}
+                        onChange={(recordId, name, value, data)=>{updateCurrentTask('milestone', data._id); console.log(data._id)}}/>
+                </div>
+            }
             
            
             <div className=''>

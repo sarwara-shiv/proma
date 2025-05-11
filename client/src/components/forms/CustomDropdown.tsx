@@ -148,7 +148,7 @@ const CustomDropdown: React.FC<ArgsType> = ({
               data.find((item) => item._id === value)?.name
             : emptyLabel
             ? emptyLabel
-            : `${'Select Option'}`}
+            : `${'--Select--'}`}
         </span>
         <span>
           <IoChevronDownSharp
