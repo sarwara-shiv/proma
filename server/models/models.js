@@ -51,7 +51,7 @@ const ChangeLogSchema = new Schema({
 // Dynamic Fields Schema
 const DynamicFieldSchema = new Schema({
   key: { type: String, required: true },
-  type:{type:String, enum:['dropdown', 'status', 'string', 'number', 'date'], default:'string'},
+  type:{type:String, enum:['dropdown', 'status', 'string', 'number', 'date' | 'images'], default:'string'},
   value: { type: Schema.Types.Mixed},
   selectedValue: { type: Schema.Types.Mixed},
 }, { _id: false });

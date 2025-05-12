@@ -37,6 +37,7 @@ const DynamicFieldsTypes = [
     {_id: 'number', name:'Number'},
     {_id: 'date', name:'Date'},
     {_id: 'status', name:'Status'},
+    {_id: 'images', name:'Images'},
 ]
 const milestoneStatuses = [
     {_id: 'notStarted', name:'Not Started', color:'notStarted'},

@@ -5,6 +5,7 @@ import { handleImageActions } from '../../hooks/dbHooks';
 interface PhotoUploaderProps {
   multiple?: boolean;
   type:string;
+  size?:'small' | 'default';
   id:string;
   onUpload?:(icon:string[], full:string[])=>void
 }
@@ -16,7 +17,7 @@ interface CompressedImage {
 
 }
 
-const PhotoUploader: React.FC<PhotoUploaderProps> = ({ type, id, multiple = false, onUpload }) => {
+const PhotoUploader: React.FC<PhotoUploaderProps> = ({ type, id, multiple = false, onUpload, size="default" }) => {
   const [images, setImages] = useState<CompressedImage[]>([]);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -121,7 +122,8 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({ type, id, multiple = fals
 
   return (
     <div
-      className="p-4 mb-4 border-2 rounded-lg border-dashed border-blue-300 cursor-pointer hover:bg-blue-50 transition"
+      className={` ${size === 'default' ? 'p-4 mb-4 border-2': 'p-0.5 border'}
+         rounded-lg border-dashed border-blue-300 cursor-pointer hover:bg-blue-50 transition`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
@@ -135,10 +137,21 @@ const PhotoUploader: React.FC<PhotoUploaderProps> = ({ type, id, multiple = fals
       />
 
       <div className="text-center text-gray-500">
-        Drag and drop your image here, or{' '}
-        <span className="text-blue-500 underline" onClick={handleClick}>
-          click to upload
-        </span>
+        {type === 'default' ? 
+          <>
+          Drag and drop your image here, or{' '}
+          <span className="text-blue-500 underline" onClick={handleClick}>
+            click to upload
+          </span>
+          </>
+          :
+          <>
+          <span className="text-blue-500 underline" onClick={handleClick}>
+            click to upload
+          </span>
+          </>
+        }
+        
       </div>
 
       {images.length > 0 && (

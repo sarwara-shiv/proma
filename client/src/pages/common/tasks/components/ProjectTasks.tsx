@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { ObjectId } from 'mongodb';
 
 import { useTranslation } from 'react-i18next';
-import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, ImageIcon, Loader } from '../../../../components/common';
+import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, ImageIcon, Loader, PhotoUploader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
@@ -28,7 +28,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 import SidePanel from '../../../../components/common/SidePanel';
 import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
-import { MdInfo, MdOutlinePerson, MdPerson } from 'react-icons/md';
+import { MdAdd, MdInfo, MdOutlinePerson, MdPerson } from 'react-icons/md';
 
 interface ArgsType {
     cid?:string | null;
@@ -639,8 +639,13 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
   }
   
   // set date
-  const setDate = ()=>{
-
+  const openPhotoUploader = (tid:string)=>{
+    if(tid){
+      setCustomPopupData({...custoPopupData, isOpen:true, type:'form', 
+        title:'Images',
+        content: <PhotoUploader type="cf" id={tid} onUpload={()=>console.log(123)} size='small' multiple={true}/>
+      })
+    }
   }
 
   // closePopup
@@ -1013,6 +1018,17 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                       />
                                     </div>
 
+                                    :
+
+                                    (cf.type === 'images') ? 
+                                    <div className='flex w-full justify-between gap-1'>
+                                      <div>
+
+                                      </div>
+                                      <div onClick={()=>openPhotoUploader(tid)} className='flex w-4 h-4 rounded-full bg-gray-100 justify-center items-center'>
+                                        <MdAdd className='text-lg'/>
+                                      </div>
+                                    </div>
                                     :
 
                                     <ClickToEdit value={cfvalue}  name={`tcf-${index}`}

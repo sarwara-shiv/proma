@@ -29,7 +29,7 @@ export interface NavItem {
 // Dynamic Fields Interface
 export interface DynamicField {
     key: string;
-    type?:'dropdown' |'string'|'number'|'date' | 'status';
+    type?:'dropdown' |'string'|'number'|'date' | 'status' | 'images';
     value?:any;
     selectedValue?: any; // Since `Schema.Types.Mixed` can accept any type
   }

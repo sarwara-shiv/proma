@@ -29,6 +29,7 @@ const CustomFieldForm:React.FC<ArgsType> = ({onChange, selectedData, index=null}
   const {t} = useTranslation();
   const [newDynamicField, setNewDynamicField] = useState<DynamicField>(selectedData || emptyFields);
   
+  // HANDLE FIELDS SELECTION
   const handleInputs = (field:keyof DynamicField, value:any, color:string | null)=>{
     if(field === 'key'){
       setNewDynamicField({...newDynamicField,[field]:value});
