@@ -9,7 +9,7 @@ import MainTaskForm from '../projects/components/MainTaskForm';
 import Tasks from './components/Tasks';
 import { useAppContext } from '../../../context/AppContext';
 const navItems: NavItem[] = [
-    { link: "maintasks", title: "maintasks_all" },
+    { link: "maintasks/", title: "maintasks_all" },
     { link: "maintasks/add", title: "maintasks_add", icon:<IoMdAdd />},
 ];
 const MainTasks = () => {
@@ -22,8 +22,9 @@ const MainTasks = () => {
     const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
     const [subNavItems, setSubNavItems] = useState<NavItem[]>(navItems);
     const {pageTitle, setPageTitle} = useAppContext();
+    
     useEffect(()=>{
-      setPageTitle(t('maintasks'))
+      setPageTitle(t('maintasks'));
     },[]);
   
     return (

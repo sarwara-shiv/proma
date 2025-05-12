@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { ObjectId } from 'mongodb';
 
 import { useTranslation } from 'react-i18next';
-import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, Loader } from '../../../../components/common';
+import { CustomAlert, CustomPopup, CustomTooltip, FlashPopup, ImageIcon, Loader } from '../../../../components/common';
 import { IoMdAdd } from 'react-icons/io';
 import CustomFieldForm from '../../../../components/forms/CustomFieldForm';
 import DeleteSmallButton from '../../../../components/common/DeleteSmallButton';
@@ -28,7 +28,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ResizableTableHeader from '../../../../components/table/ResizableTableHeader'; 
 import SidePanel from '../../../../components/common/SidePanel';
 import RichtTextEditor from '../../../../components/forms/RichtTextEditor';
-import { MdInfo } from 'react-icons/md';
+import { MdInfo, MdOutlinePerson, MdPerson } from 'react-icons/md';
 
 interface ArgsType {
     cid?:string | null;
@@ -86,11 +86,13 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
       if(!cid){
         cid = id;
       }
+      
       getData();
   }, []);
   useEffect(()=>{
 
   }, [assignData]);
+
 
   // TODO
   // DO IT SEPERATELY
@@ -894,9 +896,15 @@ const ProjectTasks:React.FC<ArgsType> = ({cid, action, data, checkDataBy, setSub
                                 <div
                                   className=' group-hover:translate group-hover:translate-x-3 transition-all
                                   flex justify-between items-center'
-                                >{rUser ? rUser.name : 
-                                <div className='text-slate-400 flex items-center justify-start'>
-                                  <FaUserCircle size={16} className='text-slate-200'/> 
+                                >{rUser ? 
+                                <div className='flex items-center gap-1'>
+                                  <div className='content-fit bg-gray-200 min-w-6 min-h-6 rounded-full flex justify-center items-center'>
+                                  {rUser.image ? <ImageIcon image={rUser.image} title='' size='sm'/> : <MdOutlinePerson className='text-lg text-slate-400'/>}  
+                                  </div>{rUser.name}
+                                </div> 
+                                : 
+                                <div className='content-fit bg-gray-200 min-w-6 min-h-6 rounded-full flex justify-center items-center'>
+                                  <MdOutlinePerson className='text-lg text-slate-400'/> 
                                   </div>
                                 }</div>
                                 <div 

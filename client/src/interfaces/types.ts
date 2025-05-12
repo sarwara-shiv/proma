@@ -278,6 +278,7 @@ export interface ISprint {
     dueDate?:Date | null;
     endDate?:Date | null;
     responsiblePerson:ObjectId | null;
+    supportPersons?:ObjectId[];
     note?:NoteSchema[];
     sortOrder?:number;
     customFields?: DynamicField[];

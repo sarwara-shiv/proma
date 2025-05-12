@@ -15,6 +15,13 @@ const Pages = {
       access:['admin', 'manager'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
     },
+    SKILLS: {
+      name: 'skills',
+      displayName: 'skills',
+      model:"Skill",
+      access:['admin', 'manager'],
+      actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
+    },
     TOKEN: {
       name: 'tokens',
       displayName: 'tokens',

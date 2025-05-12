@@ -69,6 +69,60 @@ UserSchema.methods.updateWorkLoad = function (isAssigned, task) {
 };
 
 
+export const UserProfileSchema = new Schema({
+  _id:{type:Schema.Types.ObjectId, ref:'User', required:true},
+  skills:[{type:String}],
+  joinedDate:{type:Date},
+  level:{type:Number, enum:[1,2,3], default:1},
+  phone:{type:String}
+}) 
+export const ClientProfileSchema = new Schema({
+  _id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+
+  // A client may belong to multiple firmas
+  firmas: [{
+    firma: { type: Schema.Types.ObjectId, ref: 'Firma', required: true },
+
+    // For each firma, track which projects the client is involved in
+    projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }]
+  }]
+});
+
+const UserPerformanceSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  period: { type: String, enum: ['weekly', 'monthly'], required: true },
+  periodStart: { type: Date, required: true },
+  periodEnd: { type: Date, required: true },
+
+  // Core metrics
+  tasksAssigned: { type: Number, default: 0 },
+  tasksCompleted: { type: Number, default: 0 },
+  totalStoryPoints: { type: Number, default: 0 },
+
+  // Derived metrics
+  avgStoryPointsPerTask: { type: Number, default: 0 },
+  completionRate: { type: Number, default: 0 }, // tasksCompleted / tasksAssigned
+  efficiencyScore: { type: Number, default: 0 }, // custom formula
+
+  comparisonToLast: {
+    storyPointChange: Number,
+    taskChange: Number,
+    efficiencyChange: Number,
+  },
+});
+
+export const FirmaSchema = new Schema({
+  name: { type: String, required: true },
+  projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+});
+
+
 const UserModel = mongoose.model('User', UserSchema);
+const UserProfileModel = mongoose.model('UserProfile', UserProfileSchema);
+const ClientProfileModel = mongoose.model('ClientProfile', ClientProfileSchema);
+const FirmaModel = mongoose.model('Firma', FirmaSchema);
+const UserPerformanceModel = mongoose.model('UserPerformance', UserPerformanceSchema);
+
+export {UserProfileModel, ClientProfileModel, FirmaModel, UserPerformanceModel}
 
 export default UserModel;

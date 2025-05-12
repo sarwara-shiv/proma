@@ -1,6 +1,6 @@
 import { addUpdateRecords, getRecordWithID } from '../../../../hooks/dbHooks';
-import { AlertPopupType, DeleteRelated, FlashPopupType, MainTask, Milestone, NavItem, PaginationProps, Project, RelatedUpdates, User } from '@/interfaces';
-import React, { useEffect, useMemo, useState } from 'react'
+import { AlertPopupType, DeleteRelated, FlashPopupType, MainTask, Milestone, NavItem, PaginationProps, Project, RelatedUpdates, Task, User } from '@/interfaces';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom';
 import MainTaskForm from './MainTaskForm';
 import { ObjectId } from 'mongodb';
@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { FaEye, FaPencilAlt, FaTasks } from 'react-icons/fa';
 import { IoMdAdd} from 'react-icons/io';
-import { CustomAlert, FlashPopup, Headings } from '../../../../components/common';
+import { CustomAlert, CustomTooltip, FlashPopup, Headings } from '../../../../components/common';
 import { ColumnDef } from '@tanstack/react-table';
 import { CustomDropdown } from '../../../../components/forms';
 import { getColorClasses } from '../../../../mapping/ColorClasses';
@@ -73,7 +73,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
     {
       header: '',
       id:"actions_cell",
-      cell: ({ getValue, row }) => { 
+      cell: ({ row }:{row:any}) => { 
         const _id = row.original._id ? row.original._id as unknown as string : '';
         const _pid = row.original._pid ?  row.original._pid : null;
         const ids = extractAllIds(row.original);
@@ -84,7 +84,6 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
           type:'array',
           ids:[_id]
         }]
-        console.log(row.original.name,' : ', relatedUpdates);
         const deleteText = <div>
           Do you really want to delelete Main Task <span className='font-bold text-primary'>{row.original.name}</span>?<br/>
           <span className='text-red-400 italic text-xs'>This will also delete {row.original.subtasks?.length} tasks and their subtasks </span>
@@ -145,6 +144,52 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
       header: `${t('name')}`,
       accessorKey: 'name',
       id:"name",
+      cell:({getValue, row})=>{
+        const tasks = row.original.subtasks || null;
+        let inProgress = 0;
+        let completed = 0;
+        let onHold = 0;
+        let inReview = 0;
+        let content:ReactNode=<></>
+        if(tasks){
+          const tTasks = tasks.length;
+          const cTasks = tasks.filter((t)=>t.status === 'completed').length;
+          const iptasks = tasks.filter((t)=>t.status === 'inProgress').length;
+          const ohtasks = tasks.filter((t)=>t.status === 'onHold').length;
+          const irtasks = tasks.filter((t)=>t.status === 'inReview').length;
+          completed = parseFloat(((cTasks / tTasks) * 100).toFixed(2));
+          content = <div className='text-[9px] flex flex-col'>
+            <span>{t('total')} {t('tasks')} <b>{tTasks}</b></span>
+            <span>{t('completed')}: <b>{cTasks}</b></span>
+            <span>{t('inProgress')}: <b>{iptasks}</b></span>
+            <span>{t('onHold')}: <b>{ohtasks}</b></span>
+            <span>{t('inReview')}: <b>{irtasks}</b></span>
+          </div>
+          if(iptasks){
+            inProgress = parseFloat(((iptasks / tTasks) * 100).toFixed(2));
+          }
+          if(ohtasks){
+            onHold = parseFloat(((ohtasks / tTasks) * 100).toFixed(2));
+            console.log('ohtasks', ohtasks);
+          }
+          if(irtasks){
+            inReview = parseFloat(((irtasks / tTasks) * 100).toFixed(2));
+          }
+        }
+        return (
+          <CustomTooltip content={content}>
+            <div className='flex flex-col'>
+              <span>{getValue()}</span>
+                <div className='relative w-[50px] h-1 rounded-md bg-gray-200'>
+                  <div className={`absolute left-0 top-0 h-full bg-completed-dark rounded-md`} style={{width:`${completed}%`}}></div>
+                  <div className={`absolute top-0 h-full bg-inProgress-dark rounded-md`} style={{width:`${inProgress}%`, left:`${completed}%`}}></div>
+                  <div className={`absolute top-0 h-full bg-onHold-dark rounded-md`} style={{width:`${onHold}%`, left:`${completed+inProgress}%`}}></div>
+                  <div className={`absolute top-0 h-full bg-inReview-dark rounded-md`} style={{width:`${inReview}%`, left:`${completed+inProgress+onHold}%`}}></div>
+              </div>
+            </div>
+          </CustomTooltip>
+        )
+      },
         meta:{
             style :{
             textAlign:'left',
@@ -163,16 +208,15 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
         return(
           <div>
             {milestones  && 
-               <CustomDropdown 
+                <CustomDropdown 
                 data={milestones} 
                 label={''} 
                 style='table'
-                    name='milestone'
+                name='milestone'
                 onChange={handleDataChange} 
                 selectedValue={milestone} recordId={_id} 
-              />
+                />
             }
-            {/* {milestoneName} */}
           </div>
         )
       },
@@ -327,29 +371,75 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
     {
       header:`${t('tasks')}`,
       id:'tasks',
-      cell: ({ row }: { row: any }) => (
-          <div style={{ textAlign: 'center' }} className='hover:bg-white rounded-sm hover:shadow-sm'>
+      cell: ({ row }: { row: any }) => {
+        const tasks = row.original.subtasks || null;
+        let inProgress = 0;
+        let completed = 0;
+        let onHold = 0;
+        let inReview = 0;
+        let content:ReactNode=<></>
+        if(tasks){
+          const tTasks = tasks.length;
+          const cTasks = tasks.filter((t:Task)=>t.status === 'completed').length;
+          const iptasks = tasks.filter((t:Task)=>t.status === 'inProgress').length;
+          const ohtasks = tasks.filter((t:Task)=>t.status === 'onHold').length;
+          const irtasks = tasks.filter((t:Task)=>t.status === 'inReview').length;
+          completed = parseFloat(((cTasks / tTasks) * 100).toFixed(2));
+          content = <div className='text-[9px] flex flex-col'>
+            <span>{t('total')} {t('tasks')} <b>{tTasks}</b></span>
+            <span>{t('completed')}: <b>{cTasks}</b></span>
+            <span>{t('inProgress')}: <b>{iptasks}</b></span>
+            <span>{t('onHold')}: <b>{ohtasks}</b></span>
+            <span>{t('inReview')}: <b>{irtasks}</b></span>
+          </div>
+          if(iptasks){
+            inProgress = parseFloat(((iptasks / tTasks) * 100).toFixed(2));
+          }
+          if(ohtasks){
+            onHold = parseFloat(((ohtasks / tTasks) * 100).toFixed(2));
+            console.log('ohtasks', ohtasks);
+          }
+          if(irtasks){
+            inReview = parseFloat(((irtasks / tTasks) * 100).toFixed(2));
+          }
+        }
+        return (
+          <div style={{ textAlign: 'center' }} className='rounded-sm'>
               {/* {row.original.isEditable && <></>
               } */}
+              <CustomTooltip content={content}>
+                <div className='flex flex-col items-center'>
               <div className='flex align-center justify-center flex-row py-[1px]'>
-              <NavLink
-                to={`${window.location.pathname.replace(/\/[^/]+\/maintasks\/[^/]+$/, '/maintasks/tasks/' + row.original._id)}`}// Dynamically build the URL using the _id
-                state={{ objectId: row.original._id, data: row.original }} // Passing the _id and data in state
-                title={`${t('maintasks')}`}
-                className="p-1 ml-1 flex justify-center items-center inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
-              >
-                <FaTasks /> 
-                <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
-                  {row.original.subtasks && row.original.subtasks.length > 0 ? (
-                    <>{row.original.subtasks.length}</>
-                  ) : (
-                    0
-                  )}
-                </span>
-              </NavLink>
+                <NavLink
+                  to={`${window.location.pathname.replace(/\/[^/]+\/maintasks\/[^/]+$/, '/maintasks/tasks/' + row.original._id)}`}// Dynamically build the URL using the _id
+                  state={{ objectId: row.original._id, data: row.original }} // Passing the _id and data in state
+                  title={`${t('maintasks')}`}
+                  className="p-1 ml-1 flex justify-center items-center inline-block text-green-700 hover:bg-primary-light hover:text-primary cursor-pointer whitespace-normal break-words"
+                >
+
+                  <FaTasks /> 
+                  <span className='ml-1 py-0.7 px-1 bg-slate-200 rounded-sm text-slate-800'>
+                    {row.original.subtasks && row.original.subtasks.length > 0 ? (
+                      <>{row.original.subtasks.length}</>
+                    ) : (
+                      0
+                    )}
+                  </span>
+                </NavLink>
               </div>
+              
+                <div className='flex flex-col'>
+                    <div className='relative w-[50px] h-1 rounded-md bg-gray-200'>
+                      <div className={`absolute left-0 top-0 h-full bg-completed-dark rounded-md`} style={{width:`${completed}%`}}></div>
+                      <div className={`absolute top-0 h-full bg-inProgress-dark rounded-md`} style={{width:`${inProgress}%`, left:`${completed}%`}}></div>
+                      <div className={`absolute top-0 h-full bg-onHold-dark rounded-md`} style={{width:`${onHold}%`, left:`${completed+inProgress}%`}}></div>
+                      <div className={`absolute top-0 h-full bg-inReview-dark rounded-md`} style={{width:`${inReview}%`, left:`${completed+inProgress+onHold}%`}}></div>
+                  </div>
+                </div>
+                </div>
+            </CustomTooltip>
           </div>
-      ),
+      )},
       meta:{
           style :{
           textAlign:'center',
@@ -378,7 +468,7 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
             }
         }
     },
-  ],[]);
+  ],[milestones, mainTasks]);
 
   //---------- table columns model end
 
@@ -390,10 +480,10 @@ const MainTasksProject:React.FC<ArgsType> = ({cid, action, data, checkDataBy=['n
       // setSubNavItems && setSubNavItems(navItems);
   }, []);
 
-  useEffect(()=>{
-      getData();
-      setEditTask(null);
-  }, [mainTasks]);
+  // useEffect(()=>{
+  //     getData();
+  //     setEditTask(null);
+  // }, [mainTasks]);
 
   const handleDataChange = async (recordId:string|ObjectId, name: string, value: string, selectedData: { _id: string, name: string }) => {
     console.log(recordId, name, value, selectedData);
@@ -456,16 +546,13 @@ const updateData = async(id:string|ObjectId, newData:any)=>{
           const pid = cid ? cid : id;
           if(pid){
               const res = await getRecordWithID({id:pid, populateFields, type:'projects'});
-              console.log(res);
-
               if(res.status === 'success' && res.data){
                   setProjectData(res.data);
-                  console.log(res.data);
                   if(res.data.kickoff && res.data.kickoff.milestones){
                     setMilestones(res.data.kickoff.milestones);
-                    console.log(res.data.kickoff.milestones);
                   }
                   data = {...res.data}
+                  
                   // setMainTasks(data?.mainTasks ? data.mainTasks as unknown as MainTask[] : [])
               }
 

@@ -113,6 +113,8 @@ const initializeDefaultData = async () => {
             { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true }, 
             { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
+            { page: 'skills', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
+            { page: 'kickoff', canCreate: true, canUpdate: true, canDelete: true, canView: true },    
           ]
         },
         {
@@ -135,6 +137,8 @@ const initializeDefaultData = async () => {
             { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'skills', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'kickoff', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
           ]
         },
         {
@@ -157,6 +161,8 @@ const initializeDefaultData = async () => {
             { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'skills', canCreate: false, canUpdate: false, canDelete: false, canView: true },   
+            { page: 'kickoff', canCreate: false, canUpdate: false, canDelete: false, canView: true },   
           ]
         },
         {
@@ -179,6 +185,8 @@ const initializeDefaultData = async () => {
             { page: 'scrums', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
             { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
             { page: 'sprints', canCreate: true, canUpdate: true, canDelete: true, canView: true },   
+            { page: 'skills', canCreate:false, canUpdate: false, canDelete: false, canView: true },   
+            { page: 'kickoff', canCreate:false, canUpdate: false, canDelete: false, canView: true },   
           ]
         },
         {
@@ -201,6 +209,8 @@ const initializeDefaultData = async () => {
             { page: 'scrums', canCreate: false, canUpdate: true, canDelete: false, canView: true },  
             { page: 'tickets', canCreate: true, canUpdate: true, canDelete: true, canView: true },     
             { page: 'sprints', canCreate: false, canUpdate: true, canDelete: false, canView: true },     
+            { page: 'skills', canCreate: false, canUpdate: false, canDelete: false, canView: true },     
+            { page: 'kickoff', canCreate: false, canUpdate: false, canDelete: false, canView: true },     
           ]
         },
         {
@@ -213,7 +223,7 @@ const initializeDefaultData = async () => {
             { page: 'projects', canCreate: false, canUpdate: true, canDelete: false, canView: true },
             { page: 'tasks', canCreate: false, canUpdate: false, canDelete: false, canView: true },
             { page: 'users', canCreate: false, canUpdate: false, canDelete: false, canView: true },
-            { page: 'mytasks', canCreate: true, canUpdate: true, canDelete: true, canView: true },  
+            { page: 'kickoff', canCreate: false, canUpdate: false, canDelete: false, canView: true },  
           ]
         }
       ]);

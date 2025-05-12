@@ -496,7 +496,9 @@ const MainTaskSchema = new Schema({
   startDate: { type: Date},
   dueDate: { type: Date},
   endDate: { type: Date},
+  technologies:[{type:String}],
   responsiblePerson:{type:Schema.Types.ObjectId, ref:'User', required:true},
+  supportPersons: [{ type: Schema.Types.ObjectId, ref: 'User'}],
   note:[NoteSchema],
   subtasks:[{type:Schema.Types.ObjectId, ref: 'Task' }],
   sortOrder:{type:Number},
@@ -555,6 +557,10 @@ MainTaskSchema.pre('save', function (next) {
   next();
 });
 
+const SkillSchema = new Schema({
+  name: { type: String, unique: true, required: true },
+  category: { type: String, enum: ['frontend', 'backend', 'database', 'devops', 'cms', 'other'], default: 'other' }
+});
 
 
 // Kickoff Question Schema
@@ -613,6 +619,7 @@ const KickoffSchema = new Schema({
   context: { type: String },
   customFields: [DynamicFieldSchema],
   questions: [KickoffQuestionSchema],
+  technologies:[{type:String}],
   startDate: { type: Date, required: true },
   endDate: { type: Date },
   milestones: [{
@@ -925,7 +932,8 @@ const Counter = mongoose.model('Counter', CounterSchema);
 const ChangeLog = mongoose.model('ChangeLog', ChangeLogSchema);
 const DailyReport = mongoose.model('DailyReport', DailyReportSchema); 
 const WorkLog = mongoose.model('WorkLog', WorkLogSchema);
+const Skill = mongoose.model('Skill', SkillSchema);
 
 
 
-export { WorkLog,DailyReport, TaskTemplate, ChangeLog, QaTask, Sprint, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };
+export { Skill,WorkLog,DailyReport, TaskTemplate, ChangeLog, QaTask, Sprint, MainTask, TaskStatus, TaskPriority, ProjectStatus, ProjectPriority, Task, Project, Documentation, Ticket, Counter };

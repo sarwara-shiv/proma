@@ -37,7 +37,7 @@ const DocumentationNav: React.FC<ArgsType> = ({ records, setActiveDocData }) => 
         return (
           <div key={`main-${index}-${record._id}`} className='py-0.5'>
           <div className='flex justify-between gap-1 items-center'>
-              <div className='p-1 w-full bg-gray-200 flex justify-between items-center'>
+              <div className='p-1 w-full flex justify-between items-center border-b'>
                   <span className={`font-medium text-xs flex justify-start items-center gap-1 cursor-pointer
                       ${openDoc && openDoc._id === record._id && 'text-primary '}
                   `}
