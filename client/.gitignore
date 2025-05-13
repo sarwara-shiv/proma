@@ -14,7 +14,6 @@
 # Images
 /image/
 images/
-/server/images/
 
 # misc
 .DS_Store
