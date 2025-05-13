@@ -36,6 +36,10 @@ _documentation.md
 .env.production
 TODO.md
 
+# Images
+/image/
+images/
+
 # Optional npm cache directory
 .npm
 
