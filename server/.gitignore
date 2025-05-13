@@ -39,7 +39,6 @@ TODO.md
 # Images
 /image/
 images/
-/server/images/
 
 # Optional npm cache directory
 .npm
