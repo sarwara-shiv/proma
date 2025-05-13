@@ -492,7 +492,7 @@ const MainTaskSchema = new Schema({
   _pid:{type:String, ref:'Project'}, // Project ObjectId
   name:{type:String, required:true},
   milestone:{type:Schema.Types.ObjectId, required:false},
-  category:{type:String, required:true}, 
+  category:{type:String, required:false}, // remove it 
   startDate: { type: Date},
   dueDate: { type: Date},
   endDate: { type: Date},

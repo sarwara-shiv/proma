@@ -31,11 +31,11 @@ const ProjectProgress:React.FC<ArgsType> = ({project, showCount=true})=>{
         <div className="w-full">
             {showCount && 
             <div className="mb-4 flex gap-4">
-                <div className="flex justify-between  gap-1 items-center  py-0.5 bg-white shadow-sm px-2 rounded-md">
+                <div className="flex justify-between  gap-1 items-center  py-0.5 bg-white shadow-sm rounded-md">
                     <span className="text-xs text-slate-400">{t('maintasks')} / {t('milestones')}: </span>
                     <span className="text-sm font-bold text-slate-500">{mainTasks.length}</span>
                 </div>
-                <div className="flex justify-between  gap-1 items-center py-0.5 px-2 bg-white shadow-sm rounded-md">
+                <div className="flex justify-between  gap-1 items-center py-0.5 bg-white shadow-sm rounded-md">
                     <span className="text-xs text-slate-400">{t('tasks')}: </span>
                     <span className="text-sm font-bold text-slate-500">{tasks.length}</span>
                 </div>

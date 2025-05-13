@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, Milestone, NavItem, Project, User } from '@/interfaces';
-import { CustomAlert, FlashPopup, FormButton, Headings, PageTitel } from '../../../../components/common';
+import { CustomAlert, FlashPopup, FormButton, Headings, PageTitel, PersonName } from '../../../../components/common';
 import EnterInput from '../../../../components/forms/EnterInput';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -448,14 +448,13 @@ const KickoffForm: React.FC<ArgsType> = ({ cid, data, action='update', setSubNav
                             return (
 
                                 <div key={`kodap-${ai}`} className=' my-1 p-2 bg-yellow-50 border rounded-md'>
-                                <div  className={`relative flex justify-between ${showDelteBtn ? 'pr-5' : ''}`}
+                                <div  className={`relative flex justify-between items-center ${showDelteBtn ? 'pr-5' : ''}`}
                                     
                                 >  
-                                    <div>
-                                        <div className='text-slate-600'>{auser.name}</div>
-                                        
+                                    <div className='my-2'>
+                                        <PersonName user={auser}/>
                                     </div>
-                                    <div className={`text-xs rounded-sm  border-white border-1 px-1 ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
+                                    <div className={`text-xs rounded-sm  border-white border-1 py-1 px-2 rounded-md  ${astatus && astatus.color ? getColorClasses(astatus.color) : ''}
                                                     text-xs flex justify-center items-center rounded-sm 
                                                 `}
                                     >{astatus ? astatus.name : ''}</div>

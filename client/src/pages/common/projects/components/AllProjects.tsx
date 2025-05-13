@@ -28,6 +28,7 @@ import CustomContextMenu from '../../../../components/common/CustomContextMenu';
 import CustomDateTimePicker2 from '../../../../components/forms/CustomDateTimePicker';
 import { DaysLeft } from '../../../../components/common';
 import { useAppContext } from '../../../../context/AppContext';
+import { getDatesDifferenceInDays } from '../../../../utils/dateUtils';
 
 interface ArgsType {
     setSubNavItems: React.Dispatch<React.SetStateAction<any>>;
@@ -66,7 +67,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
         {
           header: '',
           id:"actions_cell",
-          cell: ({ row }) => { 
+          cell: ({ row }:{row:any}) => { 
             const _id = row.original._id ? row.original._id as unknown as string : '';
             return (
                 <div>
@@ -147,8 +148,9 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           cell: ({ getValue, row }) => {
             const cid = getValue() && getValue();
             const _id = row.original._id ? row.original._id as unknown as string : '';
+            const duedays = row.original.dueDate ? getDatesDifferenceInDays(row.original.dueDate) : null;
             return (
-                <div>
+                <div className={`${duedays && duedays.days < 0 ? 'text-red-400' : 'text-green-500'} font-semibold`}>
                     {cid}
                 </div>
             )
@@ -195,7 +197,7 @@ const AllProjects:React.FC<ArgsType> = ({setSubNavItems, navItems}) => {
           },
             meta:{
                 style :{
-                textAlign:'left',
+                textAlign:'center',
                 width:'80px'
                 }
             }

@@ -15,6 +15,7 @@ const UserSchema = new Schema({
   firma: { type: String, default:"self"}, 
   workLoad:{type:Number, default:0, required:true},
   isOnline:{type:Boolean, default:false},
+  teams:[{type:Schema.Types.ObjectId, ref:"Team"}],
   onlineTimestamp:{startTime:{type:Date},endTime:{type:Date} },
   permissions: {
     type: Map,
@@ -71,7 +72,7 @@ UserSchema.methods.updateWorkLoad = function (isAssigned, task) {
 
 export const UserProfileSchema = new Schema({
   _id:{type:Schema.Types.ObjectId, ref:'User', required:true},
-  skills:[{type:String}],
+  skills:[{name:{type:String}, level:{type:Number}}],
   joinedDate:{type:Date},
   level:{type:Number, enum:[1,2,3], default:1},
   phone:{type:String}
@@ -109,6 +110,8 @@ const UserPerformanceSchema = new Schema({
     taskChange: Number,
     efficiencyChange: Number,
   },
+}, {
+  timestamps: true, // Automatically track createdAt/updatedAt
 });
 
 export const FirmaSchema = new Schema({
@@ -117,12 +120,105 @@ export const FirmaSchema = new Schema({
 });
 
 
+const UserHolidaySchema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  reason: {
+    type: String,
+    required: true,
+    enum: [
+      'vacation',
+      'personal',
+      'sick',
+      'childcare',
+      'familyEmergency',
+      'training',
+      'marriage',
+      'maternity',
+      'paternity',
+      'custom'
+    ]
+  },
+  customReason: {
+    type: String // Used when reason === 'custom'
+  },
+  notes: {
+    type: String
+  },
+  needsApproval: {
+    type: Boolean,
+    default: true
+  },
+  approvers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'User' // Multiple users who can approve
+    }
+  ],
+  approvals: [
+    {
+      approver: { type: Schema.Types.ObjectId, ref: 'User' },
+      approvedAt: { type: Date },
+      status: { type: String, enum: ['approved', 'rejected'], required: true },
+      note: { type: String }
+    }
+  ],
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+}, {
+  timestamps: true, // Automatically track createdAt/updatedAt
+});
+
+// POSITIONS
+/**
+ * 
+ * default values
+ * contentManger, frontendDeveloper, backendDeveloper, fullstackDeveloper, uiux, qa, manager, scrumMaster
+ * 
+ */
+
+const PositionSchema = new Schema({
+  name:{type:String, required:true},
+  _cid:{type:String},
+  description:{type:String},
+}, {
+  timestamps: true, // Automatically track createdAt/updatedAt
+})
+
+const TeamSchema = new Schema({
+  name:{type:String, required:true},
+  manager:{type:Schema.Types.ObjectId, ref:"User"},
+  teamLeader:{type:Schema.Types.ObjectId, ref:"User"},
+  _cid:{type:String},
+  description:{type:String},
+}, {
+  timestamps: true, // Automatically track createdAt/updatedAt
+})
+
+
 const UserModel = mongoose.model('User', UserSchema);
 const UserProfileModel = mongoose.model('UserProfile', UserProfileSchema);
 const ClientProfileModel = mongoose.model('ClientProfile', ClientProfileSchema);
 const FirmaModel = mongoose.model('Firma', FirmaSchema);
 const UserPerformanceModel = mongoose.model('UserPerformance', UserPerformanceSchema);
+const UserHolidayModel = mongoose.model('UserHoliday', UserHolidaySchema);
+const PositionModel = mongoose.model('Position', PositionSchema);
+const TeamModel = mongoose.model('Team', TeamSchema);
 
-export {UserProfileModel, ClientProfileModel, FirmaModel, UserPerformanceModel}
+export {UserProfileModel, ClientProfileModel, FirmaModel, UserPerformanceModel, UserHolidayModel, PositionModel, TeamModel}
 
 export default UserModel;

@@ -1,11 +1,10 @@
-import { getRecordsWithFilters, getRecordsWithLimit, getRecordWithID } from "../../../../hooks/dbHooks";
-import { AlertPopupType, DecodedToken, Kickoff, MainTask, OrderByFilter, Project, QueryFilters, SidePanelProps, Task, User } from "@/interfaces";
+import { getRecordsWithFilters} from "../../../../hooks/dbHooks";
+import { AlertPopupType, DecodedToken, Kickoff, OrderByFilter, Project, QueryFilters, SidePanelProps, User } from "@/interfaces";
 import { getColorClasses } from "../../../../mapping/ColorClasses";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { getTasksStoryPoints } from "../../../../utils/tasksUtils";
-import { CustomAlert, CustomTooltip, DaysLeft, ImageIcon, SidePanel } from "../../../../components/common";
+import { CustomAlert, DaysLeft, PersonName, SidePanel } from "../../../../components/common";
 import { getDatesDifferenceInDays } from "../../../../utils/dateUtils";
 import { MdAdd, MdArrowBack } from "react-icons/md";
 import { useAuthContext } from "../../../../context/AuthContext";
@@ -110,24 +109,15 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
     const getTeam = (kickOff:Kickoff)=>{
         if(kickOff && kickOff.responsibilities && kickOff.responsibilities.length > 0 ){
             const users: User[] = kickOff.responsibilities.flatMap(res => res.persons as unknown as User ?? []);
-            console.log(users);
             if(users && users.length > 0){
                 return <div className="relative flex gap-0 items-center">
                         <div className="relative flex">
                             {users.slice(0, 3).map((user, idx) => (
                                 <div
                                 key={`user-${idx}`}
-                                className={`relative ${idx !== 0 ? '-ml-2' : ''} z-${10 + idx}`}
+                                className={`relative ${idx !== 0 ? '-ml-2' : ''} z-${10 + idx} ${idx ===1 && users.length > 2 && 'scale-125'}`} 
                                 >
-                                <div className="w-8 h-8 rounded-full shadow bg-gray-300 flex items-center justify-center overflow-hidden border border-white">
-                                    {user.image && user.name ? (
-                                    <ImageIcon image={user.image} title={user.name} fullImageLink={false} />
-                                    ) : (
-                                    <span className="text-primary font-bold text-md">
-                                        {user.name?.charAt(0).toUpperCase()}
-                                    </span>
-                                    )}
-                                </div>
+                                    <PersonName user={user} showName={false}/>
                                 </div>
                             ))}
                             </div>
@@ -169,27 +159,30 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
             {projects && projects.length > 0 ? 
                 <div className="flex gap-6 flex-wrap">
                     {projects.map((project, pidx)=>{
+                        const duedays = project.dueDate ? getDatesDifferenceInDays(project.dueDate) : null;
                         return (
                             <div key={`${pidx}-${project._id}`} className="flex-1 card min-w-2xs max-w-sm box-shadow rounded-lg p-4 flex flex-col">
                                 <div className="flex justify-between gap-2 text-sm items-center  pb-1 flex-wrap mb-2">
                                     <div className="group flex items-center cursor-pointer pr-4" onClick={()=>navigateTo(project._id || '')}>
                                         <div className="absolute opacity-0 transition-all text-primary translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"><MdArrowBack /></div>
-                                        <span className="font-bold text-slate-500 transition-all hover:translate-x-3.5">{project._cid}</span>
+                                        <span className={`font-bold transition-all hover:translate-x-3.5 ${duedays && duedays.days < 0 ? 'text-red-400' : 'text-green-500'}`}>
+                                            {project._cid}
+                                        </span>
                                     </div>
                                     <div className="flex justify-end text-xs gap-2">
                                         {project.projectType && 
-                                            <span className=" bg-primary-light p-1 rounded-md text-xs">{t(project.projectType)}</span>
+                                            <span className=" bg-primary-light text-primary py-1 px-2 rounded-xl text-xs font-semibold uppercase">{t(project.projectType)}</span>
                                         }
                                     </div>
                                 </div>
                                 <div className="flex justify-end gap-4">
-                                    <div className="flex items-center flex-cols bg-white gap-2  rounded-md border">
+                                    <div className="flex items-center flex-cols bg-white  rounded-xl overflow-clip border">
                                         <span className="text-xs text-slate-400 px-1">{t('status')}</span>
-                                        <span className={`p-1 rounded-md text-xs ${getColorClasses(project.status)}`}>{t(project.status)}</span> 
+                                        <span className={`p-1 tracking-wider font-semibold text-xs ${getColorClasses(project.status)}`}>{t(project.status)}</span> 
                                     </div>
-                                    <div className="flex items-center flex-cols bg-white gap-2 rounded-md border">
+                                    <div className="flex items-center flex-cols bg-white rounded-xl overflow-clip border">
                                         <span className="text-xs text-slate-400 px-1">{t('priority')}</span>
-                                        <span className={`p-1 rounded-md text-xs ${getColorClasses(project.priority)}`}>{t(project.priority)}</span>
+                                        <span className={`p-1 font-semibold  tracking-wider text-xs ${getColorClasses(project.priority)}`}>{t(project.priority)}</span>
                                     </div>
 
                                 </div>

@@ -28,3 +28,4 @@ export { default as PageNavigate } from './PageNavigate';
 export { default as DaysLeft } from './DaysLeft'; 
 export { default as CustomIconButton } from './CustomIconButton'; 
 export { default as CustomSmallButton } from './CustomSmallButton'; 
+export { default as PersonName } from './PersonName'; 

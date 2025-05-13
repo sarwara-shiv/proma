@@ -1,6 +1,6 @@
 import React, { act, useEffect, useState } from 'react';
 import { AlertPopupType, FlashPopupType, Kickoff, KickoffApproval, KickoffResponsibility, MainTask, Milestone, NavItem, Project, User, UserGroup } from '@/interfaces';
-import { CustomAlert, CustomIconButton, CustomSmallButton, FlashPopup, Headings, PageTitel } from '../../../../components/common';
+import { CustomAlert, CustomIconButton, CustomSmallButton, FlashPopup, Headings, ImageIcon, PageTitel, PersonName } from '../../../../components/common';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { CustomDropdown } from '../../../../components/forms';
@@ -631,18 +631,16 @@ const KickoffDetail: React.FC<ArgsType> = ({ cid, data, setSubNavItems }) => {
                                         p-4 my-3  card rounded-md mb-0
                                     '>
                                         <div>
-                                            <span 
-                                            className='font-bold pr-1'
-                                            > {role.displayName}</span>
-                                        
-                                            {persons && persons.map((per,perIndex)=>{
-                                                const seperator = perIndex !== 0 && ', ';
-                                                return (
-                                                    <span key={`pers-${index}-${perIndex}`}
-                                                    className='text-primary'
-                                                    >{seperator} {per.name}</span>
-                                                )
-                                            })}
+                                            <Headings text={role.displayName} type='h4' />
+                                            <div className='flex gap-4 my-2'>
+
+                                                {persons && persons.map((per,perIndex)=>{
+                                                    const seperator = perIndex !== 0 && ', ';
+                                                    return (
+                                                        <PersonName user={per} key={`pers-${index}-${perIndex}`}/>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                         <div className='grid grid-cols-1'>
                                            {work &&  <span className='text-sm'> {work}</span>}

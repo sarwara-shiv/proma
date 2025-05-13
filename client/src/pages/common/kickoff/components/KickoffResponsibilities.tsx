@@ -7,6 +7,7 @@ import { IoIosRemove, IoMdAdd } from "react-icons/io";
 import { ObjectId } from 'mongodb';
 import MentionUserInput from '../../../../components/forms/MensionUserInput';
 import { CustomInput } from '../../../../components/forms';
+import { PersonName } from '../../../../components/common';
 
 interface ArgsType{
   selectedValues:KickoffResponsibility[];
@@ -214,8 +215,9 @@ const KickoffResponsibilities:React.FC<ArgsType> = ({selectedValues=[], onChange
                                         const pId = typeof pers === 'string' || pers instanceof String ? pers as unknown as string : pers as unknown as User;
                                         const user = typeof pId === 'string' || pId instanceof String ? usersData.find((ud) => ud._id as unknown as string === pId) : pId;
                                         return (
-                                            <div key={`pk-${pk}-${persk}`} className='bg-white p-1 flex flex-row items-center rounded-sm'>
-                                                <span>{user && user.name}</span>
+                                            <div key={`pk-${pk}-${persk}`} className='bg-white p-1 flex flex-row items-center rounded-3xl'>
+                                                <span>{user && <PersonName user={user} />}</span>
+                                                
                                                 <div onClick={()=>removeUser({role:_id, user:pers})}  className={`
                                                     flex items-center flex-row justify-center text-lg ml-2  rounded-full
                                                     bg-red-100 text-red-600
