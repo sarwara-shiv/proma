@@ -14,6 +14,19 @@ export const getRole = (roles:UserRole[], role:IDefaultRoles | null = null)=>{
 }
 
 
+export const trimHtmlContent = (htmlContent:string) => {
+  // Create a temporary div to parse the HTML string
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+
+  // Get the text content and trim it
+  const trimmedText = tempDiv.textContent?.trim() || '';
+
+  // Update the HTML content with trimmed text, keeping the structure
+  return trimmedText;
+};
+
+
 export const sanitizeString = (input: string): string => {
     // Step 1: Replace specific special characters
     const specialCharMap: { [key: string]: string } = {

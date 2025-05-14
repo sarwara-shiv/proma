@@ -100,7 +100,43 @@ function notifyUsers({ message, changes, receivers = [], type, id = null }) {
   
     return messages;
   };
+
+ /**
+  * 
+  * @param data: data to be sent
+  * @param receivers : id array of users
+  * @param type:  , emit name 
+  * type: 
+  * worklog-stopped
+  * worklog-started
+  * 
+  */
+  const notifyActivity = (type, data, receivers = [])=>{
+    if(data && type){
+      const payload = {
+        type,
+        data,
+        timestamp: new Date().toISOString(),
+      };
+      console.log(payload);
+      if (receivers.length > 0) {
+        receivers.forEach((userId) => {
+          const socketId = onlineUsers.get(userId.toString());
+          if (socketId) {
+            io.to(socketId).emit(type, payload);
+            console.log(`✅ Notified user ${userId} via socket ${socketId}`);
+          } else {
+            console.log(`⚠️ User ${userId} is offline or socket not found`);
+          }
+        });
+      } else {
+        // Fallback: emit to everyone if no specific receiver is given
+        io.emit(type, payload);
+        console.log(`🔄 Broadcasted to all users ${type}`);
+      }
+    }
+  }
   
   
 
-export {getLink, notifyUsers}
+export {getLink, notifyUsers, notifyActivity}

@@ -2,11 +2,11 @@ import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
 import { WorkLog, DailyReport,Task, Project } from '../../models/models.js'; 
 import { generateUniqueId } from '../../utils/idGenerator.js';
-import { sortReportByProjects, sortReportByUsers, sortReportByTasks } from '../../utils/utilFunctions.js';
-import { parseDateRange } from '../../utils/DateUtil.js';
+import { sortReportByProjects, sortReportByUsers } from '../../utils/utilFunctions.js';
 import moment from 'moment';
 import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
+import { notifyActivity } from '../../utils/socketUtil.js';
 
 
 const router = express.Router();
@@ -15,7 +15,7 @@ const router = express.Router();
 /**
  * 
  * TODO
- * - when stopped and started again same day
+ * - when stopped and started again same day 
  * - create new paused
  *    - old stopped date is paused startTime
  *   - new stopped date as paused endTime
@@ -66,6 +66,8 @@ router.post("/start", verifyToken, async (req, res) => {
             } else {
                 await activeWorkLog.deleteOne();  // Delete if duration is 0
             }
+
+            notifyActivity('worklog-stopped', activeWorkLog );
         }
 
         // Create new work log if needed
@@ -102,6 +104,7 @@ router.post("/start", verifyToken, async (req, res) => {
 
             const newWorkLog = new WorkLog(newWorkLogData);
             await newWorkLog.save();
+            notifyActivity('worklog-started', newWorkLog );
             resData = newWorkLog;
         }
 

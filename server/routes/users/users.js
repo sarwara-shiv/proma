@@ -5,6 +5,7 @@ import { verifyToken } from '../../middleware/auth.js';
 import UserModel from '../../models/userModel.js'; 
 import { UserRolesModel } from '../../models/userRolesModel.js';
 import { onlineUsers } from '../../socket.js';
+import { notifyActivity } from '../../utils/socketUtil.js';
 
 const router = express.Router();
 
@@ -166,6 +167,8 @@ router.post("/login", async (req, res) => {
             }
         }
 
+        notifyActivity('user-loggedin', user._id);
+
         return res.json({
             status: "success",
             message: "Login successful",
@@ -238,6 +241,8 @@ router.post("/logout", async(req, res) => {
       io.emit("user-disconnected", userId.toString());  // Emit event to mark user as disconnected
       console.log(`User with ID ${userId} disconnected`);
     }
+
+    notifyActivity('user-loggedout', userId);
     // res.clearCookie('access_token');  // Clear the cookie containing the JWT token -- old
     // res.clearCookie('token');  // Clear the cookie containing the JWT token -- old
     res.clearCookie("token", {

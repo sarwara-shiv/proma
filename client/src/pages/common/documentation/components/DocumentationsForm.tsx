@@ -527,7 +527,7 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                         onChange={(isChecked, value)=>handlePrivacy(isChecked, value)}  initialState={formData.privacy === 'public' ? true : false}/> 
                     </div>
                     <div className='flex flex-col gap-4'>
-                        <div className='card bg-white max-w-4xl'> 
+                        <div className='card bg-white max-w-4xl p-6'> 
                             <div>
                                 <CustomInput type='text' name='name' label={t('name')} value={formData.name}
                                     onChange={(e)=>handleInputChange('name', e.target.value)}
@@ -537,8 +537,9 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                         </div>
                         {formData.customFields && formData.customFields.length > 0 &&  formData.customFields.map((cf, index)=>{
                             return (
-                                <div className='relative card bg-white max-w-4xl' key={`cf-${index}`}>
-                                    <CustomSmallButton size='sm' position='absolute' type='remove' onClick={()=>addRemoveCustomField(index)}/>
+                                <div className='relative card bg-white max-w-4xl p-6' key={`cf-${index}`}>
+                                    <div className='absolute top-1 right-1 text-xl cursor-pointer hover:bg-slate-100 p-1 rounded-full' 
+                                    onClick={()=>addRemoveCustomField(index)}><MdClose /></div>
 
                                     <CustomInput type='text' name='name' label={t('name')} value={cf.name}
                                         onChange={(e)=>updateCustomField(index, 'name', e.target.value)}
@@ -553,11 +554,8 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
                     </div>  
                     
                 </div>
-            <div className="mt-6 text-right fixed bottom-12 flex right-6 flex flex-cols gap-4">
-                <CustomSmallButton  type='add' size="sm" position='absolute' text={t('addCustomField')} onClick={()=>addRemoveCustomField(-1)} />
-                <FormButton  btnText={formAction === 'update' ? t('update') : t('create')}  onClick={()=>saveData()}/>
             </div>
-            </div>
+           
         </div>
 
         <CustomAlert
@@ -570,7 +568,12 @@ const DocumentationsForm:React.FC<ArgsType> = ({setSubNavItems}) => {
 
         <FlashPopup isOpen={flashPopupData.isOpen} message={flashPopupData.message} onClose={()=>setFlashPopupData({...flashPopupData, isOpen:false})} type={flashPopupData.type || 'info'}/>
 
-
+        <div className="sticky right-2 bottom-4 mt-6 text-right flex justify-end gap-4 w-auto">
+            <CustomSmallButton  type='add' size="sm" position='relative' text={t('addCustomField')} onClick={()=>addRemoveCustomField(-1)} />
+                <div>
+                    <FormButton  btnText={formAction === 'update' ? t('update') : t('create')}  onClick={()=>saveData()}/>
+                </div>
+        </div>
     </div>
   )
 }

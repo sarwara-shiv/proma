@@ -13,7 +13,7 @@ console.log(JWT_TOKEN);
 // }
 const headers = {
   'Content-Type': 'application/json',
-}
+} 
 const headerImages = {
   'Content-Type': 'multipart/form-data',
 }

@@ -114,14 +114,14 @@ const WorkLog = () => {
   const [adminReport, setAdminReport] = useState<AdminUserReportType[]>([]);
   const [activeWorklog, setActiveWorklog] = useState<AdminActiveWorklogType[]>([]);
   const [worklogType, setWorklogType] = useState<string>('daily');
-  const [worklogFilters, setWorklogFileters] = useState<WorklogFilter>({reportType:'daily'});
+  const [worklogFilters, setWorklogFilters] = useState<WorklogFilter>({reportType:'daily'});
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "Notes" });
   const [dataType, setDataType] = useState<'start'|'stop'|'update'|'report' | 'report2' | 'user-report' | 'admin-report' | 'reportByType'>('report2');
   const {pathname} = location;
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
 
   useEffect(()=>{
-    setWorklogFileters((prev:WorklogFilter)=>{
+    setWorklogFilters((prev:WorklogFilter)=>{
       const userId = user?._id as unknown as ObjectId;
       // const userId = null;
       // const projectId = '6712b34aec33d905712ccf72';
@@ -251,7 +251,7 @@ const WorkLog = () => {
   return (
     <div className='page-wrap relative'>
       <div className='content mb-7'>
-        <div className='content-wrap p-4 '>
+        <div className='content-wrap p-4 '>1
           {(dataType === "report" || dataType === "report2") && <div className='card bg-white'>
             <table className='table-auto border-collapse w-full table-fixed custom-table'>
             <thead className='sticky top-0 z-10 items-left'>

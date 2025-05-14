@@ -360,5 +360,9 @@
     "outOfSprintRange":"OOSR",
     "outOfSprintRange_info":"<b>OOSR</b> <i>Out of sprint range </i><br>Start & Due Date of Tasks does not match Start and Due Date of Sprint",
     "end_time":"Ended At",
-    "srnr":"Nr."
+    "srnr":"Nr.",
+    "activeWorklogs":"Active Worklogs",
+    "activeWorklogs_empty":"No Active Worklogs",
+    "todaysWorklogs_empty":"No Worklog Yet",
+    "todaysWorklogs":"Todays Worklogs"
 }

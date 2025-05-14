@@ -6,6 +6,7 @@ import { Headings, ImageIcon } from "../../../components/common";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { MdRefresh } from "react-icons/md";
+import { useSocket } from "../../../context/SocketContext";
 
 interface ArgsType{
     online?:boolean;
@@ -14,17 +15,39 @@ interface ArgsType{
 }
 const OnlineUsers:React.FC<ArgsType> = ({online=false, client=false, orderby="isOnline"})=>{
     const [usersData, setUsersData] = useState<User[]>([]);
+    const [newLogin, setNewLogin] = useState<number>(0);
     const {t} = useTranslation();
+    const socket = useSocket();
+
+    useEffect(() => {
+      if(socket){
+          socket.on('user-loggedin', (payload:any) => {
+              setNewLogin((prev)=>prev+1);
+          });
+          socket.on('user-loggedout', (payload:any) => {
+              console.log('🔔 stopped:', payload);
+              setNewLogin((prev)=>prev-1);
+          });
+      }
+      return () => {
+          if (socket) {
+            socket.off('user-loggedin'); 
+            socket.off('user-loggedout');  
+          }
+        };
+    }, []);
 
     useEffect(()=>{
         getUsersData();
-    },[])
+    },[newLogin])
 
     const getUsersData = async()=>{
         try{
             const res = await getUsers({orderby, online, client});
             if(res.data ){
                 setUsersData(res.data);
+                const lUsers = res.data.filter((user:User)=>user.isOnline);
+                setNewLogin((prev)=>lUsers.length)
             }
         }catch(err){
             console.error(err);
