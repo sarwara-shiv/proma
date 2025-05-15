@@ -42,7 +42,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<DecodedToken | null>(null);
     const [role, setRole] = useState<string | null>(null);
-    const [slug, setSlug] = useState<string>('users');
+    const [slug, setSlug] = useState<string>('user');
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [roles, setRoles] = useState<UserRole[]>([]);
     const [loading, setLoading] = useState<boolean>(true);

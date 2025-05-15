@@ -132,9 +132,13 @@ const ProjectWorklogs= ()=>{
               }
               </div>
             :
-            <NoData>
-                🙁 <span className="italic text-danger-dark text">{t("todaysWorklogs_empty")}</span>
-            </NoData>
+            <div className='card bg-white p-6'>
+              <NoData>
+                <div className="flex gap-2">
+                  🙁 <span className="italic">{t("todaysWorklogs_empty")}</span>
+                  </div>
+              </NoData>
+            </div>
             }
         </div>
     )

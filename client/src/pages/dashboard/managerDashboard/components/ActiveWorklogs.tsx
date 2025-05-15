@@ -114,9 +114,13 @@ const ActiveWorklogs = ()=>{
               }
               </div>
                 :
+                <div className='card bg-white  p-6'>
                 <NoData>
+                  <div className="flex gap-2">
                     🙁 <span className="italic">{t("activeWorklogs_empty")}</span>
+                  </div>
                 </NoData>
+                </div>
             }
         </div>
     )
