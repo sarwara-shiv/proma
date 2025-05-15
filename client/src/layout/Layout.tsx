@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAppContext } from '../../context/AppContext';
+import { useAppContext } from '../context/AppContext';
 import HeaderLayout from './components/HeaderLayoout';
 import SidebarLayout from './components/SidebarLayout';
 

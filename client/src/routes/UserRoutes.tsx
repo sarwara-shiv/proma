@@ -11,7 +11,7 @@ import Tasks from "../pages/common/tasks/components/Tasks";
 import MyTasks from "../pages/common/myTasks/MyTasks";
 import MainTasks from "../pages/common/tasks/MainTasks";
 import WorkLog from "../pages/common/myTasks/components/WorkLog";
-import Layout from "../components/layout/Layout";
+import Layout from "../layout/Layout";
 import { useAuthContext } from "../context/AuthContext";
 import Dashboard from "../pages/dashboard/Dashboard";
 

@@ -143,7 +143,7 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
 
     // NAVIGATION
     const navigateTo = (_id:string | object, type:'projects'= 'projects') =>{
-        let link = isAdmin ? '/admin' : '/users';
+        let link = '';
         if(_id && type){
 
             if(type === 'projects'){

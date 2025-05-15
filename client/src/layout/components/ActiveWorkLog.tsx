@@ -1,14 +1,14 @@
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { useAppContext } from '../../../context/AppContext';
-import {useAuthContext } from '../../../context/AuthContext';
-import { AlertPopupType, CustomPopupType, MainTask, Project, Task, User } from '../../../interfaces';
+import { useAppContext } from '../../context/AppContext';
+import {useAuthContext } from '../../context/AuthContext';
+import { AlertPopupType, CustomPopupType, MainTask, Project, Task, User } from '../../interfaces';
 import { useState } from 'react';
-import { CustomAlert, CustomPopup } from '../../../components/common';
+import { CustomAlert, CustomPopup } from '../../components/common';
 import { format } from 'date-fns';
-import { workLogActions } from '../../../hooks/dbHooks';
-import { RichTextArea } from '../../../components/forms';
+import { workLogActions } from '../../hooks/dbHooks';
+import { RichTextArea } from '../../components/forms';
 import { IoTimerOutline } from 'react-icons/io5';
 
 const ActiveWorkLog = () => {

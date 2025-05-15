@@ -1,12 +1,12 @@
-import PagesConfig, { PageConfig, UserPagesConfig } from "../../../config/pagesConfig";
-import { useAppContext } from "../../../context/AppContext";
+import PagesConfig, { PageConfig, UserPagesConfig } from "../../config/pagesConfig";
+import { useAppContext } from "../../context/AppContext";
 import React, { useEffect, useState } from "react";
-import LogoutButton from "../../../components/auth/LogoutButton";
+import LogoutButton from "../../components/auth/LogoutButton";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {useAuthContext } from "../../../context/AuthContext";
-import { useSocket } from "../../../context/SocketContext";
-import { ReactComponent as LogoIcon } from '../../../assets/images/svg/logo-icon.svg';
+import {useAuthContext } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
+import { ReactComponent as LogoIcon } from '../../assets/images/svg/logo-icon.svg';
 import {MdLogout } from "react-icons/md";
 import { IoChatbubbles } from "react-icons/io5";
 import { FiMinus, FiPlus } from "react-icons/fi";
@@ -16,7 +16,7 @@ const SidebarLayout: React.FC = () => {
     const {permissions, isAdmin, slug} = useAuthContext();
     const [navPages, setNavPages] = useState<Record<string, PageConfig>>({});
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-    const [newTasks, setNewTasks] = useState<number>(0);
+    const [newTasks, setNewTasks] = useState<number>(0); 
     const {t} = useTranslation();
     const socket = useSocket();
 
@@ -118,7 +118,7 @@ const SidebarLayout: React.FC = () => {
                     <li key={index} className="relative">
                         <div className="flex items-center justify-between p-1">
                         <NavLink
-                            to={`/${slug}/${page.root}`}
+                            to={`/${page.root}`}
                             className={({ isActive }) => {
                             return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
                             }}
@@ -168,7 +168,7 @@ const SidebarLayout: React.FC = () => {
                                     return (
                                         <div key={idx}>
                                            <NavLink
-                                                to={`/${slug}/${page.root}/${data.root}`}
+                                                to={`/${page.root}/${data.root}`}
                                                 className={({ isActive }) => {
                                                 return `flex-1 rounded-sm p-1 text-xs flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
                                                 }}

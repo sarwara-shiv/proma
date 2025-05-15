@@ -1,6 +1,4 @@
-import React from 'react';
 import { Routes, Route } from "react-router-dom";
-import AdminLayout from '../components/layout/AdminLayout';
 import Users from '../pages/admin/users/Users';
 import UserRoles from '../pages/admin/roles/UserRoles';
 import Projects from '../pages/common/projects/Workspace';
@@ -14,7 +12,7 @@ import MainTasks from '../pages/common/tasks/MainTasks';
 import Documentation from '../pages/common/documentation/Documentation';
 import WorkLog from '../pages/common/myTasks/components/WorkLog';
 import Dashboard from '../pages/dashboard/Dashboard';
-import Layout from '../components/layout/Layout';
+import Layout from '../layout/Layout';
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,

@@ -183,7 +183,7 @@ const Messenger = () => {
               <div className="flex flex-col w-[35px] border-r py-4 gap-4 bg-slate-100">
                   <div className="flex items-center justify-center p-1">
                     <NavLink
-                      to={`/${slug}/dashboard`}
+                      to={`/dashboard`}
                       className={({ isActive }) => {
                         return `flex-1 rounded-sm text-lg flex transition-all ease items-center justify-center ${isActive ? "text-primary font-bold" : "text-gray-500 font-light hover:text-gray-800 hover:font-bold"}`;
                         }}

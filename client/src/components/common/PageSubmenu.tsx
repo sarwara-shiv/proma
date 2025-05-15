@@ -83,7 +83,7 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
                 {navItems.map((item, index) => (
                   <NavLink
                     key={index}
-                    to={`/${slug}/${item.link}`}
+                    to={`/${item.link}`}
                     className={({ isActive }) =>
                       `flex items-center me-2 gap-1 p-2 rounded-t-md mb-0 hover:bg-primary-light border-b-2 border-transparent ${isActive 
                         ? "text-primary  border-primary hover:bg-transparent" 
