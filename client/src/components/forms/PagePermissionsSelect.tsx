@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 // Define the prop type for the parent component's callback function
 interface PagePermissionsFormProps {
-  onPermissionsChange: (selectedPermissions: PermissionsMap) => void;
+  onPermissionsChange: (selectedPermissions: PermissionsMap) => void; 
   initialPermissions?: PermissionsMap; // Optional prop for initial permissions
 }
 

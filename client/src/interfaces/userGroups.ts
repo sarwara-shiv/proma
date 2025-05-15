@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { PagePermission } from './types';
 
 // Define the TypeScript interface for the UserGroup
 export interface UserGroup extends Document {
@@ -7,7 +8,8 @@ export interface UserGroup extends Document {
   name: string;         
   displayName: string;   
   description?: string;  
-  isEditable?: boolean;   
+  isEditable?: boolean;
+  permissions?:PagePermission[];   
   type?: 'default' | 'created'; 
   createdAt?: Date;       
   updatedAt?: Date;    

@@ -59,7 +59,7 @@ const Pages = {
     },
     TASKS: {
       name: 'tasks',
-      displayName: 'Tasks',
+      displayName: 'Tasks', 
       model:"Tasks",
       access:['admin', 'manager', 'FrontendDev', 'fullstackDev', 'uiux', 'ecommerceMgr'],
       actions: ['canView', 'canCreate', 'canUpdate', 'canDelete']
