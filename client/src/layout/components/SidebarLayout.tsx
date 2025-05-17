@@ -44,7 +44,7 @@ const SidebarLayout: React.FC = () => {
     useEffect(() => {
         // Function to check screen width and adjust sidebar state
         const handleResize = () => {
-            if (window.innerWidth >= 640) {  
+            if (window.innerWidth >= 768) {  
                 // Automatically close sidebar for larger screens
                 setIsSidebarOpen(true);
             } else {
