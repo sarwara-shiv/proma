@@ -63,6 +63,7 @@ const LoginForm: React.FC = () => {
     event.preventDefault();
     try {
       const userData = await login(data.email, data.password);
+      console.log(userData);
       setUser(userData.data); // Update global user state
       setRole(userData.data.role);
       setRoles(userData.data.roles);
@@ -100,14 +101,14 @@ const LoginForm: React.FC = () => {
       if(socket){
         socket.emit('user-connected', userData.data._id);
       }
-      console.log(userData.data);
-      if (userData.data.role === 'admin') {
-        console.log('admin');
-        setIsAdmin(true);
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/user/dashboard');
-      }
+      navigate('/dashboard');
+      // if (userData.data.role === 'admin') {
+      //   console.log('admin');
+      //   setIsAdmin(true);
+      //   navigate('/admin/dashboard');
+      // } else {
+      //   navigate('/user/dashboard');
+      // }
     } catch (error) {
       console.error("Login failed:", error);
     }

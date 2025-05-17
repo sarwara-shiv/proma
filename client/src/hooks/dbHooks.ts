@@ -33,7 +33,7 @@ interface GetRecordsArgs {
 //     "collection": "projects", // collection name
 //     "field": "mainTasks", // field to be updated
 //     "type": "array",  // Add to the array
-//     "ids": ["projectId1", "projectId2"]
+//     "ids": ["projectId1", "projectId2"] 
 //   },
 
 const getRecords = async (args: GetRecordsArgs) => {

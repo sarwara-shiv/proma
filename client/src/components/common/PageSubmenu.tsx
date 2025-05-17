@@ -53,11 +53,11 @@ const PageSubmenu: React.FC<PageSubmenuProps> = ({ basePath, navItems, title, ac
 }, [setNavOpen]); 
 
   return (
-    <header className='border-b z-20 border-none border-slate-200 pt-1 sticky top-0 mx-auto left-0  bg-gray-50 right-0 w-full'>
-        <div className=' flex justify-between flex-row w-full  border-b '>
-          <div className='px-2  left-0'>
+    <header className='z-20 border-none border-slate-200 pt-6 sticky top-0 mx-auto left-0 bg-gray-100 right-0 w-full'>
+        <div className=' flex justify-between flex-row w-full  border-b- '>
+          {/* <div className='px-2  left-0'>
             <PageTitel text={title} action={action} /> 
-          </div>
+          </div> */}
           <div className='flex-1 border-slate-200 w-full flex justify-end '>
             <div className='mr-1 lg:hidden cursor-pointer flex gap-1 bg-gray-100 p-1 items-center rounded-md hover:bg-primary-light' onClick={()=>setNavOpen(!navOpen)}>
               {t('menu')} {navOpen ? <MdClose /> : <MdMenu /> }

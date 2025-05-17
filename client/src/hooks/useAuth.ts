@@ -5,7 +5,6 @@ import { DecodedToken } from '../interfaces';
 // Define the interface for your JWT payload
 function useGetUserFromToken() {
   const [cookies] = useCookies(['access_token']);
-  console.log(cookies);
   const token = cookies.access_token;
 
   if (token) {
@@ -21,6 +20,7 @@ function useGetUserFromToken() {
 
 function useAuth() {
   const user = useGetUserFromToken();
+  console.log(user);
   if (user) {
     return {
       isAuthenticated: true,

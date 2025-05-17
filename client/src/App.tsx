@@ -26,13 +26,13 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           {(isAdmin || isManager) && (
-              <Route path="/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/unauthorized" />} />
+              <Route path="/*" element={isAuthenticated ? <AdminRoutes /> : <Navigate to="/login" />} />
           )}
-          {!isAdmin && !isManager && (
-              <Route path="/*" element={isAuthenticated ? <UserRoutes /> : <Navigate to="/unauthorized" />} />
+          {!isAdmin && !isManager &&  (
+              <Route path="/*" element={isAuthenticated ? <UserRoutes /> : <Navigate to="/login" />} />
           )}
-          <Route path="/unauthorized" element={<Unauthorised />} />
           <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/unauthorized" element={<Unauthorised />} />
           {/* <Route path="*" element={<Navigate to={isAuthenticated ? isAdmin ? "/admin" : "/user" : "/login"} />} /> */}
       </Routes>
   </Router>

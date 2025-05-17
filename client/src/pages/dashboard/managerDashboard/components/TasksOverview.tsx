@@ -259,10 +259,10 @@ const TasksOverview = ()=>{
                 </HorizontalScroll>
             </div>
             <div className="flex flex-col md:flex-row flex-wrap gap-4">
-                <div className="flex-1 max-w-sm min-w-3xs">
+                <div className="flex-1 max-w-sm min-w-3xs card">
                     <TasksStatusPieChart data={{toDo:tTasksTodo, onHold:tTasksHold, completed:tTasksCompleted, blocked:tTasksBlocked, pendingReview:tTasksReview, overdue:tTasksDue, active:tTasksActive}}/> 
                 </div>
-                <div className="flex-1 max-w-sm min-w-3xs">
+                <div className="flex-1 max-w-sm min-w-3xs card">
                     <TasksStatusBarChart data={{toDo:tTasksTodo, onHold:tTasksHold, completed:tTasksCompleted, blocked:tTasksBlocked, pendingReview:tTasksReview, overdue:tTasksDue, active:tTasksActive}}/> 
                 </div>
             </div>

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getRecords } from '../../hooks/dbHooks';
 import { UserGroup } from '../../interfaces';
 import React, { useEffect, useState } from 'react'
+import { Headings } from '../common';
 
 interface ArgsType{
     type?: 'single' | 'multiple';
@@ -68,9 +69,11 @@ const UserGroupsSelect:React.FC<ArgsType> = ({type="single", selectedValues=[], 
         }
     }
   return (
-    <div className='flex flex-col mt-4'>
-        <label>{t('groups')}</label>
-        <div className={`fields-roles-${type}-wrapper ${(type === 'single' || type === 'multiple') && 'items-center space-x-2'}`}>
+    <div className='flex flex-col mt-4 border p-2 rounded-md'>
+        <div className='mb-2'>
+            <Headings text={t('userGroups')} type="h6" />
+        </div>
+        <div className={`fields-roles-${type}-wrapper ${(type === 'single' || type === 'multiple') && 'flex gap-2 flex-wrap'}`}>
             {groupsData && <>
                 {type === 'single' && 
                     <>
@@ -78,7 +81,7 @@ const UserGroupsSelect:React.FC<ArgsType> = ({type="single", selectedValues=[], 
                         const value = item._id as unknown as string;
                         const checked = singleValueSelect && singleValueSelect === item._id as unknown as string;
                         return (
-                            <div key={`role-${index}-${idNr}`} className="inline-flex items-center mb-2">
+                            <div key={`role-${index}-${idNr}`} className="items-center">
                                 <input 
                                     type='radio'
                                     name={name || 'groups'}
@@ -98,7 +101,6 @@ const UserGroupsSelect:React.FC<ArgsType> = ({type="single", selectedValues=[], 
                                         border
                                         text-gray-400
                                         border-gray-200/50
-                                        bg-gray-200/50
                                         focus:outline-none
                                         active:outline-none
                                         peer-checked:bg-primary-light
@@ -126,7 +128,7 @@ const UserGroupsSelect:React.FC<ArgsType> = ({type="single", selectedValues=[], 
                         })
                         const checked = sVal ? true : false;
                         return (
-                            <div key={`role-${index}-${idNr}`} className="inline-flex items-center mb-2">
+                            <div key={`role-${index}-${idNr}`} className="inline-flex items-center">
                                 <input 
                                     type='checkbox'
                                     name={name || 'groups'}
@@ -145,8 +147,7 @@ const UserGroupsSelect:React.FC<ArgsType> = ({type="single", selectedValues=[], 
                                         text-sm
                                         border
                                         text-gray-400
-                                        border-gray-200/50
-                                        bg-gray-200/50
+                                        border-gray-200
                                         focus:outline-none
                                         active:outline-none
                                         peer-checked:bg-primary-light

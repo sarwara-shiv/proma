@@ -38,7 +38,7 @@ const getModel = (resource) => {
         return UserGroupModel; 
       case 'documentation':
         return Documentation;
-      case 'qataks':
+      case 'qataks': 
         return QaTask;
       case 'maintasks':
         return MainTask;

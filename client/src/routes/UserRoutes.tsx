@@ -14,6 +14,7 @@ import WorkLog from "../pages/common/myTasks/components/WorkLog";
 import Layout from "../layout/Layout";
 import { useAuthContext } from "../context/AuthContext";
 import Dashboard from "../pages/dashboard/Dashboard";
+import Positions from "../pages/admin/positions/positions";
 
 const routeComponents: Record<string, ReactElement> = {
   Users: <Users />,
@@ -23,6 +24,7 @@ const routeComponents: Record<string, ReactElement> = {
   Kickoff: <Kickoff />,
   Tasks: <Tasks />,
   MyTasks: <MyTasks />,
+  Positions: <Positions />,
   MainTasks: <MainTasks />,
   UserGroups: <UserGroups />,
   WorkLog: <WorkLog />,

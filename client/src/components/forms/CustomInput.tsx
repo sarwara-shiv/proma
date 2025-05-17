@@ -15,6 +15,7 @@ interface argsType {
     required?: boolean;
     pattern?: string;
     disable?:boolean;
+    autocomplete?:boolean;
     fieldType?: "password" | "email" | "mobile" | "slug" | "name" | "fullname" | "username" | "url" | "keyword" | "numbers";
     onChange?: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onClick?: () => void;
@@ -36,6 +37,7 @@ const CustomInput: React.FC<argsType> = (args) => {
         maxChar,
         info, 
         disable=false,
+        autocomplete=false,
         onChange, 
         onClick 
     } = args;
@@ -155,6 +157,7 @@ const CustomInput: React.FC<argsType> = (args) => {
                     placeholder={placeholder}
                     onChange={onChange}
                     onClick={onClick}
+                    autoComplete={autocomplete ? 'on' : 'off'}
                     required={required}
                     onBlur={handleBlur}
                     {...fieldPattern !== '.' ? {pattern:fieldPattern} : {}}
@@ -177,6 +180,7 @@ const CustomInput: React.FC<argsType> = (args) => {
                         onChange={onChange}
                         onClick={onClick}
                         onBlur={handleBlur}
+                        autoComplete={autocomplete ? 'on' : 'off'}
                         minLength={minChar}
                         maxLength={maxChar}
                         

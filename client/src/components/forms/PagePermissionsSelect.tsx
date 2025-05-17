@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PagesConfig, { PageConfig, PageAction } from '../../config/pagesConfig';
+import PagesConfig, { PageConfig, PageAction, NeedPermission } from '../../config/pagesConfig';
 import { PagePermission, PermissionsMap } from '../../interfaces';
 import { useTranslation } from 'react-i18next';
 
@@ -47,18 +47,18 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
   return (
     <div>
       <h3 className='text-md font-semibold pt-2 pb-2'>{t('FORMS.pagePermissions')}</h3> 
-      {Object.keys(PagesConfig).map((pageKey, index) => {
-        const pageConfig: PageConfig = PagesConfig[pageKey];
+      {Object.keys(NeedPermission).map((pageKey, index) => {
+        const pageConfig: PageConfig = NeedPermission[pageKey];
 
         return (
           <div key={`wrap-${index}`} className='inline-flex'>
-            {pageConfig.access?.includes('all') && 
+            
               <div key={`${pageConfig.name}-${index}`} className='inline-flex items-center my-1 flex-col justify-start gap-2'>
                 <div className='p-1'>
                   <div style={{ border: '1px solid #ccc', padding: '10px' }}>
                   <h4 className='text-dark me-2 pb-1 border-b border-gray-200 mb- text-sm mb-2'>
                     {/* {pageConfig.icon && <pageConfig.icon />}  */}
-                    <span className='text-slate-300'>{t('page')}</span> : {pageConfig.displayName}
+                    <span className='text-slate-300'>{t('page')}</span> : <>{t(`${pageConfig.name}`)}</>
                   </h4>
                   <div className='text-sm text-slate-400 '>
                     {pageConfig.actions.map((action: PageAction, pindex) => (
@@ -78,7 +78,8 @@ const PagePermissionsSelect: React.FC<PagePermissionsFormProps> = ({ onPermissio
                   </div>
                 </div>
               </div>
-            }
+            
+           
           </div>        
           );
       })}

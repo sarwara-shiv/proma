@@ -1,6 +1,13 @@
 import { ReactNode } from "react";
 import { ObjectId } from 'mongodb';
 import Kickoff from "@/pages/common/kickoff/Kickoff";
+import { IconType } from "react-icons";
+
+export interface IPages {
+  name: string;
+  root: string;
+  icon?: IconType;
+}
 
 export interface RelatedUpdates{
   collection:string;

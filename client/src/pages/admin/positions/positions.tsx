@@ -4,8 +4,6 @@ import { FaUserTie } from 'react-icons/fa';
 import { MdAdd } from "react-icons/md";
 import { useTranslation } from 'react-i18next';
 import PageSubmenu from '../../../components/common/PageSubmenu';
-import UsersForm from './components/UsersForm';
-import AllUsers from './components/UsersList';
 import { useAppContext } from '../../../context/AppContext';
 
 interface NavItem {
@@ -16,10 +14,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { link: "users", title: "users_all", icon: <FaUserTie /> },
-  { link: "users/add", title: "users_add", icon: <MdAdd /> },
+  { link: "users/register", title: "users_add", icon: <MdAdd /> },
 ];
 
-const Users = () => {
+const Positions = () => {
   const {action, id} = useParams();
   const { t } = useTranslation();
   const location = useLocation();
@@ -29,7 +27,7 @@ const Users = () => {
   const basePath = location.pathname.split('/')[1] ? `/${pathname.split('/')[1]}` : '/';
   const {pageTitle, setPageTitle} = useAppContext();
   useEffect(()=>{
-    setPageTitle(t('users'))
+    setPageTitle(t('positions'))
   },[]);
 
   return (
@@ -37,16 +35,11 @@ const Users = () => {
       <PageSubmenu basePath={basePath} navItems={navItems} title={t(`${action ? action : "all"}`)}/>
       <div className='content mb-7'>
         <div className='content-wrap p-4 '>
-            {
-              action && 
-              action === "register" ? <UsersForm /> : 
-              action === "add" ? <UsersForm /> : 
-              action ==="update" ? <UsersForm  data={data} id={objectId as string}  action='update'/> : <AllUsers />  
-            }
+           
         </div>
       </div>
     </div>
   );
 }
 
-export default Users;
+export default Positions;

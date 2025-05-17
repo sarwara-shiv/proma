@@ -6,7 +6,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { IoCreateOutline, IoLockClosed } from "react-icons/io5";
 import ConfirmPopup from '../../../../components/common/CustomPopup';
 import { useTranslation } from 'react-i18next'; 
-import { getRecords, deleteRecordById, addUpdateRecords, getRecordsWithLimit, getRecordsWithFilters } from '../../../../hooks/dbHooks';
+import { deleteRecordById, addUpdateRecords, getRecordsWithLimit, getRecordsWithFilters } from '../../../../hooks/dbHooks';
 import DeleteById from '../../../../components/actions/DeleteById';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import { NavLink } from 'react-router-dom';
@@ -17,6 +17,8 @@ import FlashPopup from '../../../../components/common/FlashPopup';
 import { AlertPopupType, FlashPopupType, OrderByFilter, PaginationProps, QueryFilters } from '@/interfaces';
 import ChangePassword from './ChangePassword';
 import Pagination from '../../../../components/common/Pagination';
+import RolesTab from '../../roles/components/RolesTab';
+import { Headings } from '../../../../components/common';
 
 const pinnedColumns= ['id', 'username'];
 const fixedWidthColumns= ['id', 'status', 'createdAt', 'actions', 'role'];
@@ -237,7 +239,7 @@ const AllUsers = () => {
                 type: "auth", 
                 limit:paginationData.limit as unknown as number, 
                 pageNr:paginationData.currentPage as unknown as number, 
-                populateFields:['roles'],
+                populateFields:['roles', 'groups'],
                 filters,
                 orderBy
             });  
@@ -297,39 +299,47 @@ const AllUsers = () => {
 
 
     return (
-        <div className='card bg-white'>
-            {loader ? (
-                <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
-            ) : (
-                <div className='data-wrap'>
-                    {data.length > 0 ? (
-                        <div>
-                            <DataTable columns={columns} data={data}
-                                pinnedColumns={pinnedColumns}
-                                fixWidthColumns={fixedWidthColumns} 
-                            />
-                             <Pagination
-                                currentPage={paginationData.currentPage} 
-                                totalPages={paginationData.totalPages} 
-                                onPageChange={handlePageChange} 
-                                totalRecords={paginationData.totalRecords}
-                            /> 
-                                <ConfirmPopup
-                                    isOpen={popupContent.isOpen}
-                                    onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}
-                                    title={popupContent.title ? popupContent.title : ''}
-                                    data={popupData}
-                                    content={popupContent.content} 
-                                    yesFunction={(data)=>handleRowAction(data)} 
-                                    noFunction={()=>setIsPopupOpen(!isPopupOpen)}                                
-                                />
+        <div className=''>
+            <div className='mb-8'>
+                <RolesTab />
+            </div>
+            <div className='card bg-white'>
+                {loader ? (
+                    <Loader type="full" loaderType="bounce" /> // Use Loader component with type and loaderType
+                ) : (
+                    <div className='data-wrap'>
+                        <div className='p-2 mb-2 border-b'>
+                            <Headings text={t('users')} type='h3' />
                         </div>
-                        
-                    ) : (
-                        <p>{t('noData')}</p>
-                    )}
-                </div>
-            )}
+                        {data.length > 0 ? (
+                            <div>
+                                <DataTable columns={columns} data={data}
+                                    pinnedColumns={pinnedColumns}
+                                    fixWidthColumns={fixedWidthColumns} 
+                                />
+                                <Pagination
+                                    currentPage={paginationData.currentPage} 
+                                    totalPages={paginationData.totalPages} 
+                                    onPageChange={handlePageChange} 
+                                    totalRecords={paginationData.totalRecords}
+                                /> 
+                                    <ConfirmPopup
+                                        isOpen={popupContent.isOpen}
+                                        onClose={() => setPopupContent({...popupContent, isOpen:!popupContent.isOpen})}
+                                        title={popupContent.title ? popupContent.title : ''}
+                                        data={popupData}
+                                        content={popupContent.content} 
+                                        yesFunction={(data)=>handleRowAction(data)} 
+                                        noFunction={()=>setIsPopupOpen(!isPopupOpen)}                                
+                                    />
+                            </div>
+                            
+                        ) : (
+                            <p>{t('noData')}</p>
+                        )}
+                    </div>
+                )}
+            </div>
 
             <CustomAlert
                 onClose = {()=> setAlertData({...alertData, 'isOpen':!alertData.isOpen})}

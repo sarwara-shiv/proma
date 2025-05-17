@@ -6,9 +6,10 @@ import { getColorClasses } from "../../../../mapping/ColorClasses";
 
 interface ArgsType {
     project:Project;
-    showCount?:boolean
+    showCount?:boolean;
+    showTaskStatus?:boolean;
 }
-const ProjectProgress:React.FC<ArgsType> = ({project, showCount=true})=>{
+const ProjectProgress:React.FC<ArgsType> = ({project, showCount=true, showTaskStatus=true})=>{
     const {t} = useTranslation();
 
     if(!project || !project.mainTasks || project.mainTasks.length === 0) return null;
@@ -67,19 +68,20 @@ const ProjectProgress:React.FC<ArgsType> = ({project, showCount=true})=>{
             </div>
 
            
-
-      <div className="flex flex-col text-xs gap-2 py-2 bg-gray-100 p-2 rounded-lg my-2">
-        {Object.entries(countByStatus).map(([status, count]) => (
-          <div key={status} className="flex flex-row gap-2 justify-between items-center text-slate-500">
-            <div className="flex gap-2">
-              {/* <div className={`w-4 h-4 border-2 border-white shadow ${getColorClasses(status)}`}></div> */}
-              <div>{t(status)}</div>
+        {showTaskStatus && 
+        <div className="flex flex-col text-xs gap-2 py-2 bg-gray-100 p-2 rounded-lg my-2">
+          {Object.entries(countByStatus).map(([status, count]) => (
+            <div key={status} className="flex flex-row gap-2 justify-between items-center text-slate-500">
+              <div className="flex gap-2">
+                {/* <div className={`w-4 h-4 border-2 border-white shadow ${getColorClasses(status)}`}></div> */}
+                <div>{t(status)}</div>
+              </div>
+              <div>{count}</div>
             </div>
-            <div>{count}</div>
-          </div>
-        ))}
-        
-      </div>
+          ))}
+          
+        </div>
+        }
     </div>
   );
 }

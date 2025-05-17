@@ -13,7 +13,7 @@ import UserRolesSelect from '../../../../components/forms/UserRolesSelect';
 import FlashPopup from '../../../../components/common/FlashPopup';
 import FormsTitle from '../../../../components/common/FormsTitle';
 import UserGroupsSelect from '../../../../components/forms/UserGroupsSelect';
-import { PhotoUploader } from '../../../../components/common';
+import { Headings, PhotoUploader } from '../../../../components/common';
 
 interface ArgsType {
   id?:string | null;
@@ -26,14 +26,20 @@ interface ArgsType {
 const checkDataBy: string[] = ['username', 'email'];
 
 const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
-  const { name="", username = '', password = '', email = '', groups=[], roles = [], permissions = {}, isActive=false, image={}} = data || {};
+  const { name="", username = '', password = '', email = '', groups=[], roles = [], permissions = [], isActive=false, image={}} = data || {};
   const [alertData, setAlertData] = useState<AlertPopupType>({ isOpen: false, content: "", type: "info", title: "" });
   const [formData, setFormData] = useState<User>({ name, username, password, email, roles, permissions, isActive, groups });
   const [profileImage, setProfileImage] = useState<{icon:string, full:string}>(data && data.image ? data.image : {icon:'', full:''});
-  const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(permissions);
   const [flashPopupData, setFlashPopupData] = useState<FlashPopupType>({isOpen:false, message:"", duration:3000, type:'success'});
   const [selectedRoleName, setSelectedRoleName] = useState<string>('');
   const { t } = useTranslation();
+
+  const initialPermissions: PermissionsMap = permissions.reduce((map, perm) => {
+    map[perm.page] = perm;
+    return map;
+  }, {} as PermissionsMap);
+
+  const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(initialPermissions);
 
   useEffect(()=>{
     console.log(data);
@@ -48,7 +54,9 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
     }
 
   },[])
+
   const handlePermissionsChange = (newPermissions: PermissionsMap) => {
+    console.log(newPermissions);
     setSelectedPermissions(newPermissions);
   };
 
@@ -72,7 +80,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
       if(action === 'update'){
         delete data.password;
       }
-      const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...data, permissions: selectedPermissions}}); 
+      const response = await addUpdateRecords({type: "users", checkDataBy:checkDataBy, action, id, body:{ ...data, permissions: Object.values(selectedPermissions)}}); 
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
@@ -99,7 +107,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
 
   return (
     <div className='content flex justify-center'>
-      <div className="p-4 bg-white shadow-md rounded max-w-screen-sm flex-1">
+      <div className="p-4 card max-w-screen-sm flex-1">
         {profileImage && profileImage.icon &&
             <div className='mb-6'>
               <img 
@@ -109,8 +117,11 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
               />
             </div>
           }
-        <div className='flex flex-row justify-between align-center'>
-          <FormsTitle text= { action==='update' ? t('updateUser') : t('newUser')} classes='mb-3'/> 
+        <div className='flex flex-row justify-between align-center mb-6'>
+          {/* <FormsTitle text= { action==='update' ? t('updateUser') : t('newUser')} classes='mb-3'/> */}
+          <div>
+            <Headings text={action==='update' ? t('updateUser') : t('newUser')} type="h4" />
+          </div> 
           <ToggleSwitch onChange={handleStatus} label={'Status'} initialState={formData.isActive ? true : false}/> 
         </div>
         <div>
@@ -119,7 +130,7 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
             <PhotoUploader multiple={true} type='users' id={id} onUpload={(icon, full)=>setProfileImage({...profileImage, icon:icon[0], full:full[0]})}/>
           }
         </div>
-        <form onSubmit={(e) => submitForm(e)} className=''>
+        <form onSubmit={(e) => submitForm(e)} className='' autoComplete='off'>
           <div className='fields-wrap grid grid-cols-1 md:grid-cols- gap-2'>
           <CustomInput
                 name='name'
@@ -173,14 +184,14 @@ const UsersForm: React.FC<ArgsType> = ({ action = "add", data, id }) => {
               <UserGroupsSelect onChange={handleGroupsChange} selectedValues={formData.groups} type='multiple'/> 
             }
 
-          <div className="mt-6">
-            {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && selectedRoleName !== 'client' && 
+          {/* <div className="mt-6">
+            {selectedRoleName && selectedRoleName !== 'admin' && selectedRoleName !== 'manager' && selectedRoleName !== 'client' &&  
               <PagePermissionsSelect
                 initialPermissions={selectedPermissions}
                 onPermissionsChange={handlePermissionsChange}
               />
             }
-          </div>
+          </div> */}
 
           <div className="mt-6 text-right">
             <FormButton  btnText={action === 'update' ? t('update') : t('create')} />

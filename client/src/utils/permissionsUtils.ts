@@ -9,74 +9,57 @@
  */
 import { FaUser } from "react-icons/fa";
 import { IconType } from "react-icons";
-import { DecodedToken, PagePermission, User, UserGroup, UserRole } from "@/interfaces";
+import { DecodedToken, PagePermission, User, UserGroup, UserRole, IPages } from "@/interfaces";
 
-export interface IPages {
-  name: string;
-  root: string;
-  icon?: IconType;
-}
+
 
 
 interface IPagePermission {
     page: string;
-    permissions: string[];
+    canView:boolean;
+    canUpdate:boolean;
+    canCreate:boolean;
+    canDelete:boolean;
   }
 
-// Static nav items
-const fixedSideNavPages = [
-  "dashboard",
-  "projects",
-  "documentation"
-];
-
-
-// Role-based nav items
-const roleBasedSideNavPages = [
-  "users",
-  "roles",
-  "groups",
-  "positions",
-  "settings"
-];
 
 // Simplified page permission map by role
-const rolePermissions: Record<string, { page: string; permissions: string[] }[]> = {
+const rolePermissions = {
   manager: [
-    { page: "users", permissions: ["view"] },
-    { page: "roles", permissions: ["view"] },
-    { page: "groups", permissions: ["view"] },
-    { page: "positions", permissions: ["view"] },
-    { page: "projects", permissions: ["view"] },
-    { page: "kickoff", permissions: ["view", "create", "update"] },
-    { page: "maintasks", permissions: ["view", "create", "update", "delete"] },
-    { page: "tasks", permissions: ["view", "create", "update", "delete"] },
-    { page: "sprints", permissions: ["view", "create", "update", "delete"] },
-    { page: "documentation", permissions: ["view", "create", "update"] },
+    { page: "users", canView:true , canUpdate:false, canCreate:false, canDelete:false },
+    { page: "roles", canView:true, canUpdate:false, canCreate:false, canDelete:false },
+    { page: "groups", canView:true, canUpdate:false, canCreate:false, canDelete:false },
+    { page: "positions", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "projects", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "kickoff", canView:true, canCreate:true,canUpdate:true},
+    { page: "maintasks", canView:true, canCreate:true,canUpdate:true, canDelete:true  },
+    { page: "tasks", canView:true, canCreate:true,canUpdate:true, canDelete:true },
+    { page: "sprints", canView:true, canCreate:true,canUpdate:true, canDelete:true  },
+    { page: "documentation", canView:true, canCreate:true,canUpdate:true },
   ],
   employee: [
-    { page: "users", permissions: ["view"] },
-    { page: "roles", permissions: ["view"] },
-    { page: "groups", permissions: ["view"] },
-    { page: "positions", permissions: ["view"] },
-    { page: "projects", permissions: ["view"] },
-    { page: "kickoff", permissions: ["view", "create", "update"] },
-    { page: "maintasks", permissions: ["view", "update"] },
-    { page: "tasks", permissions: ["view", "create", "update", "delete"] },
-    { page: "sprints", permissions: ["view", "create", "update", "delete"] },
-    { page: "documentation", permissions: ["view", "create", "update"] },
+    { page: "users", canView:true , canUpdate:false, canCreate:false, canDelete:false },
+    { page: "roles", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "groups", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "positions", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "projects", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "kickoff", canView:true, canCreate:true,canUpdate:true, canDelete:false},
+    { page: "maintasks", canView:true, canCreate:true,canUpdate:false, canDelete:false },
+    { page: "tasks", canView:true, canCreate:true,canUpdate:true, canDelete:true },
+    { page: "sprints", canView:true, canCreate:true,canUpdate:true, canDelete:true},
+    { page: "documentation", canView:true, canCreate:true,canUpdate:true, canDelete:true },
   ],
   client: [
-    { page: "users", permissions: ["view"] },
-    { page: "roles", permissions: ["view"] },
-    { page: "groups", permissions: ["view"] },
-    { page: "positions", permissions: ["view"] },
-    { page: "projects", permissions: ["view"] },
-    { page: "kickoff", permissions: ["view"] },
-    { page: "maintasks", permissions: ["view"] },
-    { page: "tasks", permissions: [] },
-    { page: "sprints", permissions: ["view", "update"] },
-    { page: "documentation", permissions: [] },
+    { page: "users", canView:true, canUpdate:false, canCreate:false, canDelete:false },
+    { page: "roles", canView:true, canUpdate:false, canCreate:false, canDelete:false   },
+    { page: "groups",canView:true, canUpdate:false , canCreate:false, canDelete:false  },
+    { page: "positions", canView:true, canUpdate:false, canCreate:false, canDelete:false  },
+    { page: "projects", canView:true, canUpdate:false, canCreate:false, canDelete:false   },
+    { page: "kickoff", canView:true, canUpdate:false, canCreate:false, canDelete:false   },
+    { page: "maintasks", canView:true, canUpdate:false, canCreate:false, canDelete:false   },
+    { page: "tasks", canView:false, canUpdate:false, canCreate:false, canDelete:false   },
+    { page: "sprints", canView:true, canUpdate:true, canCreate:false, canDelete:false  },
+    { page: "documentation", canView:false, canUpdate:false, canCreate:false, canDelete:false  },
   ],
 };
 
@@ -93,162 +76,128 @@ const pagesDetails: Record<string, IPages> = {
   messenger: { name: "messenger", root: "messenger", icon: FaUser },
 };
 
-// Get pages always shown in sidebar
-export const getFixedPages = (): IPages[] => {
-  return fixedSideNavPages
-    .map(page => pagesDetails[page])
-    .filter(Boolean);
-};
-
-// Get pages shown based on role permission & nav inclusion
-export const getRoleBasedPages = (role: string): IPages[] => {
-  const allowedPages = rolePermissions[role]
-    ?.filter(perm => perm.permissions.includes("view") && roleBasedSideNavPages.includes(perm.page))
-    .map(perm => pagesDetails[perm.page])
-    .filter(Boolean) || [];
-
-  return allowedPages;
-};
+const pagesArray=[
+  'dashboard','users', 'roles', 'groups', 'positions', 'settings','projects', 'messenger'
+];
 
 
-// Combine both for a full sidebar
-export const getSidebarPages = (role: string): IPages[] => {
-  const fixed = getFixedPages();
-  const roleBased = getRoleBasedPages(role);
-  const combined = [...fixed, ...roleBased];
-
-  // Optional: sort or remove duplicates
-  const unique = Array.from(new Map(combined.map(p => [p.name, p])).values());
-
-  return unique;
+const navigationPages: Record<string, IPages> = {
+  users: { name: "users", root: "users", icon: FaUser },
+  roles: { name: "roles", root: "roles", icon: FaUser },
+  groups: { name: "groups", root: "groups", icon: FaUser },
+  positions: { name: "positions", root: "positions", icon: FaUser },
+  settings: { name: "settings", root: "settings", icon: FaUser },
+  projects: { name: "projects", root: "projects", icon: FaUser },
+  messenger: { name: "messenger", root: "messenger", icon: FaUser },
 };
 
 
+// create pages config
+export const getNavigation = (permissions: any[]): IPages[] => {
+  const pagePermissions: Record<string, any> = {};
 
-// import { FaUser } from "react-icons/fa";
-// import { IconType } from "react-icons";
+  // Normalize permissions (flatten and merge)
+  permissions.forEach((item) => {
+    if (item.page && typeof item.page === "string") {
+      pagePermissions[item.page] = item;
+    } else if (item[1]?.page) {
+      pagePermissions[item[1].page] = item[1];
+    }
+  });
 
-// export interface IPages {
-//   name: string;
-//   root: string;
-//   icon?: IconType;
-// }
+  // Filter and map to valid navigation pages
+  return Object.entries(navigationPages)
+    .filter(([key]) => {
+      const perm = pagePermissions[key];
+      return perm && (perm.canCreate || perm.canUpdate);
+    })
+    .map(([_, page]) => page);
+};
 
-// interface PagePermission {
-//   page: string;
-//   permissions: string[];
-// }
 
-// interface UserGroup {
-//   name: string;
-//   permissions: PagePermission[];
-// }
+// get effective permissions
+export const getEffectivePermissions =  (
+  permissions: PagePermission[],
+  page: string,
+  type: '' | 'canCreate' | 'canUpdate' | 'canDelete' | 'canView' = ''
+) => {
+  const perm = permissions.find(p => p.page === page);
 
-// interface User {
-//   role: string;
-//   groups?: UserGroup[];
-// }
+  if (!perm) {
+    // No permissions found for this page
+    return type ? false : {
+      canCreate: false,
+      canUpdate: false,
+      canDelete: false,
+      canView: false
+    };
+  }
 
-// // Static sidebar
-// const fixedSideNavPages = ["dashboard", "projects", "documentation"];
-// const roleBasedSideNavPages = ["users", "roles", "groups", "positions", "settings"];
+  if (type) {
+    return !!perm[type];
+  }
 
-// // Define default permissions by role
-// const rolePermissions: Record<string, PagePermission[]> = {
-//   manager: [
-//     { page: "users", permissions: ["view"] },
-//     { page: "roles", permissions: ["view"] },
-//     { page: "groups", permissions: ["view"] },
-//     { page: "positions", permissions: ["view"] },
-//     { page: "projects", permissions: ["view"] },
-//     { page: "kickoff", permissions: ["view", "create", "update"] },
-//     { page: "maintasks", permissions: ["view", "create", "update", "delete"] },
-//     { page: "tasks", permissions: ["view", "create", "update", "delete"] },
-//     { page: "sprints", permissions: ["view", "create", "update", "delete"] },
-//     { page: "documentation", permissions: ["view", "create", "update"] }
-//   ],
-//   employee: [
-//     { page: "users", permissions: ["view"] },
-//     { page: "roles", permissions: ["view"] },
-//     { page: "groups", permissions: ["view"] },
-//     { page: "positions", permissions: ["view"] },
-//     { page: "projects", permissions: ["view"] },
-//     { page: "kickoff", permissions: ["view", "create", "update"] },
-//     { page: "maintasks", permissions: ["view", "update"] },
-//     { page: "tasks", permissions: ["view", "create", "update", "delete"] },
-//     { page: "sprints", permissions: ["view", "create", "update", "delete"] },
-//     { page: "documentation", permissions: ["view", "create", "update"] }
-//   ],
-//   client: [
-//     { page: "users", permissions: ["view"] },
-//     { page: "roles", permissions: ["view"] },
-//     { page: "groups", permissions: ["view"] },
-//     { page: "positions", permissions: ["view"] },
-//     { page: "projects", permissions: ["view"] },
-//     { page: "kickoff", permissions: ["view"] },
-//     { page: "maintasks", permissions: ["view"] },
-//     { page: "tasks", permissions: [] },
-//     { page: "sprints", permissions: ["view", "update"] },
-//     { page: "documentation", permissions: [] }
-//   ]
-// };
+  return {
+    canCreate: !!perm.canCreate,
+    canUpdate: !!perm.canUpdate,
+    canDelete: !!perm.canDelete,
+    canView: !!perm.canView
+  };
+};
+// can create
+export const UserCanCreate = (
+  permissions: PagePermission[],
+  page: string,
+) => {
+  const perm = permissions.find(p => p.page === page);
 
-// // Pages metadata
-// const pagesDetails: Record<string, IPages> = {
-//   users: { name: "users", root: "users", icon: FaUser },
-//   roles: { name: "roles", root: "roles", icon: FaUser },
-//   groups: { name: "groups", root: "groups", icon: FaUser },
-//   positions: { name: "positions", root: "positions", icon: FaUser },
-//   settings: { name: "settings", root: "settings", icon: FaUser },
-//   dashboard: { name: "dashboard", root: "dashboard", icon: FaUser },
-//   projects: { name: "projects", root: "projects", icon: FaUser },
-//   documentation: { name: "documentation", root: "documentation", icon: FaUser },
-//   messenger: { name: "messenger", root: "messenger", icon: FaUser }
-// };
+  if (!perm) {
+    // No permissions found for this page
+    return false
+  }
 
-// // Utility to merge role and group permissions
-// const getCombinedPermissions = (user: User): PagePermission[] => {
-//   const rolePerms = rolePermissions[user.role] || [];
-//   const groupPerms = user.groups?.flatMap(group => group.permissions) || [];
+  return !!perm['canCreate'];
 
-//   const map = new Map<string, Set<string>>();
+};
+export const UserCanUpdate =  (
+  permissions: PagePermission[],
+  page: string,
+) => {
+  const perm = permissions.find(p => p.page === page);
 
-//   for (const { page, permissions } of [...rolePerms, ...groupPerms]) {
-//     if (!map.has(page)) map.set(page, new Set());
-//     permissions.forEach(p => map.get(page)?.add(p));
-//   }
+  if (!perm) {
+    // No permissions found for this page
+    return false
+  }
 
-//   return Array.from(map.entries()).map(([page, perms]) => ({
-//     page,
-//     permissions: Array.from(perms)
-//   }));
-// };
+  return !!perm['canUpdate'];
 
-// // Function: Get visible sidebar pages based on all permissions
-// export const getUserSidebarPages = (user: User): IPages[] => {
-//   const combinedPerms = getCombinedPermissions(user);
+};
+export const UserCanDelete =  (
+  permissions: PagePermission[],
+  page: string,
+) => {
+  const perm = permissions.find(p => p.page === page);
 
-//   const navPages = combinedPerms
-//     .filter(p =>
-//       p.permissions.includes("view") && roleBasedSideNavPages.includes(p.page)
-//     )
-//     .map(p => pagesDetails[p.page])
-//     .filter(Boolean);
+  if (!perm) {
+    // No permissions found for this page
+    return false
+  }
 
-//   const fixed = fixedSideNavPages.map(p => pagesDetails[p]).filter(Boolean);
+  return !!perm['canUpdate'];
 
-//   const all = [...fixed, ...navPages];
-//   return Array.from(new Map(all.map(p => [p.name, p])).values());
-// };
+};
+export const UserCanView =  (
+  permissions: PagePermission[],
+  page: string,
+) => {
+  const perm = permissions.find(p => p.page === page);
 
-// // Function: Check if user has permission for a page + action
-// export const hasPermission = (
-//   user: User,
-//   page: string,
-//   action: "view" | "create" | "update" | "delete"
-// ): boolean => {
-//   const combinedPerms = getCombinedPermissions(user);
-//   const pagePerm = combinedPerms.find(p => p.page === page);
-//   return pagePerm?.permissions.includes(action) || false;
-// };
+  if (!perm) {
+    // No permissions found for this page
+    return false
+  }
 
+  return !!perm['canView'];
+
+};

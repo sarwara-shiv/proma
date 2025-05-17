@@ -125,6 +125,7 @@ router.post("/login", async (req, res) => {
         }
 
         let rolePermissions = [];
+        let groupPermissions = [];
         let userPermissions = user.permissions ? Array.from(user.permissions) : [];
 
         user.roles.forEach(role => {
@@ -132,8 +133,20 @@ router.post("/login", async (req, res) => {
               rolePermissions = [...rolePermissions, ...role.permissions];
             }
         });
+        user.groups.forEach(group => {
+            if (group.permissions) {
+                rolePermissions = [...rolePermissions, ...group.permissions];
+            }
+        });
 
         const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
+        // const permissions = mergePermissions(combinedPermissions, groupPermissions);
+        const permissions = combinedPermissions;
+
+        console.log('----------------- userPermissions')
+        console.log(userPermissions)
+        console.log('----------------- rolePermissions')
+        console.log(rolePermissions)
 
         // Generate a JWT token
         const token = jwt.sign(
@@ -173,7 +186,7 @@ router.post("/login", async (req, res) => {
             status: "success",
             message: "Login successful",
             code: "loggedin",
-            data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+            data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions },
         });
 
     } catch (error) {
@@ -264,6 +277,7 @@ router.get('/check-users', verifyToken, (req, res) => {
     console.log('---------- USER DATA ----');
     let user = req.user;
     let rolePermissions = [];
+    let groupPermissions = [];
     let userPermissions = user.permissions ? Array.from(user.permissions) : [];
 
     user.roles.forEach(role => {
@@ -271,14 +285,23 @@ router.get('/check-users', verifyToken, (req, res) => {
             rolePermissions = [...rolePermissions, ...role.permissions];
         }
     });
+    user.groups.forEach(group => {
+        if (group.permissions) {
+            rolePermissions = [...rolePermissions, ...group.permissions];
+        }
+    });
 
     const combinedPermissions = mergePermissions(rolePermissions, userPermissions);
+    // const permissions = mergePermissions(groupPermissions, combinedPermissions);
+    console.log('---------------');
+    console.log(combinedPermissions, groupPermissions);
+
     const result =  {
         status: "success",
         message: "Login successful",
         code: "loggedin",
         token:req.cookies?.token,
-        data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions:combinedPermissions },
+        data : { _id: user._id, email: user.email, username: user.username, role: user.roles[0].name, groups:user.groups, roles:user.roles, permissions },
     };
     res.status(200).json(result); // Send back user data
 });
@@ -442,7 +465,8 @@ router.get('/search-users', async(req,res)=>{
 
 
 // merge permissions
-const mergePermissions = (rolePermissions, userPermissions) => {
+// keep false
+const mergePermissionsFalse = (rolePermissions, userPermissions) => {
     const mergedPermissions = new Map();
   
     // Add role-based permissions first
@@ -475,6 +499,44 @@ const mergePermissions = (rolePermissions, userPermissions) => {
       ...permissions,
     }));
   };
+
+  // keep true
+  const mergePermissions = (rolePermissions, userPermissions) => {
+    const mergedPermissions = new Map();
+  
+    // Add role-based permissions first
+    rolePermissions.forEach(permission => {
+      mergedPermissions.set(permission.page, {
+        canCreate: permission.canCreate || false,
+        canUpdate: permission.canUpdate || false,
+        canDelete: permission.canDelete || false,
+        canView: permission.canView || false,
+      });
+    });
+  
+    // Add user-specific permissions and merge (true overrides false)
+    userPermissions.forEach((permission, page) => {
+      const existing = mergedPermissions.get(page) || {
+        canCreate: false,
+        canUpdate: false,
+        canDelete: false,
+        canView: false,
+      };
+  
+      mergedPermissions.set(page, {
+        canCreate: permission.canCreate || existing.canCreate,
+        canUpdate: permission.canUpdate || existing.canUpdate,
+        canDelete: permission.canDelete || existing.canDelete,
+        canView: permission.canView || existing.canView,
+      });
+    });
+  
+    return Array.from(mergedPermissions, ([page, permissions]) => ({
+      page,
+      ...permissions,
+    }));
+  };
+  
 
 
 export { router as userRouter };

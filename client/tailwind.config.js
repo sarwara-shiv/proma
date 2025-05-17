@@ -66,6 +66,7 @@ module.exports = {
         "notActive-dark": "#dc2626", 
         "default": '#dfdfdf',
         "default-dark": '#696969',
+        
         "color1": "#3aafa9",           // Primary (Teal)
         "color1-dark": "#2b7a78",
 
@@ -112,7 +113,7 @@ module.exports = {
         "color15-dark": "#ad1457"
       },
       boxShadow:{
-        card:'0px 2px 12px -2px rgba(0,0,0,0.1)',
+        card:'0px 0px 18px 1px rgba(0,0,0,0.1)',
         ligh:'0px 2px 8px -2px rgba(0,0,0,0.1)',
       },
       keyframes:{

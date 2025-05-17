@@ -7,7 +7,8 @@ const customStyles = (plugin: PluginAPI) => {
       padding: '0.75rem',
       borderRadius: '0.375rem',
       marginBottom:"1rem",
-      boxShadow:'0px 0px 41px 5px rgba(0, 0, 0, 0.1)',
+      backgroundColor:"#ffffff",
+      boxShadow:'0px 0px 11px 0px rgba(0, 0, 0, 0.1)',
       '.title':{
         fontSize:'1.5rem',
         lineHeight:'2rem',
@@ -16,7 +17,7 @@ const customStyles = (plugin: PluginAPI) => {
       }
     },
     'box-shadow':{
-      boxShadow:'0px 0px 41px 5px rgba(0, 0, 0, 0.1)',
+      boxShadow:'0px 0px 11px 0px rgba(0, 0, 0, 0.1)',
     },
     'text-2xs':{
       fontSize:'11px'

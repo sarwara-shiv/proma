@@ -1,5 +1,5 @@
 import { MessageType } from "../features/chat/chatTypes";
-import { PermissionsMap } from "./types";
+import { PermissionsMap, PagePermission } from "./types";
 import { UserRole } from './userRoles';
 
 // User Interface
@@ -13,7 +13,7 @@ export interface User {
   firma?:string;
   groups?: string[]; 
   roles?: string[]; 
-  permissions?: PermissionsMap; 
+  permissions?: PagePermission[];  
   createdAt?: Date;
   updatedAt?: Date;
   isOnline?:boolean;
@@ -32,7 +32,7 @@ export interface UserWithRoles {
   password?: string;
   groups?: UserRole[]; 
   roles?: UserRole[]; 
-  permissions?: PermissionsMap; 
+  permissions?: PagePermission[]; 
   createdAt?: Date;
   updatedAt?: Date;
   isActive?:Boolean;

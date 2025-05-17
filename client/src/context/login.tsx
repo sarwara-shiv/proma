@@ -23,6 +23,7 @@ export const login = async (email: string, password: string) => {
             { email, password },
             { withCredentials: true }  // Ensure cookies are sent with request
         );
+        console.log(response.data);
         return response.data; // Return user data after login
     } catch (error: any) {
         // Log error with more context

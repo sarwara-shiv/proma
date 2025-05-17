@@ -17,16 +17,13 @@ const UserSchema = new Schema({
   isOnline:{type:Boolean, default:false},
   teams:[{type:Schema.Types.ObjectId, ref:"Team"}],
   onlineTimestamp:{startTime:{type:Date},endTime:{type:Date} },
-  permissions: {
-    type: Map,
-    of: {
-      page: { type: String },
-      canCreate: { type: Boolean, default: false },
-      canUpdate: { type: Boolean, default: false },
-      canDelete: { type: Boolean, default: false },
-      canView: { type: Boolean, default: false },
-    },
-  },
+  permissions: [{
+    page: { type: String },
+    canCreate: { type: Boolean, default: false },
+    canUpdate: { type: Boolean, default: false },
+    canDelete: { type: Boolean, default: false },
+    canView: { type: Boolean, default: false },
+  }],
   isActive:{type:Boolean, default:true},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyToken } from '../../middleware/auth.js';
 import { UserRolesModel } from '../../models/userRolesModel.js';
+import UserModel from '../../models/userModel.js';
 
 
 const router = express.Router();
@@ -59,10 +60,36 @@ const router = express.Router();
 // GET
 router.post("/get", verifyToken, async (req, res) => {
     console.log(req.user); 
-
+    const { getUsers=false } = req.body; 
+ 
     try {
         const data = await UserRolesModel.find().sort({type:1});
-        return res.json({ status: "success", data, code:"success"});
+        const roleIds = data.map(role => role._id);
+        // const users = await UserModel.find({ roles: { $in: roleIds } });
+        const rolesWithUserCounts = await Promise.all(
+            data.map(async (role) => {
+              const userCount = await UserModel.countDocuments({ roles: role._id });
+              return {
+                ...role.toObject(),
+                users: userCount,
+              };
+            })
+          );
+        
+        let rolesWithUsers = [];
+        if(getUsers){
+            rolesWithUsers = await Promise.all(
+            data.map(async (role) => {
+                const users = await UserModel.find({ roles: role._id });
+                return {
+                ...role,
+                users: users,
+                };
+            })
+            );
+        }
+
+        return res.json({ status: "success", data, rolesWithUserCounts, rolesWithUsers, code:"success"});
     } catch (error) {
         console.error("Error fetching roles:", error);  // Log error for debugging
         return res.status(500).json({ status: "error", message: "could not fetch roles", error, code:"unknown_error"});

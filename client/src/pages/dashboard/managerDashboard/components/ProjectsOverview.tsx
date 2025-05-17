@@ -157,12 +157,12 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
     return (
         <div className="w-full mb-6">
             {projects && projects.length > 0 ? 
-                <div className="flex gap-6 flex-wrap">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  gap-4">
                     {projects.map((project, pidx)=>{
                         const duedays = project.dueDate ? getDatesDifferenceInDays(project.dueDate) : null;
                         return (
                             <div key={`${pidx}-${project._id}`} className="flex-1 card min-w-2xs max-w-sm box-shadow rounded-lg p-4 flex flex-col">
-                                <div className="flex justify-between gap-2 text-sm items-center  pb-1 flex-wrap mb-2">
+                                <div className="flex justify-between gap-2 text-sm items-center  pb-1 flex-wrap mb-2 flex-wrap">
                                     <div className="group flex items-center cursor-pointer pr-4" onClick={()=>navigateTo(project._id || '')}>
                                         <div className="absolute opacity-0 transition-all text-primary translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"><MdArrowBack /></div>
                                         <span className={`font-bold transition-all hover:translate-x-3.5 ${duedays && duedays.days < 0 ? 'text-red-400' : 'text-green-500'}`}>
@@ -175,7 +175,7 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                                         }
                                     </div>
                                 </div>
-                                <div className="flex justify-end gap-4">
+                                <div className="flex justify-end gap-4 flex-wrap">
                                     <div className="flex items-center flex-cols bg-white  rounded-xl overflow-clip border">
                                         <span className="text-xs text-slate-400 px-1">{t('status')}</span>
                                         <span className={`p-1 tracking-wider font-semibold text-xs ${getColorClasses(project.status)}`}>{t(project.status)}</span> 
@@ -215,7 +215,7 @@ const ProjectsOverview:React.FC<ArgsType> = ({user})=>{
                                 {project.mainTasks && 
                                     <div className="">
                                         {/* {getProgress(project.mainTasks as unknown as MainTask[])} */}
-                                        <ProjectProgress project={project}/>
+                                        <ProjectProgress project={project} showTaskStatus={false}/>
                                     </div>
                                 }
 

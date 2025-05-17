@@ -118,7 +118,7 @@ const PagesConfig: Record<string, PageConfig> = {
     displayName: 'Documentation',
     root:"documentation",
     access:['all'],
-    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'], 
     sortOrder:7
   },
   MAIN_TASKS: {
@@ -139,6 +139,80 @@ const PagesConfig: Record<string, PageConfig> = {
   }
   // Add more pages here as needed
 };
+export const NeedPermission: Record<string, PageConfig> = {
+  USERS: {
+    name: 'users',
+    root:"users",
+    displayName: 'Users',
+    icon:FaUsers,
+    access:['admin', 'manager'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:2
+  },
+  USER_ROLES: {
+    name: 'roles',
+    root:"roles",
+    icon:FaUserTie,
+    displayName: 'User Roles',
+    access:['admin', 'manager'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:1
+  },
+  PROJECTS: {
+    name: 'projects',
+    displayName: 'Projects',
+    root:"projects",
+    icon:MdOutlineInstallDesktop,
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:4
+  },
+  USER_GROUPS: {
+    name: 'groups',
+    displayName: 'User Groups',
+    root:"groups",
+    icon:MdOutlineInstallDesktop,
+    access:['admin', 'manager'], 
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:2
+  },
+  USER_POSITIONS: {
+    name: 'positions',
+    displayName: 'User positions',
+    root:"positions",
+    icon:MdOutlineInstallDesktop,
+    access:['admin', 'manager'], 
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:2
+  },
+  DOCUMENTATION: {
+    name: 'documentation',
+    displayName: 'Documentation',
+    root:"documentation",
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'], 
+    sortOrder:7
+  },
+  MAIN_TASKS: {
+    name: 'maintasks',
+    displayName: 'Main Tasks',
+    root:"maintasks",
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:5
+  },
+  KICKOFF: {
+    name: 'kickoff',
+    displayName: 'Kickoff',
+    root:"kickoff",
+    access:['all'],
+    actions: ['canView', 'canCreate', 'canUpdate', 'canDelete'],
+    sortOrder:5
+  }
+  // Add more pages here as needed
+};
+
+
 
 
 export const UserPagesConfig: Record<string, PageConfig> = {

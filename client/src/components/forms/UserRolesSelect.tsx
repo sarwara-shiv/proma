@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getRecords } from '../../hooks/dbHooks';
 import { UserRole } from '../../interfaces';
 import React, { useEffect, useState } from 'react'
+import { Headings } from '../common';
 
 interface ArgsType{
     type?: 'single';
@@ -55,9 +56,11 @@ const UserRolesSelect:React.FC<ArgsType> = ({type="single", selectedRoles=[], on
         }
     }
   return (
-    <div className='flex flex-col'>
-        <label>{t('roles')}</label>
-        <div className={`fields-roles-${type}-wrapper ${(type === 'single' || type === 'multiple') && 'items-center space-x-2'}`}>
+    <div className='flex flex-col mt-4 border p-2 rounded-md'>
+        <div className='mb-2'>
+            <Headings text={t('roles')} type="h6" />
+        </div>
+        <div className={`fields-roles-${type}-wrapper ${(type === 'single' || type === 'multiple') && 'flex gap-2'}`}>
             {rolesData && <>
                 {type === 'single' && 
                     <>

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import CustomInput from '../../../../components/forms/CustomInput';
 import { useTranslation } from 'react-i18next';
 import FormButton from '../../../../components/common/FormButton';
-import { UserRole } from '../../../../interfaces';
+import { PermissionsMap, UserRole } from '../../../../interfaces';
 import CustomAlert from '../../../../components/common/CustomAlert';
 import {addUpdateRecords } from '../../../../hooks/dbHooks';
 import FormsTitle from '../../../../components/common/FormsTitle';
+import { PagePermissionsSelect } from '../../../../components/forms';
 
 interface ArgsType {
   action?:"add" | "update";
@@ -17,7 +18,7 @@ interface ArgsType {
 const checkDataBy: string[] = ['name', 'displayName'];
 
 const GroupsForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
-  const { name = '', displayName = '', description = ''} = data || {};
+  const { name = '', displayName = '', description = '', permissions=[]} = data || {};
   const [alertData, setAlertData] = useState({isOpen:false, title:"", content:'', data:{}, type:"success"});
 
   // Initialize formData state with props
@@ -31,6 +32,18 @@ const GroupsForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const initialPermissions: PermissionsMap = permissions.reduce((map, perm) => {
+    map[perm.page] = perm;
+    return map;
+  }, {} as PermissionsMap);
+
+  const [selectedPermissions, setSelectedPermissions] = useState<PermissionsMap>(initialPermissions);
+
+  const handlePermissionsChange = (newPermissions: PermissionsMap) => {
+    console.log(newPermissions);
+    setSelectedPermissions(newPermissions);
+  };
+
   // Form submission handler
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,7 +53,7 @@ const GroupsForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
       if(action === 'add'){
       }
       // const response = await addRecords({type: "roles", body:{ ...formData, permissions: Object.values(selectedPermissions) }}); 
-      const response = await addUpdateRecords({type: "groups", checkDataBy:checkDataBy, action, id, body:{ ...formData}}); 
+      const response = await addUpdateRecords({type: "groups", checkDataBy:checkDataBy, action, id, body:{ ...formData,permissions: Object.values(selectedPermissions)}}); 
         if (response.status === "success") {
             // const content = action === 'update' ? `${t('dataUpdated')}` : `${t('dataAdded')}`;
             const content = `${t(`RESPONSE.${response.code}`)}`;
@@ -98,7 +111,13 @@ const GroupsForm: React.FC<ArgsType> = ({ data, action = 'add', id=null }) => {
               label={t('FORMS.description')}
               onChange={handleInputs}
             />
-          </div>
+          </div> 
+          <div className="mb-4">
+            <PagePermissionsSelect
+                initialPermissions={selectedPermissions}
+                onPermissionsChange={handlePermissionsChange}
+              />
+          </div> 
           <div className="mt-6 text-right">
             <FormButton btnText={action === 'update' ? t('update') : t('create')} />
           </div>

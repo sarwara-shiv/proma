@@ -7,19 +7,31 @@ import { useTranslation } from "react-i18next";
 import {useAuthContext } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import { ReactComponent as LogoIcon } from '../../assets/images/svg/logo-icon.svg';
-import {MdLogout } from "react-icons/md";
-import { IoChatbubbles } from "react-icons/io5";
+import {MdDashboard, MdLogout, MdSettings } from "react-icons/md";
+import { IoChatbubbles, IoSettingsOutline } from "react-icons/io5";
 import { FiMinus, FiPlus } from "react-icons/fi";
+import { getEffectivePermissions, getNavigation, UserCanCreate } from "../../utils/permissionsUtils";
+import { IPages } from "@/interfaces";
+import { FaPlus } from "react-icons/fa";
 
 const SidebarLayout: React.FC = () => {
     const {isSidebarOpen, setIsSidebarOpen} = useAppContext();
-    const {permissions, isAdmin, slug} = useAuthContext();
+    const {permissions, isAdmin, isClient, slug} = useAuthContext();
     const [navPages, setNavPages] = useState<Record<string, PageConfig>>({});
+    const [navPages2, setNavPages2] = useState<IPages[]> ([]);
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const [newTasks, setNewTasks] = useState<number>(0); 
+    const [showOld, setShowOld] = useState<boolean>(false); 
     const {t} = useTranslation();
     const socket = useSocket();
+    console.log(permissions);
+    console.log(getNavigation(permissions));
 
+    useEffect(()=>{
+        if(permissions){
+            setNavPages2(getNavigation(permissions));
+        }
+    }, [])
     useEffect(()=>{
         if(isAdmin){
             setNavPages(PagesConfig);
@@ -103,16 +115,65 @@ const SidebarLayout: React.FC = () => {
   return (
     <>
     <aside className={`w-[200px] static left-0 top-2 px-2 pt-4 pb-8 bottom-0 flex flex-col transition-all ease duration-100 mb-10 
-    rounded-e-3xl 
+    rounded-e-3xl- 
     justify-between
-    bg-primary-light 
+    bg-primary-light- 
+    border-r-
     ${isSidebarOpen ? 'ml-[0px]' : 'ml-[-200px]'}
         `}>
         <div className="flex flex-col max-h-full relative h-full">
             {/* Make the list scrollable */}
             <div className="my-2 text-sm my-1 py-1 rounded-md flex-1 overflow-y-auto flex">
             <ul className="space-y-1 w-full ">
-                {sortedPages.map((page, index) => {
+                <li key={'dashboard-2'}>
+                    <div className="flex items-center justify-between p-1">
+                    <NavLink
+                            to={`/dashboard`}
+                            className={({ isActive }) => {
+                            return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                            }}
+                        >
+                            {({ isActive }) => (
+                            <>
+                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
+                                <MdDashboard />
+                                </span>
+
+                                <div className="flex justify-between items-center flex-1">
+                                {t(`NAV.dashboard`)}
+                                
+                                </div>
+                            </>
+                            )}
+                        </NavLink>
+                    </div>
+                </li>
+                {isAdmin && 
+                <li key={'settings-2'}>
+                    <div className="flex items-center justify-between p-1">
+                    <NavLink
+                            to={`/settings`}
+                            className={({ isActive }) => {
+                            return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                            }}
+                        >
+                            {({ isActive }) => (
+                            <>
+                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
+                                <MdSettings />
+                                </span>
+
+                                <div className="flex justify-between items-center flex-1">
+                                {t(`NAV.settings`)}
+                                
+                                </div>
+                            </>
+                            )}
+                        </NavLink>
+                    </div>
+                </li>
+                }
+                {showOld && sortedPages.map((page, index) => {
                 if (hasAccess(page)) {
                     return (
                     <li key={index} className="relative">
@@ -126,7 +187,7 @@ const SidebarLayout: React.FC = () => {
                         >
                             {({ isActive }) => (
                             <>
-                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white' : 'bg-primary-light'} p-1`}>
+                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
                                 {page.icon ? <page.icon /> : <LogoIcon className="text-gray-400" />}
                                 </span>
 
@@ -175,7 +236,7 @@ const SidebarLayout: React.FC = () => {
                                             >
                                                 {({ isActive }) => (
                                                 <>
-                                                    <span className={`icon w-[20px] h-[20px] rounded-full ${isActive ? 'text-primary' : 'bg-primary-light'} p-1`}>
+                                                    <span className={`icon w-[20px] h-[20px] rounded-full ${isActive ? 'text-primary' : 'bg-primary-light-'} p-1`}>
                                                     {data.icon ? <data.icon /> : <LogoIcon className="text-gray-400" />}
                                                     </span>
 
@@ -196,6 +257,113 @@ const SidebarLayout: React.FC = () => {
                 }
                 return null;
                 })}
+                <hr></hr>
+                
+                {/* PAGES NAVIGATION SECOND */}
+                {navPages2 && navPages2.length > 0 && navPages2.map((page, idx)=>{return (
+                    <li key={idx}>
+                        <div className="flex items-center justify-between p-1">
+                            <NavLink
+                                to={`/${page.root}`}
+                                className={({ isActive }) => {
+                                return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                                }}
+                                // onClick={() => handleNewTasks(page)}
+                                >
+                                {({ isActive }) => (
+                                <>
+                                    <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
+                                    {page.icon ? <page.icon /> : <LogoIcon className="text-gray-400" />}
+                                    </span>
+
+                                    <div className="flex justify-between items-center flex-1">
+                                    {t(`NAV.${page.name}`)}
+                                    {newTasks > 0 && page.name === 'mytasks' && 
+                                        <span className="right-0 p-[2px] bg-primary rounded-md h-3 flex justify-center items-center text-[10px] aspect-[1/1] text-white font-bold">
+                                        {newTasks}
+                                        </span>
+                                    }
+                                    </div>
+                                </>
+                                )}
+                            </NavLink>
+                            {UserCanCreate(permissions, page.name) && (
+                                    <button
+                                        className={`ml-2 group flex text-sm items-center justify-center  hover:bg-white hover:text-primary rounded-full p-0.5
+                                            ${openSubMenu === page.name ? 'text-primary' : 'text-gray-700'}
+                                            `}
+                                        onClick={() => handleToggleSubMenu(page.name)}
+                                        >
+                                        <span
+                                            className={`${
+                                                openSubMenu === page.name ? 'rotate-45' : 'rotate-0'
+                                            } transform transition-all duration-300 inline-block `}
+                                            >
+                                            <FiPlus />
+                                        </span>
+                                    </button>
+                               
+                            )}
+                        </div>
+                        {UserCanCreate(permissions, page.name) && (
+                            <div className={`ml-4 border-l pl-4  border-slate-400 overflow-hidden transition-all ${openSubMenu === page.name ? 'h-auto' : 'h-0'}`}>
+                                <div className="flex-1 left-100">
+                                    <div key={`${idx}-add`}>
+                                        <NavLink
+                                            to={`/${page.root}/add`}
+                                            className={({ isActive }) => {
+                                            return `flex-1 rounded-sm p-1 text-xs flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold " : "text-gray-400 font-light hover:text-gray-800 hover:font-bold "}`;
+                                            }}
+                                        >
+                                            {({ isActive }) => (
+                                            <>
+                                                {/* <span className={`icon w-[20px] h-[20px] rounded-full ${isActive ? 'text-primary' : 'bg-primary-light-'} p-1`}>
+                                                    <FaPlus />
+                                                </span> */}
+
+                                                <div className="flex justify-between items-center flex-1">
+                                                    {t(`${'add'}`)}
+                                                </div>
+                                            </>
+                                            )}
+                                        </NavLink>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </li>
+
+                )})
+                    
+                }
+
+
+                {/* PAGES NAVIGATION SECOND ENDS */}
+                {!isClient && (
+                    <li key="mytasks">
+                        <div className="flex items-center justify-between p-1">
+                            <NavLink
+                                to={`/mytasks`}
+                                className={({ isActive }) => {
+                                return `flex-1 rounded-sm p-1 text-sm flex transition-all ease items-center justify-start ${isActive ? "text-gray-900 font-bold" : "text-gray-400 font-light hover:text-gray-800 hover:font-bold"}`;
+                                }}
+                                >
+                                {({ isActive }) => (
+                                <>
+                                    <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
+                                    <IoChatbubbles />
+                                    </span>
+
+                                    <div className="flex justify-between items-center flex-1">
+                                    {t(`NAV.mytasks`)}
+                                    
+                                    </div>
+                                </>
+                                )}
+                            </NavLink>
+                        </div>
+                    </li>
+                )}
                 <li key={'msgn'}>
                     <div className="flex items-center justify-between p-1">
                     <NavLink
@@ -206,7 +374,7 @@ const SidebarLayout: React.FC = () => {
                         >
                             {({ isActive }) => (
                             <>
-                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white' : 'bg-primary-light'} p-1`}>
+                                <span className={`icon me-2 w-[20px] h-[20px] rounded-full ${isActive ? 'bg-white-' : 'bg-primary-light-'} p-1`}>
                                 <IoChatbubbles />
                                 </span>
 

@@ -38,8 +38,8 @@ const ToggleSwitch: React.FC<ArgsType> = (args) => {
   };
 
   return (
-    <div className='btn-wrap'>
-      {label && <h5>{label}</h5>}
+    <div className='btn-wrap flex justify-center gap-1'>
+      {label && <div className={`text-sm ${isChecked ? `text-${yesColor}-700` : 'text-slate-400 '}`}>{label}</div>}
       {type === 'yesno' || (yesText && noText) ? 
       <div className={``}>
         <input type='checkbox' id={id || 'toggle'}

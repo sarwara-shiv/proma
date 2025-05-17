@@ -25,6 +25,20 @@ const routes: RouteConfig[] = [
     access:['admin'] 
   },
   {
+    path: '/settings',
+    element: "Settings", 
+    page: "settings",
+    params: ['action', 'id'], 
+    access:['admin'] 
+  },
+  {
+    path: '/positions',
+    element: "Positions", 
+    page: "positions",
+    params: ['action', 'id'], 
+    access:['admin'] 
+  },
+  {
     path: '/groups',
     element: "UserGroups", 
     page: "groups",
